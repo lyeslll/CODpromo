@@ -2,7 +2,9 @@
 //  إعدادات لوحة التحكم
 //  غيّر رمز الدخول هنا. (حماية خفيفة فقط — الأمان الحقيقي عبر RLS)
 // ============================================================
-export const ADMIN_PIN = "codpromo2026";
+// رمز الدخول يُقرأ من متغير البيئة VITE_ADMIN_PIN (يُضبط في Vercel ومحلياً في .env).
+// القيمة الافتراضية placeholder للتطوير فقط — وليست رمز الإنتاج الحقيقي.
+export const ADMIN_PIN = import.meta.env.VITE_ADMIN_PIN || "dev-only-change-me";
 
 // مفتاح تخزين حالة الجلسة (يبقى مفتوحاً حتى إغلاق التبويب)
 export const ADMIN_SESSION_KEY = "codpromo:admin-unlocked";

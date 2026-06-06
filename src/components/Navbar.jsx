@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogIn, Sparkles, Menu, X, Sun, Moon } from "lucide-react";
+import { LogIn, LogOut, Sparkles, Menu, X, Sun, Moon } from "lucide-react";
 import Logo from "./Logo.jsx";
 import { useTheme } from "../lib/theme.jsx";
+import { useAuth } from "../lib/auth.jsx";
 
 const LINKS = [
   { label: "المتاجر", href: "#stores" },
@@ -48,9 +50,18 @@ function ThemeToggle({ className = "" }) {
   );
 }
 
+/** اسم العرض وأول حرف للمستخدم. */
+function userDisplay(user) {
+  const name = user?.user_metadata?.full_name || user?.email || "حسابي";
+  const initial = (name || "؟").trim().charAt(0).toUpperCase();
+  return { name, initial };
+}
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -58,6 +69,14 @@ export default function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const logout = async () => {
+    await signOut();
+    setOpen(false);
+    navigate("/");
+  };
+
+  const { name, initial } = userDisplay(user);
 
   return (
     <motion.header
@@ -94,24 +113,54 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
             <ThemeToggle />
 
-            <button className="hidden items-center gap-1.5 rounded-xl px-3.5 py-2 text-[14px] font-semibold text-[var(--text-softer)] transition-colors hover:text-[var(--text)] sm:flex">
-              <LogIn size={16} />
-              دخول
-            </button>
+            {user ? (
+              <>
+                {/* بطاقة الحساب */}
+                <div className="hidden items-center gap-2 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] py-1.5 pl-3 pr-1.5 sm:flex">
+                  <span
+                    className="grid h-7 w-7 place-items-center rounded-lg text-[13px] font-black text-[#0a0a0a]"
+                    style={{ background: "linear-gradient(150deg, var(--color-lime-soft), var(--color-lime-deep))" }}
+                  >
+                    {initial}
+                  </span>
+                  <span className="max-w-[110px] truncate text-[13px] font-bold text-[var(--text)]">
+                    {name}
+                  </span>
+                </div>
+                <button
+                  onClick={logout}
+                  className="hidden items-center gap-1.5 rounded-xl border border-[var(--color-ink-line)] px-3 py-2 text-[13.5px] font-bold text-[var(--text-softer)] transition-colors hover:border-red-500/40 hover:text-red-400 sm:flex"
+                >
+                  <LogOut size={15} /> خروج
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="hidden items-center gap-1.5 rounded-xl px-3.5 py-2 text-[14px] font-semibold text-[var(--text-softer)] transition-colors hover:text-[var(--text)] sm:flex"
+                >
+                  <LogIn size={16} />
+                  دخول
+                </Link>
 
-            <motion.button
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              className="group relative hidden items-center gap-1.5 overflow-hidden rounded-xl px-4 py-2 text-[14px] font-extrabold text-[#0a0a0a] sm:flex"
-              style={{
-                background:
-                  "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))",
-              }}
-            >
-              <span className="absolute inset-0 -translate-x-full bg-white/30 transition-transform duration-500 group-hover:translate-x-full" />
-              <Sparkles size={15} className="relative" />
-              <span className="relative">اشترك مجاناً</span>
-            </motion.button>
+                <Link to="/signup">
+                  <motion.span
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    className="group relative hidden items-center gap-1.5 overflow-hidden rounded-xl px-4 py-2 text-[14px] font-extrabold text-[#0a0a0a] sm:flex"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))",
+                    }}
+                  >
+                    <span className="absolute inset-0 -translate-x-full bg-white/30 transition-transform duration-500 group-hover:translate-x-full" />
+                    <Sparkles size={15} className="relative" />
+                    <span className="relative">اشترك مجاناً</span>
+                  </motion.span>
+                </Link>
+              </>
+            )}
 
             {/* زر القائمة للموبايل */}
             <button
@@ -144,20 +193,47 @@ export default function Navbar() {
                   {l.label}
                 </a>
               ))}
-              <div className="mt-1 grid grid-cols-2 gap-2 p-1">
-                <button className="rounded-xl border border-[var(--color-ink-line)] px-3 py-2.5 text-[14px] font-semibold text-[var(--text)]">
-                  دخول
-                </button>
-                <button
-                  className="rounded-xl px-3 py-2.5 text-[14px] font-extrabold text-[#0a0a0a]"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))",
-                  }}
-                >
-                  اشترك مجاناً
-                </button>
-              </div>
+
+              {user ? (
+                <div className="mt-1 p-1">
+                  <div className="mb-2 flex items-center gap-2 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-3 py-2.5">
+                    <span
+                      className="grid h-8 w-8 place-items-center rounded-lg text-[14px] font-black text-[#0a0a0a]"
+                      style={{ background: "linear-gradient(150deg, var(--color-lime-soft), var(--color-lime-deep))" }}
+                    >
+                      {initial}
+                    </span>
+                    <span className="truncate text-[14px] font-bold text-[var(--text)]">{name}</span>
+                  </div>
+                  <button
+                    onClick={logout}
+                    className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-[var(--color-ink-line)] px-3 py-2.5 text-[14px] font-bold text-red-400"
+                  >
+                    <LogOut size={16} /> تسجيل الخروج
+                  </button>
+                </div>
+              ) : (
+                <div className="mt-1 grid grid-cols-2 gap-2 p-1">
+                  <Link
+                    to="/login"
+                    onClick={() => setOpen(false)}
+                    className="rounded-xl border border-[var(--color-ink-line)] px-3 py-2.5 text-center text-[14px] font-semibold text-[var(--text)]"
+                  >
+                    دخول
+                  </Link>
+                  <Link
+                    to="/signup"
+                    onClick={() => setOpen(false)}
+                    className="rounded-xl px-3 py-2.5 text-center text-[14px] font-extrabold text-[#0a0a0a]"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))",
+                    }}
+                  >
+                    اشترك مجاناً
+                  </Link>
+                </div>
+              )}
             </motion.nav>
           )}
         </AnimatePresence>

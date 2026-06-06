@@ -1,0 +1,219 @@
+@import "tailwindcss";
+
+/* ======================================================================
+   CODpromo — Design System
+   ====================================================================== */
+@theme {
+  /* Brand palette */
+  --color-ink: #0a0a0a;
+  --color-ink-soft: #0f0f10;
+  --color-ink-card: #131316;
+  --color-ink-line: #232327;
+  --color-lime: #a6f000;
+  --color-lime-soft: #c4ff4d;
+  --color-lime-deep: #8bd000;
+  --color-mute: #6b7280;
+
+  /* Type accents */
+  --color-tag-discount: #a6f000;
+  --color-tag-coupon: #38bdf8;
+  --color-tag-cashback: #fbbf24;
+
+  /* Fonts */
+  --font-sans: "Tajawal", ui-sans-serif, system-ui, sans-serif;
+
+  /* Radii */
+  --radius-card: 22px;
+
+  /* Custom easing for motion-ish transitions */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Keyframes */
+  --animate-aurora: aurora 16s ease-in-out infinite;
+  --animate-float-slow: float-slow 9s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.5s linear infinite;
+  --animate-marquee: marquee 32s linear infinite;
+}
+
+@keyframes aurora {
+  0%,
+  100% {
+    transform: translate3d(-6%, -4%, 0) scale(1.05);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate3d(6%, 6%, 0) scale(1.25);
+    opacity: 1;
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ======================================================================
+   Base
+   ====================================================================== */
+@font-face {
+  font-family: "Tajawal";
+  font-display: swap;
+}
+
+/* ======================================================================
+   Theme tokens — flip between dark (default) and light
+   ====================================================================== */
+:root,
+.dark {
+  color-scheme: dark;
+  --color-ink: #0a0a0a;
+  --color-ink-soft: #0f0f10;
+  --color-ink-card: #131316;
+  --color-ink-line: #232327;
+  --color-mute: #6b7280;
+  --text: #ffffff;
+  --text-soft: #a1a1aa;
+  --text-softer: #c9c9cf;
+  --elev: #0c0c0e;
+  --fill: rgba(255, 255, 255, 0.04);
+  --fill-strong: rgba(255, 255, 255, 0.08);
+  --accent-text: #a6f000;
+  --grid-line: rgba(255, 255, 255, 0.035);
+  --hero-text: #ffffff;
+  --scroll-thumb: #26271f;
+  --scroll-thumb-hover: #34361f;
+}
+
+.light {
+  color-scheme: light;
+  --color-ink: #f4f6ef;
+  --color-ink-soft: #ffffff;
+  --color-ink-card: #ffffff;
+  --color-ink-line: #e5e8dd;
+  --color-mute: #6b7280;
+  --text: #0a0a0a;
+  --text-soft: #4b5563;
+  --text-softer: #374151;
+  --elev: #ffffff;
+  --fill: rgba(10, 10, 10, 0.04);
+  --fill-strong: rgba(10, 10, 10, 0.07);
+  --accent-text: #5c8500;
+  --grid-line: rgba(10, 10, 10, 0.05);
+  --hero-text: #0a0a0a;
+  --scroll-thumb: #cdd3c0;
+  --scroll-thumb-hover: #b9c2a4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* clip (not hidden) keeps position:sticky working while killing horizontal overflow */
+  overflow-x: clip;
+}
+
+body {
+  margin: 0;
+  max-width: 100%;
+  background: var(--color-ink);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+::selection {
+  background: var(--color-lime);
+  color: var(--color-ink);
+}
+
+/* Slim, brand-tinted scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-ink);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 99px;
+  border: 2px solid var(--color-ink);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scroll-thumb-hover);
+}
+
+/* Hide scrollbar on horizontal filter rails */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+input::placeholder {
+  color: #4b4b52;
+}
+
+/* Reusable utility layers */
+@utility text-balance {
+  text-wrap: balance;
+}
+
+/* Lime glow text */
+.glow-lime {
+  text-shadow: 0 0 28px rgba(166, 240, 0, 0.45);
+}
+
+/* Grain / mesh helpers */
+.bg-grid {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 35%, transparent 75%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 35%, transparent 75%);
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    100deg,
+    var(--hero-text) 30%,
+    var(--accent-text) 50%,
+    var(--hero-text) 70%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: var(--animate-shimmer);
+}

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import AuthShell, { GoogleButton, AuthAlert, authInputCls } from "../components/auth/AuthShell.jsx";
+import Captcha from "../components/auth/Captcha.jsx";
 import { useAuth } from "../lib/auth.jsx";
 
 export default function Login() {
@@ -14,14 +15,25 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
+  const captchaRef = useRef(null);
+
+  const resetCaptcha = () => {
+    captchaRef.current?.resetCaptcha();
+    setCaptchaToken("");
+  };
 
   const submit = async (e) => {
     e.preventDefault();
     setError("");
+    if (!captchaToken) return setError("يرجى إكمال التحقق (Captcha)");
     setLoading(true);
-    const { error } = await signIn(email.trim(), password);
+    const { error } = await signIn(email.trim(), password, captchaToken);
     setLoading(false);
-    if (error) return setError(translate(error.message));
+    if (error) {
+      resetCaptcha();
+      return setError(translate(error.message));
+    }
     navigate("/");
   };
 
@@ -97,6 +109,8 @@ export default function Login() {
             </button>
           </Field>
         </div>
+
+        <Captcha ref={captchaRef} onVerify={setCaptchaToken} onExpire={() => setCaptchaToken("")} />
 
         <motion.button
           type="submit"

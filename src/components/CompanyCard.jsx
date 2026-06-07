@@ -96,9 +96,9 @@ export default function CompanyCard({
         }}
       />
 
-      {/* الرأس */}
-      <div className="relative flex items-start justify-between">
-        <div className="flex items-center gap-3">
+      {/* الرأس — badge والقلب مثبتان أعلى البطاقة (items-start + shrink-0) ولا يتأثران بطول النص */}
+      <div className="relative flex items-start justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-3">
           <CardLogo logo={company.logo} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
           <div className="min-w-0">
             <h3 className="truncate text-[17px] font-extrabold text-[var(--text)]">{company.name}</h3>
@@ -108,7 +108,7 @@ export default function CompanyCard({
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-1.5 self-start">
           {premium && (
             <span
               className="flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-black text-[#0a0a0a]"
@@ -172,11 +172,7 @@ export default function CompanyCard({
             </span>
           </div>
           {premium && !revealed && (
-            <ScratchLayer
-              unlocked={unlocked}
-              onReveal={() => setRevealed(true)}
-              onUnlock={() => onUnlock?.()}
-            />
+            <ScratchLayer unlocked={unlocked} onReveal={() => setRevealed(true)} />
           )}
         </div>
 
@@ -226,69 +222,54 @@ export default function CompanyCard({
 }
 
 /* ===== بطاقة الخدش فوق كود Premium ===== */
-function ScratchLayer({ unlocked, onReveal, onUnlock }) {
-  const [progress, setProgress] = useState(0);
-  const [cta, setCta] = useState(false);
+// الخلفية المعدنية المشتركة بين الحالتين
+const METAL_BG = {
+  background:
+    "repeating-linear-gradient(115deg, #c6cbd4 0px, #aab0ba 6px, #d4d9e1 12px, #9aa0aa 18px), linear-gradient(135deg, #c2c7d0, #9aa0aa 40%, #d6dbe3 60%, #8f95a0)",
+  backgroundBlendMode: "overlay",
+  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.2)",
+};
 
+function ScratchLayer({ unlocked, onReveal }) {
+  const [progress, setProgress] = useState(0);
+
+  // غير مشترك: غطاء مقفل ثابت — أيقونة قفل فقط، بلا تفاعل ولا نص/زر دعوة للاشتراك
+  if (!unlocked) {
+    return (
+      <div
+        className="absolute inset-0 flex select-none items-center justify-center gap-1.5 overflow-hidden rounded-xl"
+        style={METAL_BG}
+      >
+        <Lock size={13} className="text-[#4a4f58]" />
+        <span className="text-[11.5px] font-extrabold text-[#4a4f58]">كود Premium</span>
+      </div>
+    );
+  }
+
+  // مشترك: غطاء معدني يُخدش للكشف عن الكود
   const scratch = () => {
     setProgress((p) => {
       const np = Math.min(1, p + 0.1);
-      if (unlocked) {
-        if (np >= 0.65) onReveal();
-      } else if (np >= 0.22) {
-        setCta(true);
-      }
+      if (np >= 0.65) onReveal();
       return np;
     });
   };
-
   const onMove = (e) => {
     // الماوس (تمرير) أو اللمس (سحب الإصبع)
     if (e.pointerType === "mouse" ? true : e.pressure > 0 || e.buttons === 1) scratch();
   };
-  const onClickCover = () => (unlocked ? scratch() : setCta(true));
 
-  // غير مشترك: عند محاولة الكشف تظهر رسالة نظيفة + زر اشتراك (بلا تداخل)
-  if (cta) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="absolute inset-0 flex items-center justify-between gap-2 overflow-hidden rounded-xl px-3"
-        style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
-      >
-        <span className="flex items-center gap-1.5 text-[12px] font-extrabold text-[#0a0a0a]">
-          <Lock size={13} /> اشترك في Premium لكشف الكود
-        </span>
-        <button
-          onClick={onUnlock}
-          className="shrink-0 rounded-lg bg-black/20 px-3 py-1.5 text-[12px] font-extrabold text-[#0a0a0a]"
-        >
-          اشترك
-        </button>
-      </motion.div>
-    );
-  }
-
-  // الغطاء المعدني — يتلاشى تدريجياً مع الخدش (للمشترك فقط يكشف الكود)
   return (
     <motion.div
       onPointerMove={onMove}
-      onPointerDown={onClickCover}
-      animate={{ opacity: unlocked ? 1 - progress * 0.95 : 1 }}
+      onPointerDown={scratch}
+      animate={{ opacity: 1 - progress * 0.95 }}
       transition={{ duration: 0.15 }}
       className="absolute inset-0 flex cursor-pointer touch-none select-none items-center justify-center gap-1.5 overflow-hidden rounded-xl"
-      style={{
-        background:
-          "repeating-linear-gradient(115deg, #c6cbd4 0px, #aab0ba 6px, #d4d9e1 12px, #9aa0aa 18px), linear-gradient(135deg, #c2c7d0, #9aa0aa 40%, #d6dbe3 60%, #8f95a0)",
-        backgroundBlendMode: "overlay",
-        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.2)",
-      }}
+      style={METAL_BG}
     >
       <Lock size={13} className="text-[#4a4f58]" />
-      <span className="text-[11.5px] font-extrabold text-[#4a4f58]">
-        {unlocked ? "امسح للكشف" : "كود Premium"}
-      </span>
+      <span className="text-[11.5px] font-extrabold text-[#4a4f58]">امسح للكشف</span>
       {/* لمعة معدنية */}
       <span
         className="pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 opacity-50"

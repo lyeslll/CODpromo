@@ -24,6 +24,7 @@ const EMPTY = {
   description: "",
   discount: "",
   premium_discount: "",
+  supports_premium: true,
   type: "تخفيض",
   code: "",
   link: "",
@@ -207,6 +208,25 @@ export default function CompanyForm({ initial, onSubmit, onCancel, submitting })
           className={inputCls}
         />
         <span className="mt-1 block text-[11px] text-[var(--color-mute)]">يظهر لأعضاء Premium بدل الخصم العادي. اتركه فارغاً ليبقى نفس الخصم.</span>
+
+        {/* تدعم Premium؟ */}
+        <div className="mt-3 flex items-center justify-between border-t pt-3" style={{ borderColor: "rgba(207,154,30,0.25)" }}>
+          <span className="flex items-center gap-1.5 text-[13px] font-bold text-[var(--text)]">
+            <Crown size={14} style={{ color: "#cf9a1e" }} /> تظهر هذه الشركة بهوية Premium؟
+          </span>
+          <button
+            type="button"
+            onClick={() => setForm((f) => ({ ...f, supports_premium: !(f.supports_premium !== false) }))}
+            className="relative h-6 w-11 shrink-0 rounded-full transition-colors"
+            style={{ background: form.supports_premium !== false ? "#cf9a1e" : "var(--color-ink-line)" }}
+            aria-pressed={form.supports_premium !== false}
+          >
+            <span
+              className="absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all"
+              style={{ insetInlineStart: form.supports_premium !== false ? 22 : 2 }}
+            />
+          </button>
+        </div>
       </label>
 
       {/* الفئة + الرابط */}

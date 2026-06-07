@@ -207,7 +207,7 @@ export default function Home() {
                   isFavorite={favorites.includes(c.id)}
                   onToggleFav={toggleFav}
                   onCopy={handleCopy}
-                  premium={premiumView === "premium"}
+                  premium={premiumView === "premium" && c.supports_premium !== false}
                   unlocked={unlocked}
                   onUnlock={() => setPremiumModal(true)}
                 />

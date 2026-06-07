@@ -23,7 +23,13 @@ export default function CompanyCard({
   const meta = getTypeMeta(company.type);
   const Icon = meta.icon;
   const [copied, setCopied] = useState(false);
+  const [revealed, setRevealed] = useState(false);
   const cardRef = useRef(null);
+
+  // إعادة ضبط الخدش عند تبديل الوضع أو تغيّر حالة الاشتراك
+  useEffect(() => {
+    setRevealed(false);
+  }, [premium, unlocked]);
 
   const hot = (company.clicks || 0) >= 50;
 
@@ -31,7 +37,6 @@ export default function CompanyCard({
   const accent = premium ? GOLD : meta.color;
   const accentGlow = premium ? GOLD_GLOW : meta.glow;
   const shownDiscount = premium ? company.premium_discount || company.discount : company.discount;
-  const locked = premium && !unlocked;
 
   const handleMouseMove = (e) => {
     const el = cardRef.current;
@@ -42,6 +47,11 @@ export default function CompanyCard({
   };
 
   const handleCopy = () => {
+    // كود Premium مقفل: لا نسخ — نوجّه للاشتراك
+    if (premium && !unlocked) {
+      onUnlock?.();
+      return;
+    }
     onCopy(company);
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
@@ -122,12 +132,10 @@ export default function CompanyCard({
         </div>
       </div>
 
-      {/* الوصف */}
-      {company.description && (
-        <p className="relative mt-4 line-clamp-2 text-[13.5px] leading-relaxed text-[var(--text-soft)]">
-          {company.description}
-        </p>
-      )}
+      {/* الوصف — ارتفاع ثابت (سطران) ليتساوى ارتفاع كل البطاقات */}
+      <p className="relative mt-4 line-clamp-2 h-[40px] overflow-hidden text-[13.5px] leading-[1.48] text-[var(--text-soft)]">
+        {company.description || ""}
+      </p>
 
       {/* قيمة الخصم + شارة النوع */}
       <div className="relative mt-4 flex items-end justify-between">
@@ -149,37 +157,11 @@ export default function CompanyCard({
         </span>
       </div>
 
-      {/* الكود */}
-      {locked ? (
-        /* ===== كود Premium مضبّب ===== */
-        <button
-          onClick={onUnlock}
-          className="relative mt-5 w-full overflow-hidden rounded-xl border border-dashed text-right"
-          style={{ borderColor: `${GOLD}66`, background: `${GOLD}12` }}
-        >
-          <div className="flex items-center justify-between px-3.5 py-3">
-            <span className="text-[10.5px] font-semibold" style={{ color: GOLD }}>
-              كود Premium
-            </span>
-            <span className="select-none font-mono text-[15px] font-extrabold tracking-widest text-[var(--text)] blur-[6px]">
-              {company.code || "XXXXXX"}
-            </span>
-          </div>
-          <span
-            className="absolute inset-0 flex items-center justify-center gap-1.5 px-2 text-center"
-            style={{ background: "linear-gradient(90deg, rgba(0,0,0,0.04), rgba(0,0,0,0.18))" }}
-          >
-            <Lock size={13} style={{ color: GOLD_DEEP }} />
-            <span className="text-[12px] font-extrabold" style={{ color: GOLD_DEEP }}>
-              اشترك أو أدخل كود Stork لكشف الكود
-            </span>
-          </span>
-        </button>
-      ) : (
-        /* ===== كود عادي / Premium مفتوح ===== */
-        <div className="relative mt-5 flex items-stretch gap-2">
+      {/* الكود + نسخ (نفس التصميم؛ في Premium يُغطّى الكود ببطاقة خدش) */}
+      <div className="relative mt-5 flex items-stretch gap-2">
+        <div className="relative flex-1">
           <div
-            className="relative flex flex-1 items-center justify-between overflow-hidden rounded-xl border border-dashed px-3.5 py-2.5"
+            className="flex h-full items-center justify-between overflow-hidden rounded-xl border border-dashed px-3.5 py-2.5"
             style={{ borderColor: `${accent}55`, background: `${accent}0d` }}
           >
             <span className="text-[10.5px] font-semibold text-[var(--color-mute)]">
@@ -189,33 +171,41 @@ export default function CompanyCard({
               {company.code}
             </span>
           </div>
-          <motion.button
-            onClick={handleCopy}
-            whileTap={{ scale: 0.94 }}
-            className="relative grid w-[120px] shrink-0 place-items-center overflow-hidden rounded-xl px-4 text-[14px] font-extrabold text-[#0a0a0a]"
-            style={{
-              background: copied
-                ? "linear-gradient(135deg, #34d399, #10b981)"
-                : premium
-                ? `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`
-                : `linear-gradient(135deg, ${accent}, ${accent}cc)`,
-              boxShadow: `0 10px 26px -12px ${accentGlow}`,
-            }}
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              {copied ? (
-                <motion.span key="done" initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -14, opacity: 0 }} transition={{ duration: 0.2 }} className="flex items-center gap-1.5">
-                  <Check size={16} /> تم النسخ
-                </motion.span>
-              ) : (
-                <motion.span key="copy" initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -14, opacity: 0 }} transition={{ duration: 0.2 }} className="flex items-center gap-1.5">
-                  <Copy size={15} /> نسخ الكود
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </motion.button>
+          {premium && !revealed && (
+            <ScratchLayer
+              unlocked={unlocked}
+              onReveal={() => setRevealed(true)}
+              onUnlock={() => onUnlock?.()}
+            />
+          )}
         </div>
-      )}
+
+        <motion.button
+          onClick={handleCopy}
+          whileTap={{ scale: 0.94 }}
+          className="relative grid w-[120px] shrink-0 place-items-center overflow-hidden rounded-xl px-4 text-[14px] font-extrabold text-[#0a0a0a]"
+          style={{
+            background: copied
+              ? "linear-gradient(135deg, #34d399, #10b981)"
+              : premium
+              ? `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`
+              : `linear-gradient(135deg, ${accent}, ${accent}cc)`,
+            boxShadow: `0 10px 26px -12px ${accentGlow}`,
+          }}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            {copied ? (
+              <motion.span key="done" initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -14, opacity: 0 }} transition={{ duration: 0.2 }} className="flex items-center gap-1.5">
+                <Check size={16} /> تم النسخ
+              </motion.span>
+            ) : (
+              <motion.span key="copy" initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -14, opacity: 0 }} transition={{ duration: 0.2 }} className="flex items-center gap-1.5">
+                <Copy size={15} /> نسخ الكود
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </motion.button>
+      </div>
 
       {/* زر زيارة الموقع */}
       {company.link && (
@@ -232,6 +222,79 @@ export default function CompanyCard({
         </motion.a>
       )}
     </motion.article>
+  );
+}
+
+/* ===== بطاقة الخدش فوق كود Premium ===== */
+function ScratchLayer({ unlocked, onReveal, onUnlock }) {
+  const [progress, setProgress] = useState(0);
+  const [cta, setCta] = useState(false);
+
+  const scratch = () => {
+    setProgress((p) => {
+      const np = Math.min(1, p + 0.1);
+      if (unlocked) {
+        if (np >= 0.65) onReveal();
+      } else if (np >= 0.22) {
+        setCta(true);
+      }
+      return np;
+    });
+  };
+
+  const onMove = (e) => {
+    // الماوس (تمرير) أو اللمس (سحب الإصبع)
+    if (e.pointerType === "mouse" ? true : e.pressure > 0 || e.buttons === 1) scratch();
+  };
+  const onClickCover = () => (unlocked ? scratch() : setCta(true));
+
+  // غير مشترك: عند محاولة الكشف تظهر رسالة نظيفة + زر اشتراك (بلا تداخل)
+  if (cta) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="absolute inset-0 flex items-center justify-between gap-2 overflow-hidden rounded-xl px-3"
+        style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
+      >
+        <span className="flex items-center gap-1.5 text-[12px] font-extrabold text-[#0a0a0a]">
+          <Lock size={13} /> اشترك في Premium لكشف الكود
+        </span>
+        <button
+          onClick={onUnlock}
+          className="shrink-0 rounded-lg bg-black/20 px-3 py-1.5 text-[12px] font-extrabold text-[#0a0a0a]"
+        >
+          اشترك
+        </button>
+      </motion.div>
+    );
+  }
+
+  // الغطاء المعدني — يتلاشى تدريجياً مع الخدش (للمشترك فقط يكشف الكود)
+  return (
+    <motion.div
+      onPointerMove={onMove}
+      onPointerDown={onClickCover}
+      animate={{ opacity: unlocked ? 1 - progress * 0.95 : 1 }}
+      transition={{ duration: 0.15 }}
+      className="absolute inset-0 flex cursor-pointer touch-none select-none items-center justify-center gap-1.5 overflow-hidden rounded-xl"
+      style={{
+        background:
+          "repeating-linear-gradient(115deg, #c6cbd4 0px, #aab0ba 6px, #d4d9e1 12px, #9aa0aa 18px), linear-gradient(135deg, #c2c7d0, #9aa0aa 40%, #d6dbe3 60%, #8f95a0)",
+        backgroundBlendMode: "overlay",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.2)",
+      }}
+    >
+      <Lock size={13} className="text-[#4a4f58]" />
+      <span className="text-[11.5px] font-extrabold text-[#4a4f58]">
+        {unlocked ? "امسح للكشف" : "كود Premium"}
+      </span>
+      {/* لمعة معدنية */}
+      <span
+        className="pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 opacity-50"
+        style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)", left: `${progress * 120 - 20}%` }}
+      />
+    </motion.div>
   );
 }
 
@@ -281,7 +344,6 @@ function CardLogo({ logo, name, accent, glow, premium }) {
       style={{
         background: showImage ? "transparent" : "linear-gradient(150deg, #1c1c20, #141417)",
         boxShadow: `0 6px 18px -10px ${glow}`,
-        ...(premium ? { outline: `1.5px solid ${accent}80`, outlineOffset: -1 } : null),
       }}
     >
       {showImage ? (

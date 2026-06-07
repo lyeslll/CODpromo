@@ -12,6 +12,7 @@ import SearchFilter from "../components/SearchFilter.jsx";
 import CompanyCard from "../components/CompanyCard.jsx";
 import HowItWorks from "../components/HowItWorks.jsx";
 import Footer from "../components/Footer.jsx";
+import EmailPopup from "../components/EmailPopup.jsx";
 import { SkeletonGrid, EmptyState, ErrorState } from "../components/States.jsx";
 
 export default function Home() {
@@ -197,6 +198,9 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* نافذة جمع الإيميل (للزوّار غير المسجّلين، مرة واحدة) */}
+      <EmailPopup />
     </div>
   );
 }

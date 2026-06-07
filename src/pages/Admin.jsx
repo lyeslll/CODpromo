@@ -14,6 +14,7 @@ import {
   LayoutDashboard,
   Users,
   Inbox,
+  AtSign,
 } from "lucide-react";
 
 import {
@@ -23,6 +24,7 @@ import {
   deleteCompany,
 } from "../lib/supabase.js";
 import { fetchAllProfiles, fetchAllRequests, acceptRequest, setRequestStatus } from "../lib/admin.js";
+import { fetchSubscribers } from "../lib/subscribers.js";
 import { ADMIN_PIN, ADMIN_SESSION_KEY } from "../lib/config.js";
 import Logo from "../components/Logo.jsx";
 import CompanyForm from "../components/admin/CompanyForm.jsx";
@@ -30,6 +32,7 @@ import CompanyTable from "../components/admin/CompanyTable.jsx";
 import AdminOverview from "../components/admin/AdminOverview.jsx";
 import UsersTable from "../components/admin/UsersTable.jsx";
 import RequestsManager from "../components/admin/RequestsManager.jsx";
+import SubscribersTable from "../components/admin/SubscribersTable.jsx";
 
 export default function Admin() {
   const [unlocked, setUnlocked] = useState(
@@ -142,8 +145,10 @@ function Dashboard({ onLock }) {
   // بيانات المراحل الجديدة (مستخدمون + طلبات)
   const [profiles, setProfiles] = useState([]);
   const [requests, setRequests] = useState([]);
+  const [subscribers, setSubscribers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingRequests, setLoadingRequests] = useState(true);
+  const [loadingSubs, setLoadingSubs] = useState(true);
   const [busyReqId, setBusyReqId] = useState(null);
 
   const load = useCallback(() => {
@@ -164,6 +169,10 @@ function Dashboard({ onLock }) {
       .then(setRequests)
       .catch(() => setRequests([]))
       .finally(() => setLoadingRequests(false));
+    fetchSubscribers()
+      .then(setSubscribers)
+      .catch(() => setSubscribers([]))
+      .finally(() => setLoadingSubs(false));
   }, [load]);
 
   const notify = (type, msg) => {
@@ -297,6 +306,9 @@ function Dashboard({ onLock }) {
           <TabButton active={tab === "requests"} onClick={() => setTab("requests")} icon={Inbox} badge={pendingCount}>
             الطلبات
           </TabButton>
+          <TabButton active={tab === "subscribers"} onClick={() => setTab("subscribers")} icon={AtSign}>
+            المشتركون
+          </TabButton>
         </div>
 
         {/* نظرة عامة */}
@@ -361,6 +373,11 @@ function Dashboard({ onLock }) {
             onReject={handleReject}
             busyId={busyReqId}
           />
+        )}
+
+        {/* مشتركو النشرة */}
+        {tab === "subscribers" && (
+          <SubscribersTable subscribers={subscribers} loading={loadingSubs} />
         )}
       </div>
 

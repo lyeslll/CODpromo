@@ -5,8 +5,12 @@ import { Check } from "lucide-react";
 
 import { fetchCompanies, trackClick } from "../lib/supabase.js";
 import { useAuth } from "../lib/auth.jsx";
+import { usePremium } from "../lib/premium.jsx";
 import { fetchFavoriteIds, addFavorite, removeFavorite } from "../lib/favorites.js";
 import Navbar from "../components/Navbar.jsx";
+import PremiumToggle from "../components/PremiumToggle.jsx";
+import PremiumModal from "../components/PremiumModal.jsx";
+import { Crown } from "lucide-react";
 import Hero from "../components/Hero.jsx";
 import SearchFilter from "../components/SearchFilter.jsx";
 import CompanyCard from "../components/CompanyCard.jsx";
@@ -17,7 +21,11 @@ import { SkeletonGrid, EmptyState, ErrorState } from "../components/States.jsx";
 
 export default function Home() {
   const { user } = useAuth();
+  const { unlocked } = usePremium();
   const navigate = useNavigate();
+
+  const [premiumView, setPremiumView] = useState("normal"); // عادي / Premium
+  const [premiumModal, setPremiumModal] = useState(false);
 
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -132,21 +140,52 @@ export default function Home() {
           resultCount={filtered.length}
         />
 
-        {/* عنوان القسم */}
+        {/* عنوان القسم + مبدّل Premium */}
         {!loading && !error && (
-          <div className="mb-6 flex items-end justify-between">
-            <div>
-              <h2 className="text-[24px] font-black tracking-tight sm:text-[28px]">
-                {activeFilter === "الكل" ? "كل العروض" : activeFilter}
-              </h2>
-              <p className="mt-1 text-[13.5px] text-[var(--color-mute)]">
-                عروض مُتحقَّق منها ومحدّثة باستمرار
-              </p>
+          <>
+            <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 className="text-[24px] font-black tracking-tight sm:text-[28px]">
+                  {activeFilter === "الكل" ? "كل العروض" : activeFilter}
+                </h2>
+                <p className="mt-1 text-[13.5px] text-[var(--color-mute)]">
+                  بدّل بين العادي و Premium لترى الفرق
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <PremiumToggle value={premiumView} onChange={setPremiumView} />
+                <span className="hidden rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-3 py-1.5 text-[13px] font-bold text-[var(--accent-text)] sm:block">
+                  {filtered.length} عرض
+                </span>
+              </div>
             </div>
-            <span className="rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-3 py-1.5 text-[13px] font-bold text-[var(--accent-text)]">
-              {filtered.length} عرض
-            </span>
-          </div>
+
+            {/* شريط ترويجي في وضع Premium قبل الفتح */}
+            <AnimatePresence>
+              {premiumView === "premium" && !unlocked && (
+                <motion.button
+                  initial={{ opacity: 0, y: -8, height: 0 }}
+                  animate={{ opacity: 1, y: 0, height: "auto" }}
+                  exit={{ opacity: 0, y: -8, height: 0 }}
+                  onClick={() => setPremiumModal(true)}
+                  className="mb-6 flex w-full items-center justify-between gap-3 overflow-hidden rounded-2xl border px-5 py-3.5 text-right"
+                  style={{ borderColor: "rgba(207,154,30,0.45)", background: "linear-gradient(90deg, rgba(240,198,60,0.12), rgba(240,198,60,0.04))" }}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-[#0a0a0a]" style={{ background: "linear-gradient(135deg,#ffe486,#cf9a1e)" }}>
+                      <Crown size={18} />
+                    </span>
+                    <span className="text-[13.5px] font-bold text-[var(--text)]">
+                      تشاهد خصومات Premium — اشترك أو فعّل كود Stork لكشف الأكواد
+                    </span>
+                  </span>
+                  <span className="hidden shrink-0 rounded-xl px-4 py-2 text-[13px] font-extrabold text-[#0a0a0a] sm:block" style={{ background: "linear-gradient(135deg,#ffe486,#cf9a1e)" }}>
+                    افتح Premium
+                  </span>
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </>
         )}
 
         {/* الحالات */}
@@ -168,6 +207,9 @@ export default function Home() {
                   isFavorite={favorites.includes(c.id)}
                   onToggleFav={toggleFav}
                   onCopy={handleCopy}
+                  premium={premiumView === "premium"}
+                  unlocked={unlocked}
+                  onUnlock={() => setPremiumModal(true)}
                 />
               ))}
             </AnimatePresence>
@@ -198,6 +240,9 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* نافذة فتح Premium */}
+      <PremiumModal open={premiumModal} onClose={() => setPremiumModal(false)} />
 
       {/* نافذة جمع الإيميل (للزوّار غير المسجّلين، مرة واحدة) */}
       <EmailPopup />

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./lib/auth.jsx";
+import { PremiumProvider } from "./lib/premium.jsx";
 import Home from "./pages/Home.jsx";
 import Admin from "./pages/Admin.jsx";
 import Login from "./pages/Login.jsx";
@@ -13,7 +14,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
+        <PremiumProvider>
+          <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
@@ -37,7 +39,8 @@ export default function App() {
             }
           />
           <Route path="*" element={<Home />} />
-        </Routes>
+          </Routes>
+        </PremiumProvider>
       </AuthProvider>
     </BrowserRouter>
   );

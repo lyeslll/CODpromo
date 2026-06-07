@@ -1,10 +1,25 @@
-import { useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Copy, Check, Heart, ExternalLink, Flame } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+import { motion, AnimatePresence, animate } from "framer-motion";
+import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock } from "lucide-react";
 import { getTypeMeta } from "../lib/types.js";
 import { isImageUrl } from "./CompanyLogo.jsx";
 
-export default function CompanyCard({ company, index, isFavorite, onToggleFav, onCopy }) {
+// هوية Premium الذهبية
+const GOLD = "#f0c63c";
+const GOLD_DEEP = "#cf9a1e";
+const GOLD_SOFT = "#ffe486";
+const GOLD_GLOW = "rgba(240,198,60,0.4)";
+
+export default function CompanyCard({
+  company,
+  index,
+  isFavorite,
+  onToggleFav,
+  onCopy,
+  premium = false,
+  unlocked = false,
+  onUnlock,
+}) {
   const meta = getTypeMeta(company.type);
   const Icon = meta.icon;
   const [copied, setCopied] = useState(false);
@@ -12,7 +27,12 @@ export default function CompanyCard({ company, index, isFavorite, onToggleFav, o
 
   const hot = (company.clicks || 0) >= 50;
 
-  // بقعة ضوء تتبع المؤشر
+  // ألوان حسب الوضع (عادي / Premium ذهبي)
+  const accent = premium ? GOLD : meta.color;
+  const accentGlow = premium ? GOLD_GLOW : meta.glow;
+  const shownDiscount = premium ? company.premium_discount || company.discount : company.discount;
+  const locked = premium && !unlocked;
+
   const handleMouseMove = (e) => {
     const el = cardRef.current;
     if (!el) return;
@@ -36,25 +56,40 @@ export default function CompanyCard({ company, index, isFavorite, onToggleFav, o
       exit={{ opacity: 0, y: -10, scale: 0.97 }}
       transition={{ duration: 0.45, delay: Math.min(index * 0.05, 0.35), ease: [0.16, 1, 0.3, 1] }}
       whileHover={{ y: -6 }}
-      className="group relative flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] p-5 transition-colors duration-300 hover:border-[var(--color-lime)]/40"
+      className={`group relative flex flex-col overflow-hidden rounded-[var(--radius-card)] border bg-[var(--color-ink-card)] p-5 transition-colors duration-300 ${
+        premium ? "" : "border-[var(--color-ink-line)] hover:border-[var(--color-lime)]/40"
+      }`}
+      style={
+        premium
+          ? { borderColor: `${GOLD}66`, boxShadow: `0 0 0 1px ${GOLD}1f, 0 22px 55px -28px ${GOLD_GLOW}` }
+          : undefined
+      }
     >
-      {/* توهّج علوي حسب النوع */}
+      {/* أمبيانس ذهبي في وضع Premium */}
+      {premium && (
+        <span
+          className="pointer-events-none absolute inset-0"
+          style={{ background: `radial-gradient(120% 65% at 50% 0%, ${GOLD}1f, transparent 60%)` }}
+        />
+      )}
+
+      {/* توهّج علوي */}
       <span
-        className="pointer-events-none absolute -top-px left-1/2 h-px w-2/3 -translate-x-1/2 opacity-60"
-        style={{ background: `linear-gradient(90deg, transparent, ${meta.color}, transparent)` }}
+        className="pointer-events-none absolute -top-px left-1/2 h-px w-2/3 -translate-x-1/2 opacity-70"
+        style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
       />
       {/* بقعة ضوء تتبع المؤشر */}
       <span
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
-          background: `radial-gradient(280px circle at var(--mx,50%) var(--my,0%), ${meta.glow}, transparent 65%)`,
+          background: `radial-gradient(280px circle at var(--mx,50%) var(--my,0%), ${accentGlow}, transparent 65%)`,
         }}
       />
 
-      {/* الرأس: الشعار + النوع */}
+      {/* الرأس */}
       <div className="relative flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <CardLogo logo={company.logo} name={company.name} accent={meta.color} glow={meta.glow} />
+          <CardLogo logo={company.logo} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
           <div className="min-w-0">
             <h3 className="truncate text-[17px] font-extrabold text-[var(--text)]">{company.name}</h3>
             <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">
@@ -64,7 +99,15 @@ export default function CompanyCard({ company, index, isFavorite, onToggleFav, o
         </div>
 
         <div className="flex items-center gap-1.5">
-          {hot && (
+          {premium && (
+            <span
+              className="flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-black text-[#0a0a0a]"
+              style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`, boxShadow: `0 4px 14px -5px ${GOLD_GLOW}` }}
+            >
+              <Crown size={11} /> PREMIUM
+            </span>
+          )}
+          {hot && !premium && (
             <span className="flex items-center gap-1 rounded-full bg-orange-500/15 px-2 py-1 text-[10.5px] font-bold text-orange-400">
               <Flame size={11} /> رائج
             </span>
@@ -74,10 +117,7 @@ export default function CompanyCard({ company, index, isFavorite, onToggleFav, o
             aria-label="إضافة للمفضلة"
             className="grid h-8 w-8 place-items-center rounded-full border border-[var(--color-ink-line)] bg-[var(--fill)] transition-colors hover:bg-[var(--fill-strong)]"
           >
-            <Heart
-              size={15}
-              className={isFavorite ? "fill-red-500 text-red-500" : "text-[var(--color-mute)]"}
-            />
+            <Heart size={15} className={isFavorite ? "fill-red-500 text-red-500" : "text-[var(--color-mute)]"} />
           </button>
         </div>
       </div>
@@ -92,12 +132,12 @@ export default function CompanyCard({ company, index, isFavorite, onToggleFav, o
       {/* قيمة الخصم + شارة النوع */}
       <div className="relative mt-4 flex items-end justify-between">
         <div>
-          <div className="text-[11.5px] font-semibold text-[var(--color-mute)]">قيمة العرض</div>
-          <div
-            className="text-[30px] font-black leading-none"
-            style={{ color: meta.color, textShadow: `0 0 24px ${meta.glow}` }}
-          >
-            {company.discount}
+          <div className="flex items-center gap-1.5 text-[11.5px] font-semibold text-[var(--color-mute)]">
+            {premium && <Crown size={12} style={{ color: GOLD }} />}
+            {premium ? "خصم Premium" : "قيمة العرض"}
+          </div>
+          <div className="text-[30px] font-black leading-none">
+            <AnimatedDiscount value={shownDiscount} color={accent} glow={accentGlow} />
           </div>
         </div>
         <span
@@ -109,58 +149,73 @@ export default function CompanyCard({ company, index, isFavorite, onToggleFav, o
         </span>
       </div>
 
-      {/* الكود + زر النسخ */}
-      <div className="relative mt-5 flex items-stretch gap-2">
-        {/* تذكرة الكود */}
-        <div
-          className="relative flex flex-1 items-center justify-between overflow-hidden rounded-xl border border-dashed px-3.5 py-2.5"
-          style={{ borderColor: `${meta.color}55`, background: `${meta.color}0d` }}
+      {/* الكود */}
+      {locked ? (
+        /* ===== كود Premium مضبّب ===== */
+        <button
+          onClick={onUnlock}
+          className="relative mt-5 w-full overflow-hidden rounded-xl border border-dashed text-right"
+          style={{ borderColor: `${GOLD}66`, background: `${GOLD}12` }}
         >
-          <span className="text-[10.5px] font-semibold text-[var(--color-mute)]">الكود</span>
-          <span className="font-mono text-[15px] font-extrabold tracking-widest text-[var(--text)]">
-            {company.code}
+          <div className="flex items-center justify-between px-3.5 py-3">
+            <span className="text-[10.5px] font-semibold" style={{ color: GOLD }}>
+              كود Premium
+            </span>
+            <span className="select-none font-mono text-[15px] font-extrabold tracking-widest text-[var(--text)] blur-[6px]">
+              {company.code || "XXXXXX"}
+            </span>
+          </div>
+          <span
+            className="absolute inset-0 flex items-center justify-center gap-1.5 px-2 text-center"
+            style={{ background: "linear-gradient(90deg, rgba(0,0,0,0.04), rgba(0,0,0,0.18))" }}
+          >
+            <Lock size={13} style={{ color: GOLD_DEEP }} />
+            <span className="text-[12px] font-extrabold" style={{ color: GOLD_DEEP }}>
+              اشترك أو أدخل كود Stork لكشف الكود
+            </span>
           </span>
+        </button>
+      ) : (
+        /* ===== كود عادي / Premium مفتوح ===== */
+        <div className="relative mt-5 flex items-stretch gap-2">
+          <div
+            className="relative flex flex-1 items-center justify-between overflow-hidden rounded-xl border border-dashed px-3.5 py-2.5"
+            style={{ borderColor: `${accent}55`, background: `${accent}0d` }}
+          >
+            <span className="text-[10.5px] font-semibold text-[var(--color-mute)]">
+              {premium ? "كود Premium" : "الكود"}
+            </span>
+            <span className="font-mono text-[15px] font-extrabold tracking-widest text-[var(--text)]">
+              {company.code}
+            </span>
+          </div>
+          <motion.button
+            onClick={handleCopy}
+            whileTap={{ scale: 0.94 }}
+            className="relative grid w-[120px] shrink-0 place-items-center overflow-hidden rounded-xl px-4 text-[14px] font-extrabold text-[#0a0a0a]"
+            style={{
+              background: copied
+                ? "linear-gradient(135deg, #34d399, #10b981)"
+                : premium
+                ? `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`
+                : `linear-gradient(135deg, ${accent}, ${accent}cc)`,
+              boxShadow: `0 10px 26px -12px ${accentGlow}`,
+            }}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              {copied ? (
+                <motion.span key="done" initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -14, opacity: 0 }} transition={{ duration: 0.2 }} className="flex items-center gap-1.5">
+                  <Check size={16} /> تم النسخ
+                </motion.span>
+              ) : (
+                <motion.span key="copy" initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -14, opacity: 0 }} transition={{ duration: 0.2 }} className="flex items-center gap-1.5">
+                  <Copy size={15} /> نسخ الكود
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
         </div>
-
-        {/* زر النسخ */}
-        <motion.button
-          onClick={handleCopy}
-          whileTap={{ scale: 0.94 }}
-          className="relative grid w-[120px] shrink-0 place-items-center overflow-hidden rounded-xl px-4 text-[14px] font-extrabold text-[#0a0a0a]"
-          style={{
-            background: copied
-              ? "linear-gradient(135deg, #34d399, #10b981)"
-              : `linear-gradient(135deg, ${meta.color}, ${meta.color}cc)`,
-            boxShadow: `0 10px 26px -12px ${meta.glow}`,
-          }}
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            {copied ? (
-              <motion.span
-                key="done"
-                initial={{ y: 14, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -14, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="flex items-center gap-1.5"
-              >
-                <Check size={16} /> تم النسخ
-              </motion.span>
-            ) : (
-              <motion.span
-                key="copy"
-                initial={{ y: 14, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -14, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="flex items-center gap-1.5"
-              >
-                <Copy size={15} /> نسخ الكود
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </motion.button>
-      </div>
+      )}
 
       {/* زر زيارة الموقع */}
       {company.link && (
@@ -170,9 +225,9 @@ export default function CompanyCard({ company, index, isFavorite, onToggleFav, o
           rel="noopener noreferrer"
           whileTap={{ scale: 0.98 }}
           className="group/btn relative mt-2.5 flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold text-[var(--text)] transition-colors"
-          style={{ borderColor: `${meta.color}44`, background: `${meta.color}0d` }}
+          style={{ borderColor: `${accent}44`, background: `${accent}0d` }}
         >
-          <ExternalLink size={15} style={{ color: meta.color }} />
+          <ExternalLink size={15} style={{ color: accent }} />
           زيارة الموقع
         </motion.a>
       )}
@@ -180,14 +235,41 @@ export default function CompanyCard({ company, index, isFavorite, onToggleFav, o
   );
 }
 
-/**
- * عرض لوجو الشركة داخل البطاقة فقط:
- *  - إطار بخلفية بيضاء فاتحة (تختفي معها الحواف السوداء حول اللوجو)
- *  - الصورة كاملة دون قص (object-contain) + حشوة تتنفّس
- *  - زوايا ناعمة مع overflow:hidden لقصّ نظيف
- *  - fallback أنيق: إيموجي أو أول حرف من الاسم
- */
-function CardLogo({ logo, name, accent, glow }) {
+/* ===== عدّاد متحرّك لقيمة الخصم ===== */
+function parseVal(v) {
+  const m = String(v ?? "").match(/^(\D*)([\d.,]+)(.*)$/s);
+  if (!m) return null;
+  return { prefix: m[1], num: parseFloat(m[2].replace(/,/g, "")), suffix: m[3] };
+}
+
+function AnimatedDiscount({ value, color, glow }) {
+  const [display, setDisplay] = useState(value);
+  const prev = useRef(parseVal(value)?.num ?? null);
+
+  useEffect(() => {
+    const p = parseVal(value);
+    if (!p || Number.isNaN(p.num)) {
+      setDisplay(value);
+      prev.current = null;
+      return;
+    }
+    const from = prev.current ?? p.num;
+    const controls = animate(from, p.num, {
+      duration: 0.7,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (v) => setDisplay(`${p.prefix}${Math.round(v)}${p.suffix}`),
+    });
+    prev.current = p.num;
+    return () => controls.stop();
+  }, [value]);
+
+  return (
+    <span style={{ color, textShadow: `0 0 24px ${glow}` }}>{display}</span>
+  );
+}
+
+/* ===== لوجو البطاقة ===== */
+function CardLogo({ logo, name, accent, glow, premium }) {
   const [errored, setErrored] = useState(false);
   const showImage = isImageUrl(logo) && !errored;
   const showEmoji = !showImage && logo && !isImageUrl(logo);
@@ -199,16 +281,11 @@ function CardLogo({ logo, name, accent, glow }) {
       style={{
         background: showImage ? "transparent" : "linear-gradient(150deg, #1c1c20, #141417)",
         boxShadow: `0 6px 18px -10px ${glow}`,
+        ...(premium ? { outline: `1.5px solid ${accent}80`, outlineOffset: -1 } : null),
       }}
     >
       {showImage ? (
-        <img
-          src={logo}
-          alt={name || "logo"}
-          loading="lazy"
-          onError={() => setErrored(true)}
-          className="h-full w-full object-cover"
-        />
+        <img src={logo} alt={name || "logo"} loading="lazy" onError={() => setErrored(true)} className="h-full w-full object-cover" />
       ) : showEmoji ? (
         <span style={{ fontSize: 30, lineHeight: 1 }}>{logo}</span>
       ) : (

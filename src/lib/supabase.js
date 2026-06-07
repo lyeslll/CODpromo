@@ -64,7 +64,7 @@ export async function trackClick(id, currentClicks = 0) {
 
 // ===================== كتابة (لوحة التحكم) =====================
 
-const ALLOWED = ["name", "logo", "category", "code", "discount", "type", "description", "link", "status"];
+const ALLOWED = ["name", "logo", "category", "code", "discount", "premium_discount", "type", "description", "link", "status"];
 
 /** يبقي فقط الحقول المسموح بها ويحوّل الفراغات إلى null. */
 function clean(payload) {

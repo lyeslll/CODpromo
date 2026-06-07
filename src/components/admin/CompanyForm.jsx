@@ -10,6 +10,7 @@ import {
   Wallet,
   Plus,
   Save,
+  Crown,
 } from "lucide-react";
 import { uploadLogo } from "../../lib/supabase.js";
 import CompanyLogo from "../CompanyLogo.jsx";
@@ -22,6 +23,7 @@ const EMPTY = {
   name: "",
   description: "",
   discount: "",
+  premium_discount: "",
   type: "تخفيض",
   code: "",
   link: "",
@@ -192,6 +194,20 @@ export default function CompanyForm({ initial, onSubmit, onCancel, submitting })
           />
         </Field>
       </div>
+
+      {/* خصم Premium */}
+      <label className="block rounded-xl border p-3" style={{ borderColor: "rgba(207,154,30,0.4)", background: "rgba(240,198,60,0.06)" }}>
+        <span className="mb-1.5 flex items-center gap-1.5 text-[12.5px] font-bold" style={{ color: "#cf9a1e" }}>
+          <Crown size={14} /> خصم Premium (الأقوى)
+        </span>
+        <input
+          value={form.premium_discount}
+          onChange={set("premium_discount")}
+          placeholder="مثال: 10% أو 100 دج"
+          className={inputCls}
+        />
+        <span className="mt-1 block text-[11px] text-[var(--color-mute)]">يظهر لأعضاء Premium بدل الخصم العادي. اتركه فارغاً ليبقى نفس الخصم.</span>
+      </label>
 
       {/* الفئة + الرابط */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

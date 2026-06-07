@@ -15,6 +15,7 @@ import {
   Users,
   Inbox,
   AtSign,
+  Crown,
 } from "lucide-react";
 
 import {
@@ -25,6 +26,7 @@ import {
 } from "../lib/supabase.js";
 import { fetchAllProfiles, fetchAllRequests, acceptRequest, setRequestStatus } from "../lib/admin.js";
 import { fetchSubscribers } from "../lib/subscribers.js";
+import { fetchStorkCodes, addStorkCode } from "../lib/stork.js";
 import { ADMIN_PIN, ADMIN_SESSION_KEY } from "../lib/config.js";
 import Logo from "../components/Logo.jsx";
 import CompanyForm from "../components/admin/CompanyForm.jsx";
@@ -33,6 +35,7 @@ import AdminOverview from "../components/admin/AdminOverview.jsx";
 import UsersTable from "../components/admin/UsersTable.jsx";
 import RequestsManager from "../components/admin/RequestsManager.jsx";
 import SubscribersTable from "../components/admin/SubscribersTable.jsx";
+import StorkManager from "../components/admin/StorkManager.jsx";
 
 export default function Admin() {
   const [unlocked, setUnlocked] = useState(
@@ -146,9 +149,11 @@ function Dashboard({ onLock }) {
   const [profiles, setProfiles] = useState([]);
   const [requests, setRequests] = useState([]);
   const [subscribers, setSubscribers] = useState([]);
+  const [storkCodes, setStorkCodes] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingRequests, setLoadingRequests] = useState(true);
   const [loadingSubs, setLoadingSubs] = useState(true);
+  const [loadingStork, setLoadingStork] = useState(true);
   const [busyReqId, setBusyReqId] = useState(null);
 
   const load = useCallback(() => {
@@ -173,7 +178,19 @@ function Dashboard({ onLock }) {
       .then(setSubscribers)
       .catch(() => setSubscribers([]))
       .finally(() => setLoadingSubs(false));
+    fetchStorkCodes()
+      .then(setStorkCodes)
+      .catch(() => setStorkCodes([]))
+      .finally(() => setLoadingStork(false));
   }, [load]);
+
+  const handleAddStork = async (code) => {
+    const created = await addStorkCode(code);
+    setStorkCodes((prev) => [created, ...prev]);
+    notify("success", "تمت إضافة الكود");
+  };
+
+  const premiumCount = profiles.filter((p) => p.is_premium).length;
 
   const notify = (type, msg) => {
     setToast({ type, msg });
@@ -309,6 +326,9 @@ function Dashboard({ onLock }) {
           <TabButton active={tab === "subscribers"} onClick={() => setTab("subscribers")} icon={AtSign}>
             المشتركون
           </TabButton>
+          <TabButton active={tab === "stork"} onClick={() => setTab("stork")} icon={Crown} badge={premiumCount}>
+            Premium / Stork
+          </TabButton>
         </div>
 
         {/* نظرة عامة */}
@@ -378,6 +398,16 @@ function Dashboard({ onLock }) {
         {/* مشتركو النشرة */}
         {tab === "subscribers" && (
           <SubscribersTable subscribers={subscribers} loading={loadingSubs} />
+        )}
+
+        {/* Premium / أكواد Stork */}
+        {tab === "stork" && (
+          <StorkManager
+            codes={storkCodes}
+            loading={loadingStork}
+            onAdd={handleAddStork}
+            premiumCount={premiumCount}
+          />
         )}
       </div>
 

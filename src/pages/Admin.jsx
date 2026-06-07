@@ -11,6 +11,9 @@ import {
   Tag,
   Ticket,
   Wallet,
+  LayoutDashboard,
+  Users,
+  Inbox,
 } from "lucide-react";
 
 import {
@@ -19,10 +22,14 @@ import {
   updateCompany,
   deleteCompany,
 } from "../lib/supabase.js";
+import { fetchAllProfiles, fetchAllRequests, acceptRequest, setRequestStatus } from "../lib/admin.js";
 import { ADMIN_PIN, ADMIN_SESSION_KEY } from "../lib/config.js";
 import Logo from "../components/Logo.jsx";
 import CompanyForm from "../components/admin/CompanyForm.jsx";
 import CompanyTable from "../components/admin/CompanyTable.jsx";
+import AdminOverview from "../components/admin/AdminOverview.jsx";
+import UsersTable from "../components/admin/UsersTable.jsx";
+import RequestsManager from "../components/admin/RequestsManager.jsx";
 
 export default function Admin() {
   const [unlocked, setUnlocked] = useState(
@@ -123,6 +130,7 @@ function PinGate({ onUnlock }) {
 
 /* ===================== اللوحة ===================== */
 function Dashboard({ onLock }) {
+  const [tab, setTab] = useState("overview");
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null); // الشركة قيد التعديل
@@ -130,6 +138,13 @@ function Dashboard({ onLock }) {
   const [toast, setToast] = useState(null); // { type, msg }
   const toastTimer = useRef(null);
   const formRef = useRef(null);
+
+  // بيانات المراحل الجديدة (مستخدمون + طلبات)
+  const [profiles, setProfiles] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [loadingRequests, setLoadingRequests] = useState(true);
+  const [busyReqId, setBusyReqId] = useState(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -141,6 +156,14 @@ function Dashboard({ onLock }) {
 
   useEffect(() => {
     load();
+    fetchAllProfiles()
+      .then(setProfiles)
+      .catch(() => setProfiles([]))
+      .finally(() => setLoadingUsers(false));
+    fetchAllRequests()
+      .then(setRequests)
+      .catch(() => setRequests([]))
+      .finally(() => setLoadingRequests(false));
   }, [load]);
 
   const notify = (type, msg) => {
@@ -195,6 +218,37 @@ function Dashboard({ onLock }) {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  // قبول طلب شركة → نشره في companies + تحديث الحالة
+  const handleAccept = async (req) => {
+    setBusyReqId(req.id);
+    try {
+      const created = await acceptRequest(req);
+      setCompanies((prev) => [created, ...prev]);
+      setRequests((prev) => prev.map((r) => (r.id === req.id ? { ...r, status: "accepted" } : r)));
+      notify("success", "تم قبول الطلب ونشره كشركة");
+    } catch (e) {
+      notify("error", e.message);
+    } finally {
+      setBusyReqId(null);
+    }
+  };
+
+  // رفض طلب
+  const handleReject = async (req) => {
+    setBusyReqId(req.id);
+    try {
+      await setRequestStatus(req.id, "rejected");
+      setRequests((prev) => prev.map((r) => (r.id === req.id ? { ...r, status: "rejected" } : r)));
+      notify("success", "تم رفض الطلب");
+    } catch (e) {
+      notify("error", e.message);
+    } finally {
+      setBusyReqId(null);
+    }
+  };
+
+  const pendingCount = requests.filter((r) => r.status === "pending").length;
+
   const logout = () => {
     sessionStorage.removeItem(ADMIN_SESSION_KEY);
     onLock();
@@ -229,48 +283,85 @@ function Dashboard({ onLock }) {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-6">
-        {/* الإحصائيات */}
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard icon={Store} label="إجمالي الشركات" value={stats.total} color="#a6f000" />
-          <StatCard icon={Tag} label="تخفيض" value={stats.discount} color="#a6f000" />
-          <StatCard icon={Ticket} label="كوبون" value={stats.coupon} color="#38bdf8" />
-          <StatCard icon={Wallet} label="كاش باك" value={stats.cashback} color="#fbbf24" />
+        {/* شريط التبويبات */}
+        <div className="no-scrollbar mb-6 flex gap-2 overflow-x-auto">
+          <TabButton active={tab === "overview"} onClick={() => setTab("overview")} icon={LayoutDashboard}>
+            نظرة عامة
+          </TabButton>
+          <TabButton active={tab === "companies"} onClick={() => setTab("companies")} icon={Store}>
+            الشركات
+          </TabButton>
+          <TabButton active={tab === "users"} onClick={() => setTab("users")} icon={Users}>
+            المستخدمون
+          </TabButton>
+          <TabButton active={tab === "requests"} onClick={() => setTab("requests")} icon={Inbox} badge={pendingCount}>
+            الطلبات
+          </TabButton>
         </div>
 
-        {/* المحتوى */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[420px_1fr]">
-          {/* النموذج */}
-          <div ref={formRef} className="lg:sticky lg:top-[84px] lg:self-start">
-            <div className="rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] p-5">
-              <div className="mb-5 flex items-center justify-between">
-                <h2 className="text-[17px] font-extrabold text-white">
-                  {editing ? "تعديل شركة" : "إضافة شركة جديدة"}
-                </h2>
-                {editing && (
-                  <span className="rounded-md bg-[var(--color-lime)]/15 px-2 py-1 text-[11.5px] font-bold text-[var(--color-lime)]">
-                    #{editing.id}
-                  </span>
-                )}
+        {/* نظرة عامة */}
+        {tab === "overview" && (
+          <AdminOverview profiles={profiles} companies={companies} requests={requests} />
+        )}
+
+        {/* الشركات (إدارة موجودة كما هي) */}
+        {tab === "companies" && (
+          <>
+            <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <StatCard icon={Store} label="إجمالي الشركات" value={stats.total} color="#a6f000" />
+              <StatCard icon={Tag} label="تخفيض" value={stats.discount} color="#a6f000" />
+              <StatCard icon={Ticket} label="كوبون" value={stats.coupon} color="#38bdf8" />
+              <StatCard icon={Wallet} label="كاش باك" value={stats.cashback} color="#fbbf24" />
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[420px_1fr]">
+              <div ref={formRef} className="lg:sticky lg:top-[84px] lg:self-start">
+                <div className="rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] p-5">
+                  <div className="mb-5 flex items-center justify-between">
+                    <h2 className="text-[17px] font-extrabold text-white">
+                      {editing ? "تعديل شركة" : "إضافة شركة جديدة"}
+                    </h2>
+                    {editing && (
+                      <span className="rounded-md bg-[var(--color-lime)]/15 px-2 py-1 text-[11.5px] font-bold text-[var(--color-lime)]">
+                        #{editing.id}
+                      </span>
+                    )}
+                  </div>
+                  <CompanyForm
+                    key={editing?.id || "new"}
+                    initial={editing}
+                    submitting={submitting}
+                    onSubmit={handleSubmit}
+                    onCancel={() => setEditing(null)}
+                  />
+                </div>
               </div>
-              <CompanyForm
-                key={editing?.id || "new"}
-                initial={editing}
-                submitting={submitting}
-                onSubmit={handleSubmit}
-                onCancel={() => setEditing(null)}
+
+              <CompanyTable
+                companies={companies}
+                loading={loading}
+                editingId={editing?.id}
+                onEdit={startEdit}
+                onDelete={handleDelete}
               />
             </div>
-          </div>
+          </>
+        )}
 
-          {/* الجدول */}
-          <CompanyTable
-            companies={companies}
-            loading={loading}
-            editingId={editing?.id}
-            onEdit={startEdit}
-            onDelete={handleDelete}
+        {/* المستخدمون + تصدير CSV */}
+        {tab === "users" && <UsersTable profiles={profiles} loading={loadingUsers} />}
+
+        {/* طلبات الشركات */}
+        {tab === "requests" && (
+          <RequestsManager
+            requests={requests}
+            profiles={profiles}
+            loading={loadingRequests}
+            onAccept={handleAccept}
+            onReject={handleReject}
+            busyId={busyReqId}
           />
-        </div>
+        )}
       </div>
 
       {/* التوست */}
@@ -298,6 +389,28 @@ function Dashboard({ onLock }) {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+function TabButton({ active, onClick, icon: Icon, badge, children }) {
+  return (
+    <button
+      onClick={onClick}
+      className="relative flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold transition-all"
+      style={{
+        borderColor: active ? "var(--color-lime)" : "var(--color-ink-line)",
+        background: active ? "rgba(166,240,0,0.1)" : "transparent",
+        color: active ? "var(--color-lime)" : "#c9c9cf",
+      }}
+    >
+      <Icon size={16} />
+      {children}
+      {badge > 0 && (
+        <span className="grid h-5 min-w-5 place-items-center rounded-full bg-[#fbbf24] px-1.5 text-[11px] font-black text-[#0a0a0a]">
+          {badge}
+        </span>
+      )}
+    </button>
   );
 }
 

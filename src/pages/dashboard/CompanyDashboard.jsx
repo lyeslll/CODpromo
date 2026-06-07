@@ -32,7 +32,7 @@ const TYPES = [
 
 const STATUS = {
   pending: { label: "قيد المراجعة", color: "#fbbf24", icon: Clock },
-  approved: { label: "مقبول", color: "#a6f000", icon: CheckCircle2 },
+  accepted: { label: "مقبول", color: "#a6f000", icon: CheckCircle2 },
   rejected: { label: "مرفوض", color: "#ef4444", icon: XCircle },
 };
 

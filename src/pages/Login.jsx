@@ -34,7 +34,7 @@ export default function Login() {
       resetCaptcha();
       return setError(translate(error.message));
     }
-    navigate("/");
+    navigate("/dashboard");
   };
 
   const google = async () => {

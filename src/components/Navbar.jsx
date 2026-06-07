@@ -115,8 +115,12 @@ export default function Navbar() {
 
             {user ? (
               <>
-                {/* بطاقة الحساب */}
-                <div className="hidden items-center gap-2 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] py-1.5 pl-3 pr-1.5 sm:flex">
+                {/* بطاقة الحساب — تفتح الداشبورد */}
+                <Link
+                  to="/dashboard"
+                  title="حسابي"
+                  className="hidden items-center gap-2 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] py-1.5 pl-3 pr-1.5 transition-colors hover:bg-[var(--fill-strong)] sm:flex"
+                >
                   <span
                     className="grid h-7 w-7 place-items-center rounded-lg text-[13px] font-black text-[#0a0a0a]"
                     style={{ background: "linear-gradient(150deg, var(--color-lime-soft), var(--color-lime-deep))" }}
@@ -126,7 +130,7 @@ export default function Navbar() {
                   <span className="max-w-[110px] truncate text-[13px] font-bold text-[var(--text)]">
                     {name}
                   </span>
-                </div>
+                </Link>
                 <button
                   onClick={logout}
                   className="hidden items-center gap-1.5 rounded-xl border border-[var(--color-ink-line)] px-3 py-2 text-[13.5px] font-bold text-[var(--text-softer)] transition-colors hover:border-red-500/40 hover:text-red-400 sm:flex"
@@ -196,7 +200,11 @@ export default function Navbar() {
 
               {user ? (
                 <div className="mt-1 p-1">
-                  <div className="mb-2 flex items-center gap-2 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-3 py-2.5">
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setOpen(false)}
+                    className="mb-2 flex items-center gap-2 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-3 py-2.5"
+                  >
                     <span
                       className="grid h-8 w-8 place-items-center rounded-lg text-[14px] font-black text-[#0a0a0a]"
                       style={{ background: "linear-gradient(150deg, var(--color-lime-soft), var(--color-lime-deep))" }}
@@ -204,7 +212,7 @@ export default function Navbar() {
                       {initial}
                     </span>
                     <span className="truncate text-[14px] font-bold text-[var(--text)]">{name}</span>
-                  </div>
+                  </Link>
                   <button
                     onClick={logout}
                     className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-[var(--color-ink-line)] px-3 py-2.5 text-[14px] font-bold text-red-400"

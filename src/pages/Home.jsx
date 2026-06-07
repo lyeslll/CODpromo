@@ -1,8 +1,11 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
 
 import { fetchCompanies, trackClick } from "../lib/supabase.js";
+import { useAuth } from "../lib/auth.jsx";
+import { fetchFavoriteIds, addFavorite, removeFavorite } from "../lib/favorites.js";
 import Navbar from "../components/Navbar.jsx";
 import Hero from "../components/Hero.jsx";
 import SearchFilter from "../components/SearchFilter.jsx";
@@ -11,22 +14,17 @@ import HowItWorks from "../components/HowItWorks.jsx";
 import Footer from "../components/Footer.jsx";
 import { SkeletonGrid, EmptyState, ErrorState } from "../components/States.jsx";
 
-const FAV_KEY = "codpromo:favorites";
-
 export default function Home() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("الكل");
-  const [favorites, setFavorites] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem(FAV_KEY)) || [];
-    } catch {
-      return [];
-    }
-  });
+  const [favorites, setFavorites] = useState([]); // معرّفات الشركات المفضّلة (للمسجّلين)
   const [toast, setToast] = useState(null);
 
   const storesRef = useRef(null);
@@ -46,10 +44,16 @@ export default function Home() {
     load();
   }, [load]);
 
-  // ===== حفظ المفضلة =====
+  // ===== تحميل مفضّلة المستخدم المسجّل =====
   useEffect(() => {
-    localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
-  }, [favorites]);
+    if (!user) {
+      setFavorites([]);
+      return;
+    }
+    fetchFavoriteIds(user.id)
+      .then(setFavorites)
+      .catch(() => setFavorites([]));
+  }, [user]);
 
   // ===== الفلترة =====
   const filtered = useMemo(() => {
@@ -78,10 +82,20 @@ export default function Home() {
   );
 
   // ===== أفعال =====
-  const toggleFav = (id) =>
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
-    );
+  // المفضّلة للمسجّلين فقط — الزائر يُوجَّه لتسجيل الدخول
+  const toggleFav = (id) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    const isFav = favorites.includes(id);
+    setFavorites((prev) => (isFav ? prev.filter((f) => f !== id) : [...prev, id]));
+    const op = isFav ? removeFavorite(user.id, id) : addFavorite(user.id, id);
+    op.catch(() => {
+      // تراجع عند الفشل
+      setFavorites((prev) => (isFav ? [...prev, id] : prev.filter((f) => f !== id)));
+    });
+  };
 
   const handleCopy = (company) => {
     navigator.clipboard?.writeText(company.code).catch(() => {});

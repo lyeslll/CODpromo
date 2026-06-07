@@ -6,6 +6,8 @@ import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import RequireAuth from "./components/auth/RequireAuth.jsx";
 
 export default function App() {
   return (
@@ -17,6 +19,14 @@ export default function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route
+            path="/dashboard"
+            element={
+              <RequireAuth>
+                <Dashboard />
+              </RequireAuth>
+            }
+          />
           {/* لوحة التحكم تبقى داكنة دائماً بغضّ النظر عن ثيم الموقع */}
           <Route
             path="/admin"

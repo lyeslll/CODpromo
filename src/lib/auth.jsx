@@ -11,6 +11,7 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     let active = true;
@@ -35,10 +36,35 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
+  // جلب الملف الشخصي (نوع الحساب وبياناته) من جدول profiles
+  const loadProfile = async (uid) => {
+    const { data } = await supabase.from("profiles").select("*").eq("id", uid).maybeSingle();
+    return data || null;
+  };
+
+  useEffect(() => {
+    let active = true;
+    if (!user) {
+      setProfile(null);
+      return;
+    }
+    loadProfile(user.id).then((p) => {
+      if (active) setProfile(p);
+    });
+    return () => {
+      active = false;
+    };
+  }, [user]);
+
   const value = {
     user,
     session,
     loading,
+    profile,
+    // نوع الحساب: من الـ profile أولاً ثم الميتاداتا، والافتراضي زبون
+    accountType:
+      profile?.account_type || user?.user_metadata?.account_type || "customer",
+    refreshProfile: () => user && loadProfile(user.id).then(setProfile),
 
     // إنشاء حساب بالإيميل وكلمة المرور (metadata = نوع الحساب وبياناته) + captcha
     signUp: (email, password, metadata = {}, captchaToken) =>
@@ -60,7 +86,7 @@ export function AuthProvider({ children }) {
     signInWithGoogle: () =>
       supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: window.location.origin },
+        options: { redirectTo: `${window.location.origin}/dashboard` },
       }),
 
     // إرسال رابط استعادة كلمة المرور (يفتح صفحة /reset-password)

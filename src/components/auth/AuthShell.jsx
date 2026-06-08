@@ -50,12 +50,18 @@ function ThemeToggle() {
   );
 }
 
-/** إطار موحّد لصفحات الحساب (دخول/تسجيل/استعادة) بنفس الهوية البصرية. */
-export default function AuthShell({ title, subtitle, children, footer }) {
+/**
+ * إطار موحّد لصفحات الحساب (دخول/تسجيل/استعادة) بنفس الهوية البصرية.
+ * tall=true: للصفحات ذات المحتوى الأطول (مثل إنشاء حساب) — يزيد الحشو العلوي
+ * كي لا تصطدم البطاقة بزرّ الثيم ورابط "العودة للموقع" في الأعلى عند طول المحتوى.
+ */
+export default function AuthShell({ title, subtitle, children, footer, tall = false }) {
   // الحاوية الرئيسية: عرض كامل، لا تتجاوز عرض الشاشة، متمركزة، وتقصّ أي تجاوز أفقي — لمنع انحراف الصفحة على الهاتف
   return (
     <div
-      className="relative mx-auto grid min-h-screen w-full place-items-center overflow-x-hidden bg-[var(--color-ink)] px-4 py-10 text-[var(--text)]"
+      className={`relative mx-auto grid min-h-screen w-full place-items-center overflow-x-hidden bg-[var(--color-ink)] px-4 pb-10 text-[var(--text)] ${
+        tall ? "pt-24" : "pt-10"
+      }`}
       style={{ maxWidth: "100vw" }}
     >
       {/* خلفية متوهّجة — مقيّدة بعرض الشاشة حتى لا تسبب تجاوزاً أفقياً */}

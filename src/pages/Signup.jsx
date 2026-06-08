@@ -117,6 +117,7 @@ export default function Signup() {
 
   return (
     <AuthShell
+      tall
       title="إنشاء حساب"
       subtitle="انضمّ إلى CODpromo ووفّر في كل طلب"
       footer={

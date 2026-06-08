@@ -12,6 +12,10 @@ dist
 # vercel
 .vercel
 
+# supabase CLI local/temp files
+supabase/.temp
+supabase/.branches
+
 # os / editor
 .DS_Store
 *.local

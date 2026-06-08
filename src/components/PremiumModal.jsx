@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Crown, Loader2, Check, KeyRound, Sparkles } from "lucide-react";
+import { X, Crown, Loader2, Check, KeyRound, Sparkles, CreditCard } from "lucide-react";
 import { usePremium } from "../lib/premium.jsx";
 import { useAuth } from "../lib/auth.jsx";
-import { startPremiumCheckout } from "../lib/billing.js";
+import { startPremiumCheckout, startSlickpayCheckout } from "../lib/billing.js";
+import { DZ_PLANS, fmtDZ } from "../lib/plans.js";
 
 const GOLD_SOFT = "#ffe486";
 const GOLD_DEEP = "#cf9a1e";
@@ -17,8 +18,12 @@ export default function PremiumModal({ open, onClose }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
-  const [payLoading, setPayLoading] = useState(false);
+  const [stripeLoading, setStripeLoading] = useState(false);
+  const [dzLoading, setDzLoading] = useState(false);
   const [payError, setPayError] = useState("");
+  const [plan, setPlan] = useState("year");
+
+  const selected = DZ_PLANS.find((p) => p.key === plan) || DZ_PLANS[0];
 
   const close = () => {
     setError("");
@@ -26,18 +31,38 @@ export default function PremiumModal({ open, onClose }) {
     onClose();
   };
 
-  // بدء اشتراك Stripe — يتطلّب تسجيل الدخول أولاً، ثم يوجّه لصفحة الدفع الآمنة
-  const subscribe = async () => {
-    setPayError("");
+  // يتطلّب الدفع تسجيل الدخول أولاً
+  const requireLogin = () => {
     if (!user) {
       onClose();
-      return navigate("/login");
+      navigate("/login");
+      return true;
     }
-    setPayLoading(true);
+    return false;
+  };
+
+  // الدفع الدولي عبر Stripe (اشتراك شهري بالدولار)
+  const subscribe = async () => {
+    setPayError("");
+    if (requireLogin()) return;
+    setStripeLoading(true);
     try {
       await startPremiumCheckout();
     } catch (e) {
-      setPayLoading(false);
+      setStripeLoading(false);
+      setPayError(e.message || "تعذّر بدء عملية الدفع");
+    }
+  };
+
+  // الدفع الجزائري عبر SlickPay (البطاقة المختارة، يوجّه لصفحة SATIM)
+  const payDz = async () => {
+    setPayError("");
+    if (requireLogin()) return;
+    setDzLoading(true);
+    try {
+      await startSlickpayCheckout(plan);
+    } catch (e) {
+      setDzLoading(false);
       setPayError(e.message || "تعذّر بدء عملية الدفع");
     }
   };
@@ -69,7 +94,7 @@ export default function PremiumModal({ open, onClose }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.97 }}
             transition={{ type: "spring", stiffness: 320, damping: 26 }}
-            className="relative w-full max-w-md overflow-hidden rounded-[var(--radius-card)] border bg-[var(--color-ink-card)] p-7"
+            className="relative max-h-[92vh] w-full max-w-md overflow-y-auto rounded-[var(--radius-card)] border bg-[var(--color-ink-card)] p-7"
             style={{ borderColor: `${GOLD_DEEP}66`, boxShadow: `0 30px 80px -30px rgba(0,0,0,0.7), 0 0 0 1px ${GOLD_DEEP}22` }}
           >
             <div
@@ -101,26 +126,81 @@ export default function PremiumModal({ open, onClose }) {
                     <Crown size={26} />
                   </span>
                   <h2 className="mt-4 text-[22px] font-black text-[var(--text)]">افتح خصومات Premium</h2>
-                  <p className="mt-1.5 text-[13.5px] text-[var(--text-soft)]">خصومات أقوى وأكواد حصرية — بطريقتين:</p>
+                  <p className="mt-1.5 text-[13.5px] text-[var(--text-soft)]">خصومات أقوى وأكواد حصرية</p>
                 </div>
 
-                {/* اشتراك */}
                 {payError && (
-                  <div className="mb-2 rounded-xl border border-red-500/30 bg-red-500/[0.08] px-3.5 py-2 text-[12.5px] font-semibold text-red-400">
+                  <div className="mb-3 rounded-xl border border-red-500/30 bg-red-500/[0.08] px-3.5 py-2 text-[12.5px] font-semibold text-red-400">
                     {payError}
                   </div>
                 )}
+
+                {/* الدفع الجزائري — SlickPay (CIB / Edahabia) */}
+                <div className="mb-2 flex items-center gap-1.5 text-[12.5px] font-bold text-[var(--text-softer)]">
+                  <CreditCard size={14} className="text-[var(--color-lime)]" /> الدفع بالبطاقة الجزائرية
+                </div>
+                <div className="grid grid-cols-3 gap-2 pt-2.5">
+                  {DZ_PLANS.map((p) => {
+                    const active = plan === p.key;
+                    return (
+                      <button
+                        key={p.key}
+                        type="button"
+                        onClick={() => setPlan(p.key)}
+                        className="relative flex flex-col items-center gap-1 rounded-2xl border px-2 py-3 text-center transition-all"
+                        style={{
+                          borderColor: active ? "var(--color-lime)" : "var(--color-ink-line)",
+                          background: active ? "rgba(166,240,0,0.08)" : "var(--fill)",
+                        }}
+                      >
+                        {p.badge && (
+                          <span
+                            className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-1.5 py-0.5 text-[8.5px] font-extrabold text-[#0a0a0a]"
+                            style={{ background: p.best ? "var(--color-lime)" : "var(--fill-strong)", color: p.best ? "#0a0a0a" : "var(--text-soft)" }}
+                          >
+                            {p.badge}
+                          </span>
+                        )}
+                        <span className="text-[12.5px] font-extrabold text-[var(--text)]">{p.label}</span>
+                        <span
+                          className="text-[12.5px] font-black"
+                          style={{ color: active ? "var(--accent-text)" : "var(--text)" }}
+                        >
+                          {fmtDZ(p.price)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  onClick={payDz}
+                  disabled={dzLoading}
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[15px] font-extrabold text-[#0a0a0a] disabled:opacity-70"
+                  style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
+                >
+                  {dzLoading ? <Loader2 size={18} className="animate-spin" /> : <CreditCard size={18} />}
+                  ادفع · {fmtDZ(selected.price)}
+                </button>
+                <p className="mt-2 text-center text-[11px] text-[var(--color-mute)]">
+                  CIB / Edahabia عبر SATIM — دفع آمن
+                </p>
+
+                <div className="my-4 flex items-center gap-3 text-[12px] text-[var(--color-mute)]">
+                  <span className="h-px flex-1 bg-[var(--color-ink-line)]" /> أو الدفع الدولي <span className="h-px flex-1 bg-[var(--color-ink-line)]" />
+                </div>
+
+                {/* الدفع الدولي — Stripe (بالدولار، اشتراك متجدّد) */}
                 <button
                   onClick={subscribe}
-                  disabled={payLoading}
+                  disabled={stripeLoading}
                   className="mb-4 flex w-full items-center justify-between rounded-2xl px-5 py-4 text-[#0a0a0a] disabled:opacity-70"
                   style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
                 >
                   <span className="flex items-center gap-2 text-[15px] font-extrabold">
-                    {payLoading ? <Loader2 size={17} className="animate-spin" /> : <Sparkles size={17} />}
+                    {stripeLoading ? <Loader2 size={17} className="animate-spin" /> : <Sparkles size={17} />}
                     اشترك بـ 10$/شهر
                   </span>
-                  <span className="rounded-lg bg-black/15 px-2 py-1 text-[11px] font-bold">الأفضل قيمة</span>
+                  <span className="rounded-lg bg-black/15 px-2 py-1 text-[11px] font-bold">Visa / Mastercard</span>
                 </button>
 
                 <div className="my-4 flex items-center gap-3 text-[12px] text-[var(--color-mute)]">

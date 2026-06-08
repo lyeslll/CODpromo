@@ -10,6 +10,7 @@ import ResetPassword from "./pages/ResetPassword.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import PaymentSuccess from "./pages/PaymentSuccess.jsx";
 import PaymentCancel from "./pages/PaymentCancel.jsx";
+import PaymentReturn from "./pages/PaymentReturn.jsx";
 import RequireAuth from "./components/auth/RequireAuth.jsx";
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-cancel" element={<PaymentCancel />} />
+          <Route path="/payment-return" element={<PaymentReturn />} />
           <Route
             path="/dashboard"
             element={

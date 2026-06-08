@@ -7,3 +7,14 @@ verify_jwt = true
 # Stripe يستدعي الـ webhook بدون JWT؛ الأمان عبر التحقق من توقيع Stripe
 [functions.stripe-webhook]
 verify_jwt = false
+
+# دفع SlickPay الجزائري — إنشاء الفاتورة وفحص الحالة يتطلّبان جلسة مستخدم
+[functions.slickpay-create-invoice]
+verify_jwt = true
+
+[functions.slickpay-invoice-status]
+verify_jwt = true
+
+# SlickPay يستدعي الـ webhook بدون JWT؛ الأمان عبر التوقيع + إعادة التحقق
+[functions.slickpay-webhook]
+verify_jwt = false

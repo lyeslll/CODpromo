@@ -52,12 +52,15 @@ function ThemeToggle() {
 
 /** إطار موحّد لصفحات الحساب (دخول/تسجيل/استعادة) بنفس الهوية البصرية. */
 export default function AuthShell({ title, subtitle, children, footer }) {
-  // overflow-clip (لا hidden): يقصّ التوهّج العريض دون جعل الحاوية قابلة للتمرير أفقياً — يمنع انزلاق الصفحة لليسار على الهاتف
+  // الحاوية الرئيسية: عرض كامل، لا تتجاوز عرض الشاشة، متمركزة، وتقصّ أي تجاوز أفقي — لمنع انحراف الصفحة على الهاتف
   return (
-    <div className="relative grid min-h-screen place-items-center overflow-clip bg-[var(--color-ink)] px-4 py-10 text-[var(--text)]">
-      {/* خلفية متوهّجة */}
+    <div
+      className="relative mx-auto grid min-h-screen w-full place-items-center overflow-x-hidden bg-[var(--color-ink)] px-4 py-10 text-[var(--text)]"
+      style={{ maxWidth: "100vw" }}
+    >
+      {/* خلفية متوهّجة — مقيّدة بعرض الشاشة حتى لا تسبب تجاوزاً أفقياً */}
       <div
-        className="pointer-events-none absolute left-1/2 top-1/4 h-[420px] w-[640px] -translate-x-1/2 rounded-full blur-[120px]"
+        className="pointer-events-none absolute left-1/2 top-1/4 h-[420px] w-[640px] max-w-[100vw] -translate-x-1/2 rounded-full blur-[120px]"
         style={{ background: "radial-gradient(circle, rgba(166,240,0,0.14), transparent 65%)" }}
       />
       <div className="pointer-events-none absolute inset-0 bg-grid" />

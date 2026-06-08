@@ -11,8 +11,8 @@ const Captcha = forwardRef(function Captcha({ onVerify, onExpire }, ref) {
   const { theme } = useTheme();
   return (
     // عرض hCaptcha ثابت (303px) — نلفّه بحاوية تمرير حتى لا يدفع التخطيط ويُخرج الصفحة عن التوسيط على الهاتف
-    <div className="flex w-full justify-center" key={theme}>
-      <div className="max-w-full overflow-x-auto">
+    <div className="flex w-full min-w-0 justify-center" key={theme}>
+      <div className="min-w-0 max-w-full overflow-x-auto">
         <HCaptcha
           ref={ref}
           sitekey={SITE_KEY}

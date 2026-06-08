@@ -8,6 +8,8 @@ import Signup from "./pages/Signup.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import PaymentSuccess from "./pages/PaymentSuccess.jsx";
+import PaymentCancel from "./pages/PaymentCancel.jsx";
 import RequireAuth from "./components/auth/RequireAuth.jsx";
 
 export default function App() {
@@ -21,6 +23,8 @@ export default function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-cancel" element={<PaymentCancel />} />
           <Route
             path="/dashboard"
             element={

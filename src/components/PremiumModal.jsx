@@ -1,23 +1,45 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Crown, Loader2, Check, KeyRound, Sparkles, Clock } from "lucide-react";
+import { X, Crown, Loader2, Check, KeyRound, Sparkles } from "lucide-react";
 import { usePremium } from "../lib/premium.jsx";
+import { useAuth } from "../lib/auth.jsx";
+import { startPremiumCheckout } from "../lib/billing.js";
 
 const GOLD_SOFT = "#ffe486";
 const GOLD_DEEP = "#cf9a1e";
 
 export default function PremiumModal({ open, onClose }) {
   const { redeem } = usePremium();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
-  const [comingSoon, setComingSoon] = useState(false);
+  const [payLoading, setPayLoading] = useState(false);
+  const [payError, setPayError] = useState("");
 
   const close = () => {
     setError("");
-    setComingSoon(false);
+    setPayError("");
     onClose();
+  };
+
+  // بدء اشتراك Stripe — يتطلّب تسجيل الدخول أولاً، ثم يوجّه لصفحة الدفع الآمنة
+  const subscribe = async () => {
+    setPayError("");
+    if (!user) {
+      onClose();
+      return navigate("/login");
+    }
+    setPayLoading(true);
+    try {
+      await startPremiumCheckout();
+    } catch (e) {
+      setPayLoading(false);
+      setPayError(e.message || "تعذّر بدء عملية الدفع");
+    }
   };
 
   const submit = async (e) => {
@@ -83,26 +105,23 @@ export default function PremiumModal({ open, onClose }) {
                 </div>
 
                 {/* اشتراك */}
-                {comingSoon ? (
-                  <div className="mb-4 flex items-center gap-3 rounded-2xl border border-[var(--color-ink-line)] bg-[var(--fill)] p-4">
-                    <Clock size={20} style={{ color: GOLD_DEEP }} />
-                    <div>
-                      <div className="text-[14px] font-extrabold text-[var(--text)]">الدفع قادم قريباً</div>
-                      <div className="text-[12.5px] text-[var(--text-soft)]">سنفعّل الاشتراك بـ 10$/شهر هنا. حالياً استخدم كود Stork.</div>
-                    </div>
+                {payError && (
+                  <div className="mb-2 rounded-xl border border-red-500/30 bg-red-500/[0.08] px-3.5 py-2 text-[12.5px] font-semibold text-red-400">
+                    {payError}
                   </div>
-                ) : (
-                  <button
-                    onClick={() => setComingSoon(true)}
-                    className="mb-4 flex w-full items-center justify-between rounded-2xl px-5 py-4 text-[#0a0a0a]"
-                    style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
-                  >
-                    <span className="flex items-center gap-2 text-[15px] font-extrabold">
-                      <Sparkles size={17} /> اشترك بـ 10$/شهر
-                    </span>
-                    <span className="rounded-lg bg-black/15 px-2 py-1 text-[11px] font-bold">الأفضل قيمة</span>
-                  </button>
                 )}
+                <button
+                  onClick={subscribe}
+                  disabled={payLoading}
+                  className="mb-4 flex w-full items-center justify-between rounded-2xl px-5 py-4 text-[#0a0a0a] disabled:opacity-70"
+                  style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
+                >
+                  <span className="flex items-center gap-2 text-[15px] font-extrabold">
+                    {payLoading ? <Loader2 size={17} className="animate-spin" /> : <Sparkles size={17} />}
+                    اشترك بـ 10$/شهر
+                  </span>
+                  <span className="rounded-lg bg-black/15 px-2 py-1 text-[11px] font-bold">الأفضل قيمة</span>
+                </button>
 
                 <div className="my-4 flex items-center gap-3 text-[12px] text-[var(--color-mute)]">
                   <span className="h-px flex-1 bg-[var(--color-ink-line)]" /> أو <span className="h-px flex-1 bg-[var(--color-ink-line)]" />

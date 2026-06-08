@@ -1,0 +1,9 @@
+project_id = "uulcgvdsqivgkiulurhk"
+
+# دالة الدفع تتطلّب جلسة مستخدم صالحة (JWT) — يتحقق منها البوّابة ثم الكود
+[functions.create-checkout-session]
+verify_jwt = true
+
+# Stripe يستدعي الـ webhook بدون JWT؛ الأمان عبر التحقق من توقيع Stripe
+[functions.stripe-webhook]
+verify_jwt = false

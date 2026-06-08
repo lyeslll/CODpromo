@@ -55,15 +55,13 @@ export default function PremiumModal({ open, onClose }) {
               style={{ background: `radial-gradient(circle, ${GOLD_DEEP}40, transparent 65%)` }}
             />
 
-            {/* منطقة ضغط أكبر (p-3) مع إبقاء المربع المرئي بنفس الحجم */}
+            {/* زر إغلاق — مربع 44px والأيقونة في مركزه تماماً (منطقة الضغط = المربع نفسه) */}
             <button
               onClick={close}
               aria-label="إغلاق"
-              className="absolute left-1 top-1 grid place-items-center p-3 text-[var(--color-mute)] transition-colors hover:text-[var(--text)]"
+              className="absolute left-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--color-mute)] transition-colors hover:text-[var(--text)]"
             >
-              <span className="grid h-9 w-9 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)]">
-                <X size={17} />
-              </span>
+              <X size={17} />
             </button>
 
             {done ? (

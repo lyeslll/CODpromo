@@ -60,7 +60,7 @@ export default function AuthShell({ title, subtitle, children, footer, tall = fa
   return (
     <div
       className={`relative mx-auto grid min-h-screen w-full place-items-center overflow-x-hidden bg-[var(--color-ink)] px-4 pb-10 text-[var(--text)] ${
-        tall ? "pt-24" : "pt-10"
+        tall ? "pt-16" : "pt-10"
       }`}
       style={{ maxWidth: "100vw" }}
     >

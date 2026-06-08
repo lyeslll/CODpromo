@@ -104,13 +104,15 @@ export default function EmailPopup() {
               style={{ background: "radial-gradient(circle, rgba(166,240,0,0.22), transparent 65%)" }}
             />
 
-            {/* زر الإغلاق */}
+            {/* زر الإغلاق — منطقة ضغط أكبر (p-3) مع إبقاء المربع المرئي بنفس الحجم */}
             <button
               onClick={close}
               aria-label="إغلاق"
-              className="absolute left-4 top-4 grid h-9 w-9 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--color-mute)] transition-colors hover:text-[var(--text)]"
+              className="absolute left-1 top-1 grid place-items-center p-3 text-[var(--color-mute)] transition-colors hover:text-[var(--text)]"
             >
-              <X size={17} />
+              <span className="grid h-9 w-9 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)]">
+                <X size={17} />
+              </span>
             </button>
 
             {done ? (

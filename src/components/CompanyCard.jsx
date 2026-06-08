@@ -172,7 +172,7 @@ export default function CompanyCard({
             </span>
           </div>
           {premium && !revealed && (
-            <ScratchLayer unlocked={unlocked} onReveal={() => setRevealed(true)} />
+            <ScratchLayer unlocked={unlocked} onReveal={() => setRevealed(true)} onUnlock={() => onUnlock?.()} />
           )}
         </div>
 
@@ -230,19 +230,22 @@ const METAL_BG = {
   boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.2)",
 };
 
-function ScratchLayer({ unlocked, onReveal }) {
+function ScratchLayer({ unlocked, onReveal, onUnlock }) {
   const [progress, setProgress] = useState(0);
 
-  // غير مشترك: غطاء مقفل ثابت — أيقونة قفل فقط، بلا تفاعل ولا نص/زر دعوة للاشتراك
+  // غير مشترك: غطاء مقفل — أيقونة قفل فقط، والضغط عليه يفتح نافذة "افتح خصومات Premium"
   if (!unlocked) {
     return (
-      <div
-        className="absolute inset-0 flex select-none items-center justify-center gap-1.5 overflow-hidden rounded-xl"
+      <button
+        type="button"
+        onClick={onUnlock}
+        aria-label="افتح خصومات Premium"
+        className="absolute inset-0 flex cursor-pointer select-none items-center justify-center gap-1.5 overflow-hidden rounded-xl"
         style={METAL_BG}
       >
         <Lock size={13} className="text-[#4a4f58]" />
         <span className="text-[11.5px] font-extrabold text-[#4a4f58]">كود Premium</span>
-      </div>
+      </button>
     );
   }
 

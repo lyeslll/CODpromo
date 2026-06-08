@@ -10,7 +10,7 @@ export default function SearchFilter({
   resultCount,
 }) {
   return (
-    <div className="sticky top-[72px] z-30 -mx-4 mb-8 bg-gradient-to-b from-[var(--color-ink)] via-[var(--color-ink)]/95 to-transparent px-4 pb-4 pt-2">
+    <div className="mb-8 pt-2">
       {/* حقل البحث */}
       <div className="group relative">
         <div

@@ -52,8 +52,9 @@ function ThemeToggle() {
 
 /** إطار موحّد لصفحات الحساب (دخول/تسجيل/استعادة) بنفس الهوية البصرية. */
 export default function AuthShell({ title, subtitle, children, footer }) {
+  // overflow-clip (لا hidden): يقصّ التوهّج العريض دون جعل الحاوية قابلة للتمرير أفقياً — يمنع انزلاق الصفحة لليسار على الهاتف
   return (
-    <div className="relative grid min-h-screen place-items-center overflow-hidden bg-[var(--color-ink)] px-4 py-10 text-[var(--text)]">
+    <div className="relative grid min-h-screen place-items-center overflow-clip bg-[var(--color-ink)] px-4 py-10 text-[var(--text)]">
       {/* خلفية متوهّجة */}
       <div
         className="pointer-events-none absolute left-1/2 top-1/4 h-[420px] w-[640px] -translate-x-1/2 rounded-full blur-[120px]"

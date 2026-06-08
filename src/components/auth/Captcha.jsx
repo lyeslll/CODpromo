@@ -10,9 +10,9 @@ const SITE_KEY =
 const Captcha = forwardRef(function Captcha({ onVerify, onExpire }, ref) {
   const { theme } = useTheme();
   return (
-    // عرض hCaptcha ثابت (303px) — نلفّه بحاوية تمرير حتى لا يدفع التخطيط ويُخرج الصفحة عن التوسيط على الهاتف
-    <div className="flex w-full min-w-0 justify-center" key={theme}>
-      <div className="min-w-0 max-w-full overflow-x-auto">
+    // عرض hCaptcha ثابت (~302px). حاوية تمرير بعرض كامل: تتمركز عند اتساع الشاشة، وتتمرّر أفقياً على الشاشات الضيّقة جداً دون قصّ أو دفع للتخطيط
+    <div className="w-full min-w-0 overflow-x-auto" key={theme}>
+      <div className="mx-auto w-max">
         <HCaptcha
           ref={ref}
           sitekey={SITE_KEY}

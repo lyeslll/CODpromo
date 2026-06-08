@@ -80,7 +80,7 @@ export default function AuthShell({ title, subtitle, children, footer }) {
         initial={{ opacity: 0, y: 22, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-md rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] p-5 shadow-[0_24px_70px_-30px_rgba(0,0,0,0.55)] sm:p-7"
+        className="relative w-full min-w-0 max-w-md overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] p-5 shadow-[0_24px_70px_-30px_rgba(0,0,0,0.55)] sm:p-7"
       >
         <div className="mb-6 flex flex-col items-center text-center">
           <Logo compact />

@@ -244,6 +244,19 @@ function Dashboard({ onLock }) {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  // تبديل دعم Premium لشركة مباشرةً من الجدول (تحديث متفائل مع تراجع عند الفشل)
+  const handleTogglePremium = async (id, value) => {
+    setCompanies((prev) => prev.map((c) => (c.id === id ? { ...c, supports_premium: value } : c)));
+    try {
+      await updateCompany(id, { supports_premium: value });
+    } catch (e) {
+      setCompanies((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, supports_premium: !value } : c))
+      );
+      notify("error", e.message);
+    }
+  };
+
   // قبول طلب شركة → نشره في companies + تحديث الحالة
   const handleAccept = async (req) => {
     setBusyReqId(req.id);
@@ -375,6 +388,7 @@ function Dashboard({ onLock }) {
                 editingId={editing?.id}
                 onEdit={startEdit}
                 onDelete={handleDelete}
+                onTogglePremium={handleTogglePremium}
               />
             </div>
           </>

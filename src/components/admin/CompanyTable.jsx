@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Pencil, Trash2, ExternalLink, Loader2, AlertTriangle, Search } from "lucide-react";
+import { Pencil, Trash2, ExternalLink, Loader2, AlertTriangle, Search, Crown } from "lucide-react";
 import CompanyLogo from "../CompanyLogo.jsx";
 import { getTypeMeta } from "../../lib/types.js";
 
-export default function CompanyTable({ companies, loading, editingId, onEdit, onDelete }) {
+export default function CompanyTable({ companies, loading, editingId, onEdit, onDelete, onTogglePremium }) {
   const [q, setQ] = useState("");
   const [confirmId, setConfirmId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
@@ -128,6 +128,32 @@ export default function CompanyTable({ companies, loading, editingId, onEdit, on
                     </motion.div>
                   ) : (
                     <div className="flex items-center gap-1.5">
+                      {/* تبديل دعم Premium مباشرةً (نفس المعنى في نموذج التعديل) */}
+                      {onTogglePremium && (
+                        <button
+                          onClick={() => onTogglePremium(c.id, !(c.supports_premium !== false))}
+                          title={
+                            c.supports_premium !== false
+                              ? "تدعم Premium — اضغط للإيقاف"
+                              : "لا تدعم Premium — اضغط للتفعيل"
+                          }
+                          aria-pressed={c.supports_premium !== false}
+                          className="relative mr-1 flex h-9 items-center gap-1.5 rounded-lg border border-[var(--color-ink-line)] px-2"
+                        >
+                          <Crown
+                            size={14}
+                            style={{ color: c.supports_premium !== false ? "#cf9a1e" : "var(--color-mute)" }}
+                          />
+                          <span className="relative h-5 w-9 shrink-0 rounded-full transition-colors"
+                            style={{ background: c.supports_premium !== false ? "#cf9a1e" : "var(--color-ink-line)" }}
+                          >
+                            <span
+                              className="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all"
+                              style={{ insetInlineStart: c.supports_premium !== false ? 18 : 2 }}
+                            />
+                          </span>
+                        </button>
+                      )}
                       {c.link && (
                         <a
                           href={c.link}

@@ -10,15 +10,18 @@ const SITE_KEY =
 const Captcha = forwardRef(function Captcha({ onVerify, onExpire }, ref) {
   const { theme } = useTheme();
   return (
-    <div className="flex justify-center" key={theme}>
-      <HCaptcha
-        ref={ref}
-        sitekey={SITE_KEY}
-        theme={theme === "light" ? "light" : "dark"}
-        onVerify={(token) => onVerify?.(token)}
-        onExpire={() => onExpire?.()}
-        onError={() => onExpire?.()}
-      />
+    // عرض hCaptcha ثابت (303px) — نلفّه بحاوية تمرير حتى لا يدفع التخطيط ويُخرج الصفحة عن التوسيط على الهاتف
+    <div className="flex w-full justify-center" key={theme}>
+      <div className="max-w-full overflow-x-auto">
+        <HCaptcha
+          ref={ref}
+          sitekey={SITE_KEY}
+          theme={theme === "light" ? "light" : "dark"}
+          onVerify={(token) => onVerify?.(token)}
+          onExpire={() => onExpire?.()}
+          onError={() => onExpire?.()}
+        />
+      </div>
     </div>
   );
 });

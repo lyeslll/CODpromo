@@ -76,6 +76,8 @@ Deno.serve(async (req) => {
       mode: "subscription",
       customer: customerId,
       client_reference_id: user.id,
+      // فرض الدولار لكل الزوّار بغضّ النظر عن موقعهم (تعطيل التسعير التكيّفي)
+      currency: "usd",
       line_items: [{ price: Deno.env.get("STRIPE_PRICE_ID") ?? "", quantity: 1 }],
       subscription_data: { metadata: { supabase_user_id: user.id } },
       allow_promotion_codes: true,

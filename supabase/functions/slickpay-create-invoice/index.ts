@@ -60,6 +60,8 @@ Deno.serve(async (req) => {
       account: accountUuid,
       url: `${siteUrl}/payment-return`,
       fees: 0, // التاجر يتحمّل العمولة → الزبون يدفع السعر المعروض تماماً
+      // SlickPay (prod) يفرض حقل address — اشتراك رقمي بلا عنوان شحن، فنضع افتراضياً
+      address: user.user_metadata?.address || "Algérie",
       items: [{ name: cfg.label, price: cfg.amount, quantity: 1 }],
       firstname: user.user_metadata?.full_name || "CODpromo",
       lastname: "User",

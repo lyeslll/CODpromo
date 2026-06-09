@@ -16,23 +16,33 @@ export default function PaymentReturnPaypal() {
   const [days, setDays] = useState(null);
   const [reason, setReason] = useState(null);
   const ranRef = useRef(false);
+  const mountedRef = useRef(true);
 
+  // علم الإلغاء يُرفع فقط عند إزالة المكوّن فعلياً (لا عند إعادة التصيير)
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  // يُنفَّذ مرة واحدة بعد استقرار حالة المصادقة — لا يعتمد على دوال غير ثابتة
+  // كي لا تُلغى نتيجة الالتقاط بإعادة تصيير سياق المصادقة أثناء الانتظار
   useEffect(() => {
     if (authLoading || ranRef.current) return;
     ranRef.current = true;
-    let active = true;
 
     (async () => {
       try {
         // PayPal يعيد معرّف الطلب في ?token= ، وإلا من الجلسة
         const orderId = params.get("token") || sessionStorage.getItem("codpromo:paypal-order");
         if (!orderId) {
-          if (active) setState("error");
+          if (mountedRef.current) setState("error");
           return;
         }
 
         const res = await capturePaypalOrder(orderId);
-        if (!active) return;
+        if (!mountedRef.current) return;
 
         if (res?.completed) {
           setDays(res.days);
@@ -44,14 +54,11 @@ export default function PaymentReturnPaypal() {
           setState("failed");
         }
       } catch {
-        if (active) setState("error");
+        if (mountedRef.current) setState("error");
       }
     })();
-
-    return () => {
-      active = false;
-    };
-  }, [authLoading, params, refreshProfile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading]);
 
   if (state === "success") {
     return (

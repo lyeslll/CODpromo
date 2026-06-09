@@ -17,13 +17,13 @@ import {
 } from "lucide-react";
 import { usePremium } from "../lib/premium.jsx";
 import { useAuth } from "../lib/auth.jsx";
-import { startPremiumCheckout, startPaypalCheckout } from "../lib/billing.js";
-import { USD_PLANS, fmtUSD } from "../lib/plans.js";
+import { startPremiumCheckout, startPaypalCheckout, startSlickpayCheckout } from "../lib/billing.js";
+import { USD_PLANS, fmtUSD, DZ_PLANS, fmtDZ } from "../lib/plans.js";
 
 const GOLD_SOFT = "#ffe486";
 const GOLD_DEEP = "#cf9a1e";
 
-// طرق الدفع في الخطوة الثانية. SlickPay وPayPal معطّلتان مؤقتاً حتى تجهيز الحسابات.
+// طرق الدفع في الخطوة الثانية.
 const METHODS = [
   {
     key: "stripe",
@@ -37,7 +37,7 @@ const METHODS = [
     name: "البطاقة الجزائرية",
     desc: "CIB / Edahabia عبر SATIM",
     icon: Landmark,
-    enabled: false,
+    enabled: true,
   },
   {
     key: "paypal",
@@ -53,7 +53,7 @@ export default function PremiumModal({ open, onClose }) {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [step, setStep] = useState("home"); // home | pay | paypal | stork
+  const [step, setStep] = useState("home"); // home | pay | slickpay | paypal | stork
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -61,9 +61,12 @@ export default function PremiumModal({ open, onClose }) {
   const [stripeLoading, setStripeLoading] = useState(false);
   const [paypalLoading, setPaypalLoading] = useState(false);
   const [paypalPlan, setPaypalPlan] = useState("year");
+  const [slickpayLoading, setSlickpayLoading] = useState(false);
+  const [slickpayPlan, setSlickpayPlan] = useState("year");
   const [payError, setPayError] = useState("");
 
   const paypalSelected = USD_PLANS.find((p) => p.key === paypalPlan) || USD_PLANS[0];
+  const slickpaySelected = DZ_PLANS.find((p) => p.key === slickpayPlan) || DZ_PLANS[0];
 
   const close = () => {
     setError("");
@@ -72,11 +75,11 @@ export default function PremiumModal({ open, onClose }) {
     onClose();
   };
 
-  // زر الرجوع: من خطوة باقات PayPal يعود لقائمة الطرق، وإلا للبداية
+  // زر الرجوع: من خطوة باقات PayPal/SlickPay يعود لقائمة الطرق، وإلا للبداية
   const goBack = () => {
     setError("");
     setPayError("");
-    setStep(step === "paypal" ? "pay" : "home");
+    setStep(step === "paypal" || step === "slickpay" ? "pay" : "home");
   };
 
   // الدفع يتطلّب تسجيل الدخول أولاً
@@ -115,9 +118,23 @@ export default function PremiumModal({ open, onClose }) {
     }
   };
 
+  // الدفع الجزائري عبر SlickPay (باقة لمرة واحدة، يوجّه لصفحة SATIM)
+  const paySlickpay = async () => {
+    setPayError("");
+    if (requireLogin()) return;
+    setSlickpayLoading(true);
+    try {
+      await startSlickpayCheckout(slickpayPlan);
+    } catch (e) {
+      setSlickpayLoading(false);
+      setPayError(e.message || "تعذّر بدء عملية الدفع");
+    }
+  };
+
   const pickMethod = (m) => {
     if (!m.enabled) return;
     if (m.key === "stripe") payStripe();
+    else if (m.key === "slickpay") setStep("slickpay");
     else if (m.key === "paypal") setStep("paypal");
   };
 
@@ -136,6 +153,7 @@ export default function PremiumModal({ open, onClose }) {
   const titles = {
     home: { h: "افتح خصومات Premium", s: "خصومات أقوى وأكواد حصرية" },
     pay: { h: "اختر طريقة الدفع", s: "ادفع بأمان وفعّل Premium فوراً" },
+    slickpay: { h: "البطاقة الجزائرية — اختر الباقة", s: "ادفع بـ CIB / Edahabia عبر SATIM وفعّل Premium" },
     paypal: { h: "PayPal — اختر الباقة", s: "ادفع مرة واحدة وفعّل Premium للمدة المختارة" },
     stork: { h: "عضوية Team Stork", s: "أدخل كودك لفتح كل المزايا" },
   };
@@ -307,6 +325,67 @@ export default function PremiumModal({ open, onClose }) {
                         );
                       })}
                       <p className="mt-1 text-center text-[11px] text-[var(--color-mute)]">دفع آمن — لا نحفظ بيانات بطاقتك</p>
+                    </motion.div>
+                  )}
+
+                  {/* ===== خطوة باقات SlickPay (الدينار الجزائري) ===== */}
+                  {step === "slickpay" && (
+                    <motion.div
+                      key="slickpay"
+                      initial={{ opacity: 0, x: 12 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -12 }}
+                      transition={{ duration: 0.18 }}
+                      className="flex flex-col"
+                    >
+                      <div className="grid grid-cols-3 gap-2 pt-2.5">
+                        {DZ_PLANS.map((p) => {
+                          const active = slickpayPlan === p.key;
+                          return (
+                            <button
+                              key={p.key}
+                              type="button"
+                              onClick={() => setSlickpayPlan(p.key)}
+                              className="relative flex flex-col items-center gap-1 rounded-2xl border px-2 py-3 text-center transition-all"
+                              style={{
+                                borderColor: active ? GOLD_DEEP : "var(--color-ink-line)",
+                                background: active ? `${GOLD_DEEP}14` : "var(--fill)",
+                              }}
+                            >
+                              {p.badge && (
+                                <span
+                                  className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-1.5 py-0.5 text-[8.5px] font-extrabold"
+                                  style={{
+                                    background: p.best ? `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` : "var(--fill-strong)",
+                                    color: p.best ? "#0a0a0a" : "var(--text-soft)",
+                                  }}
+                                >
+                                  {p.badge}
+                                </span>
+                              )}
+                              <span className="text-[12.5px] font-extrabold text-[var(--text)]">{p.label}</span>
+                              <span
+                                className="text-[13px] font-black"
+                                style={{ color: active ? GOLD_DEEP : "var(--text)" }}
+                              >
+                                {fmtDZ(p.price)}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <button
+                        onClick={paySlickpay}
+                        disabled={slickpayLoading}
+                        className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[15px] font-extrabold text-[#0a0a0a] disabled:opacity-70"
+                        style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
+                      >
+                        {slickpayLoading ? <Loader2 size={18} className="animate-spin" /> : <Landmark size={18} />}
+                        ادفع عبر SATIM · {fmtDZ(slickpaySelected.price)}
+                      </button>
+                      <p className="mt-2 text-center text-[11px] text-[var(--color-mute)]">
+                        دفعة واحدة بالبطاقة الجزائرية — تفعّل Premium لمدة الباقة المختارة
+                      </p>
                     </motion.div>
                   )}
 

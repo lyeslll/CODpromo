@@ -14,24 +14,38 @@ export default function PaymentReturn() {
   const [state, setState] = useState("checking"); // checking | success | failed | error
   const [days, setDays] = useState(null);
   const triesRef = useRef(0);
+  const ranRef = useRef(false);
+  const mountedRef = useRef(true);
+  const timerRef = useRef(null);
 
+  // علم الإلغاء يُرفع فقط عند إزالة المكوّن فعلياً (لا عند إعادة التصيير)
   useEffect(() => {
-    if (authLoading) return;
-    let active = true;
-    let timer;
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  // يُنفَّذ مرة واحدة بعد استقرار حالة المصادقة — لا يعتمد على دوال/قيم غير ثابتة
+  // كي لا تُلغى النتيجة أو حلقة إعادة المحاولة بإعادة تصيير سياق المصادقة
+  useEffect(() => {
+    if (authLoading || ranRef.current) return;
+    ranRef.current = true;
 
     const run = async () => {
       try {
         // معرّف الفاتورة: من الجلسة، أو من آخر فاتورة للمستخدم
         let id = sessionStorage.getItem("codpromo:slickpay-invoice");
         if (!id && user) id = await latestSlickpayInvoiceId(user.id);
+        if (!mountedRef.current) return;
         if (!id) {
-          if (active) setState("error");
+          setState("error");
           return;
         }
 
         const res = await checkSlickpayInvoice(id);
-        if (!active) return;
+        if (!mountedRef.current) return;
 
         if (res?.completed) {
           setDays(res.days);
@@ -44,21 +58,18 @@ export default function PaymentReturn() {
         // قد يتأخر تأكيد SATIM لحظات — أعد المحاولة قليلاً
         triesRef.current += 1;
         if (triesRef.current < 4) {
-          timer = setTimeout(run, 2500);
+          timerRef.current = setTimeout(run, 2500);
         } else {
           setState("failed");
         }
       } catch {
-        if (active) setState("error");
+        if (mountedRef.current) setState("error");
       }
     };
 
     run();
-    return () => {
-      active = false;
-      clearTimeout(timer);
-    };
-  }, [authLoading, user, refreshProfile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading]);
 
   if (state === "success") {
     return (

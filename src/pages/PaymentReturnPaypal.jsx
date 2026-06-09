@@ -14,6 +14,7 @@ export default function PaymentReturnPaypal() {
   const [params] = useSearchParams();
   const [state, setState] = useState("checking"); // checking | success | failed | error
   const [days, setDays] = useState(null);
+  const [reason, setReason] = useState(null);
   const ranRef = useRef(false);
 
   useEffect(() => {
@@ -39,6 +40,7 @@ export default function PaymentReturnPaypal() {
           refreshProfile?.();
           sessionStorage.removeItem("codpromo:paypal-order");
         } else {
+          setReason(res?.reason || null);
           setState("failed");
         }
       } catch {
@@ -108,8 +110,13 @@ export default function PaymentReturnPaypal() {
         لم يكتمل الدفع
       </h1>
       <p className="mt-2 text-[14px] leading-relaxed text-[var(--text-soft)]">
-        لم نتمكّن من تأكيد عملية الدفع. إن كنت أتممتها ولم يُفعّل اشتراكك، تواصل معنا.
+        {reason === "COMPLIANCE_VIOLATION"
+          ? "رفض PayPal إتمام العملية لأسباب تتعلّق بقيود الحساب المستلِم. لم يتم خصم أي مبلغ — جرّب طريقة دفع أخرى."
+          : "لم نتمكّن من تأكيد عملية الدفع. لم يتم خصم أي مبلغ إن لم تكتمل — حاول مجدداً أو اختر طريقة أخرى."}
       </p>
+      {reason && (
+        <p className="mt-2 font-mono text-[11px] text-[var(--color-mute)]">رمز: {reason}</p>
+      )}
       <Link
         to="/"
         className="mt-6 inline-flex items-center justify-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-6 py-3 text-[15px] font-extrabold text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)]"

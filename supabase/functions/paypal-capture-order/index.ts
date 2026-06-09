@@ -57,9 +57,11 @@ Deno.serve(async (req) => {
     });
     const capData = await capRes.json().catch(() => ({}));
     let completed = capData?.status === "COMPLETED";
+    // سبب الفشل المختصر من PayPal (issue) — يُعرض للمستخدم كي لا يفشل بصمت
+    let reason = capData?.details?.[0]?.issue || capData?.name || null;
 
-    // قد يكون التُقط مسبقاً (إعادة تحميل صفحة العودة) → تحقّق بحالة الطلب
-    if (!completed && capRes.status === 422) {
+    // قد يكون التُقط مسبقاً (إعادة تحميل صفحة العودة) → تحقّق بحالة الطلب الفعلية
+    if (!completed) {
       const getRes = await fetch(`${PAYPAL_BASE}/v2/checkout/orders/${order_id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -67,12 +69,23 @@ Deno.serve(async (req) => {
       completed = getData?.status === "COMPLETED";
     }
 
-    if (completed) await activatePremium(admin, order);
+    if (completed) {
+      reason = null;
+      await activatePremium(admin, order);
+    } else {
+      // علّم الطلب كفاشل (لا نلمس Premium)
+      await admin
+        .from("paypal_orders")
+        .update({ status: "failed" })
+        .eq("order_id", String(order_id))
+        .eq("status", "pending");
+    }
 
     return json({
       completed,
       plan_type: order.plan_type,
       days: PLANS[order.plan_type]?.days ?? null,
+      reason,
     });
   } catch (e) {
     return json({ error: (e as Error).message }, 400);

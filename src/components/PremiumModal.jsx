@@ -210,13 +210,6 @@ export default function PremiumModal({ open, onClose }) {
                         <ChevronLeft size={18} />
                       </button>
 
-                      <p className="-mt-0.5 px-1 text-center text-[12px] leading-relaxed text-[var(--text-soft)]">
-                        مع Premium تحصل على{" "}
-                        <span className="font-bold" style={{ color: GOLD_DEEP }}>خصومات أقوى</span> و
-                        <span className="font-bold" style={{ color: GOLD_DEEP }}> أكواد حصرية</span>{" "}
-                        لا تجدها في النسخة المجانية.
-                      </p>
-
                       <button
                         onClick={() => setStep("stork")}
                         className="flex w-full items-center justify-between rounded-2xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-5 py-4 text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)]"
@@ -226,6 +219,13 @@ export default function PremiumModal({ open, onClose }) {
                         </span>
                         <ChevronLeft size={18} className="text-[var(--color-mute)]" />
                       </button>
+
+                      <p className="mt-1 px-1 text-center text-[12px] leading-relaxed text-[var(--text-soft)]">
+                        مع Premium تحصل على{" "}
+                        <span className="font-bold" style={{ color: GOLD_DEEP }}>خصومات أقوى</span> و
+                        <span className="font-bold" style={{ color: GOLD_DEEP }}> أكواد حصرية</span>{" "}
+                        لا تجدها في النسخة المجانية.
+                      </p>
                     </motion.div>
                   )}
 

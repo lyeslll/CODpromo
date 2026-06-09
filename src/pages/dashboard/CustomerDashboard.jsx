@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import DashboardShell, { WelcomeCard, SectionTitle } from "../../components/dashboard/DashboardShell.jsx";
 import CompanyLogo from "../../components/CompanyLogo.jsx";
+import PremiumModal from "../../components/PremiumModal.jsx";
 import { getTypeMeta } from "../../lib/types.js";
 import { useAuth } from "../../lib/auth.jsx";
 import { fetchFavoritesWithCompany, removeFavorite } from "../../lib/favorites.js";
@@ -22,6 +23,7 @@ export default function CustomerDashboard() {
   const { user, profile } = useAuth();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [premiumModal, setPremiumModal] = useState(false);
 
   const name = profile?.full_name || user?.user_metadata?.full_name || "صديقنا";
   const joined = new Date(profile?.created_at || user?.created_at || Date.now()).toLocaleDateString("ar");
@@ -64,15 +66,15 @@ export default function CustomerDashboard() {
           </span>
           <div>
             <h3 className="text-[17px] font-extrabold text-[var(--text)]">ترقية إلى Premium</h3>
-            <p className="text-[13px] text-[var(--text-soft)]">عروض حصرية وكاش باك أعلى — قريباً.</p>
+            <p className="text-[13px] text-[var(--text-soft)]">خصومات أقوى وأكواد حصرية وكاش باك أعلى.</p>
           </div>
         </div>
         <button
-          disabled
-          className="cursor-not-allowed rounded-xl px-5 py-2.5 text-[14px] font-extrabold text-[#0a0a0a] opacity-70"
+          onClick={() => setPremiumModal(true)}
+          className="rounded-xl px-5 py-2.5 text-[14px] font-extrabold text-[#0a0a0a] transition-transform hover:scale-[1.02]"
           style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
         >
-          قريباً
+          ترقية الآن
         </button>
       </div>
 
@@ -99,6 +101,8 @@ export default function CustomerDashboard() {
           </AnimatePresence>
         </div>
       )}
+
+      <PremiumModal open={premiumModal} onClose={() => setPremiumModal(false)} />
     </DashboardShell>
   );
 }

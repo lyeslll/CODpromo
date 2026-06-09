@@ -13,6 +13,7 @@ import {
   Wallet,
   ChevronRight,
   ChevronLeft,
+  ExternalLink,
 } from "lucide-react";
 import { usePremium } from "../lib/premium.jsx";
 import { useAuth } from "../lib/auth.jsx";
@@ -115,7 +116,7 @@ export default function PremiumModal({ open, onClose }) {
   const titles = {
     home: { h: "افتح خصومات Premium", s: "خصومات أقوى وأكواد حصرية" },
     pay: { h: "اختر طريقة الدفع", s: "ادفع بأمان وفعّل Premium فوراً" },
-    stork: { h: "عضوية Stork", s: "أدخل كودك لفتح كل المزايا" },
+    stork: { h: "عضوية Team Stork", s: "أدخل كودك لفتح كل المزايا" },
   };
 
   return (
@@ -208,6 +209,13 @@ export default function PremiumModal({ open, onClose }) {
                         </span>
                         <ChevronLeft size={18} />
                       </button>
+
+                      <p className="-mt-0.5 px-1 text-center text-[12px] leading-relaxed text-[var(--text-soft)]">
+                        مع Premium تحصل على{" "}
+                        <span className="font-bold" style={{ color: GOLD_DEEP }}>خصومات أقوى</span> و
+                        <span className="font-bold" style={{ color: GOLD_DEEP }}> أكواد حصرية</span>{" "}
+                        لا تجدها في النسخة المجانية.
+                      </p>
 
                       <button
                         onClick={() => setStep("stork")}
@@ -319,9 +327,19 @@ export default function PremiumModal({ open, onClose }) {
                           {loading ? <Loader2 size={18} className="animate-spin" /> : "تفعيل"}
                         </motion.button>
                       </div>
-                      <p className="mt-3 text-center text-[11.5px] text-[var(--color-mute)]">
-                        جرّب: <span className="font-mono font-bold text-[var(--text-softer)]">STORK-VIP-001</span>
+                      <p className="mt-4 text-center text-[12px] leading-relaxed text-[var(--text-soft)]">
+                        Team Stork مجتمع للمبدعين ورواد الأعمال — أعضاؤه يحصلون على أكواد
+                        Premium حصرية ومزايا إضافية.
                       </p>
+                      <a
+                        href="https://www.stork.team/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl border px-4 py-2.5 text-[12.5px] font-bold transition-colors"
+                        style={{ borderColor: `${GOLD_DEEP}55`, color: GOLD_DEEP, background: `${GOLD_DEEP}0d` }}
+                      >
+                        <ExternalLink size={14} /> اكتشف مجتمع Team Stork
+                      </a>
                     </motion.form>
                   )}
                 </AnimatePresence>

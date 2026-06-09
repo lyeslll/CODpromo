@@ -25,7 +25,6 @@ There is no test runner, linter, or formatter configured. Deployment is Vercel (
 
 ### المتبقي (To do)
 - إصلاحات Premium: تأثير الخدش (scratch)، الإطار الذهبي، ارتفاع البطاقة، و`supports_premium` لكل بطاقة على حدة.
-- ربط نظام الدفع.
 - قالب الإيميلات.
 
 ### العمل مع المالك (إلياس)
@@ -64,6 +63,12 @@ Each `src/lib/*.js` module is a thin data-access layer for one domain (companies
 ## Premium / Stork unlocking
 
 `PremiumProvider` (`src/lib/premium.jsx`) computes `unlocked` as **either** a valid premium profile (`profile.is_premium` and `premium_until` in the future) **or** a local unlock flag in `localStorage` (`codpromo:premium-unlock`). Redeeming a Stork code (`stork.js`) marks the one-time code used, grants the signed-in user 30 days of premium, and sets the local flag. Per-company `supports_premium` controls whether a card shows premium pricing.
+
+### Payment providers (طرق الدفع)
+
+`PremiumModal.jsx` offers four unlock paths: **Stripe** ($10/mo international), **PayPal** (one-time USD plans), **SlickPay** (Algerian CIB/Edahabia via SATIM), and **Stork** promo codes. `src/lib/billing.js` wraps the Supabase Edge Functions for each provider; the trusted amounts/durations live server-side (never trusted from the browser).
+
+**SlickPay is live in production.** Three DZD plans: **شهر 2500 / 3 أشهر 6500 / سنة 24000 دج** (30/90/365 days), defined in `src/lib/plans.js` (`DZ_PLANS`) for display and authoritatively in `supabase/functions/_shared/slickpay.ts` (`PLANS`). Flow: `startSlickpayCheckout` → `slickpay-create-invoice` → SATIM → `/payment-return` → `slickpay-invoice-status` → `activatePremium`, with `slickpay-webhook` as the server-to-server confirmation. The invoice payload **must include `address`** (SlickPay prod returns 422 without it). Secrets in Supabase: `SLICKPAY_PUBLIC_KEY`, `SLICKPAY_WEBHOOK_SIGNATURE`, `SLICKPAY_BASE_URL` (set to `https://prodapi.slick-pay.com/api/v2`). Edge Functions deploy via `supabase functions deploy <name> --project-ref uulcgvdsqivgkiulurhk` (not Vercel).
 
 ## Admin auth is frontend-only — and RLS is wide open
 

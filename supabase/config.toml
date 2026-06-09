@@ -18,3 +18,10 @@ verify_jwt = true
 # SlickPay يستدعي الـ webhook بدون JWT؛ الأمان عبر التوقيع + إعادة التحقق
 [functions.slickpay-webhook]
 verify_jwt = false
+
+# دفع PayPal الدولي — إنشاء الطلب والتقاطه يتطلّبان جلسة مستخدم
+[functions.paypal-create-order]
+verify_jwt = true
+
+[functions.paypal-capture-order]
+verify_jwt = true

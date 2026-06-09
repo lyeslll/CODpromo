@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import PaymentSuccess from "./pages/PaymentSuccess.jsx";
 import PaymentCancel from "./pages/PaymentCancel.jsx";
 import PaymentReturn from "./pages/PaymentReturn.jsx";
+import PaymentReturnPaypal from "./pages/PaymentReturnPaypal.jsx";
 import RequireAuth from "./components/auth/RequireAuth.jsx";
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-cancel" element={<PaymentCancel />} />
           <Route path="/payment-return" element={<PaymentReturn />} />
+          <Route path="/payment-return-paypal" element={<PaymentReturnPaypal />} />
           <Route
             path="/dashboard"
             element={

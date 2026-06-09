@@ -17,7 +17,8 @@ import {
 } from "lucide-react";
 import { usePremium } from "../lib/premium.jsx";
 import { useAuth } from "../lib/auth.jsx";
-import { startPremiumCheckout } from "../lib/billing.js";
+import { startPremiumCheckout, startPaypalCheckout } from "../lib/billing.js";
+import { USD_PLANS, fmtUSD } from "../lib/plans.js";
 
 const GOLD_SOFT = "#ffe486";
 const GOLD_DEEP = "#cf9a1e";
@@ -41,9 +42,9 @@ const METHODS = [
   {
     key: "paypal",
     name: "PayPal",
-    desc: "الدفع عبر حساب PayPal",
+    desc: "الدفع عبر حساب PayPal بالدولار",
     icon: Wallet,
-    enabled: false,
+    enabled: true,
   },
 ];
 
@@ -52,13 +53,17 @@ export default function PremiumModal({ open, onClose }) {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [step, setStep] = useState("home"); // home | pay | stork
+  const [step, setStep] = useState("home"); // home | pay | paypal | stork
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
   const [stripeLoading, setStripeLoading] = useState(false);
+  const [paypalLoading, setPaypalLoading] = useState(false);
+  const [paypalPlan, setPaypalPlan] = useState("year");
   const [payError, setPayError] = useState("");
+
+  const paypalSelected = USD_PLANS.find((p) => p.key === paypalPlan) || USD_PLANS[0];
 
   const close = () => {
     setError("");
@@ -67,10 +72,11 @@ export default function PremiumModal({ open, onClose }) {
     onClose();
   };
 
-  const goHome = () => {
+  // زر الرجوع: من خطوة باقات PayPal يعود لقائمة الطرق، وإلا للبداية
+  const goBack = () => {
     setError("");
     setPayError("");
-    setStep("home");
+    setStep(step === "paypal" ? "pay" : "home");
   };
 
   // الدفع يتطلّب تسجيل الدخول أولاً
@@ -96,9 +102,23 @@ export default function PremiumModal({ open, onClose }) {
     }
   };
 
+  // الدفع الدولي عبر PayPal (باقة لمرة واحدة، يوجّه لصفحة موافقة PayPal)
+  const payPaypal = async () => {
+    setPayError("");
+    if (requireLogin()) return;
+    setPaypalLoading(true);
+    try {
+      await startPaypalCheckout(paypalPlan);
+    } catch (e) {
+      setPaypalLoading(false);
+      setPayError(e.message || "تعذّر بدء عملية الدفع");
+    }
+  };
+
   const pickMethod = (m) => {
     if (!m.enabled) return;
     if (m.key === "stripe") payStripe();
+    else if (m.key === "paypal") setStep("paypal");
   };
 
   // تفعيل كود Stork
@@ -116,6 +136,7 @@ export default function PremiumModal({ open, onClose }) {
   const titles = {
     home: { h: "افتح خصومات Premium", s: "خصومات أقوى وأكواد حصرية" },
     pay: { h: "اختر طريقة الدفع", s: "ادفع بأمان وفعّل Premium فوراً" },
+    paypal: { h: "PayPal — اختر الباقة", s: "ادفع مرة واحدة وفعّل Premium للمدة المختارة" },
     stork: { h: "عضوية Team Stork", s: "أدخل كودك لفتح كل المزايا" },
   };
 
@@ -155,7 +176,7 @@ export default function PremiumModal({ open, onClose }) {
             {/* زر رجوع (في الخطوات الداخلية) */}
             {!done && step !== "home" && (
               <button
-                onClick={goHome}
+                onClick={goBack}
                 aria-label="رجوع"
                 className="absolute right-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--color-mute)] transition-colors hover:text-[var(--text)]"
               >
@@ -286,6 +307,67 @@ export default function PremiumModal({ open, onClose }) {
                         );
                       })}
                       <p className="mt-1 text-center text-[11px] text-[var(--color-mute)]">دفع آمن — لا نحفظ بيانات بطاقتك</p>
+                    </motion.div>
+                  )}
+
+                  {/* ===== خطوة باقات PayPal ===== */}
+                  {step === "paypal" && (
+                    <motion.div
+                      key="paypal"
+                      initial={{ opacity: 0, x: 12 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -12 }}
+                      transition={{ duration: 0.18 }}
+                      className="flex flex-col"
+                    >
+                      <div className="grid grid-cols-3 gap-2 pt-2.5">
+                        {USD_PLANS.map((p) => {
+                          const active = paypalPlan === p.key;
+                          return (
+                            <button
+                              key={p.key}
+                              type="button"
+                              onClick={() => setPaypalPlan(p.key)}
+                              className="relative flex flex-col items-center gap-1 rounded-2xl border px-2 py-3 text-center transition-all"
+                              style={{
+                                borderColor: active ? GOLD_DEEP : "var(--color-ink-line)",
+                                background: active ? `${GOLD_DEEP}14` : "var(--fill)",
+                              }}
+                            >
+                              {p.badge && (
+                                <span
+                                  className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-1.5 py-0.5 text-[8.5px] font-extrabold"
+                                  style={{
+                                    background: p.best ? `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` : "var(--fill-strong)",
+                                    color: p.best ? "#0a0a0a" : "var(--text-soft)",
+                                  }}
+                                >
+                                  {p.badge}
+                                </span>
+                              )}
+                              <span className="text-[12.5px] font-extrabold text-[var(--text)]">{p.label}</span>
+                              <span
+                                className="text-[13px] font-black"
+                                style={{ color: active ? GOLD_DEEP : "var(--text)" }}
+                              >
+                                {fmtUSD(p.price)}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <button
+                        onClick={payPaypal}
+                        disabled={paypalLoading}
+                        className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[15px] font-extrabold text-[#0a0a0a] disabled:opacity-70"
+                        style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
+                      >
+                        {paypalLoading ? <Loader2 size={18} className="animate-spin" /> : <Wallet size={18} />}
+                        ادفع عبر PayPal · {fmtUSD(paypalSelected.price)}
+                      </button>
+                      <p className="mt-2 text-center text-[11px] text-[var(--color-mute)]">
+                        دفعة واحدة — تفعّل Premium لمدة الباقة المختارة
+                      </p>
                     </motion.div>
                   )}
 

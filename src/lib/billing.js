@@ -49,3 +49,29 @@ export async function latestSlickpayInvoiceId(userId) {
     .maybeSingle();
   return data?.invoice_id ?? null;
 }
+
+// ===================== PayPal (الدفع الدولي بالدولار) =====================
+
+// ينشئ طلب PayPal لباقة مختارة ويوجّه المستخدم لصفحة موافقة PayPal.
+export async function startPaypalCheckout(plan) {
+  const { data, error } = await supabase.functions.invoke("paypal-create-order", {
+    body: { plan },
+  });
+  if (error) throw new Error(error.message || "تعذّر بدء عملية الدفع");
+  if (!data?.url) throw new Error(data?.error || "لم يصل رابط الدفع من الخادم");
+  try {
+    sessionStorage.setItem("codpromo:paypal-order", data.order_id);
+  } catch {
+    /* تجاهل آمن */
+  }
+  window.location.href = data.url;
+}
+
+// يلتقط طلب PayPal بعد العودة من صفحة الموافقة (يفعّل Premium عند النجاح).
+export async function capturePaypalOrder(orderId) {
+  const { data, error } = await supabase.functions.invoke("paypal-capture-order", {
+    body: { order_id: orderId },
+  });
+  if (error) throw new Error(error.message || "تعذّر تأكيد الدفع");
+  return data;
+}

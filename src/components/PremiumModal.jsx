@@ -53,18 +53,20 @@ export default function PremiumModal({ open, onClose }) {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [step, setStep] = useState("home"); // home | pay | slickpay | paypal | stork
+  const [step, setStep] = useState("home"); // home | pay | stripe | slickpay | paypal | stork
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
   const [stripeLoading, setStripeLoading] = useState(false);
+  const [stripePlan, setStripePlan] = useState("year");
   const [paypalLoading, setPaypalLoading] = useState(false);
   const [paypalPlan, setPaypalPlan] = useState("year");
   const [slickpayLoading, setSlickpayLoading] = useState(false);
   const [slickpayPlan, setSlickpayPlan] = useState("year");
   const [payError, setPayError] = useState("");
 
+  const stripeSelected = USD_PLANS.find((p) => p.key === stripePlan) || USD_PLANS[0];
   const paypalSelected = USD_PLANS.find((p) => p.key === paypalPlan) || USD_PLANS[0];
   const slickpaySelected = DZ_PLANS.find((p) => p.key === slickpayPlan) || DZ_PLANS[0];
 
@@ -75,11 +77,11 @@ export default function PremiumModal({ open, onClose }) {
     onClose();
   };
 
-  // زر الرجوع: من خطوة باقات PayPal/SlickPay يعود لقائمة الطرق، وإلا للبداية
+  // زر الرجوع: من خطوة باقات (Stripe/PayPal/SlickPay) يعود لقائمة الطرق، وإلا للبداية
   const goBack = () => {
     setError("");
     setPayError("");
-    setStep(step === "paypal" || step === "slickpay" ? "pay" : "home");
+    setStep(["stripe", "paypal", "slickpay"].includes(step) ? "pay" : "home");
   };
 
   // الدفع يتطلّب تسجيل الدخول أولاً
@@ -92,13 +94,13 @@ export default function PremiumModal({ open, onClose }) {
     return false;
   };
 
-  // الدفع الدولي عبر Stripe (اشتراك شهري بالدولار)
+  // الدفع الدولي عبر Stripe (اشتراك متجدّد بالدولار — شهر/3 أشهر/سنة)
   const payStripe = async () => {
     setPayError("");
     if (requireLogin()) return;
     setStripeLoading(true);
     try {
-      await startPremiumCheckout();
+      await startPremiumCheckout(stripePlan);
     } catch (e) {
       setStripeLoading(false);
       setPayError(e.message || "تعذّر بدء عملية الدفع");
@@ -133,7 +135,7 @@ export default function PremiumModal({ open, onClose }) {
 
   const pickMethod = (m) => {
     if (!m.enabled) return;
-    if (m.key === "stripe") payStripe();
+    if (m.key === "stripe") setStep("stripe");
     else if (m.key === "slickpay") setStep("slickpay");
     else if (m.key === "paypal") setStep("paypal");
   };
@@ -153,6 +155,7 @@ export default function PremiumModal({ open, onClose }) {
   const titles = {
     home: { h: "افتح خصومات Premium", s: "خصومات أقوى وأكواد حصرية" },
     pay: { h: "اختر طريقة الدفع", s: "ادفع بأمان وفعّل Premium فوراً" },
+    stripe: { h: "بطاقة دولية — اختر الباقة", s: "اشتراك متجدّد تلقائياً بالدولار — ألغِه متى شئت" },
     slickpay: { h: "البطاقة الجزائرية — اختر الباقة", s: "ادفع بـ CIB / Edahabia عبر SATIM وفعّل Premium" },
     paypal: { h: "PayPal — اختر الباقة", s: "ادفع مرة واحدة وفعّل Premium للمدة المختارة" },
     stork: { h: "عضوية Team Stork", s: "أدخل كودك لفتح كل المزايا" },
@@ -279,13 +282,12 @@ export default function PremiumModal({ open, onClose }) {
                       className="flex flex-col gap-2.5"
                     >
                       {METHODS.map((m) => {
-                        const isStripeBusy = m.key === "stripe" && stripeLoading;
                         return (
                           <button
                             key={m.key}
                             type="button"
                             onClick={() => pickMethod(m)}
-                            disabled={!m.enabled || isStripeBusy}
+                            disabled={!m.enabled}
                             className="flex w-full items-center gap-3 rounded-2xl border p-3.5 text-right transition-all disabled:cursor-not-allowed"
                             style={{
                               borderColor: m.enabled ? `${GOLD_DEEP}55` : "var(--color-ink-line)",
@@ -315,16 +317,74 @@ export default function PremiumModal({ open, onClose }) {
                               </span>
                               <span className="mt-0.5 block text-[12px] text-[var(--text-soft)]">{m.desc}</span>
                             </span>
-                            {m.enabled &&
-                              (isStripeBusy ? (
-                                <Loader2 size={18} className="shrink-0 animate-spin" style={{ color: GOLD_DEEP }} />
-                              ) : (
-                                <ChevronLeft size={18} className="shrink-0" style={{ color: GOLD_DEEP }} />
-                              ))}
+                            {m.enabled && (
+                              <ChevronLeft size={18} className="shrink-0" style={{ color: GOLD_DEEP }} />
+                            )}
                           </button>
                         );
                       })}
                       <p className="mt-1 text-center text-[11px] text-[var(--color-mute)]">دفع آمن — لا نحفظ بيانات بطاقتك</p>
+                    </motion.div>
+                  )}
+
+                  {/* ===== خطوة باقات Stripe (اشتراك متجدّد بالدولار) ===== */}
+                  {step === "stripe" && (
+                    <motion.div
+                      key="stripe"
+                      initial={{ opacity: 0, x: 12 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -12 }}
+                      transition={{ duration: 0.18 }}
+                      className="flex flex-col"
+                    >
+                      <div className="grid grid-cols-3 gap-2 pt-2.5">
+                        {USD_PLANS.map((p) => {
+                          const active = stripePlan === p.key;
+                          return (
+                            <button
+                              key={p.key}
+                              type="button"
+                              onClick={() => setStripePlan(p.key)}
+                              className="relative flex flex-col items-center gap-1 rounded-2xl border px-2 py-3 text-center transition-all"
+                              style={{
+                                borderColor: active ? GOLD_DEEP : "var(--color-ink-line)",
+                                background: active ? `${GOLD_DEEP}14` : "var(--fill)",
+                              }}
+                            >
+                              {p.badge && (
+                                <span
+                                  className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-1.5 py-0.5 text-[8.5px] font-extrabold"
+                                  style={{
+                                    background: p.best ? `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` : "var(--fill-strong)",
+                                    color: p.best ? "#0a0a0a" : "var(--text-soft)",
+                                  }}
+                                >
+                                  {p.badge}
+                                </span>
+                              )}
+                              <span className="text-[12.5px] font-extrabold text-[var(--text)]">{p.label}</span>
+                              <span
+                                className="text-[13px] font-black"
+                                style={{ color: active ? GOLD_DEEP : "var(--text)" }}
+                              >
+                                {fmtUSD(p.price)}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <button
+                        onClick={payStripe}
+                        disabled={stripeLoading}
+                        className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[15px] font-extrabold text-[#0a0a0a] disabled:opacity-70"
+                        style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
+                      >
+                        {stripeLoading ? <Loader2 size={18} className="animate-spin" /> : <CreditCard size={18} />}
+                        اشترك عبر Stripe · {fmtUSD(stripeSelected.price)}
+                      </button>
+                      <p className="mt-2 text-center text-[11px] text-[var(--color-mute)]">
+                        اشتراك متجدّد تلقائياً لمدة الباقة — يمكنك إلغاؤه في أي وقت
+                      </p>
                     </motion.div>
                   )}
 

@@ -1,13 +1,14 @@
 import { supabase } from "./supabaseClient.js";
 
-// يستدعي Edge Function الآمنة لإنشاء جلسة دفع Stripe، ثم يوجّه المستخدم
-// إلى صفحة Stripe المستضافة. لا تمرّ أي مفاتيح سرّية عبر المتصفّح إطلاقاً.
-export async function startPremiumCheckout() {
+// يستدعي Edge Function الآمنة لإنشاء جلسة دفع Stripe لباقة متجدّدة مختارة
+// (month/quarter/year)، ثم يوجّه المستخدم إلى صفحة Stripe المستضافة.
+// لا تمرّ أي مفاتيح سرّية عبر المتصفّح إطلاقاً. بدون باقة → الشهر (توافق رجعي).
+export async function startPremiumCheckout(plan) {
   const { data, error } = await supabase.functions.invoke("create-checkout-session", {
-    body: {},
+    body: plan ? { plan } : {},
   });
   if (error) throw new Error(error.message || "تعذّر بدء عملية الدفع");
-  if (!data?.url) throw new Error("لم يصل رابط الدفع من الخادم");
+  if (!data?.url) throw new Error(data?.error || "لم يصل رابط الدفع من الخادم");
   window.location.href = data.url;
 }
 

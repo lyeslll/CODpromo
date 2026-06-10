@@ -4,6 +4,7 @@ import App from "./App.jsx";
 import { ThemeProvider } from "./lib/theme.jsx";
 import { LocaleProvider } from "./lib/locale.jsx";
 import "./i18n/index.js";
+import "flag-icons/css/flag-icons.min.css";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(

@@ -1,17 +1,36 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Globe, Check } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLocale } from "../lib/locale.jsx";
 
-// اللغات الثلاث: الاسم بلغته + علم صغير
+// اللغات الثلاث: الاسم بلغته + رمز دولة العلم (flag-icons) — أعلام SVG حقيقية لا emoji.
 const LANGS = [
-  { code: "ar", label: "العربية", flag: "🇩🇿" },
-  { code: "en", label: "English", flag: "🇬🇧" },
-  { code: "fr", label: "Français", flag: "🇫🇷" },
+  { code: "ar", label: "العربية", flag: "dz" },
+  { code: "en", label: "English", flag: "gb" },
+  { code: "fr", label: "Français", flag: "fr" },
 ];
 
-/** زر اللغة الأنيق — أيقونة كرة أرضية + قائمة منسدلة بالخيارات الثلاثة. */
+/** علم دائري حقيقي (SVG عبر flag-icons) — يظهر على كل الأنظمة بما فيها Windows. */
+function Flag({ code, size = 18 }) {
+  return (
+    <span
+      className={`fi fi-${code}`}
+      aria-hidden="true"
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.12)",
+        flexShrink: 0,
+      }}
+    />
+  );
+}
+
+/** زر اللغة الأنيق — علم اللغة الحالية + قائمة منسدلة بالخيارات الثلاثة. */
 export default function LanguageSwitcher({ className = "" }) {
   const { t } = useTranslation();
   const { lang, setLang } = useLocale();
@@ -49,9 +68,10 @@ export default function LanguageSwitcher({ className = "" }) {
         aria-haspopup="menu"
         aria-expanded={open}
         title={t("lang.switch")}
-        className="relative grid h-9 w-9 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)]"
+        className="relative flex h-9 items-center gap-1.5 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-2 text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)]"
       >
-        <Globe size={17} className="text-[var(--accent-text)]" />
+        <Flag code={current.flag} size={18} />
+        <ChevronDown size={13} className="text-[var(--color-mute)]" />
       </motion.button>
 
       <AnimatePresence>
@@ -76,7 +96,7 @@ export default function LanguageSwitcher({ className = "" }) {
                   className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[14px] font-bold transition-colors hover:bg-[var(--fill)]"
                   style={{ color: active ? "var(--accent-text)" : "var(--text-softer)" }}
                 >
-                  <span className="text-[18px] leading-none">{l.flag}</span>
+                  <Flag code={l.flag} size={20} />
                   <span className="flex-1 text-start">{l.label}</span>
                   {active && <Check size={15} className="shrink-0 text-[var(--color-lime)]" />}
                 </button>

@@ -86,6 +86,20 @@ When you add a column or table in code, add a matching idempotent migration as t
 
 Offer types are a fixed Arabic enum used across UI and stats — `"تخفيض"` (discount), `"كوبون"` (coupon), `"كاش باك"` (cashback) — defined with their colors/icons in `src/lib/types.js`.
 
+## i18n — اللغات (عربي / إنجليزي / فرنسي)
+
+الموقع متعدّد اللغات عبر **react-i18next**: العربية (الافتراضية، RTL) + الإنجليزية + الفرنسية (LTR).
+
+- ملفات الترجمة في `src/i18n/locales/{ar,en,fr}.json` (مفتاح واحد لكل نص، ويجب أن تبقى المفاتيح **متطابقة** في اللغات الثلاث). التهيئة في `src/i18n/index.js`.
+- `src/lib/locale.jsx` (`LocaleProvider` / `useLocale`) يضبط `lang` + `dir` على `<html>`، يحفظ الاختيار في `localStorage` (`codpromo:lang`)، والافتراضي عربي. سكربت anti-flash في `index.html` يضبط اللغة/الاتجاه قبل أول رسم.
+- زر اللغة: `src/components/LanguageSwitcher.jsx` (في Navbar + AuthShell + DashboardShell).
+- الخط يتبدّل عبر CSS حسب `[lang]` في `src/index.css`: Tajawal للعربية، Inter للإنجليزية/الفرنسية.
+- RTL/LTR: استعمل خصائص Tailwind المنطقية (`ps/pe`, `ms/me`, `start/end`, `text-start/text-end`) لا الفيزيائية (`pl/pr`, `left/right`)، والأيقونات الاتجاهية تنقلب بـ `ltr:rotate-180`.
+- لوحة `/admin` تبقى عربية RTL ثابتة (ملفوفة بـ `dir="rtl" lang="ar"`) ولا تُترجم. محتوى الشركات الديناميكي (الأسماء/الأوصاف من القاعدة) لا يُترجم — فقط نصوص الواجهة. قيم أنواع العروض تبقى عربية في القاعدة وتُعرض مترجمة عبر `getTypeKey` في `src/lib/types.js`.
+
+### قاعدة دائمة (إلزامية)
+> **أي ميزة أو محتوى جديد يُضاف إلى الموقع يجب أن يُترجَم تلقائياً للّغات الثلاث (ar/en/fr) عبر react-i18next بنفس النظام الحالي — لا نصوص مكتوبة مباشرة (hardcoded) في الواجهة. والأعلام تكون صوراً/SVG (مكتبة `flag-icons`) وليست emoji.**
+
 ## Theming
 
 Dark is the default. An inline script in `index.html` reads `localStorage["codpromo:theme"]` and sets the `<html>` class **before first paint** to avoid a flash, and shows a `#boot` spinner that `main.jsx` fades out after React mounts. `ThemeProvider` keeps the class in sync. Colors are CSS custom properties (`--text`, `--elev`, `--fill`, `--accent-text`, `--color-ink*`, `--color-lime`, …) redefined under `.dark` / `.light` in `src/index.css` — reference these vars in `className` (e.g. `bg-[var(--color-ink-card)]`) rather than hardcoding hex.

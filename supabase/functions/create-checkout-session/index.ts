@@ -1,10 +1,22 @@
 // ============================================================
 //  CODpromo — Edge Function: create-checkout-session
-//  جسر آمن: ينشئ جلسة Stripe Checkout لاشتراك Premium الشهري (10$).
+//  جسر آمن: ينشئ جلسة Stripe Checkout لاشتراك Premium متجدّد بالدولار.
+//  ثلاث باقات (شهر 10$ / 3 أشهر 25$ / سنة 90$) — كلٌّ بـ Price ID من secrets.
 //  المفتاح السري لـ Stripe يبقى في secrets الخاصة بالدالة فقط.
 // ============================================================
 import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+// خريطة الباقة → Price ID (مصدر الحقيقة للسعر/الفترة من Stripe، لا من المتصفّح).
+// الشهر يستعمل STRIPE_PRICE_ID الحالي (توافق رجعي).
+function priceIdFor(plan: string): string {
+  const ids: Record<string, string | undefined> = {
+    month: Deno.env.get("STRIPE_PRICE_ID") ?? undefined,
+    quarter: Deno.env.get("STRIPE_PRICE_ID_QUARTER") ?? undefined,
+    year: Deno.env.get("STRIPE_PRICE_ID_YEAR") ?? undefined,
+  };
+  return ids[plan] ?? "";
+}
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "", {
   httpClient: Stripe.createFetchHttpClient(),
@@ -42,6 +54,14 @@ Deno.serve(async (req) => {
     } = await userClient.auth.getUser();
     if (!user) return json({ error: "unauthorized" }, 401);
 
+    // 1.5) حدّد الباقة (شهر افتراضياً للتوافق الرجعي) واجلب Price ID المناسب
+    const { plan } = await req.json().catch(() => ({}));
+    const planType = ["month", "quarter", "year"].includes(plan as string)
+      ? (plan as string)
+      : "month";
+    const priceId = priceIdFor(planType);
+    if (!priceId) return json({ error: "باقة غير متاحة حالياً" }, 400);
+
     // عميل بصلاحيات كاملة (service role) لقراءة/كتابة الملف الشخصي بأمان
     const admin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -78,8 +98,9 @@ Deno.serve(async (req) => {
       client_reference_id: user.id,
       // فرض الدولار لكل الزوّار بغضّ النظر عن موقعهم (تعطيل التسعير التكيّفي)
       currency: "usd",
-      line_items: [{ price: Deno.env.get("STRIPE_PRICE_ID") ?? "", quantity: 1 }],
-      subscription_data: { metadata: { supabase_user_id: user.id } },
+      line_items: [{ price: priceId, quantity: 1 }],
+      subscription_data: { metadata: { supabase_user_id: user.id, plan_type: planType } },
+      metadata: { supabase_user_id: user.id, plan_type: planType },
       allow_promotion_codes: true,
       success_url: `${siteUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteUrl}/payment-cancel`,

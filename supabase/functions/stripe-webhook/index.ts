@@ -50,6 +50,9 @@ async function syncSubscription(
       premium_until: active ? premiumUntil : null,
       subscription_status: sub.status,
       stripe_customer_id: cust ?? undefined,
+      // الباقة من ميتاداتا الاشتراك (تُضبط عند الإنشاء)؛ undefined لا يكتب فوق القيمة
+      plan_type: sub.metadata?.plan_type ?? undefined,
+      payment_provider: "stripe",
     })
     .eq("id", targetId);
 }

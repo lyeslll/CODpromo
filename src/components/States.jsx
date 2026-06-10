@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { SearchX, WifiOff, RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function SkeletonGrid() {
   return (
@@ -25,6 +26,7 @@ export function SkeletonGrid() {
 }
 
 export function EmptyState({ onReset }) {
+  const { t } = useTranslation();
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.96 }}
@@ -34,34 +36,35 @@ export function EmptyState({ onReset }) {
       <div className="grid h-16 w-16 place-items-center rounded-2xl bg-[var(--fill)] text-[var(--color-mute)]">
         <SearchX size={30} />
       </div>
-      <h3 className="mt-5 text-[18px] font-extrabold text-[var(--text)]">لا توجد عروض مطابقة</h3>
+      <h3 className="mt-5 text-[18px] font-extrabold text-[var(--text)]">{t("states.emptyTitle")}</h3>
       <p className="mt-2 text-[14px] text-[var(--color-mute)]">
-        جرّب كلمة بحث أخرى أو غيّر الفلتر للعثور على ما يناسبك.
+        {t("states.emptyDesc")}
       </p>
       <button
         onClick={onReset}
         className="mt-6 rounded-xl px-5 py-2.5 text-[14px] font-extrabold text-[#0a0a0a]"
         style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
       >
-        إعادة ضبط الفلاتر
+        {t("states.reset")}
       </button>
     </motion.div>
   );
 }
 
 export function ErrorState({ message, onRetry }) {
+  const { t } = useTranslation();
   return (
     <div className="mx-auto flex max-w-sm flex-col items-center rounded-[var(--radius-card)] border border-red-500/20 bg-red-500/[0.04] px-6 py-14 text-center">
       <div className="grid h-16 w-16 place-items-center rounded-2xl bg-red-500/10 text-red-400">
         <WifiOff size={30} />
       </div>
-      <h3 className="mt-5 text-[18px] font-extrabold text-[var(--text)]">تعذّر تحميل العروض</h3>
+      <h3 className="mt-5 text-[18px] font-extrabold text-[var(--text)]">{t("states.errorTitle")}</h3>
       <p className="mt-2 text-[14px] text-[var(--color-mute)]">{message}</p>
       <button
         onClick={onRetry}
         className="mt-6 flex items-center gap-2 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-5 py-2.5 text-[14px] font-bold text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)]"
       >
-        <RefreshCw size={15} /> إعادة المحاولة
+        <RefreshCw size={15} /> {t("states.retry")}
       </button>
     </div>
   );

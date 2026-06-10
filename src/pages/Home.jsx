@@ -2,8 +2,10 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { fetchCompanies, trackClick } from "../lib/supabase.js";
+import { getTypeKey } from "../lib/types.js";
 import { useAuth } from "../lib/auth.jsx";
 import { usePremium } from "../lib/premium.jsx";
 import { fetchFavoriteIds, addFavorite, removeFavorite } from "../lib/favorites.js";
@@ -22,6 +24,7 @@ import { SkeletonGrid, EmptyState, ErrorState } from "../components/States.jsx";
 export default function Home() {
   const { user } = useAuth();
   const { unlocked } = usePremium();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [premiumView, setPremiumView] = useState("normal"); // عادي / Premium
@@ -146,16 +149,16 @@ export default function Home() {
             <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h2 className="text-[24px] font-black tracking-tight sm:text-[28px]">
-                  {activeFilter === "الكل" ? "كل العروض" : activeFilter}
+                  {activeFilter === "الكل" ? t("home.allOffers") : t(`filters.${getTypeKey(activeFilter)}`)}
                 </h2>
                 <p className="mt-1 text-[13.5px] text-[var(--color-mute)]">
-                  بدّل بين العادي و Premium لترى الفرق
+                  {t("home.toggleHint")}
                 </p>
               </div>
               <div className="flex items-center gap-3">
                 <PremiumToggle value={premiumView} onChange={setPremiumView} />
                 <span className="hidden rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-3 py-1.5 text-[13px] font-bold text-[var(--accent-text)] sm:block">
-                  {filtered.length} عرض
+                  {t("home.offersCount", { count: filtered.length })}
                 </span>
               </div>
             </div>
@@ -168,7 +171,7 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0, height: "auto" }}
                   exit={{ opacity: 0, y: -8, height: 0 }}
                   onClick={() => setPremiumModal(true)}
-                  className="mb-6 flex w-full items-center justify-between gap-3 overflow-hidden rounded-2xl border px-5 py-3.5 text-right"
+                  className="mb-6 flex w-full items-center justify-between gap-3 overflow-hidden rounded-2xl border px-5 py-3.5 text-start"
                   style={{ borderColor: "rgba(207,154,30,0.45)", background: "linear-gradient(90deg, rgba(240,198,60,0.12), rgba(240,198,60,0.04))" }}
                 >
                   <span className="flex items-center gap-2.5">
@@ -176,11 +179,11 @@ export default function Home() {
                       <Crown size={18} />
                     </span>
                     <span className="text-[13.5px] font-bold text-[var(--text)]">
-                      تشاهد خصومات Premium — اشترك أو فعّل كود Stork لكشف الأكواد
+                      {t("home.premiumBanner")}
                     </span>
                   </span>
                   <span className="hidden shrink-0 rounded-xl px-4 py-2 text-[13px] font-extrabold text-[#0a0a0a] sm:block" style={{ background: "linear-gradient(135deg,#ffe486,#cf9a1e)" }}>
-                    افتح Premium
+                    {t("home.openPremium")}
                   </span>
                 </motion.button>
               )}
@@ -234,7 +237,7 @@ export default function Home() {
               <Check size={16} strokeWidth={3} />
             </span>
             <span className="text-[14px] font-semibold text-[var(--text)]">
-              تم نسخ الكود{" "}
+              {t("home.copiedToast")}{" "}
               <span className="font-mono font-extrabold text-[var(--accent-text)]">{toast}</span>
             </span>
           </motion.div>

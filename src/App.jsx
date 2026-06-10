@@ -41,7 +41,7 @@ export default function App() {
           <Route
             path="/admin"
             element={
-              <div className="dark">
+              <div className="dark" dir="rtl" lang="ar">
                 <Admin />
               </div>
             }

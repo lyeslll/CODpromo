@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { XCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Shell } from "./PaymentSuccess.jsx";
 
 /** صفحة إلغاء الدفع — لم تتم أي عملية خصم. */
 export default function PaymentCancel() {
+  const { t } = useTranslation();
   return (
     <Shell>
       <span
@@ -14,17 +16,17 @@ export default function PaymentCancel() {
       </span>
 
       <h1 className="mt-5 text-[24px] font-black tracking-tight text-[var(--text)]">
-        أُلغيت عملية الدفع
+        {t("payment.cancel.title")}
       </h1>
       <p className="mt-2 text-[14px] leading-relaxed text-[var(--text-soft)]">
-        لم تتم أي عملية خصم. يمكنك المحاولة مجدداً في أي وقت.
+        {t("payment.cancel.desc")}
       </p>
 
       <Link
         to="/"
         className="mt-6 inline-flex items-center justify-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-6 py-3 text-[15px] font-extrabold text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)]"
       >
-        العودة للموقع
+        {t("payment.back")}
       </Link>
     </Shell>
   );

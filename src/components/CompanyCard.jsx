@@ -1,7 +1,8 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence, animate } from "framer-motion";
 import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock } from "lucide-react";
-import { getTypeMeta } from "../lib/types.js";
+import { useTranslation } from "react-i18next";
+import { getTypeMeta, getTypeKey } from "../lib/types.js";
 import { isImageUrl } from "./CompanyLogo.jsx";
 
 // هوية Premium الذهبية
@@ -20,6 +21,7 @@ export default function CompanyCard({
   unlocked = false,
   onUnlock,
 }) {
+  const { t } = useTranslation();
   const meta = getTypeMeta(company.type);
   const Icon = meta.icon;
   const [copied, setCopied] = useState(false);
@@ -119,12 +121,12 @@ export default function CompanyCard({
           )}
           {hot && !premium && (
             <span className="flex items-center gap-1 rounded-full bg-orange-500/15 px-2 py-1 text-[10.5px] font-bold text-orange-400">
-              <Flame size={11} /> رائج
+              <Flame size={11} /> {t("card.hot")}
             </span>
           )}
           <button
             onClick={() => onToggleFav(company.id)}
-            aria-label="إضافة للمفضلة"
+            aria-label={t("card.addFav")}
             className="grid h-8 w-8 place-items-center rounded-full border border-[var(--color-ink-line)] bg-[var(--fill)] transition-colors hover:bg-[var(--fill-strong)]"
           >
             <Heart size={15} className={isFavorite ? "fill-red-500 text-red-500" : "text-[var(--color-mute)]"} />
@@ -142,7 +144,7 @@ export default function CompanyCard({
         <div>
           <div className="flex items-center gap-1.5 text-[11.5px] font-semibold text-[var(--color-mute)]">
             {premium && <Crown size={12} style={{ color: GOLD }} />}
-            {premium ? "خصم Premium" : "قيمة العرض"}
+            {premium ? t("card.premiumDiscount") : t("card.offerValue")}
           </div>
           <div className="text-[30px] font-black leading-none">
             <AnimatedDiscount value={shownDiscount} color={accent} glow={accentGlow} />
@@ -153,7 +155,7 @@ export default function CompanyCard({
           style={{ background: `${meta.color}1a`, color: meta.color }}
         >
           <Icon size={13} />
-          {meta.label}
+          {t(`types.${getTypeKey(company.type)}`)}
         </span>
       </div>
 
@@ -165,14 +167,14 @@ export default function CompanyCard({
             style={{ borderColor: `${accent}55`, background: `${accent}0d` }}
           >
             <span className="text-[10.5px] font-semibold text-[var(--color-mute)]">
-              {premium ? "كود Premium" : "الكود"}
+              {premium ? t("card.premiumCode") : t("card.code")}
             </span>
             <span className="font-mono text-[15px] font-extrabold tracking-widest text-[var(--text)]">
               {company.code}
             </span>
           </div>
           {premium && !revealed && (
-            <ScratchLayer unlocked={unlocked} onReveal={() => setRevealed(true)} onUnlock={() => onUnlock?.()} />
+            <ScratchLayer t={t} unlocked={unlocked} onReveal={() => setRevealed(true)} onUnlock={() => onUnlock?.()} />
           )}
         </div>
 
@@ -192,11 +194,11 @@ export default function CompanyCard({
           <AnimatePresence mode="wait" initial={false}>
             {copied ? (
               <motion.span key="done" initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -14, opacity: 0 }} transition={{ duration: 0.2 }} className="flex items-center gap-1.5">
-                <Check size={16} /> تم النسخ
+                <Check size={16} /> {t("card.copied")}
               </motion.span>
             ) : (
               <motion.span key="copy" initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -14, opacity: 0 }} transition={{ duration: 0.2 }} className="flex items-center gap-1.5">
-                <Copy size={15} /> نسخ الكود
+                <Copy size={15} /> {t("card.copy")}
               </motion.span>
             )}
           </AnimatePresence>
@@ -214,7 +216,7 @@ export default function CompanyCard({
           style={{ borderColor: `${accent}44`, background: `${accent}0d` }}
         >
           <ExternalLink size={15} style={{ color: accent }} />
-          زيارة الموقع
+          {t("card.visit")}
         </motion.a>
       )}
     </motion.article>
@@ -230,7 +232,7 @@ const METAL_BG = {
   boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.2)",
 };
 
-function ScratchLayer({ unlocked, onReveal, onUnlock }) {
+function ScratchLayer({ t, unlocked, onReveal, onUnlock }) {
   const [progress, setProgress] = useState(0);
 
   // غير مشترك: غطاء مقفل — أيقونة قفل فقط، والضغط عليه يفتح نافذة "افتح خصومات Premium"
@@ -239,12 +241,12 @@ function ScratchLayer({ unlocked, onReveal, onUnlock }) {
       <button
         type="button"
         onClick={onUnlock}
-        aria-label="افتح خصومات Premium"
+        aria-label={t("card.unlockPremium")}
         className="absolute inset-0 flex cursor-pointer select-none items-center justify-center gap-1.5 overflow-hidden rounded-xl"
         style={METAL_BG}
       >
         <Lock size={13} className="text-[#4a4f58]" />
-        <span className="text-[11.5px] font-extrabold text-[#4a4f58]">كود Premium</span>
+        <span className="text-[11.5px] font-extrabold text-[#4a4f58]">{t("card.premiumCode")}</span>
       </button>
     );
   }
@@ -272,7 +274,7 @@ function ScratchLayer({ unlocked, onReveal, onUnlock }) {
       style={METAL_BG}
     >
       <Lock size={13} className="text-[#4a4f58]" />
-      <span className="text-[11.5px] font-extrabold text-[#4a4f58]">امسح للكشف</span>
+      <span className="text-[11.5px] font-extrabold text-[#4a4f58]">{t("card.scratchReveal")}</span>
       {/* لمعة معدنية */}
       <span
         className="pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 opacity-50"

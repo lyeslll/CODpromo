@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Gift, Loader2, Check, ShieldCheck } from "lucide-react";
+import { useTranslation, Trans } from "react-i18next";
 import { useAuth } from "../lib/auth.jsx";
 import { subscribeEmail } from "../lib/subscribers.js";
 
@@ -23,6 +24,7 @@ const markSeen = () => {
 };
 
 export default function EmailPopup() {
+  const { t } = useTranslation();
   const { user, loading } = useAuth();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -62,8 +64,8 @@ export default function EmailPopup() {
   const submit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setError("أدخل بريداً صحيحاً");
-    if (!consent) return setError("يرجى الموافقة على استلام العروض للمتابعة");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setError(t("emailPopup.errEmail"));
+    if (!consent) return setError(t("emailPopup.errConsent"));
 
     setSubmitting(true);
     try {
@@ -72,7 +74,7 @@ export default function EmailPopup() {
       setDone(true);
       setTimeout(() => setOpen(false), 2400);
     } catch (err) {
-      setError(err.message || "تعذّر الاشتراك، حاول لاحقاً");
+      setError(err.message || t("emailPopup.errGeneric"));
     } finally {
       setSubmitting(false);
     }
@@ -107,8 +109,8 @@ export default function EmailPopup() {
             {/* زر الإغلاق — مربع 44px والأيقونة في مركزه تماماً (منطقة الضغط = المربع نفسه) */}
             <button
               onClick={close}
-              aria-label="إغلاق"
-              className="absolute left-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--color-mute)] transition-colors hover:text-[var(--text)]"
+              aria-label={t("emailPopup.close")}
+              className="absolute end-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--color-mute)] transition-colors hover:text-[var(--text)]"
             >
               <X size={17} />
             </button>
@@ -121,8 +123,8 @@ export default function EmailPopup() {
                 >
                   <Check size={32} className="text-[var(--color-lime)]" strokeWidth={3} />
                 </div>
-                <h3 className="text-[20px] font-black text-[var(--text)]">تم الاشتراك! 🎉</h3>
-                <p className="text-[14px] text-[var(--text-soft)]">ستصلك أفضل العروض الحصرية على بريدك.</p>
+                <h3 className="text-[20px] font-black text-[var(--text)]">{t("emailPopup.doneTitle")}</h3>
+                <p className="text-[14px] text-[var(--text-soft)]">{t("emailPopup.doneDesc")}</p>
               </div>
             ) : (
               <div className="relative">
@@ -134,10 +136,10 @@ export default function EmailPopup() {
                     <Gift size={26} />
                   </span>
                   <h2 className="mt-4 text-balance text-[22px] font-black leading-snug text-[var(--text)]">
-                    احصل على كوبونات وعروض <span className="text-[var(--accent-text)]">حصرية</span> في بريدك
+                    <Trans i18nKey="emailPopup.title" components={[<span className="text-[var(--accent-text)]" />]} />
                   </h2>
                   <p className="mt-1.5 text-[13.5px] text-[var(--text-soft)]">
-                    انضم لآلاف الموفّرين — أفضل أكواد الخصم أسبوعياً.
+                    {t("emailPopup.desc")}
                   </p>
                 </div>
 
@@ -149,19 +151,19 @@ export default function EmailPopup() {
 
                 <form onSubmit={submit} className="flex flex-col gap-3">
                   <div className="relative flex items-center">
-                    <Mail size={17} className="pointer-events-none absolute right-3 text-[var(--color-mute)]" />
+                    <Mail size={17} className="pointer-events-none absolute start-3 text-[var(--color-mute)]" />
                     <input
                       type="email"
                       dir="ltr"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full rounded-xl border border-[var(--color-ink-line)] bg-[var(--color-ink)] px-3.5 py-3 pr-10 text-left text-[14.5px] font-medium text-[var(--text)] outline-none transition-colors placeholder:text-[var(--color-mute)] focus:border-[var(--color-lime)]"
+                      className="w-full rounded-xl border border-[var(--color-ink-line)] bg-[var(--color-ink)] px-3.5 py-3 ps-10 text-left text-[14.5px] font-medium text-[var(--text)] outline-none transition-colors placeholder:text-[var(--color-mute)] focus:border-[var(--color-lime)]"
                     />
                   </div>
 
                   {/* الموافقة */}
-                  <label className="flex cursor-pointer items-start gap-2.5 text-right">
+                  <label className="flex cursor-pointer items-start gap-2.5 text-start">
                     <button
                       type="button"
                       onClick={() => setConsent((v) => !v)}
@@ -175,8 +177,7 @@ export default function EmailPopup() {
                       {consent && <Check size={13} strokeWidth={3} className="text-[#0a0a0a]" />}
                     </button>
                     <span className="text-[12px] leading-relaxed text-[var(--text-soft)]" onClick={() => setConsent((v) => !v)}>
-                      أوافق على استلام عروض وكوبونات عبر البريد وعلى{" "}
-                      <span className="font-bold text-[var(--accent-text)] underline">سياسة الخصوصية</span>.
+                      <Trans i18nKey="emailPopup.consent" components={[<span className="font-bold text-[var(--accent-text)] underline" />]} />
                     </span>
                   </label>
 
@@ -188,12 +189,12 @@ export default function EmailPopup() {
                     style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
                   >
                     {submitting ? <Loader2 size={18} className="animate-spin" /> : <Gift size={17} />}
-                    اشترك واحصل على العروض
+                    {t("emailPopup.submit")}
                   </motion.button>
 
                   <p className="flex items-center justify-center gap-1.5 text-[11px] text-[var(--color-mute)]">
                     <ShieldCheck size={12} className="text-[var(--color-lime)]" />
-                    لا رسائل مزعجة — يمكنك إلغاء الاشتراك في أي وقت.
+                    {t("emailPopup.noSpam")}
                   </p>
                 </form>
               </div>

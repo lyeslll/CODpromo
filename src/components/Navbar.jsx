@@ -2,25 +2,28 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogIn, LogOut, Sparkles, Menu, X, Sun, Moon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import Logo from "./Logo.jsx";
+import LanguageSwitcher from "./LanguageSwitcher.jsx";
 import { useTheme } from "../lib/theme.jsx";
 import { useAuth } from "../lib/auth.jsx";
 
 const LINKS = [
-  { label: "المتاجر", href: "#stores" },
-  { label: "كيف يعمل", href: "#how" },
-  { label: "الأكثر استخداماً", href: "#stores" },
+  { key: "stores", href: "#stores" },
+  { key: "how", href: "#how" },
+  { key: "popular", href: "#stores" },
 ];
 
 function ThemeToggle({ className = "" }) {
   const { theme, toggle } = useTheme();
+  const { t } = useTranslation();
   const isDark = theme === "dark";
   return (
     <motion.button
       onClick={toggle}
       whileTap={{ scale: 0.9 }}
-      aria-label={isDark ? "تفعيل الوضع الفاتح" : "تفعيل الوضع الداكن"}
-      title={isDark ? "الوضع الفاتح" : "الوضع الداكن"}
+      aria-label={isDark ? t("nav.enableLight") : t("nav.enableDark")}
+      title={isDark ? t("nav.themeToLight") : t("nav.themeToDark")}
       className={`relative grid h-9 w-9 place-items-center overflow-hidden rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)] ${className}`}
     >
       <AnimatePresence mode="wait" initial={false}>
@@ -51,8 +54,8 @@ function ThemeToggle({ className = "" }) {
 }
 
 /** اسم العرض وأول حرف للمستخدم. */
-function userDisplay(user) {
-  const name = user?.user_metadata?.full_name || user?.email || "حسابي";
+function userDisplay(user, fallback) {
+  const name = user?.user_metadata?.full_name || user?.email || fallback;
   const initial = (name || "؟").trim().charAt(0).toUpperCase();
   return { name, initial };
 }
@@ -61,6 +64,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -76,7 +80,7 @@ export default function Navbar() {
     navigate("/");
   };
 
-  const { name, initial } = userDisplay(user);
+  const { name, initial } = userDisplay(user, t("nav.account"));
 
   return (
     <motion.header
@@ -100,17 +104,18 @@ export default function Navbar() {
           <nav className="hidden items-center gap-1 md:flex">
             {LINKS.map((l) => (
               <a
-                key={l.label}
+                key={l.key}
                 href={l.href}
                 className="rounded-lg px-3.5 py-2 text-[14px] font-medium text-[var(--text-softer)] transition-colors hover:text-[var(--text)]"
               >
-                {l.label}
+                {t(`nav.${l.key}`)}
               </a>
             ))}
           </nav>
 
           {/* أزرار */}
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <ThemeToggle />
 
             {user ? (
@@ -118,8 +123,8 @@ export default function Navbar() {
                 {/* بطاقة الحساب — تفتح الداشبورد */}
                 <Link
                   to="/dashboard"
-                  title="حسابي"
-                  className="hidden items-center gap-2 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] py-1.5 pl-3 pr-1.5 transition-colors hover:bg-[var(--fill-strong)] sm:flex"
+                  title={t("nav.account")}
+                  className="hidden items-center gap-2 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] py-1.5 pe-3 ps-1.5 transition-colors hover:bg-[var(--fill-strong)] sm:flex"
                 >
                   <span
                     className="grid h-7 w-7 place-items-center rounded-lg text-[13px] font-black text-[#0a0a0a]"
@@ -135,7 +140,7 @@ export default function Navbar() {
                   onClick={logout}
                   className="hidden items-center gap-1.5 rounded-xl border border-[var(--color-ink-line)] px-3 py-2 text-[13.5px] font-bold text-[var(--text-softer)] transition-colors hover:border-red-500/40 hover:text-red-400 sm:flex"
                 >
-                  <LogOut size={15} /> خروج
+                  <LogOut size={15} /> {t("nav.logout")}
                 </button>
               </>
             ) : (
@@ -145,7 +150,7 @@ export default function Navbar() {
                   className="hidden items-center gap-1.5 rounded-xl px-3.5 py-2 text-[14px] font-semibold text-[var(--text-softer)] transition-colors hover:text-[var(--text)] sm:flex"
                 >
                   <LogIn size={16} />
-                  دخول
+                  {t("nav.login")}
                 </Link>
 
                 <Link to="/signup">
@@ -160,7 +165,7 @@ export default function Navbar() {
                   >
                     <span className="absolute inset-0 -translate-x-full bg-white/30 transition-transform duration-500 group-hover:translate-x-full" />
                     <Sparkles size={15} className="relative" />
-                    <span className="relative">اشترك مجاناً</span>
+                    <span className="relative">{t("nav.signup")}</span>
                   </motion.span>
                 </Link>
               </>
@@ -169,7 +174,7 @@ export default function Navbar() {
             {/* زر القائمة للموبايل */}
             <button
               onClick={() => setOpen((v) => !v)}
-              aria-label="القائمة"
+              aria-label={t("nav.menu")}
               className="grid h-9 w-9 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--text)] md:hidden"
             >
               {open ? <X size={18} /> : <Menu size={18} />}
@@ -189,12 +194,12 @@ export default function Navbar() {
             >
               {LINKS.map((l) => (
                 <a
-                  key={l.label}
+                  key={l.key}
                   href={l.href}
                   onClick={() => setOpen(false)}
                   className="block rounded-xl px-4 py-3 text-[15px] font-medium text-[var(--text-softer)] transition-colors hover:bg-[var(--fill)] hover:text-[var(--text)]"
                 >
-                  {l.label}
+                  {t(`nav.${l.key}`)}
                 </a>
               ))}
 
@@ -217,7 +222,7 @@ export default function Navbar() {
                     onClick={logout}
                     className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-[var(--color-ink-line)] px-3 py-2.5 text-[14px] font-bold text-red-400"
                   >
-                    <LogOut size={16} /> تسجيل الخروج
+                    <LogOut size={16} /> {t("nav.logoutLong")}
                   </button>
                 </div>
               ) : (
@@ -227,7 +232,7 @@ export default function Navbar() {
                     onClick={() => setOpen(false)}
                     className="rounded-xl border border-[var(--color-ink-line)] px-3 py-2.5 text-center text-[14px] font-semibold text-[var(--text)]"
                   >
-                    دخول
+                    {t("nav.login")}
                   </Link>
                   <Link
                     to="/signup"
@@ -238,7 +243,7 @@ export default function Navbar() {
                         "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))",
                     }}
                   >
-                    اشترك مجاناً
+                    {t("nav.signup")}
                   </Link>
                 </div>
               )}

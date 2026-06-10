@@ -17,9 +17,10 @@ import {
   Ticket,
   Wallet,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import DashboardShell, { WelcomeCard, SectionTitle } from "../../components/dashboard/DashboardShell.jsx";
 import CompanyLogo from "../../components/CompanyLogo.jsx";
-import { getTypeMeta } from "../../lib/types.js";
+import { getTypeMeta, getTypeKey } from "../../lib/types.js";
 import { useAuth } from "../../lib/auth.jsx";
 import { uploadLogo } from "../../lib/supabase.js";
 import { fetchMyRequests, createRequest } from "../../lib/requests.js";
@@ -30,18 +31,20 @@ const TYPES = [
   { key: "كاش باك", icon: Wallet },
 ];
 
+// الألوان والأيقونات لكل حالة — التسمية تُترجم عبر t(`dashboard.status.${status}`).
 const STATUS = {
-  pending: { label: "قيد المراجعة", color: "#fbbf24", icon: Clock },
-  accepted: { label: "مقبول", color: "#a6f000", icon: CheckCircle2 },
-  rejected: { label: "مرفوض", color: "#ef4444", icon: XCircle },
+  pending: { color: "#fbbf24", icon: Clock },
+  accepted: { color: "#a6f000", icon: CheckCircle2 },
+  rejected: { color: "#ef4444", icon: XCircle },
 };
 
 const EMPTY = { title: "", type: "تخفيض", description: "", code: "", link: "", logo: "" };
 
 export default function CompanyDashboard() {
   const { user, profile } = useAuth();
+  const { t } = useTranslation();
   const companyName =
-    profile?.company_name || user?.user_metadata?.company_name || user?.user_metadata?.full_name || "شركتك";
+    profile?.company_name || user?.user_metadata?.company_name || user?.user_metadata?.full_name || t("dashboard.company.company");
 
   const [form, setForm] = useState(EMPTY);
   const [uploading, setUploading] = useState(false);
@@ -84,7 +87,7 @@ export default function CompanyDashboard() {
   const submit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!form.title.trim()) return setError("عنوان العرض مطلوب");
+    if (!form.title.trim()) return setError(t("dashboard.company.errTitle"));
     setSubmitting(true);
     try {
       const created = await createRequest(user.id, { ...form, company_name: companyName });
@@ -102,19 +105,19 @@ export default function CompanyDashboard() {
   const meta = getTypeMeta(form.type);
 
   return (
-    <DashboardShell badge="حساب شركة">
-      <WelcomeCard title={`مرحباً، ${companyName} 🏢`} subtitle="أرسل عروضك ليراجعها فريق CODpromo وتظهر للزبائن">
+    <DashboardShell badge={t("dashboard.company.badge")}>
+      <WelcomeCard title={t("dashboard.company.welcome", { name: companyName })} subtitle={t("dashboard.company.subtitle")}>
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <InfoPill icon={Mail} label="البريد" value={user?.email} />
-          <InfoPill icon={Phone} label="الهاتف" value={profile?.phone} />
-          <InfoPill icon={Globe} label="الموقع" value={profile?.website} />
+          <InfoPill icon={Mail} label={t("dashboard.company.email")} value={user?.email} />
+          <InfoPill icon={Phone} label={t("dashboard.company.phone")} value={profile?.phone} />
+          <InfoPill icon={Globe} label={t("dashboard.company.website")} value={profile?.website} />
         </div>
       </WelcomeCard>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1fr]">
         {/* النموذج */}
         <div>
-          <SectionTitle icon={PlusCircle}>طلب عرض جديد</SectionTitle>
+          <SectionTitle icon={PlusCircle}>{t("dashboard.company.newRequest")}</SectionTitle>
           <form
             onSubmit={submit}
             className="flex flex-col gap-4 rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] p-5"
@@ -136,32 +139,32 @@ export default function CompanyDashboard() {
                     className="flex cursor-pointer items-center gap-2 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-4 py-2.5 text-[13.5px] font-bold text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)]"
                   >
                     {uploading ? <Loader2 size={16} className="animate-spin text-[var(--color-lime)]" /> : <ImagePlus size={16} className="text-[var(--color-lime)]" />}
-                    {uploading ? "جارٍ الرفع…" : form.logo ? "تغيير اللوجو" : "رفع لوجو"}
+                    {uploading ? t("dashboard.company.uploading") : form.logo ? t("dashboard.company.changeLogo") : t("dashboard.company.uploadLogo")}
                   </label>
                   {form.logo && (
                     <button type="button" onClick={() => setForm((f) => ({ ...f, logo: "" }))} className="flex items-center gap-1 rounded-xl border border-[var(--color-ink-line)] px-3 py-2.5 text-[13px] font-semibold text-[var(--color-mute)] hover:text-red-400">
-                      <X size={14} /> إزالة
+                      <X size={14} /> {t("dashboard.company.removeLogo")}
                     </button>
                   )}
                 </div>
               </div>
             </div>
 
-            <Field label="عنوان العرض" required>
-              <input value={form.title} onChange={set("title")} placeholder="مثال: خصم 20% على كل الطلبات" className={inputCls} />
+            <Field label={t("dashboard.company.offerTitle")} required>
+              <input value={form.title} onChange={set("title")} placeholder={t("dashboard.company.offerTitlePh")} className={inputCls} />
             </Field>
 
             <div>
-              <Lbl>نوع العرض</Lbl>
+              <Lbl>{t("dashboard.company.offerType")}</Lbl>
               <div className="grid grid-cols-3 gap-2">
-                {TYPES.map((t) => {
-                  const tm = getTypeMeta(t.key);
-                  const active = form.type === t.key;
+                {TYPES.map((ty) => {
+                  const tm = getTypeMeta(ty.key);
+                  const active = form.type === ty.key;
                   return (
                     <button
-                      key={t.key}
+                      key={ty.key}
                       type="button"
-                      onClick={() => setForm((f) => ({ ...f, type: t.key }))}
+                      onClick={() => setForm((f) => ({ ...f, type: ty.key }))}
                       className="flex items-center justify-center gap-1.5 rounded-xl border px-2 py-2.5 text-[13px] font-bold transition-all"
                       style={{
                         borderColor: active ? tm.color : "var(--color-ink-line)",
@@ -169,22 +172,22 @@ export default function CompanyDashboard() {
                         color: active ? tm.color : "var(--text-softer)",
                       }}
                     >
-                      <t.icon size={14} /> {t.key}
+                      <ty.icon size={14} /> {t(`types.${getTypeKey(ty.key)}`)}
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            <Field label="الوصف">
-              <textarea value={form.description} onChange={set("description")} rows={2} placeholder="تفاصيل العرض…" className={`${inputCls} resize-none`} />
+            <Field label={t("dashboard.company.description")}>
+              <textarea value={form.description} onChange={set("description")} rows={2} placeholder={t("dashboard.company.descriptionPh")} className={`${inputCls} resize-none`} />
             </Field>
 
             <div className="grid grid-cols-2 gap-3">
-              <Field label="كود الخصم">
-                <input value={form.code} onChange={set("code")} placeholder="SAVE20" className={`${inputCls} font-mono tracking-wider`} />
+              <Field label={t("dashboard.company.code")}>
+                <input value={form.code} onChange={set("code")} placeholder={t("dashboard.company.codePh")} className={`${inputCls} font-mono tracking-wider`} />
               </Field>
-              <Field label="الرابط">
+              <Field label={t("dashboard.company.link")}>
                 <input value={form.link} onChange={set("link")} dir="ltr" placeholder="https://…" className={`${inputCls} text-left`} />
               </Field>
             </div>
@@ -197,7 +200,7 @@ export default function CompanyDashboard() {
               style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
             >
               {submitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={17} />}
-              إرسال الطلب
+              {t("dashboard.company.submit")}
             </motion.button>
           </form>
         </div>
@@ -208,16 +211,16 @@ export default function CompanyDashboard() {
             icon={Building2}
             action={<span className="text-[13px] font-bold text-[var(--color-mute)]">{requests.length}</span>}
           >
-            طلباتي
+            {t("dashboard.company.myRequests")}
           </SectionTitle>
 
           {loading ? (
             <div className="flex items-center justify-center gap-2 py-14 text-[var(--color-mute)]">
-              <Loader2 size={18} className="animate-spin" /> جارٍ التحميل…
+              <Loader2 size={18} className="animate-spin" /> {t("dashboard.loading")}
             </div>
           ) : requests.length === 0 ? (
             <div className="rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] px-6 py-12 text-center text-[14px] text-[var(--text-soft)]">
-              لا توجد طلبات بعد — أرسل أول عرض من النموذج.
+              {t("dashboard.company.empty")}
             </div>
           ) : (
             <div className="flex flex-col gap-3">
@@ -241,7 +244,7 @@ export default function CompanyDashboard() {
             className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-2xl border border-[var(--color-ink-line)] bg-[var(--elev)]/95 px-4 py-3 text-[13.5px] font-semibold text-[var(--text)] backdrop-blur-xl"
           >
             <CheckCircle2 size={17} className="text-[var(--color-lime)]" />
-            تم إرسال الطلب — سيُراجَع قريباً
+            {t("dashboard.company.toast")}
           </motion.div>
         )}
       </AnimatePresence>
@@ -250,8 +253,10 @@ export default function CompanyDashboard() {
 }
 
 function RequestItem({ req }) {
+  const { t } = useTranslation();
   const meta = getTypeMeta(req.type);
   const st = STATUS[req.status] || STATUS.pending;
+  const statusKey = STATUS[req.status] ? req.status : "pending";
   return (
     <motion.div
       layout
@@ -264,7 +269,7 @@ function RequestItem({ req }) {
       <div className="min-w-0 flex-1">
         <div className="truncate text-[14px] font-bold text-[var(--text)]">{req.title}</div>
         <div className="mt-0.5 flex items-center gap-2 text-[12px] text-[var(--color-mute)]">
-          <span className="rounded px-1.5 py-0.5 font-bold" style={{ background: `${meta.color}1a`, color: meta.color }}>{req.type}</span>
+          <span className="rounded px-1.5 py-0.5 font-bold" style={{ background: `${meta.color}1a`, color: meta.color }}>{t(`types.${getTypeKey(req.type)}`)}</span>
           {req.code && <span className="font-mono font-bold text-[var(--text-softer)]">{req.code}</span>}
         </div>
       </div>
@@ -272,7 +277,7 @@ function RequestItem({ req }) {
         className="flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[11.5px] font-bold"
         style={{ background: `${st.color}1a`, color: st.color }}
       >
-        <st.icon size={12} /> {st.label}
+        <st.icon size={12} /> {t(`dashboard.status.${statusKey}`)}
       </span>
     </motion.div>
   );

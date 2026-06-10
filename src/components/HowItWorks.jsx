@@ -1,40 +1,30 @@
 import { motion } from "framer-motion";
 import { Search, Copy, ShoppingBag } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const STEPS = [
-  {
-    icon: Search,
-    title: "ابحث عن متجرك",
-    desc: "تصفّح مئات المتاجر العربية والعالمية واعثر على عرضك في ثوانٍ.",
-  },
-  {
-    icon: Copy,
-    title: "انسخ الكود",
-    desc: "بنقرة واحدة ينسخ CODpromo الكود الفعّال مباشرة إلى حافظتك.",
-  },
-  {
-    icon: ShoppingBag,
-    title: "وفّر عند الدفع",
-    desc: "ألصق الكود في صفحة الشراء واستمتع بالخصم أو الكاش باك فوراً.",
-  },
+  { icon: Search, n: 1 },
+  { icon: Copy, n: 2 },
+  { icon: ShoppingBag, n: 3 },
 ];
 
 export default function HowItWorks() {
+  const { t } = useTranslation();
   return (
     <section id="how" className="relative mx-auto max-w-6xl px-4 py-20">
       <div className="text-center">
         <span className="text-[13px] font-bold uppercase tracking-[0.2em] text-[var(--accent-text)]">
-          بثلاث خطوات
+          {t("how.kicker")}
         </span>
         <h2 className="mt-3 text-[30px] font-black tracking-tight sm:text-[40px]">
-          كيف يعمل CODpromo؟
+          {t("how.title")}
         </h2>
       </div>
 
       <div className="relative mt-12 grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
         {STEPS.map((s, i) => (
           <motion.div
-            key={s.title}
+            key={s.n}
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
@@ -56,8 +46,8 @@ export default function HowItWorks() {
             >
               <s.icon size={24} className="text-[var(--color-lime)]" />
             </div>
-            <h3 className="relative mt-5 text-[19px] font-extrabold text-[var(--text)]">{s.title}</h3>
-            <p className="relative mt-2 text-[14px] leading-relaxed text-[var(--text-soft)]">{s.desc}</p>
+            <h3 className="relative mt-5 text-[19px] font-extrabold text-[var(--text)]">{t(`how.step${s.n}Title`)}</h3>
+            <p className="relative mt-2 text-[14px] leading-relaxed text-[var(--text-soft)]">{t(`how.step${s.n}Desc`)}</p>
           </motion.div>
         ))}
       </div>

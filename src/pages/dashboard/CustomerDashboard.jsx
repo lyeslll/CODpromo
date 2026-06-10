@@ -12,21 +12,23 @@ import {
   CalendarDays,
   Store,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import DashboardShell, { WelcomeCard, SectionTitle } from "../../components/dashboard/DashboardShell.jsx";
 import CompanyLogo from "../../components/CompanyLogo.jsx";
 import PremiumModal from "../../components/PremiumModal.jsx";
-import { getTypeMeta } from "../../lib/types.js";
+import { getTypeMeta, getTypeKey } from "../../lib/types.js";
 import { useAuth } from "../../lib/auth.jsx";
 import { fetchFavoritesWithCompany, removeFavorite } from "../../lib/favorites.js";
 
 export default function CustomerDashboard() {
   const { user, profile } = useAuth();
+  const { t, i18n } = useTranslation();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [premiumModal, setPremiumModal] = useState(false);
 
-  const name = profile?.full_name || user?.user_metadata?.full_name || "صديقنا";
-  const joined = new Date(profile?.created_at || user?.created_at || Date.now()).toLocaleDateString("ar");
+  const name = profile?.full_name || user?.user_metadata?.full_name || t("dashboard.customer.friend");
+  const joined = new Date(profile?.created_at || user?.created_at || Date.now()).toLocaleDateString(i18n.language);
 
   useEffect(() => {
     let active = true;
@@ -49,12 +51,12 @@ export default function CustomerDashboard() {
   };
 
   return (
-    <DashboardShell badge="حساب زبون">
-      <WelcomeCard title={`أهلاً، ${name} 👋`} subtitle="هذه لوحتك الشخصية في CODpromo">
+    <DashboardShell badge={t("dashboard.customer.badge")}>
+      <WelcomeCard title={t("dashboard.customer.welcome", { name })} subtitle={t("dashboard.customer.subtitle")}>
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <InfoPill icon={Mail} label="البريد" value={user?.email} />
-          <InfoPill icon={User} label="نوع الحساب" value="زبون عادي" />
-          <InfoPill icon={CalendarDays} label="عضو منذ" value={joined} />
+          <InfoPill icon={Mail} label={t("dashboard.customer.email")} value={user?.email} />
+          <InfoPill icon={User} label={t("dashboard.customer.accountType")} value={t("dashboard.customer.accountTypeVal")} />
+          <InfoPill icon={CalendarDays} label={t("dashboard.customer.memberSince")} value={joined} />
         </div>
       </WelcomeCard>
 
@@ -65,8 +67,8 @@ export default function CustomerDashboard() {
             <Crown size={24} />
           </span>
           <div>
-            <h3 className="text-[17px] font-extrabold text-[var(--text)]">ترقية إلى Premium</h3>
-            <p className="text-[13px] text-[var(--text-soft)]">خصومات أقوى وأكواد حصرية وكاش باك أعلى.</p>
+            <h3 className="text-[17px] font-extrabold text-[var(--text)]">{t("dashboard.customer.upgradeTitle")}</h3>
+            <p className="text-[13px] text-[var(--text-soft)]">{t("dashboard.customer.upgradeDesc")}</p>
           </div>
         </div>
         <button
@@ -74,21 +76,21 @@ export default function CustomerDashboard() {
           className="rounded-xl px-5 py-2.5 text-[14px] font-extrabold text-[#0a0a0a] transition-transform hover:scale-[1.02]"
           style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
         >
-          ترقية الآن
+          {t("dashboard.customer.upgradeBtn")}
         </button>
       </div>
 
       {/* المفضّلة */}
       <SectionTitle
         icon={Heart}
-        action={<span className="text-[13px] font-bold text-[var(--color-mute)]">{favorites.length} عنصر</span>}
+        action={<span className="text-[13px] font-bold text-[var(--color-mute)]">{t("dashboard.customer.items", { count: favorites.length })}</span>}
       >
-        المفضّلة
+        {t("dashboard.customer.favorites")}
       </SectionTitle>
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 py-14 text-[var(--color-mute)]">
-          <Loader2 size={18} className="animate-spin" /> جارٍ التحميل…
+          <Loader2 size={18} className="animate-spin" /> {t("dashboard.loading")}
         </div>
       ) : favorites.length === 0 ? (
         <EmptyFavorites />
@@ -124,6 +126,7 @@ function InfoPill({ icon: Icon, label, value }) {
 }
 
 function FavoriteItem({ company, onRemove }) {
+  const { t } = useTranslation();
   const meta = getTypeMeta(company.type);
   const [copied, setCopied] = useState(false);
   const copy = () => {
@@ -144,7 +147,7 @@ function FavoriteItem({ company, onRemove }) {
         <div className="flex items-center gap-2">
           <span className="truncate text-[14.5px] font-bold text-[var(--text)]">{company.name}</span>
           <span className="shrink-0 rounded-md px-1.5 py-0.5 text-[10.5px] font-bold" style={{ background: `${meta.color}1a`, color: meta.color }}>
-            {company.type}
+            {t(`types.${getTypeKey(company.type)}`)}
           </span>
         </div>
         <div className="mt-0.5 flex items-center gap-2 text-[12.5px]">
@@ -156,14 +159,14 @@ function FavoriteItem({ company, onRemove }) {
         <button
           onClick={copy}
           className="grid h-9 w-9 place-items-center rounded-lg border border-[var(--color-ink-line)] text-[var(--text-softer)] transition-colors hover:text-[var(--accent-text)]"
-          title="نسخ الكود"
+          title={t("dashboard.customer.copy")}
         >
           {copied ? <Check size={15} className="text-[var(--color-lime)]" /> : <Copy size={15} />}
         </button>
         <button
           onClick={onRemove}
           className="grid h-9 w-9 place-items-center rounded-lg border border-[var(--color-ink-line)] text-[var(--text-softer)] transition-colors hover:border-red-500/40 hover:text-red-400"
-          title="إزالة"
+          title={t("dashboard.customer.remove")}
         >
           <Trash2 size={15} />
         </button>
@@ -173,21 +176,22 @@ function FavoriteItem({ company, onRemove }) {
 }
 
 function EmptyFavorites() {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] px-6 py-14 text-center">
       <div className="grid h-16 w-16 place-items-center rounded-2xl bg-[var(--fill)] text-[var(--color-mute)]">
         <Store size={28} />
       </div>
-      <h3 className="mt-5 text-[17px] font-extrabold text-[var(--text)]">لا توجد مفضّلة بعد</h3>
+      <h3 className="mt-5 text-[17px] font-extrabold text-[var(--text)]">{t("dashboard.customer.emptyTitle")}</h3>
       <p className="mt-1.5 text-[14px] text-[var(--text-soft)]">
-        تصفّح المتاجر واضغط القلب ♡ لحفظ عروضك المفضّلة هنا.
+        {t("dashboard.customer.emptyDesc")}
       </p>
       <a
         href="/#stores"
         className="mt-6 rounded-xl px-5 py-2.5 text-[14px] font-extrabold text-[#0a0a0a]"
         style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
       >
-        تصفّح العروض
+        {t("dashboard.customer.browse")}
       </a>
     </div>
   );

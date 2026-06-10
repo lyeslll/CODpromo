@@ -1,17 +1,20 @@
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Sun, Moon, LogOut, Home } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import Logo from "../Logo.jsx";
+import LanguageSwitcher from "../LanguageSwitcher.jsx";
 import { useTheme } from "../../lib/theme.jsx";
 import { useAuth } from "../../lib/auth.jsx";
 
 function ThemeToggle() {
   const { theme, toggle } = useTheme();
+  const { t } = useTranslation();
   const isDark = theme === "dark";
   return (
     <button
       onClick={toggle}
-      aria-label="تبديل الوضع"
+      aria-label={t("dashboard.toggleTheme")}
       className="grid h-9 w-9 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)]"
     >
       {isDark ? <Sun size={17} className="text-[var(--color-lime)]" /> : <Moon size={17} className="text-[var(--accent-text)]" />}
@@ -22,8 +25,9 @@ function ThemeToggle() {
 /** إطار موحّد لصفحات الداشبورد (شريط علوي + حاوية محتوى) بنفس الهوية. */
 export default function DashboardShell({ badge, children }) {
   const { user, signOut } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const name = user?.user_metadata?.full_name || user?.email || "حسابي";
+  const name = user?.user_metadata?.full_name || user?.email || t("nav.account");
   const initial = (name || "؟").trim().charAt(0).toUpperCase();
 
   const logout = async () => {
@@ -46,12 +50,13 @@ export default function DashboardShell({ badge, children }) {
             )}
           </div>
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <ThemeToggle />
             <Link
               to="/"
               className="hidden items-center gap-1.5 rounded-xl border border-[var(--color-ink-line)] px-3 py-2 text-[13.5px] font-bold text-[var(--text)] transition-colors hover:bg-[var(--fill)] sm:flex"
             >
-              <Home size={15} /> الموقع
+              <Home size={15} /> {t("dashboard.site")}
             </Link>
             <span
               className="grid h-9 w-9 place-items-center rounded-xl text-[14px] font-black text-[#0a0a0a]"
@@ -64,7 +69,7 @@ export default function DashboardShell({ badge, children }) {
               onClick={logout}
               className="flex items-center gap-1.5 rounded-xl border border-[var(--color-ink-line)] px-3 py-2 text-[13.5px] font-bold text-[var(--text-softer)] transition-colors hover:border-red-500/40 hover:text-red-400"
             >
-              <LogOut size={15} /> <span className="hidden sm:inline">خروج</span>
+              <LogOut size={15} /> <span className="hidden sm:inline">{t("dashboard.logout")}</span>
             </button>
           </div>
         </div>

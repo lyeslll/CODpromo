@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Crown, Loader2, Check, XCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Shell } from "./PaymentSuccess.jsx";
 import { useAuth } from "../lib/auth.jsx";
 import { checkSlickpayInvoice, latestSlickpayInvoiceId } from "../lib/billing.js";
@@ -11,6 +12,7 @@ const GOLD_DEEP = "#cf9a1e";
 // صفحة العودة من بوّابة SATIM — تتحقق من حالة فاتورة SlickPay وتعرض النتيجة.
 export default function PaymentReturn() {
   const { user, loading: authLoading, refreshProfile } = useAuth();
+  const { t } = useTranslation();
   const [state, setState] = useState("checking"); // checking | success | failed | error
   const [days, setDays] = useState(null);
   const triesRef = useRef(0);
@@ -81,17 +83,17 @@ export default function PaymentReturn() {
           <Check size={32} strokeWidth={3} />
         </span>
         <h1 className="mt-5 text-[24px] font-black tracking-tight text-[var(--text)]">
-          تم تفعيل Premium! 👑
+          {t("payment.return.successTitle")}
         </h1>
         <p className="mt-2 text-[14px] leading-relaxed text-[var(--text-soft)]">
-          {days ? `اشتراكك نشط الآن لمدة ${days} يوماً.` : "اشتراكك نشط الآن."} استمتع بالخصومات الأقوى.
+          {days ? t("payment.return.successDaysDesc", { days }) : t("payment.return.successDesc")} {t("payment.return.enjoy")}
         </p>
         <Link
           to="/"
           className="mt-6 inline-flex items-center justify-center rounded-xl px-6 py-3 text-[15px] font-extrabold text-[#0a0a0a]"
           style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
         >
-          العودة للموقع
+          {t("payment.back")}
         </Link>
       </Shell>
     );
@@ -107,10 +109,10 @@ export default function PaymentReturn() {
           <Crown size={30} />
         </span>
         <h1 className="mt-5 text-[24px] font-black tracking-tight text-[var(--text)]">
-          جارٍ تأكيد الدفع
+          {t("payment.return.checkingTitle")}
         </h1>
         <p className="mt-2 inline-flex items-center gap-2 text-[14px] text-[var(--text-soft)]">
-          <Loader2 size={16} className="animate-spin" /> نتحقق من حالة عمليتك…
+          <Loader2 size={16} className="animate-spin" /> {t("payment.return.checkingSlickpay")}
         </p>
       </Shell>
     );
@@ -126,16 +128,16 @@ export default function PaymentReturn() {
         <XCircle size={30} className="text-red-400" />
       </span>
       <h1 className="mt-5 text-[24px] font-black tracking-tight text-[var(--text)]">
-        لم يكتمل الدفع
+        {t("payment.return.failTitle")}
       </h1>
       <p className="mt-2 text-[14px] leading-relaxed text-[var(--text-soft)]">
-        لم نتمكّن من تأكيد عملية الدفع. إن كنت أتممتها، قد يستغرق التفعيل دقيقة — حدّث لاحقاً، أو حاول مجدداً.
+        {t("payment.return.failSlickpay")}
       </p>
       <Link
         to="/"
         className="mt-6 inline-flex items-center justify-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-6 py-3 text-[15px] font-extrabold text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)]"
       >
-        العودة للموقع
+        {t("payment.back")}
       </Link>
     </Shell>
   );

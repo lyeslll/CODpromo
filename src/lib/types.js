@@ -31,5 +31,16 @@ export const FALLBACK_TYPE = {
 
 export const getTypeMeta = (type) => TYPE_META[type] || FALLBACK_TYPE;
 
-// التبويبات/الفلاتر
+// التبويبات/الفلاتر — القيم تبقى عربية (هي قيم قاعدة البيانات المستخدمة في الفلترة).
 export const FILTERS = ["الكل", "تخفيض", "كوبون", "كاش باك"];
+
+// ربط قيمة النوع (قيمة قاعدة البيانات) بمفتاح الترجمة — للعرض فقط، لا يغيّر القيمة.
+const TYPE_KEYS = {
+  "تخفيض": "discount",
+  "كوبون": "coupon",
+  "كاش باك": "cashback",
+  "الكل": "all",
+};
+
+/** مفتاح ترجمة نوع العرض (للاستخدام مع t(`types.${key}`) أو t(`filters.${key}`)). */
+export const getTypeKey = (type) => TYPE_KEYS[type] || "offer";

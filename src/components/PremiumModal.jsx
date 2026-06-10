@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ExternalLink,
 } from "lucide-react";
+import { useTranslation, Trans } from "react-i18next";
 import { usePremium } from "../lib/premium.jsx";
 import { useAuth } from "../lib/auth.jsx";
 import { startPremiumCheckout, startPaypalCheckout, startSlickpayCheckout } from "../lib/billing.js";
@@ -23,32 +24,18 @@ import { USD_PLANS, fmtUSD, DZ_PLANS, fmtDZ } from "../lib/plans.js";
 const GOLD_SOFT = "#ffe486";
 const GOLD_DEEP = "#cf9a1e";
 
-// طرق الدفع في الخطوة الثانية.
+// طرق الدفع في الخطوة الثانية (النصوص تُترجم في وقت العرض).
 const METHODS = [
-  {
-    key: "stripe",
-    name: "بطاقة دولية",
-    desc: "Visa / Mastercard · 10$ شهرياً",
-    icon: CreditCard,
-    enabled: true,
-  },
-  {
-    key: "slickpay",
-    name: "البطاقة الجزائرية",
-    desc: "CIB / Edahabia عبر SATIM",
-    icon: Landmark,
-    enabled: true,
-  },
-  {
-    key: "paypal",
-    name: "PayPal",
-    desc: "الدفع عبر حساب PayPal بالدولار",
-    icon: Wallet,
-    enabled: true,
-  },
+  { key: "stripe", icon: CreditCard, enabled: true },
+  { key: "slickpay", icon: Landmark, enabled: true },
+  { key: "paypal", icon: Wallet, enabled: true },
 ];
 
+/** شارة الباقة المترجمة (الأكثر شيوعاً / الأكثر توفيراً) أو لا شيء. */
+const planBadgeKey = (p) => (p.best ? "badgeBest" : p.badge ? "badgePopular" : null);
+
 export default function PremiumModal({ open, onClose }) {
+  const { t } = useTranslation();
   const { redeem } = usePremium();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -103,7 +90,7 @@ export default function PremiumModal({ open, onClose }) {
       await startPremiumCheckout(stripePlan);
     } catch (e) {
       setStripeLoading(false);
-      setPayError(e.message || "تعذّر بدء عملية الدفع");
+      setPayError(e.message || t("premium.payError"));
     }
   };
 
@@ -116,7 +103,7 @@ export default function PremiumModal({ open, onClose }) {
       await startPaypalCheckout(paypalPlan);
     } catch (e) {
       setPaypalLoading(false);
-      setPayError(e.message || "تعذّر بدء عملية الدفع");
+      setPayError(e.message || t("premium.payError"));
     }
   };
 
@@ -129,7 +116,7 @@ export default function PremiumModal({ open, onClose }) {
       await startSlickpayCheckout(slickpayPlan);
     } catch (e) {
       setSlickpayLoading(false);
-      setPayError(e.message || "تعذّر بدء عملية الدفع");
+      setPayError(e.message || t("premium.payError"));
     }
   };
 
@@ -147,18 +134,18 @@ export default function PremiumModal({ open, onClose }) {
     setLoading(true);
     const res = await redeem(code);
     setLoading(false);
-    if (!res.ok) return setError(res.error || "تعذّر تفعيل الكود");
+    if (!res.ok) return setError(t(`premium.storkErr.${res.errorKey || "generic"}`));
     setDone(true);
     setTimeout(close, 1700);
   };
 
   const titles = {
-    home: { h: "افتح خصومات Premium", s: "خصومات أقوى وأكواد حصرية" },
-    pay: { h: "اختر طريقة الدفع", s: "ادفع بأمان وفعّل Premium فوراً" },
-    stripe: { h: "بطاقة دولية — اختر الباقة", s: "اشتراك متجدّد تلقائياً بالدولار — ألغِه متى شئت" },
-    slickpay: { h: "البطاقة الجزائرية — اختر الباقة", s: "ادفع بـ CIB / Edahabia عبر SATIM وفعّل Premium" },
-    paypal: { h: "PayPal — اختر الباقة", s: "ادفع مرة واحدة وفعّل Premium للمدة المختارة" },
-    stork: { h: "عضوية Team Stork", s: "أدخل كودك لفتح كل المزايا" },
+    home: { h: t("premium.titles.homeH"), s: t("premium.titles.homeS") },
+    pay: { h: t("premium.titles.payH"), s: t("premium.titles.payS") },
+    stripe: { h: t("premium.titles.stripeH"), s: t("premium.titles.stripeS") },
+    slickpay: { h: t("premium.titles.slickpayH"), s: t("premium.titles.slickpayS") },
+    paypal: { h: t("premium.titles.paypalH"), s: t("premium.titles.paypalS") },
+    stork: { h: t("premium.titles.storkH"), s: t("premium.titles.storkS") },
   };
 
   return (
@@ -188,8 +175,8 @@ export default function PremiumModal({ open, onClose }) {
             {/* زر إغلاق */}
             <button
               onClick={close}
-              aria-label="إغلاق"
-              className="absolute left-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--color-mute)] transition-colors hover:text-[var(--text)]"
+              aria-label={t("premium.close")}
+              className="absolute end-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--color-mute)] transition-colors hover:text-[var(--text)]"
             >
               <X size={17} />
             </button>
@@ -198,10 +185,10 @@ export default function PremiumModal({ open, onClose }) {
             {!done && step !== "home" && (
               <button
                 onClick={goBack}
-                aria-label="رجوع"
-                className="absolute right-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--color-mute)] transition-colors hover:text-[var(--text)]"
+                aria-label={t("premium.back")}
+                className="absolute start-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--color-mute)] transition-colors hover:text-[var(--text)]"
               >
-                <ChevronRight size={18} />
+                <ChevronRight size={18} className="ltr:rotate-180" />
               </button>
             )}
 
@@ -210,8 +197,8 @@ export default function PremiumModal({ open, onClose }) {
                 <div className="grid h-16 w-16 place-items-center rounded-2xl" style={{ background: `${GOLD_DEEP}22`, border: `1px solid ${GOLD_DEEP}55` }}>
                   <Check size={32} style={{ color: GOLD_SOFT }} strokeWidth={3} />
                 </div>
-                <h3 className="text-[20px] font-black text-[var(--text)]">تم تفعيل Premium! 👑</h3>
-                <p className="text-[14px] text-[var(--text-soft)]">كُشفت كل أكواد Premium — استمتع بالخصومات الأقوى.</p>
+                <h3 className="text-[20px] font-black text-[var(--text)]">{t("premium.doneTitle")}</h3>
+                <p className="text-[14px] text-[var(--text-soft)]">{t("premium.doneDesc")}</p>
               </div>
             ) : (
               <div className="relative">
@@ -247,9 +234,9 @@ export default function PremiumModal({ open, onClose }) {
                         style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
                       >
                         <span className="flex items-center gap-2 text-[15px] font-extrabold">
-                          <Sparkles size={17} /> اشترك بـ 10$/شهر
+                          <Sparkles size={17} /> {t("premium.subscribeBtn")}
                         </span>
-                        <ChevronLeft size={18} />
+                        <ChevronLeft size={18} className="ltr:rotate-180" />
                       </button>
 
                       <button
@@ -257,16 +244,19 @@ export default function PremiumModal({ open, onClose }) {
                         className="flex w-full items-center justify-between rounded-2xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-5 py-4 text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)]"
                       >
                         <span className="flex items-center gap-2 text-[15px] font-extrabold">
-                          <KeyRound size={17} style={{ color: GOLD_DEEP }} /> أنا عضو Stork
+                          <KeyRound size={17} style={{ color: GOLD_DEEP }} /> {t("premium.storkMemberBtn")}
                         </span>
-                        <ChevronLeft size={18} className="text-[var(--color-mute)]" />
+                        <ChevronLeft size={18} className="text-[var(--color-mute)] ltr:rotate-180" />
                       </button>
 
                       <p className="mt-1 px-1 text-center text-[12px] leading-relaxed text-[var(--text-soft)]">
-                        مع Premium تحصل على{" "}
-                        <span className="font-bold" style={{ color: GOLD_DEEP }}>خصومات أقوى</span> و
-                        <span className="font-bold" style={{ color: GOLD_DEEP }}> أكواد حصرية</span>{" "}
-                        لا تجدها في النسخة المجانية.
+                        <Trans
+                          i18nKey="premium.benefit"
+                          components={[
+                            <span className="font-bold" style={{ color: GOLD_DEEP }} />,
+                            <span className="font-bold" style={{ color: GOLD_DEEP }} />,
+                          ]}
+                        />
                       </p>
                     </motion.div>
                   )}
@@ -288,7 +278,7 @@ export default function PremiumModal({ open, onClose }) {
                             type="button"
                             onClick={() => pickMethod(m)}
                             disabled={!m.enabled}
-                            className="flex w-full items-center gap-3 rounded-2xl border p-3.5 text-right transition-all disabled:cursor-not-allowed"
+                            className="flex w-full items-center gap-3 rounded-2xl border p-3.5 text-start transition-all disabled:cursor-not-allowed"
                             style={{
                               borderColor: m.enabled ? `${GOLD_DEEP}55` : "var(--color-ink-line)",
                               background: m.enabled ? `${GOLD_DEEP}0d` : "var(--fill)",
@@ -308,22 +298,22 @@ export default function PremiumModal({ open, onClose }) {
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className="flex items-center gap-2">
-                                <span className="text-[14.5px] font-extrabold text-[var(--text)]">{m.name}</span>
+                                <span className="text-[14.5px] font-extrabold text-[var(--text)]">{t(`premium.methods.${m.key}Name`)}</span>
                                 {!m.enabled && (
                                   <span className="rounded-full bg-[var(--fill-strong)] px-2 py-0.5 text-[10px] font-bold text-[var(--color-mute)]">
-                                    قريباً
+                                    {t("premium.methods.soon")}
                                   </span>
                                 )}
                               </span>
-                              <span className="mt-0.5 block text-[12px] text-[var(--text-soft)]">{m.desc}</span>
+                              <span className="mt-0.5 block text-[12px] text-[var(--text-soft)]">{t(`premium.methods.${m.key}Desc`)}</span>
                             </span>
                             {m.enabled && (
-                              <ChevronLeft size={18} className="shrink-0" style={{ color: GOLD_DEEP }} />
+                              <ChevronLeft size={18} className="shrink-0 ltr:rotate-180" style={{ color: GOLD_DEEP }} />
                             )}
                           </button>
                         );
                       })}
-                      <p className="mt-1 text-center text-[11px] text-[var(--color-mute)]">دفع آمن — لا نحفظ بيانات بطاقتك</p>
+                      <p className="mt-1 text-center text-[11px] text-[var(--color-mute)]">{t("premium.paySecure")}</p>
                     </motion.div>
                   )}
 
@@ -359,10 +349,10 @@ export default function PremiumModal({ open, onClose }) {
                                     color: p.best ? "#0a0a0a" : "var(--text-soft)",
                                   }}
                                 >
-                                  {p.badge}
+                                  {t(`premium.plans.${planBadgeKey(p)}`)}
                                 </span>
                               )}
-                              <span className="text-[12.5px] font-extrabold text-[var(--text)]">{p.label}</span>
+                              <span className="text-[12.5px] font-extrabold text-[var(--text)]">{t(`premium.plans.${p.key}`)}</span>
                               <span
                                 className="text-[13px] font-black"
                                 style={{ color: active ? GOLD_DEEP : "var(--text)" }}
@@ -380,10 +370,10 @@ export default function PremiumModal({ open, onClose }) {
                         style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
                       >
                         {stripeLoading ? <Loader2 size={18} className="animate-spin" /> : <CreditCard size={18} />}
-                        اشترك عبر Stripe · {fmtUSD(stripeSelected.price)}
+                        {t("premium.stripeBtn")} · {fmtUSD(stripeSelected.price)}
                       </button>
                       <p className="mt-2 text-center text-[11px] text-[var(--color-mute)]">
-                        اشتراك متجدّد تلقائياً لمدة الباقة — يمكنك إلغاؤه في أي وقت
+                        {t("premium.stripeNote")}
                       </p>
                     </motion.div>
                   )}
@@ -420,10 +410,10 @@ export default function PremiumModal({ open, onClose }) {
                                     color: p.best ? "#0a0a0a" : "var(--text-soft)",
                                   }}
                                 >
-                                  {p.badge}
+                                  {t(`premium.plans.${planBadgeKey(p)}`)}
                                 </span>
                               )}
-                              <span className="text-[12.5px] font-extrabold text-[var(--text)]">{p.label}</span>
+                              <span className="text-[12.5px] font-extrabold text-[var(--text)]">{t(`premium.plans.${p.key}`)}</span>
                               <span
                                 className="text-[13px] font-black"
                                 style={{ color: active ? GOLD_DEEP : "var(--text)" }}
@@ -441,10 +431,10 @@ export default function PremiumModal({ open, onClose }) {
                         style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
                       >
                         {slickpayLoading ? <Loader2 size={18} className="animate-spin" /> : <Landmark size={18} />}
-                        ادفع عبر SATIM · {fmtDZ(slickpaySelected.price)}
+                        {t("premium.slickpayBtn")} · {fmtDZ(slickpaySelected.price)}
                       </button>
                       <p className="mt-2 text-center text-[11px] text-[var(--color-mute)]">
-                        دفعة واحدة بالبطاقة الجزائرية — تفعّل Premium لمدة الباقة المختارة
+                        {t("premium.slickpayNote")}
                       </p>
                     </motion.div>
                   )}
@@ -481,10 +471,10 @@ export default function PremiumModal({ open, onClose }) {
                                     color: p.best ? "#0a0a0a" : "var(--text-soft)",
                                   }}
                                 >
-                                  {p.badge}
+                                  {t(`premium.plans.${planBadgeKey(p)}`)}
                                 </span>
                               )}
-                              <span className="text-[12.5px] font-extrabold text-[var(--text)]">{p.label}</span>
+                              <span className="text-[12.5px] font-extrabold text-[var(--text)]">{t(`premium.plans.${p.key}`)}</span>
                               <span
                                 className="text-[13px] font-black"
                                 style={{ color: active ? GOLD_DEEP : "var(--text)" }}
@@ -502,10 +492,10 @@ export default function PremiumModal({ open, onClose }) {
                         style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
                       >
                         {paypalLoading ? <Loader2 size={18} className="animate-spin" /> : <Wallet size={18} />}
-                        ادفع عبر PayPal · {fmtUSD(paypalSelected.price)}
+                        {t("premium.paypalBtn")} · {fmtUSD(paypalSelected.price)}
                       </button>
                       <p className="mt-2 text-center text-[11px] text-[var(--color-mute)]">
-                        دفعة واحدة — تفعّل Premium لمدة الباقة المختارة
+                        {t("premium.paypalNote")}
                       </p>
                     </motion.div>
                   )}
@@ -521,7 +511,7 @@ export default function PremiumModal({ open, onClose }) {
                       onSubmit={submit}
                     >
                       <label className="mb-1.5 flex items-center gap-1.5 text-[12.5px] font-bold text-[var(--text-softer)]">
-                        <KeyRound size={14} style={{ color: GOLD_DEEP }} /> كود Stork الخاص بك
+                        <KeyRound size={14} style={{ color: GOLD_DEEP }} /> {t("premium.storkLabel")}
                       </label>
                       {error && (
                         <div className="mb-2 rounded-xl border border-red-500/30 bg-red-500/[0.08] px-3.5 py-2 text-[12.5px] font-semibold text-red-400">
@@ -532,7 +522,7 @@ export default function PremiumModal({ open, onClose }) {
                         <input
                           value={code}
                           onChange={(e) => setCode(e.target.value)}
-                          placeholder="أدخل كود Stork الخاص بك"
+                          placeholder={t("premium.storkPlaceholder")}
                           dir="ltr"
                           autoFocus
                           className="w-full rounded-xl border border-[var(--color-ink-line)] bg-[var(--color-ink)] px-3.5 py-3 text-left font-mono text-[14px] font-bold tracking-wider text-[var(--text)] outline-none transition-colors placeholder:font-sans placeholder:tracking-normal placeholder:text-[var(--color-mute)] focus:border-[color:var(--gold)]"
@@ -545,12 +535,11 @@ export default function PremiumModal({ open, onClose }) {
                           className="grid w-[110px] shrink-0 place-items-center rounded-xl px-4 text-[14px] font-extrabold text-[#0a0a0a] disabled:opacity-60"
                           style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
                         >
-                          {loading ? <Loader2 size={18} className="animate-spin" /> : "تفعيل"}
+                          {loading ? <Loader2 size={18} className="animate-spin" /> : t("premium.storkActivate")}
                         </motion.button>
                       </div>
                       <p className="mt-4 text-center text-[12px] leading-relaxed text-[var(--text-soft)]">
-                        Team Stork مجتمع للمبدعين ورواد الأعمال — أعضاؤه يحصلون على أكواد
-                        Premium حصرية ومزايا إضافية.
+                        {t("premium.storkAbout")}
                       </p>
                       <a
                         href="https://www.stork.team/"
@@ -559,7 +548,7 @@ export default function PremiumModal({ open, onClose }) {
                         className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl border px-4 py-2.5 text-[12.5px] font-bold transition-colors"
                         style={{ borderColor: `${GOLD_DEEP}55`, color: GOLD_DEEP, background: `${GOLD_DEEP}0d` }}
                       >
-                        <ExternalLink size={14} /> اكتشف مجتمع Team Stork
+                        <ExternalLink size={14} /> {t("premium.storkDiscover")}
                       </a>
                     </motion.form>
                   )}

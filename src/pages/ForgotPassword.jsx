@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mail, Loader2, Send, MailCheck } from "lucide-react";
+import { useTranslation, Trans } from "react-i18next";
 import AuthShell, { AuthAlert, authInputCls } from "../components/auth/AuthShell.jsx";
 import { Field } from "./Login.jsx";
 import { useAuth } from "../lib/auth.jsx";
 
 export default function ForgotPassword() {
   const { resetPassword } = useAuth();
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -19,17 +21,17 @@ export default function ForgotPassword() {
     setLoading(true);
     const { error } = await resetPassword(email.trim());
     setLoading(false);
-    if (error) return setError(error.message || "تعذّر إرسال الرابط");
+    if (error) return setError(error.message || t("auth.forgot.errFail"));
     setDone(true);
   };
 
   return (
     <AuthShell
-      title="استعادة كلمة المرور"
-      subtitle={done ? "تفقّد بريدك الإلكتروني" : "سنرسل لك رابطاً لإعادة التعيين"}
+      title={t("auth.forgot.title")}
+      subtitle={done ? t("auth.forgot.subtitleDone") : t("auth.forgot.subtitle")}
       footer={
         <Link to="/login" className="font-bold text-[var(--accent-text)] hover:underline">
-          العودة لتسجيل الدخول
+          {t("auth.forgot.back")}
         </Link>
       }
     >
@@ -42,14 +44,13 @@ export default function ForgotPassword() {
             <MailCheck size={30} className="text-[var(--color-lime)]" />
           </div>
           <p className="text-[14px] leading-relaxed text-[var(--text-soft)]">
-            إن كان البريد <span className="font-bold text-[var(--text)]">{email}</span> مسجّلاً،
-            فستصلك رسالة بها رابط إعادة تعيين كلمة المرور.
+            <Trans i18nKey="auth.forgot.doneText" values={{ email }} components={[<span className="font-bold text-[var(--text)]" />]} />
           </p>
         </div>
       ) : (
         <form onSubmit={submit} className="flex flex-col gap-4">
           {error && <AuthAlert>{error}</AuthAlert>}
-          <Field label="البريد الإلكتروني" icon={Mail}>
+          <Field label={t("auth.forgot.email")} icon={Mail}>
             <input
               type="email"
               required
@@ -57,7 +58,7 @@ export default function ForgotPassword() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className={`${authInputCls} pr-10 text-left`}
+              className={`${authInputCls} ps-10 text-left`}
             />
           </Field>
           <motion.button
@@ -68,7 +69,7 @@ export default function ForgotPassword() {
             style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
           >
             {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={17} />}
-            إرسال الرابط
+            {t("auth.forgot.submit")}
           </motion.button>
         </form>
       )}

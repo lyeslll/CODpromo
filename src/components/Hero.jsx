@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, BadgeCheck, Star } from "lucide-react";
+import { useTranslation, Trans } from "react-i18next";
 
 const container = {
   hidden: {},
@@ -11,6 +12,7 @@ const item = {
 };
 
 export default function Hero({ stats, onExplore }) {
+  const { t } = useTranslation();
   return (
     <section className="relative overflow-hidden pt-28 pb-14 sm:pt-36 sm:pb-20">
       {/* ===== خلفية الأنيميشن ===== */}
@@ -44,7 +46,7 @@ export default function Hero({ stats, onExplore }) {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-lime)] opacity-70" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-lime)]" />
             </span>
-            عروض جديدة كل يوم في الجزائر والعالم العربي
+            {t("hero.badge")}
           </span>
         </motion.div>
 
@@ -53,11 +55,11 @@ export default function Hero({ stats, onExplore }) {
           variants={item}
           className="mt-6 text-balance px-2 text-[27px] font-black leading-[1.18] tracking-tight sm:text-[56px] sm:leading-[1.08] lg:text-[72px]"
         >
-          وفّر في كل طلب مع{" "}
+          {t("hero.titleStart")}{" "}
           <br className="hidden sm:block" />
           <span className="relative inline">
-            <span className="shimmer-text glow-lime">أكواد خصم</span>
-            <span className="text-[var(--text)]"> تشتغل فعلاً</span>
+            <span className="shimmer-text glow-lime">{t("hero.titleHighlight")}</span>
+            <span className="text-[var(--text)]">{t("hero.titleEnd")}</span>
           </span>
         </motion.h1>
 
@@ -66,9 +68,7 @@ export default function Hero({ stats, onExplore }) {
           variants={item}
           className="mt-5 max-w-xl text-balance text-[16px] leading-relaxed text-[var(--text-soft)] sm:text-[18px]"
         >
-          منصة <span className="font-bold text-[var(--text)]">CODpromo</span> تجمع لك أفضل
-          كوبونات الخصم والكاش باك من متاجرك المفضّلة — مُتحقَّق منها، محدّثة، وبنقرة
-          واحدة.
+          <Trans i18nKey="hero.desc" components={[<span className="font-bold text-[var(--text)]" />]} />
         </motion.p>
 
         {/* أزرار CTA */}
@@ -84,15 +84,15 @@ export default function Hero({ stats, onExplore }) {
             }}
           >
             <span className="absolute inset-0 -translate-x-full bg-white/30 transition-transform duration-500 group-hover:translate-x-full" />
-            <span className="relative">استكشف العروض الآن</span>
-            <ArrowLeft size={18} className="relative transition-transform group-hover:-translate-x-1" />
+            <span className="relative">{t("hero.ctaExplore")}</span>
+            <ArrowLeft size={18} className="relative transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
           </motion.button>
 
           <a
             href="#how"
             className="rounded-2xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-6 py-3.5 text-[15px] font-bold text-[var(--text)] backdrop-blur transition-colors hover:bg-[var(--fill-strong)]"
           >
-            كيف يعمل؟
+            {t("hero.ctaHow")}
           </a>
         </motion.div>
 
@@ -101,11 +101,11 @@ export default function Hero({ stats, onExplore }) {
           variants={item}
           className="mt-12 grid w-full max-w-2xl grid-cols-3 gap-3 sm:gap-5"
         >
-          <Stat value={stats.codes} label="كود فعّال" />
-          <Stat value={stats.stores} label="متجر شريك" suffix="+" />
+          <Stat value={stats.codes} label={t("hero.statCodes")} />
+          <Stat value={stats.stores} label={t("hero.statStores")} suffix="+" />
           <Stat
             value={stats.rating}
-            label="تقييم المستخدمين"
+            label={t("hero.statRating")}
             icon={<Star size={15} className="fill-[var(--color-lime)] text-[var(--color-lime)]" />}
           />
         </motion.div>
@@ -116,7 +116,7 @@ export default function Hero({ stats, onExplore }) {
           className="mt-6 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--color-mute)]"
         >
           <BadgeCheck size={15} className="text-[var(--color-lime)]" />
-          كل كود يُراجَع يدوياً قبل النشر
+          {t("hero.trust")}
         </motion.div>
       </motion.div>
     </section>

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Search, X } from "lucide-react";
-import { FILTERS, getTypeMeta } from "../lib/types.js";
+import { useTranslation } from "react-i18next";
+import { FILTERS, getTypeMeta, getTypeKey } from "../lib/types.js";
 
 export default function SearchFilter({
   search,
@@ -9,6 +10,7 @@ export default function SearchFilter({
   setActiveFilter,
   resultCount,
 }) {
+  const { t } = useTranslation();
   return (
     <div className="mb-8 pt-2">
       {/* حقل البحث */}
@@ -22,20 +24,20 @@ export default function SearchFilter({
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="ابحث عن متجر، فئة، أو كود خصم…"
+            placeholder={t("search.placeholder")}
             className="w-full bg-transparent text-[15px] font-medium text-[var(--text)] outline-none placeholder:text-[var(--color-mute)]"
           />
           {search && (
             <button
               onClick={() => setSearch("")}
-              aria-label="مسح"
+              aria-label={t("search.clear")}
               className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[var(--fill)] text-[var(--color-mute)] transition-colors hover:bg-[var(--fill-strong)] hover:text-[var(--text)]"
             >
               <X size={14} />
             </button>
           )}
           <span className="hidden shrink-0 rounded-lg bg-[var(--fill)] px-2 py-1 text-[11px] font-bold text-[var(--color-mute)] sm:block">
-            {resultCount} نتيجة
+            {t("search.results", { count: resultCount })}
           </span>
         </div>
       </div>
@@ -70,7 +72,7 @@ export default function SearchFilter({
               )}
               <span className="relative flex items-center gap-1.5">
                 {Icon && <Icon size={14} />}
-                {f}
+                {t(`filters.${getTypeKey(f)}`)}
               </span>
             </button>
           );

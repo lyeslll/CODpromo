@@ -1,7 +1,9 @@
 import { Mail, MessageCircle, Send, Heart } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import Logo from "./Logo.jsx";
 
 export default function Footer({ count }) {
+  const { t } = useTranslation();
   const year = new Date().getFullYear();
   return (
     <footer className="relative mt-10 overflow-hidden border-t border-[var(--color-ink-line)]">
@@ -14,8 +16,7 @@ export default function Footer({ count }) {
           <div className="max-w-sm">
             <Logo />
             <p className="mt-4 text-[14px] leading-relaxed text-[var(--text-soft)]">
-              منصة عربية لأكواد الخصم والكوبونات والكاش باك — نوفّر لك المال في كل
-              عملية شراء أونلاين.
+              {t("footer.tagline")}
             </p>
           </div>
 
@@ -34,17 +35,17 @@ export default function Footer({ count }) {
 
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-[var(--color-ink-line)] pt-6 text-[12.5px] text-[var(--color-mute)] sm:flex-row">
           <span>
-            © {year} CODpromo · {count} عرض متاح
+            © {year} CODpromo · {t("footer.offersAvailable", { count })}
           </span>
           <div className="flex items-center gap-4">
             <a
               href="/admin"
               className="font-medium text-[var(--color-mute)] transition-colors hover:text-[var(--accent-text)]"
             >
-              لوحة التحكم
+              {t("footer.admin")}
             </a>
             <span className="flex items-center gap-1.5">
-              صُنع بكل <Heart size={12} className="fill-red-500 text-red-500" /> في الجزائر
+              {t("footer.madeWith")} <Heart size={12} className="fill-red-500 text-red-500" />
             </span>
           </div>
         </div>

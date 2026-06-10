@@ -1,11 +1,13 @@
 import { motion } from "framer-motion";
 import { Crown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 /** مبدّل العرض: عادي ↔ Premium مع حركة pill سلسة. */
 export default function PremiumToggle({ value, onChange }) {
+  const { t } = useTranslation();
   const items = [
-    { key: "normal", label: "عادي" },
-    { key: "premium", label: "Premium", icon: Crown },
+    { key: "normal", label: t("premiumToggle.normal") },
+    { key: "premium", label: t("premiumToggle.premium"), icon: Crown },
   ];
   return (
     <div className="relative inline-flex items-center gap-1 rounded-2xl border border-[var(--color-ink-line)] bg-[var(--fill)] p-1">

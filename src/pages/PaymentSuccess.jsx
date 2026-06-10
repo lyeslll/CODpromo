@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Crown, Loader2, Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import Logo from "../components/Logo.jsx";
 import { useAuth } from "../lib/auth.jsx";
 
@@ -11,6 +12,7 @@ const GOLD_DEEP = "#cf9a1e";
 /** صفحة نجاح الدفع — تُحدّث الملف الشخصي بانتظار وصول حدث الـ webhook. */
 export default function PaymentSuccess() {
   const { profile, refreshProfile } = useAuth();
+  const { t } = useTranslation();
   const [waiting, setWaiting] = useState(true);
 
   const active = !!(
@@ -47,18 +49,18 @@ export default function PaymentSuccess() {
       </span>
 
       <h1 className="mt-5 text-[24px] font-black tracking-tight text-[var(--text)]">
-        {active ? "تم تفعيل Premium! 👑" : "تم استلام دفعتك"}
+        {active ? t("payment.success.activeTitle") : t("payment.success.receivedTitle")}
       </h1>
 
       <p className="mt-2 text-[14px] leading-relaxed text-[var(--text-soft)]">
         {active ? (
-          "اشتراكك الآن نشط — استمتع بالخصومات الأقوى والأكواد الحصرية."
+          t("payment.success.activeDesc")
         ) : waiting ? (
           <span className="inline-flex items-center gap-2">
-            <Loader2 size={16} className="animate-spin" /> جارٍ تأكيد الاشتراك…
+            <Loader2 size={16} className="animate-spin" /> {t("payment.success.confirming")}
           </span>
         ) : (
-          "تمّ الدفع بنجاح. قد يستغرق تفعيل الاشتراك دقيقة — حدّث الصفحة بعد قليل."
+          t("payment.success.pending")
         )}
       </p>
 
@@ -67,7 +69,7 @@ export default function PaymentSuccess() {
         className="mt-6 inline-flex items-center justify-center rounded-xl px-6 py-3 text-[15px] font-extrabold text-[#0a0a0a]"
         style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
       >
-        العودة للموقع
+        {t("payment.back")}
       </Link>
     </Shell>
   );

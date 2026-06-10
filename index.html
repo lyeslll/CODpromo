@@ -12,11 +12,11 @@
       content="CODpromo — أكبر منصة عربية لأكواد الخصم والبرومو والكاش باك لمتاجر التجارة الإلكترونية في الجزائر والعالم العربي."
     />
 
-    <!-- Tajawal -->
+    <!-- Tajawal (العربية) + Inter (English / Français) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
 
@@ -30,6 +30,16 @@
           document.documentElement.style.colorScheme = t;
         } catch (e) {
           document.documentElement.classList.add("dark");
+        }
+        // اللغة + الاتجاه قبل أول رسم لتفادي وميض RTL/LTR
+        try {
+          var l = localStorage.getItem("codpromo:lang");
+          if (l !== "ar" && l !== "en" && l !== "fr") l = "ar";
+          document.documentElement.setAttribute("lang", l);
+          document.documentElement.setAttribute("dir", l === "ar" ? "rtl" : "ltr");
+        } catch (e) {
+          document.documentElement.setAttribute("lang", "ar");
+          document.documentElement.setAttribute("dir", "rtl");
         }
       })();
     </script>

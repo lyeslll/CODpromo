@@ -1,5 +1,6 @@
 import { useRef, useState, useLayoutEffect } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "../lib/theme.jsx";
 
 /**
@@ -12,6 +13,7 @@ import { useTheme } from "../lib/theme.jsx";
  */
 export default function Logo({ compact = false }) {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const ref = useRef(null);
   const [forcedDark, setForcedDark] = useState(false);
 
@@ -37,7 +39,7 @@ export default function Logo({ compact = false }) {
       />
       {!compact && (
         <span className="text-[10.5px] font-medium text-[var(--color-mute)]">
-          خصومات · كوبونات · كاش باك
+          {t("logo.tagline")}
         </span>
       )}
     </a>

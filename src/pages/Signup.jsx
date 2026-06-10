@@ -14,18 +14,30 @@ import {
   Phone,
   Globe,
 } from "lucide-react";
+import { useTranslation, Trans } from "react-i18next";
 import AuthShell, { GoogleButton, AuthAlert, authInputCls } from "../components/auth/AuthShell.jsx";
 import Captcha from "../components/auth/Captcha.jsx";
 import { Field, Divider } from "./Login.jsx";
 import { useAuth } from "../lib/auth.jsx";
 
 const TYPES = [
-  { key: "customer", label: "زبون عادي", desc: "استفد من الكوبونات والعروض", icon: User },
-  { key: "company", label: "شركة / مورّد", desc: "اعرض كوبوناتك وخدماتك", icon: Building2 },
+  { key: "customer", icon: User },
+  { key: "company", icon: Building2 },
 ];
+
+/** يحوّل رسالة خطأ Supabase إلى مفتاح ترجمة. */
+function signupErrorKey(msg = "") {
+  if (/already registered|already exists|user already/i.test(msg)) return "errExists";
+  if (/password should be at least/i.test(msg)) return "errShort";
+  if (/invalid email/i.test(msg)) return "errInvalidEmail";
+  if (/captcha/i.test(msg)) return "errCaptchaFail";
+  if (/rate limit/i.test(msg)) return "errRateLimit";
+  return "errGeneric";
+}
 
 export default function Signup() {
   const { signUp, signInWithGoogle } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [accountType, setAccountType] = useState("customer");
@@ -53,9 +65,9 @@ export default function Signup() {
   const submit = async (e) => {
     e.preventDefault();
     setError("");
-    if (isCompany && !companyName.trim()) return setError("اسم الشركة مطلوب");
-    if (password.length < 6) return setError("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
-    if (!captchaToken) return setError("يرجى إكمال التحقق (Captcha)");
+    if (isCompany && !companyName.trim()) return setError(t("auth.signup.errCompanyRequired"));
+    if (password.length < 6) return setError(t("auth.signup.errPasswordShort"));
+    if (!captchaToken) return setError(t("auth.signup.errCaptcha"));
 
     const metadata = isCompany
       ? {
@@ -72,7 +84,7 @@ export default function Signup() {
     setLoading(false);
     if (error) {
       resetCaptcha();
-      return setError(translate(error.message));
+      return setError(t(`auth.signup.${signupErrorKey(error.message)}`));
     }
     if (data.session) navigate("/");
     else setDone(true);
@@ -84,18 +96,18 @@ export default function Signup() {
     const { error } = await signInWithGoogle();
     if (error) {
       setGoogleLoading(false);
-      setError(translate(error.message));
+      setError(t(`auth.signup.${signupErrorKey(error.message)}`));
     }
   };
 
   if (done) {
     return (
       <AuthShell
-        title="تأكّد من بريدك"
-        subtitle="أرسلنا لك رابط تفعيل الحساب"
+        title={t("auth.signup.doneTitle")}
+        subtitle={t("auth.signup.doneSubtitle")}
         footer={
           <Link to="/login" className="font-bold text-[var(--accent-text)] hover:underline">
-            العودة لتسجيل الدخول
+            {t("auth.signup.doneBack")}
           </Link>
         }
       >
@@ -107,8 +119,7 @@ export default function Signup() {
             <MailCheck size={30} className="text-[var(--color-lime)]" />
           </div>
           <p className="text-[14px] leading-relaxed text-[var(--text-soft)]">
-            افتح رسالة التفعيل المُرسلة إلى{" "}
-            <span className="font-bold text-[var(--text)]">{email}</span> ثم سجّل الدخول.
+            <Trans i18nKey="auth.signup.doneDesc" values={{ email }} components={[<span className="font-bold text-[var(--text)]" />]} />
           </p>
         </div>
       </AuthShell>
@@ -118,13 +129,13 @@ export default function Signup() {
   return (
     <AuthShell
       tall
-      title="إنشاء حساب"
-      subtitle="انضمّ إلى CODpromo ووفّر في كل طلب"
+      title={t("auth.signup.title")}
+      subtitle={t("auth.signup.subtitle")}
       footer={
         <span>
-          لديك حساب بالفعل؟{" "}
+          {t("auth.signup.haveAccount")}{" "}
           <Link to="/login" className="font-bold text-[var(--accent-text)] hover:underline">
-            تسجيل الدخول
+            {t("auth.signup.signin")}
           </Link>
         </span>
       }
@@ -133,13 +144,13 @@ export default function Signup() {
 
       {/* اختيار نوع الحساب */}
       <div className="mb-5 grid grid-cols-2 gap-2.5">
-        {TYPES.map((t) => {
-          const active = accountType === t.key;
+        {TYPES.map((ty) => {
+          const active = accountType === ty.key;
           return (
             <button
-              key={t.key}
+              key={ty.key}
               type="button"
-              onClick={() => setAccountType(t.key)}
+              onClick={() => setAccountType(ty.key)}
               className="relative flex flex-col items-center gap-1.5 rounded-2xl border p-3.5 text-center transition-all"
               style={{
                 borderColor: active ? "var(--color-lime)" : "var(--color-ink-line)",
@@ -153,66 +164,66 @@ export default function Signup() {
                   color: active ? "#0a0a0a" : "var(--text-soft)",
                 }}
               >
-                <t.icon size={18} />
+                <ty.icon size={18} />
               </span>
-              <span className="text-[13.5px] font-extrabold text-[var(--text)]">{t.label}</span>
-              <span className="text-[11px] leading-tight text-[var(--color-mute)]">{t.desc}</span>
+              <span className="text-[13.5px] font-extrabold text-[var(--text)]">{t(`auth.signup.${ty.key}Label`)}</span>
+              <span className="text-[11px] leading-tight text-[var(--color-mute)]">{t(`auth.signup.${ty.key}Desc`)}</span>
             </button>
           );
         })}
       </div>
 
-      <GoogleButton onClick={google} loading={googleLoading} label="التسجيل عبر Google" />
+      <GoogleButton onClick={google} loading={googleLoading} label={t("auth.signup.google")} />
 
       <Divider />
 
       <form onSubmit={submit} className="flex flex-col gap-4">
         {isCompany ? (
           <>
-            <Field label="اسم الشركة" icon={Building2}>
+            <Field label={t("auth.signup.companyName")} icon={Building2}>
               <input
                 type="text"
                 required
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                placeholder="اسم شركتك أو متجرك"
-                className={`${authInputCls} pr-10`}
+                placeholder={t("auth.signup.companyNamePh")}
+                className={`${authInputCls} ps-10`}
               />
             </Field>
-            <Field label="رقم الهاتف" icon={Phone}>
+            <Field label={t("auth.signup.phone")} icon={Phone}>
               <input
                 type="tel"
                 dir="ltr"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+213 ..."
-                className={`${authInputCls} pr-10 text-left`}
+                className={`${authInputCls} ps-10 text-left`}
               />
             </Field>
-            <Field label="الموقع / الرابط" icon={Globe}>
+            <Field label={t("auth.signup.website")} icon={Globe}>
               <input
                 type="url"
                 dir="ltr"
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
                 placeholder="https://example.com"
-                className={`${authInputCls} pr-10 text-left`}
+                className={`${authInputCls} ps-10 text-left`}
               />
             </Field>
           </>
         ) : (
-          <Field label="الاسم الكامل" icon={User}>
+          <Field label={t("auth.signup.fullName")} icon={User}>
             <input
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="اسمك الكامل"
-              className={`${authInputCls} pr-10`}
+              placeholder={t("auth.signup.fullNamePh")}
+              className={`${authInputCls} ps-10`}
             />
           </Field>
         )}
 
-        <Field label="البريد الإلكتروني" icon={Mail}>
+        <Field label={t("auth.signup.email")} icon={Mail}>
           <input
             type="email"
             required
@@ -220,24 +231,24 @@ export default function Signup() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className={`${authInputCls} pr-10 text-left`}
+            className={`${authInputCls} ps-10 text-left`}
           />
         </Field>
 
-        <Field label="كلمة المرور" icon={Lock}>
+        <Field label={t("auth.signup.password")} icon={Lock}>
           <input
             type={show ? "text" : "password"}
             required
             dir="ltr"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="6 أحرف على الأقل"
-            className={`${authInputCls} pr-10 pl-10 text-left`}
+            placeholder={t("auth.signup.passwordPh")}
+            className={`${authInputCls} ps-10 pe-10 text-left`}
           />
           <button
             type="button"
             onClick={() => setShow((v) => !v)}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-mute)] hover:text-[var(--text)]"
+            className="absolute end-3 top-1/2 -translate-y-1/2 text-[var(--color-mute)] hover:text-[var(--text)]"
             tabIndex={-1}
           >
             {show ? <EyeOff size={17} /> : <Eye size={17} />}
@@ -254,18 +265,9 @@ export default function Signup() {
           style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
         >
           {loading ? <Loader2 size={18} className="animate-spin" /> : <UserPlus size={18} />}
-          إنشاء الحساب
+          {t("auth.signup.submit")}
         </motion.button>
       </form>
     </AuthShell>
   );
-}
-
-function translate(msg = "") {
-  if (/already registered|already exists|user already/i.test(msg)) return "هذا البريد مسجّل مسبقاً";
-  if (/password should be at least/i.test(msg)) return "كلمة المرور قصيرة جداً";
-  if (/invalid email/i.test(msg)) return "صيغة البريد غير صحيحة";
-  if (/captcha/i.test(msg)) return "فشل التحقق (Captcha)، حاول مجدداً";
-  if (/rate limit/i.test(msg)) return "محاولات كثيرة، حاول بعد قليل";
-  return msg || "تعذّر إنشاء الحساب";
 }

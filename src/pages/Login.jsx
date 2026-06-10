@@ -2,12 +2,22 @@ import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, Loader2, LogIn } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import AuthShell, { GoogleButton, AuthAlert, authInputCls } from "../components/auth/AuthShell.jsx";
 import Captcha from "../components/auth/Captcha.jsx";
 import { useAuth } from "../lib/auth.jsx";
 
+/** يحوّل رسالة خطأ Supabase إلى مفتاح ترجمة. */
+export function loginErrorKey(msg = "") {
+  if (/invalid login credentials/i.test(msg)) return "errCredentials";
+  if (/email not confirmed/i.test(msg)) return "errNotConfirmed";
+  if (/rate limit/i.test(msg)) return "errRateLimit";
+  return "errGeneric";
+}
+
 export default function Login() {
   const { signIn, signInWithGoogle } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,13 +36,13 @@ export default function Login() {
   const submit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!captchaToken) return setError("يرجى إكمال التحقق (Captcha)");
+    if (!captchaToken) return setError(t("auth.login.errCaptcha"));
     setLoading(true);
     const { error } = await signIn(email.trim(), password, captchaToken);
     setLoading(false);
     if (error) {
       resetCaptcha();
-      return setError(translate(error.message));
+      return setError(t(`auth.login.${loginErrorKey(error.message)}`));
     }
     navigate("/dashboard");
   };
@@ -43,31 +53,31 @@ export default function Login() {
     const { error } = await signInWithGoogle();
     if (error) {
       setGoogleLoading(false);
-      setError(translate(error.message));
+      setError(t(`auth.login.${loginErrorKey(error.message)}`));
     }
   };
 
   return (
     <AuthShell
-      title="تسجيل الدخول"
-      subtitle="مرحباً بعودتك إلى CODpromo"
+      title={t("auth.login.title")}
+      subtitle={t("auth.login.subtitle")}
       footer={
         <span>
-          ليس لديك حساب؟{" "}
+          {t("auth.login.noAccount")}{" "}
           <Link to="/signup" className="font-bold text-[var(--accent-text)] hover:underline">
-            أنشئ حساباً
+            {t("auth.login.createAccount")}
           </Link>
         </span>
       }
     >
       {error && <AuthAlert>{error}</AuthAlert>}
 
-      <GoogleButton onClick={google} loading={googleLoading} label="الدخول عبر Google" />
+      <GoogleButton onClick={google} loading={googleLoading} label={t("auth.login.google")} />
 
       <Divider />
 
       <form onSubmit={submit} className="flex flex-col gap-4">
-        <Field label="البريد الإلكتروني" icon={Mail}>
+        <Field label={t("auth.login.email")} icon={Mail}>
           <input
             type="email"
             required
@@ -75,18 +85,18 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className={`${authInputCls} pr-10 text-left`}
+            className={`${authInputCls} ps-10 text-left`}
           />
         </Field>
 
         <div>
           <div className="mb-1.5 flex items-center justify-between">
-            <span className="text-[12.5px] font-bold text-[var(--text-softer)]">كلمة المرور</span>
+            <span className="text-[12.5px] font-bold text-[var(--text-softer)]">{t("auth.login.password")}</span>
             <Link
               to="/forgot-password"
               className="text-[12.5px] font-semibold text-[var(--accent-text)] hover:underline"
             >
-              نسيت كلمة المرور؟
+              {t("auth.login.forgot")}
             </Link>
           </div>
           <Field icon={Lock}>
@@ -97,12 +107,12 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className={`${authInputCls} pr-10 pl-10 text-left`}
+              className={`${authInputCls} ps-10 pe-10 text-left`}
             />
             <button
               type="button"
               onClick={() => setShow((v) => !v)}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-mute)] hover:text-[var(--text)]"
+              className="absolute end-3 top-1/2 -translate-y-1/2 text-[var(--color-mute)] hover:text-[var(--text)]"
               tabIndex={-1}
             >
               {show ? <EyeOff size={17} /> : <Eye size={17} />}
@@ -120,7 +130,7 @@ export default function Login() {
           style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
         >
           {loading ? <Loader2 size={18} className="animate-spin" /> : <LogIn size={18} />}
-          دخول
+          {t("auth.login.submit")}
         </motion.button>
       </form>
     </AuthShell>
@@ -136,7 +146,7 @@ export function Field({ label, icon: Icon, children }) {
       )}
       <div className="relative flex items-center">
         {Icon && (
-          <Icon size={17} className="pointer-events-none absolute right-3 text-[var(--color-mute)]" />
+          <Icon size={17} className="pointer-events-none absolute start-3 text-[var(--color-mute)]" />
         )}
         {children}
       </div>
@@ -145,18 +155,12 @@ export function Field({ label, icon: Icon, children }) {
 }
 
 export function Divider() {
+  const { t } = useTranslation();
   return (
     <div className="my-5 flex items-center gap-3 text-[12px] text-[var(--color-mute)]">
       <span className="h-px flex-1 bg-[var(--color-ink-line)]" />
-      أو
+      {t("auth.or")}
       <span className="h-px flex-1 bg-[var(--color-ink-line)]" />
     </div>
   );
-}
-
-function translate(msg = "") {
-  if (/invalid login credentials/i.test(msg)) return "بيانات الدخول غير صحيحة";
-  if (/email not confirmed/i.test(msg)) return "لم يتم تأكيد البريد بعد — تفقّد بريدك";
-  if (/rate limit/i.test(msg)) return "محاولات كثيرة، حاول بعد قليل";
-  return msg || "حدث خطأ، حاول مجدداً";
 }

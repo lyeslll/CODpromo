@@ -84,6 +84,20 @@
 }
 
 /* ======================================================================
+   Fonts per language — Tajawal للعربية، Inter للإنجليزية/الفرنسية.
+   يتجاوز --font-sans (المعرّف في @theme) حسب وسم lang.
+   نستخدم محدّدات على [lang] (لا html فقط) كي تبقى لوحة /admin بخط Tajawal
+   حتى عندما تكون لغة الموقع إنجليزية/فرنسية (الـ div ملفوف بـ lang="ar").
+   ====================================================================== */
+html[lang="en"],
+html[lang="fr"] {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+[lang="ar"] {
+  --font-sans: "Tajawal", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ======================================================================
    Theme tokens — flip between dark (default) and light
    ====================================================================== */
 :root,

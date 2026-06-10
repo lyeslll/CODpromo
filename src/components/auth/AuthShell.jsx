@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import Logo from "../Logo.jsx";
+import LanguageSwitcher from "../LanguageSwitcher.jsx";
 import { useTheme } from "../../lib/theme.jsx";
 
 // نمط حقول الإدخال المشترك في صفحات الحساب
@@ -9,7 +11,7 @@ export const authInputCls =
   "w-full rounded-xl border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] px-3.5 py-3 text-[14.5px] font-medium text-[var(--text)] outline-none transition-colors placeholder:text-[var(--color-mute)] focus:border-[var(--color-lime)]";
 
 /** زر "متابعة عبر Google" بشعار Google الرسمي. */
-export function GoogleButton({ onClick, loading, label = "المتابعة عبر Google" }) {
+export function GoogleButton({ onClick, loading, label }) {
   return (
     <button
       type="button"
@@ -34,11 +36,12 @@ export function GoogleButton({ onClick, loading, label = "المتابعة عب�
 
 function ThemeToggle() {
   const { theme, toggle } = useTheme();
+  const { t } = useTranslation();
   const isDark = theme === "dark";
   return (
     <button
       onClick={toggle}
-      aria-label="تبديل الوضع"
+      aria-label={t("auth.toggleTheme")}
       className="grid h-10 w-10 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)]"
     >
       {isDark ? (
@@ -56,6 +59,7 @@ function ThemeToggle() {
  * كي لا تصطدم البطاقة بزرّ الثيم ورابط "العودة للموقع" في الأعلى عند طول المحتوى.
  */
 export default function AuthShell({ title, subtitle, children, footer, tall = false }) {
+  const { t } = useTranslation();
   // الحاوية الرئيسية: عرض كامل، لا تتجاوز عرض الشاشة، متمركزة، وتقصّ أي تجاوز أفقي — لمنع انحراف الصفحة على الهاتف
   return (
     <div
@@ -77,9 +81,12 @@ export default function AuthShell({ title, subtitle, children, footer, tall = fa
           to="/"
           className="text-[13px] font-semibold text-[var(--color-mute)] transition-colors hover:text-[var(--text)]"
         >
-          ← العودة للموقع
+          ← {t("auth.backToSite")}
         </Link>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </div>
       </div>
 
       <motion.div

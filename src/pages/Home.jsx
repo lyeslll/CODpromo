@@ -221,7 +221,7 @@ export default function Home() {
       </main>
 
       <HowItWorks />
-      <Footer count={companies.length} />
+      <Footer onPremium={() => setPremiumModal(true)} />
 
       {/* ===== توست النسخ ===== */}
       <AnimatePresence>

@@ -91,9 +91,11 @@
   },
   "footer": {
     "tagline": "Votre plateforme de codes de réduction, coupons et cashback — pour économiser sur chaque achat en ligne.",
-    "offersAvailable": "{{count}} offres disponibles",
-    "admin": "Panneau d'administration",
-    "madeWith": "Conçu avec"
+    "ctaTitle": "Débloquez les offres Premium",
+    "ctaDesc": "Des codes promo plus forts et des offres exclusives — en un clic.",
+    "ctaBtn": "Débloquer Premium",
+    "follow": "Suivez-nous",
+    "poweredBy": "Développé par"
   },
   "emailPopup": {
     "doneTitle": "C'est fait ! 🎉",

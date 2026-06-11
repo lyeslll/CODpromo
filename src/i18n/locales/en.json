@@ -91,9 +91,11 @@
   },
   "footer": {
     "tagline": "Your platform for discount codes, coupons and cashback — saving you money on every online purchase.",
-    "offersAvailable": "{{count}} deals available",
-    "admin": "Admin panel",
-    "madeWith": "Made with"
+    "ctaTitle": "Unlock Premium deals",
+    "ctaDesc": "Stronger promo codes and exclusive offers — in one click.",
+    "ctaBtn": "Unlock Premium",
+    "follow": "Follow us",
+    "poweredBy": "Powered by"
   },
   "emailPopup": {
     "doneTitle": "You're in! 🎉",

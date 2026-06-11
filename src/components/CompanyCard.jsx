@@ -27,8 +27,9 @@ export default function CompanyCard({
 
   // المحتوى الديناميكي: نعرض ترجمة اللغة النشطة، مع fallback للعربية الأصلية
   const lang = i18n.language;
-  const desc = (lang !== "ar" && company[`description_${lang}`]) || company.description || "";
-  const category = (lang !== "ar" && company[`category_${lang}`]) || company.category;
+  const loc = (field) => (lang !== "ar" && company[`${field}_${lang}`]) || company[field];
+  const desc = loc("description") || "";
+  const category = loc("category");
   const [copied, setCopied] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const cardRef = useRef(null);
@@ -43,7 +44,7 @@ export default function CompanyCard({
   // ألوان حسب الوضع (عادي / Premium ذهبي)
   const accent = premium ? GOLD : meta.color;
   const accentGlow = premium ? GOLD_GLOW : meta.glow;
-  const shownDiscount = premium ? company.premium_discount || company.discount : company.discount;
+  const shownDiscount = premium ? loc("premium_discount") || loc("discount") : loc("discount");
 
   const handleMouseMove = (e) => {
     const el = cardRef.current;

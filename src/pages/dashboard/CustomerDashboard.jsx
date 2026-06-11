@@ -126,7 +126,9 @@ function InfoPill({ icon: Icon, label, value }) {
 }
 
 function FavoriteItem({ company, onRemove }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
+  const discount = (lang !== "ar" && company[`discount_${lang}`]) || company.discount;
   const meta = getTypeMeta(company.type);
   const [copied, setCopied] = useState(false);
   const copy = () => {
@@ -151,7 +153,7 @@ function FavoriteItem({ company, onRemove }) {
           </span>
         </div>
         <div className="mt-0.5 flex items-center gap-2 text-[12.5px]">
-          <span className="font-black" style={{ color: meta.color }}>{company.discount}</span>
+          <span className="font-black" style={{ color: meta.color }}>{discount}</span>
           <span className="font-mono font-bold text-[var(--text-softer)]">{company.code}</span>
         </div>
       </div>

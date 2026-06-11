@@ -69,6 +69,7 @@ const ALLOWED = [
   "supports_premium", "type", "description", "link", "status",
   // ترجمات المحتوى الديناميكي (تُولَّد تلقائياً — العربية تبقى المصدر/الـ fallback)
   "description_en", "description_fr", "category_en", "category_fr",
+  "discount_en", "discount_fr", "premium_discount_en", "premium_discount_fr",
 ];
 
 /** يبقي فقط الحقول المسموح بها ويحوّل الفراغات إلى null. */
@@ -82,8 +83,9 @@ function clean(payload) {
   return out;
 }
 
-// الحقول النصية القابلة للترجمة (تظهر في البطاقة).
-const I18N_FIELDS = ["description", "category"];
+// الحقول النصية القابلة للترجمة (تظهر في البطاقة): الوصف، الفئة، وقيمة العرض.
+// قيمة العرض تُترجَم وتُنسَّق حسب اللغة (مثل "5$ هدية" → "$5 gift" / "5$ cadeau").
+const I18N_FIELDS = ["description", "category", "discount", "premium_discount"];
 
 /**
  * يترجم حقولاً عربية إلى en + fr عبر Edge Function translate-company.

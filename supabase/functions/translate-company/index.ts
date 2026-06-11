@@ -21,7 +21,8 @@ const corsHeaders = {
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    // charset=utf-8 صريح كي يفك العملاء الترميز صحيحاً (يتفادى mojibake للفرنسية é/è/à/ç)
+    headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" },
   });
 }
 
@@ -32,7 +33,12 @@ Examples of correct, faithful category translations: "شحن وتوصيل" → "
 Rules (strict):
 - Keep brand names, store names, product names exactly as-is (e.g. Shipper, Bybit, YouCan, Temu).
 - Keep promo/discount codes exactly as-is (e.g. ILYES5, SAVE20) — never translate or alter them.
-- Keep URLs, numbers, currencies and percentages exactly as-is (e.g. 20%, 2500 DZD, $10).
+- Keep URLs and percentages exactly as-is (e.g. 20%).
+- Keep the numeric AMOUNT of any money value unchanged, but DO localize currency units and any Arabic words around it:
+  * Arabic currency unit "دج" (or "د.ج"/"دينار") → "DZD" in both English and French.
+  * Common Arabic words → translate them: "هدية" → "gift" (en) / "cadeau" (fr); "مجاناً"/"مجاني" → "free" / "gratuit".
+  * Currency symbol placement: English puts the symbol before the amount ($5), French after with a space (5 $). The dollar amount stays the same number.
+  * Examples: "5$ هدية" → en "$5 gift", fr "5 $ cadeau"; "500 دج" → en/fr "500 DZD"; "20%" → "20%".
 - Short category labels: give a faithful, common-usage translation — do not embellish or change the meaning.
 - Preserve the original meaning; do not add or remove information.
 Return ONLY a minified JSON object, no markdown, no code fences, no commentary.`;

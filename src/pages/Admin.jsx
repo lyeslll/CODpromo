@@ -39,6 +39,7 @@ import UsersTable from "../components/admin/UsersTable.jsx";
 import RequestsManager from "../components/admin/RequestsManager.jsx";
 import SubscribersTable from "../components/admin/SubscribersTable.jsx";
 import StorkManager from "../components/admin/StorkManager.jsx";
+import PremiumMembers from "../components/admin/PremiumMembers.jsx";
 
 export default function Admin() {
   const [unlocked, setUnlocked] = useState(
@@ -497,12 +498,15 @@ function Dashboard({ onLock }) {
 
         {/* Premium / أكواد Stork */}
         {tab === "stork" && (
-          <StorkManager
-            codes={storkCodes}
-            loading={loadingStork}
-            onAdd={handleAddStork}
-            premiumCount={premiumCount}
-          />
+          <div className="flex flex-col gap-6">
+            <PremiumMembers profiles={profiles} codes={storkCodes} />
+            <StorkManager
+              codes={storkCodes}
+              loading={loadingStork}
+              onAdd={handleAddStork}
+              premiumCount={premiumCount}
+            />
+          </div>
         )}
       </div>
 

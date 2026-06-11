@@ -5,11 +5,14 @@ import { addCompany } from "./supabase.js";
 //  استعلامات لوحة الأدمن (تتطلب سياسات قراءة عامة — راجع supabase-phase4.sql)
 // ============================================================
 
-/** كل المستخدمين (من جدول profiles). */
+/** كل المستخدمين (من جدول profiles) — مع حقول Premium للوحة الأدمن. */
 export async function fetchAllProfiles() {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id,email,full_name,account_type,company_name,phone,website,created_at")
+    .select(
+      "id,email,full_name,account_type,company_name,phone,website,created_at," +
+        "is_premium,premium_until,subscription_status,plan_type,payment_provider,slickpay_invoice_id"
+    )
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return data || [];

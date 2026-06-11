@@ -11,6 +11,7 @@ import {
   User,
   CalendarDays,
   Store,
+  ExternalLink,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import DashboardShell, { WelcomeCard, SectionTitle } from "../../components/dashboard/DashboardShell.jsx";
@@ -18,10 +19,12 @@ import CompanyLogo from "../../components/CompanyLogo.jsx";
 import PremiumModal from "../../components/PremiumModal.jsx";
 import { getTypeMeta, getTypeKey } from "../../lib/types.js";
 import { useAuth } from "../../lib/auth.jsx";
+import { usePremium } from "../../lib/premium.jsx";
 import { fetchFavoritesWithCompany, removeFavorite } from "../../lib/favorites.js";
 
 export default function CustomerDashboard() {
   const { user, profile } = useAuth();
+  const { unlocked } = usePremium();
   const { t, i18n } = useTranslation();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -98,7 +101,7 @@ export default function CustomerDashboard() {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <AnimatePresence>
             {favorites.map((f) => (
-              <FavoriteItem key={f.company_id} company={f.companies} onRemove={() => remove(f.company_id)} />
+              <FavoriteItem key={f.company_id} company={f.companies} unlocked={unlocked} onRemove={() => remove(f.company_id)} />
             ))}
           </AnimatePresence>
         </div>
@@ -125,14 +128,20 @@ function InfoPill({ icon: Icon, label, value }) {
   );
 }
 
-function FavoriteItem({ company, onRemove }) {
+function FavoriteItem({ company, unlocked, onRemove }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
-  const discount = (lang !== "ar" && company[`discount_${lang}`]) || company.discount;
+  // نفس منطق البطاقة الرئيسية: عضو Premium (unlocked) + الشركة تدعم Premium
+  const premium = unlocked && company.supports_premium !== false;
+  const loc = (field) => (lang !== "ar" && company[`${field}_${lang}`]) || company[field];
+  // القيمة تتبع i18n؛ الكود/الرابط universal — كلها مع fallback للعادي
+  const discount = premium ? loc("premium_discount") || loc("discount") : loc("discount");
+  const code = premium ? company.premium_code || company.code : company.code;
+  const link = premium ? company.premium_url || company.link : company.link;
   const meta = getTypeMeta(company.type);
   const [copied, setCopied] = useState(false);
   const copy = () => {
-    navigator.clipboard?.writeText(company.code).catch(() => {});
+    navigator.clipboard?.writeText(code).catch(() => {});
     setCopied(true);
     setTimeout(() => setCopied(false), 1400);
   };
@@ -154,10 +163,21 @@ function FavoriteItem({ company, onRemove }) {
         </div>
         <div className="mt-0.5 flex items-center gap-2 text-[12.5px]">
           <span className="font-black" style={{ color: meta.color }}>{discount}</span>
-          <span className="font-mono font-bold text-[var(--text-softer)]">{company.code}</span>
+          <span className="font-mono font-bold text-[var(--text-softer)]">{code}</span>
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
+        {link && (
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="grid h-9 w-9 place-items-center rounded-lg border border-[var(--color-ink-line)] text-[var(--text-softer)] transition-colors hover:text-[var(--accent-text)]"
+            title={t("card.visit")}
+          >
+            <ExternalLink size={15} />
+          </a>
+        )}
         <button
           onClick={copy}
           className="grid h-9 w-9 place-items-center rounded-lg border border-[var(--color-ink-line)] text-[var(--text-softer)] transition-colors hover:text-[var(--accent-text)]"

@@ -143,8 +143,8 @@ export default function CompanyCard({
         </div>
       </div>
 
-      {/* الوصف — ارتفاع ثابت (سطران) ليتساوى ارتفاع كل البطاقات */}
-      <p className="relative mt-4 line-clamp-2 h-[40px] overflow-hidden text-[13.5px] leading-[1.48] text-[var(--text-soft)]">
+      {/* الوصف — ارتفاع ثابت (ثلاثة أسطر) ليتساوى ارتفاع كل البطاقات */}
+      <p className="relative mt-4 line-clamp-3 h-[60px] overflow-hidden text-[13.5px] leading-[1.48] text-[var(--text-soft)]">
         {desc}
       </p>
 

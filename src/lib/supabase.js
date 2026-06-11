@@ -64,7 +64,12 @@ export async function trackClick(id, currentClicks = 0) {
 
 // ===================== كتابة (لوحة التحكم) =====================
 
-const ALLOWED = ["name", "logo", "category", "code", "discount", "premium_discount", "supports_premium", "type", "description", "link", "status"];
+const ALLOWED = [
+  "name", "logo", "category", "code", "discount", "premium_discount",
+  "supports_premium", "type", "description", "link", "status",
+  // ترجمات المحتوى الديناميكي (تُولَّد تلقائياً — العربية تبقى المصدر/الـ fallback)
+  "description_en", "description_fr", "category_en", "category_fr",
+];
 
 /** يبقي فقط الحقول المسموح بها ويحوّل الفراغات إلى null. */
 function clean(payload) {
@@ -77,9 +82,52 @@ function clean(payload) {
   return out;
 }
 
-/** يضيف شركة جديدة ويعيد السجل المُنشأ. */
+// الحقول النصية القابلة للترجمة (تظهر في البطاقة).
+const I18N_FIELDS = ["description", "category"];
+
+/**
+ * يترجم حقولاً عربية إلى en + fr عبر Edge Function translate-company.
+ * @param {Record<string,string>} fields مثل { description, category }
+ * @returns {Promise<{en:Object, fr:Object}>}
+ */
+export async function translateCompanyFields(fields) {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/translate-company`, {
+    method: "POST",
+    headers: jsonHeaders,
+    body: JSON.stringify({ fields }),
+  });
+  if (!res.ok) throw await toError(res, "تعذّرت الترجمة التلقائية");
+  return res.json();
+}
+
+/**
+ * يضيف أعمدة الترجمة (en/fr) للحقول النصية الموجودة في الـ payload.
+ * إن فشلت الترجمة لا نكسر الحفظ — نحفظ بالعربية فقط (تُترجَم لاحقاً بزر "ترجم الكل").
+ */
+async function withTranslations(payload) {
+  const src = {};
+  for (const f of I18N_FIELDS) {
+    if (typeof payload[f] === "string" && payload[f].trim()) src[f] = payload[f].trim();
+  }
+  if (Object.keys(src).length === 0) return payload;
+  try {
+    const { en = {}, fr = {} } = await translateCompanyFields(src);
+    const out = { ...payload };
+    for (const f of I18N_FIELDS) {
+      if (en[f] != null) out[`${f}_en`] = en[f];
+      if (fr[f] != null) out[`${f}_fr`] = fr[f];
+    }
+    return out;
+  } catch (e) {
+    console.warn("translate-company failed, saving Arabic only:", e?.message);
+    return payload;
+  }
+}
+
+/** يضيف شركة جديدة (مع ترجمة تلقائية للوصف والفئة) ويعيد السجل المُنشأ. */
 export async function addCompany(payload) {
-  const body = { status: "active", ...clean(payload) };
+  const translated = await withTranslations(payload);
+  const body = { status: "active", ...clean(translated) };
   const res = await fetch(`${SUPABASE_URL}/rest/v1/companies`, {
     method: "POST",
     headers: { ...jsonHeaders, Prefer: "return=representation" },
@@ -90,12 +138,13 @@ export async function addCompany(payload) {
   return Array.isArray(data) ? data[0] : data;
 }
 
-/** يحدّث شركة موجودة ويعيد السجل المُحدَّث. */
+/** يحدّث شركة موجودة (يعيد ترجمة الوصف/الفئة إن تغيّرا) ويعيد السجل المُحدَّث. */
 export async function updateCompany(id, payload) {
+  const translated = await withTranslations(payload);
   const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${id}`, {
     method: "PATCH",
     headers: { ...jsonHeaders, Prefer: "return=representation" },
-    body: JSON.stringify(clean(payload)),
+    body: JSON.stringify(clean(translated)),
   });
   if (!res.ok) throw await toError(res, "تعذّر تحديث الشركة");
   const data = await res.json();

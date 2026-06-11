@@ -95,10 +95,19 @@ Offer types are a fixed Arabic enum used across UI and stats — `"تخفيض"` 
 - زر اللغة: `src/components/LanguageSwitcher.jsx` (في Navbar + AuthShell + DashboardShell).
 - الخط يتبدّل عبر CSS حسب `[lang]` في `src/index.css`: Tajawal للعربية، Inter للإنجليزية/الفرنسية.
 - RTL/LTR: استعمل خصائص Tailwind المنطقية (`ps/pe`, `ms/me`, `start/end`, `text-start/text-end`) لا الفيزيائية (`pl/pr`, `left/right`)، والأيقونات الاتجاهية تنقلب بـ `ltr:rotate-180`.
-- لوحة `/admin` تبقى عربية RTL ثابتة (ملفوفة بـ `dir="rtl" lang="ar"`) ولا تُترجم. محتوى الشركات الديناميكي (الأسماء/الأوصاف من القاعدة) لا يُترجم — فقط نصوص الواجهة. قيم أنواع العروض تبقى عربية في القاعدة وتُعرض مترجمة عبر `getTypeKey` في `src/lib/types.js`.
+- لوحة `/admin` تبقى عربية RTL ثابتة (ملفوفة بـ `dir="rtl" lang="ar"`) ولا تُترجم. قيم أنواع العروض تبقى عربية في القاعدة وتُعرض مترجمة عبر `getTypeKey` في `src/lib/types.js`.
+
+### ترجمة المحتوى الديناميكي (حقول قاعدة البيانات)
+الأوصاف/الفئات الديناميكية للشركات تُترجم **تلقائياً** عند الحفظ، ولا تُترك بالعربية فقط:
+- الأعمدة: `description` + `description_en` + `description_fr`، و`category` + `category_en` + `category_fr` (العربية هي المصدر و fallback). الهجرة في `supabase-phase10-i18n.sql`.
+- Edge Function `translate-company` (موديل `claude-haiku-4-5-20251001`) يترجم عبر Anthropic API؛ المفتاح `ANTHROPIC_API_KEY` من Supabase secrets فقط (أبداً في الكود/GitHub). نشر: `supabase functions deploy translate-company --no-verify-jwt --project-ref uulcgvdsqivgkiulurhk`.
+- `addCompany`/`updateCompany` في `src/lib/supabase.js` يستدعيان الترجمة تلقائياً عبر `withTranslations` (إن فشلت، يُحفظ بالعربية ويُترجَم لاحقاً). زر **"ترجم الكل"** في لوحة الأدمن (تبويب الشركات) يعمل Backfill للموجود.
+- العرض في `CompanyCard.jsx` يختار نسخة اللغة النشطة مع fallback للعربية. أسماء العلامات والأكواد والأرقام تبقى كما هي بلا ترجمة.
 
 ### قاعدة دائمة (إلزامية)
 > **أي ميزة أو محتوى جديد يُضاف إلى الموقع يجب أن يُترجَم تلقائياً للّغات الثلاث (ar/en/fr) عبر react-i18next بنفس النظام الحالي — لا نصوص مكتوبة مباشرة (hardcoded) في الواجهة. والأعلام تكون صوراً/SVG (مكتبة `flag-icons`) وليست emoji.**
+>
+> **وأي حقل نصي ديناميكي جديد يُضاف لقاعدة البيانات ويظهر للمستخدم (وصف، فئة، عنوان عرض…) يجب أن يتبع نفس نظام الترجمة التلقائية:** أضِف أعمدة `<field>_en` / `<field>_fr` في هجرة جديدة، أدرِج الحقل في `I18N_FIELDS` بـ `src/lib/supabase.js` ليُترجَم عند الحفظ وفي زر "ترجم الكل"، واعرض نسخة اللغة النشطة مع fallback للعربية.
 
 ## Theming
 

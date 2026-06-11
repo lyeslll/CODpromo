@@ -21,9 +21,14 @@ export default function CompanyCard({
   unlocked = false,
   onUnlock,
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const meta = getTypeMeta(company.type);
   const Icon = meta.icon;
+
+  // المحتوى الديناميكي: نعرض ترجمة اللغة النشطة، مع fallback للعربية الأصلية
+  const lang = i18n.language;
+  const desc = (lang !== "ar" && company[`description_${lang}`]) || company.description || "";
+  const category = (lang !== "ar" && company[`category_${lang}`]) || company.category;
   const [copied, setCopied] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const cardRef = useRef(null);
@@ -105,7 +110,7 @@ export default function CompanyCard({
           <div className="min-w-0">
             <h3 className="truncate text-[17px] font-extrabold text-[var(--text)]">{company.name}</h3>
             <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">
-              {company.category}
+              {category}
             </p>
           </div>
         </div>
@@ -136,7 +141,7 @@ export default function CompanyCard({
 
       {/* الوصف — ارتفاع ثابت (سطران) ليتساوى ارتفاع كل البطاقات */}
       <p className="relative mt-4 line-clamp-2 h-[40px] overflow-hidden text-[13.5px] leading-[1.48] text-[var(--text-soft)]">
-        {company.description || ""}
+        {desc}
       </p>
 
       {/* قيمة الخصم + شارة النوع */}

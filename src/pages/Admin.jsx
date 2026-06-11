@@ -16,6 +16,8 @@ import {
   Inbox,
   AtSign,
   Crown,
+  Languages,
+  Loader2,
 } from "lucide-react";
 
 import {
@@ -23,6 +25,7 @@ import {
   addCompany,
   updateCompany,
   deleteCompany,
+  translateCompanyFields,
 } from "../lib/supabase.js";
 import { fetchAllProfiles, fetchAllRequests, acceptRequest, setRequestStatus } from "../lib/admin.js";
 import { fetchSubscribers } from "../lib/subscribers.js";
@@ -141,6 +144,8 @@ function Dashboard({ onLock }) {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null); // الشركة قيد التعديل
   const [submitting, setSubmitting] = useState(false);
+  const [translatingAll, setTranslatingAll] = useState(false);
+  const [translateProgress, setTranslateProgress] = useState({ done: 0, total: 0 });
   const [toast, setToast] = useState(null); // { type, msg }
   const toastTimer = useRef(null);
   const formRef = useRef(null);
@@ -226,6 +231,45 @@ function Dashboard({ onLock }) {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // ترجمة كل الشركات (Backfill): تترجم الوصف + الفئة وتحفظ en/fr لكل شركة.
+  // نترجم فقط ما له وصف/فئة عربية (نتخطّى ما لا نص له).
+  const handleTranslateAll = async () => {
+    if (translatingAll) return;
+    const targets = companies.filter(
+      (c) => (c.description && c.description.trim()) || (c.category && c.category.trim())
+    );
+    setTranslatingAll(true);
+    setTranslateProgress({ done: 0, total: targets.length });
+    let done = 0;
+    let failed = 0;
+    for (const c of targets) {
+      const src = {};
+      if (c.description?.trim()) src.description = c.description.trim();
+      if (c.category?.trim()) src.category = c.category.trim();
+      try {
+        const { en = {}, fr = {} } = await translateCompanyFields(src);
+        const patch = {};
+        if (en.description != null) patch.description_en = en.description;
+        if (en.category != null) patch.category_en = en.category;
+        if (fr.description != null) patch.description_fr = fr.description;
+        if (fr.category != null) patch.category_fr = fr.category;
+        if (Object.keys(patch).length) {
+          const updated = await updateCompany(c.id, patch);
+          setCompanies((prev) => prev.map((x) => (x.id === c.id ? { ...x, ...updated } : x)));
+        }
+        done += 1;
+      } catch {
+        failed += 1;
+      }
+      setTranslateProgress({ done: done + failed, total: targets.length });
+    }
+    setTranslatingAll(false);
+    notify(
+      failed && !done ? "error" : "success",
+      `تمت ترجمة ${done} شركة${failed ? ` · فشل ${failed}` : ""}`
+    );
   };
 
   const handleDelete = async (id) => {
@@ -357,6 +401,38 @@ function Dashboard({ onLock }) {
               <StatCard icon={Tag} label="تخفيض" value={stats.discount} color="#a6f000" />
               <StatCard icon={Ticket} label="كوبون" value={stats.coupon} color="#38bdf8" />
               <StatCard icon={Wallet} label="كاش باك" value={stats.cashback} color="#fbbf24" />
+            </div>
+
+            {/* ترجمة تلقائية لكل الأوصاف (en + fr) */}
+            <div className="mb-6 flex flex-col items-start justify-between gap-3 rounded-2xl border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] p-4 sm:flex-row sm:items-center">
+              <div className="flex items-center gap-3">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--color-lime)]/12 text-[var(--color-lime)]">
+                  <Languages size={20} />
+                </span>
+                <div className="min-w-0">
+                  <div className="text-[14px] font-extrabold text-white">ترجمة المحتوى تلقائياً</div>
+                  <div className="text-[12px] text-[var(--color-mute)]">
+                    تترجم وصف وفئة كل الشركات إلى الإنجليزية والفرنسية (الأوصاف الجديدة تُترجَم تلقائياً عند الحفظ).
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={handleTranslateAll}
+                disabled={translatingAll}
+                className="flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-[13.5px] font-extrabold text-[#0a0a0a] transition-transform hover:scale-[1.02] disabled:opacity-60"
+                style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
+              >
+                {translatingAll ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    جارٍ الترجمة… {translateProgress.done}/{translateProgress.total}
+                  </>
+                ) : (
+                  <>
+                    <Languages size={16} /> ترجم الكل
+                  </>
+                )}
+              </button>
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[420px_1fr]">

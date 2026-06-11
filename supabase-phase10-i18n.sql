@@ -13,5 +13,10 @@ alter table public.companies
   add column if not exists category_en   text,
   add column if not exists category_fr   text;
 
+-- مهم: أعد تحميل مخزّن مخطّط PostgREST كي تظهر الأعمدة الجديدة فوراً لواجهة REST،
+-- وإلا فإن كل كتابة من المتصفّح تفشل بخطأ PGRST204
+-- ("Could not find the 'description_en' column ... in the schema cache").
+notify pgrst, 'reload schema';
+
 -- ملاحظة: لا حاجة لتعديل سياسات RLS — الأعمدة الجديدة تتبع سياسات الجدول نفسها
 -- (قراءة عامة + كتابة من اللوحة) المعرّفة في supabase-setup.sql.

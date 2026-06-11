@@ -244,6 +244,7 @@ function Dashboard({ onLock }) {
     setTranslateProgress({ done: 0, total: targets.length });
     let done = 0;
     let failed = 0;
+    let lastError = "";
     for (const c of targets) {
       const src = {};
       if (c.description?.trim()) src.description = c.description.trim();
@@ -260,15 +261,19 @@ function Dashboard({ onLock }) {
           setCompanies((prev) => prev.map((x) => (x.id === c.id ? { ...x, ...updated } : x)));
         }
         done += 1;
-      } catch {
+      } catch (e) {
         failed += 1;
+        lastError = e?.message || String(e);
+        // نطبع السبب الحقيقي للتشخيص (مثلاً PGRST204 = عمود غير موجود في مخزّن المخطّط)
+        console.error("translate-all failed for company", c.id, e);
       }
       setTranslateProgress({ done: done + failed, total: targets.length });
     }
     setTranslatingAll(false);
     notify(
       failed && !done ? "error" : "success",
-      `تمت ترجمة ${done} شركة${failed ? ` · فشل ${failed}` : ""}`
+      `تمت ترجمة ${done} شركة${failed ? ` · فشل ${failed}` : ""}` +
+        (failed && lastError ? ` — السبب: ${lastError}` : "")
     );
   };
 

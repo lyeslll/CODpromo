@@ -45,10 +45,7 @@
     "step2Title": "Copy the code",
     "step2Desc": "One click copies the working code, ready to paste, and takes you straight to the store.",
     "step3Title": "Save at checkout",
-    "step3Desc": "Paste the code at checkout and enjoy the discount or cashback instantly.",
-    "premiumTitle": "Premium — stronger codes, bigger savings",
-    "premiumDesc": "Activate Premium to unlock the strongest codes and exclusive deals, and save more on every order.",
-    "premiumCta": "Get Premium"
+    "step3Desc": "Paste the code at checkout and enjoy the discount or cashback instantly."
   },
   "search": {
     "placeholder": "Search for a store, category, or promo code…",
@@ -94,9 +91,9 @@
   },
   "footer": {
     "tagline": "Your platform for discount codes, coupons and cashback — saving you money on every online purchase.",
-    "ctaTitle": "Unlock Premium deals",
-    "ctaDesc": "Stronger promo codes and exclusive offers — in one click.",
-    "ctaBtn": "Unlock Premium",
+    "ctaTitle": "Premium — stronger codes, bigger savings",
+    "ctaDesc": "Activate Premium to unlock the strongest codes and exclusive deals, and save more on every order.",
+    "ctaBtn": "Activate Premium",
     "follow": "Follow us",
     "poweredBy": "Powered by"
   },

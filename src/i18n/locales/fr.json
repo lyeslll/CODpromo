@@ -45,10 +45,7 @@
     "step2Title": "Copiez le code",
     "step2Desc": "En un clic, copiez le code valide prêt à coller, et accédez directement au site de la boutique.",
     "step3Title": "Économisez au paiement",
-    "step3Desc": "Collez le code lors du paiement et profitez instantanément de la réduction ou du cashback.",
-    "premiumTitle": "Premium — des codes plus forts, plus d'économies",
-    "premiumDesc": "Activez Premium pour débloquer les codes les plus forts et les offres exclusives, et économisez davantage sur chaque commande.",
-    "premiumCta": "Activer Premium"
+    "step3Desc": "Collez le code lors du paiement et profitez instantanément de la réduction ou du cashback."
   },
   "search": {
     "placeholder": "Rechercher une boutique, une catégorie ou un code promo…",
@@ -94,9 +91,9 @@
   },
   "footer": {
     "tagline": "Votre plateforme de codes de réduction, coupons et cashback — pour économiser sur chaque achat en ligne.",
-    "ctaTitle": "Débloquez les offres Premium",
-    "ctaDesc": "Des codes promo plus forts et des offres exclusives — en un clic.",
-    "ctaBtn": "Débloquer Premium",
+    "ctaTitle": "Premium — des codes plus forts, plus d'économies",
+    "ctaDesc": "Activez Premium pour débloquer les codes les plus forts et les offres exclusives, et économisez davantage sur chaque commande.",
+    "ctaBtn": "Activer Premium",
     "follow": "Suivez-nous",
     "poweredBy": "Développé par"
   },

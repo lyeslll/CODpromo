@@ -220,7 +220,7 @@ export default function Home() {
         )}
       </main>
 
-      <HowItWorks onPremium={() => setPremiumModal(true)} />
+      <HowItWorks />
       <Footer onPremium={() => setPremiumModal(true)} />
 
       {/* ===== توست النسخ ===== */}

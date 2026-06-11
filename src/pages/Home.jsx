@@ -109,13 +109,13 @@ export default function Home() {
     });
   };
 
-  const handleCopy = (company) => {
-    navigator.clipboard?.writeText(company.code).catch(() => {});
+  const handleCopy = (company, code = company.code) => {
+    navigator.clipboard?.writeText(code).catch(() => {});
     trackClick(company.id, company.clicks);
     setCompanies((prev) =>
       prev.map((c) => (c.id === company.id ? { ...c, clicks: (c.clicks || 0) + 1 } : c))
     );
-    setToast(company.code);
+    setToast(code);
     clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(null), 2200);
   };

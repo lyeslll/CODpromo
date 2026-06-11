@@ -67,6 +67,8 @@ export async function trackClick(id, currentClicks = 0) {
 const ALLOWED = [
   "name", "logo", "category", "code", "discount", "premium_discount",
   "supports_premium", "type", "description", "link", "status",
+  // كود ورابط عرض Premium (universal — لا تُترجَم)
+  "premium_code", "premium_url",
   // ترجمات المحتوى الديناميكي (تُولَّد تلقائياً — العربية تبقى المصدر/الـ fallback)
   "description_en", "description_fr", "category_en", "category_fr",
   "discount_en", "discount_fr", "premium_discount_en", "premium_discount_fr",

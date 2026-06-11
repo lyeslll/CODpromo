@@ -45,6 +45,9 @@ export default function CompanyCard({
   const accent = premium ? GOLD : meta.color;
   const accentGlow = premium ? GOLD_GLOW : meta.glow;
   const shownDiscount = premium ? loc("premium_discount") || loc("discount") : loc("discount");
+  // كود ورابط Premium universal (لا تُترجَم) مع fallback للعادي عند الفراغ
+  const shownCode = premium ? company.premium_code || company.code : company.code;
+  const shownLink = premium ? company.premium_url || company.link : company.link;
 
   const handleMouseMove = (e) => {
     const el = cardRef.current;
@@ -60,7 +63,7 @@ export default function CompanyCard({
       onUnlock?.();
       return;
     }
-    onCopy(company);
+    onCopy(company, shownCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
   };
@@ -176,7 +179,7 @@ export default function CompanyCard({
               {premium ? t("card.premiumCode") : t("card.code")}
             </span>
             <span className="font-mono text-[15px] font-extrabold tracking-widest text-[var(--text)]">
-              {company.code}
+              {shownCode}
             </span>
           </div>
           {premium && !revealed && (
@@ -212,9 +215,9 @@ export default function CompanyCard({
       </div>
 
       {/* زر زيارة الموقع */}
-      {company.link && (
+      {shownLink && (
         <motion.a
-          href={company.link}
+          href={shownLink}
           target="_blank"
           rel="noopener noreferrer"
           whileTap={{ scale: 0.98 }}

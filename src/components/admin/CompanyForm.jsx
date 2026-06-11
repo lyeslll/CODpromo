@@ -24,6 +24,8 @@ const EMPTY = {
   description: "",
   discount: "",
   premium_discount: "",
+  premium_code: "",
+  premium_url: "",
   supports_premium: true,
   type: "تخفيض",
   code: "",
@@ -208,6 +210,30 @@ export default function CompanyForm({ initial, onSubmit, onCancel, submitting })
           className={inputCls}
         />
         <span className="mt-1 block text-[11px] text-[var(--color-mute)]">يظهر لأعضاء Premium بدل الخصم العادي. اتركه فارغاً ليبقى نفس الخصم.</span>
+
+        {/* كود ورابط Premium — متناظران مع العادي، مع fallback عند الفراغ */}
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <span className="mb-1.5 block text-[11.5px] font-bold" style={{ color: "#cf9a1e" }}>كود الخصم Premium</span>
+            <input
+              value={form.premium_code}
+              onChange={set("premium_code")}
+              placeholder="مثل: PREMIUM50"
+              className={`${inputCls} font-mono tracking-wider`}
+            />
+          </div>
+          <div>
+            <span className="mb-1.5 block text-[11.5px] font-bold" style={{ color: "#cf9a1e" }}>رابط Premium</span>
+            <input
+              value={form.premium_url}
+              onChange={set("premium_url")}
+              dir="ltr"
+              placeholder="https://… (اختياري)"
+              className={`${inputCls} text-left`}
+            />
+          </div>
+        </div>
+        <span className="mt-1 block text-[11px] text-[var(--color-mute)]">اتركهما فارغين لاستعمال كود ورابط العرض العادي.</span>
 
         {/* تدعم Premium؟ */}
         <div className="mt-3 flex items-center justify-between border-t pt-3" style={{ borderColor: "rgba(207,154,30,0.25)" }}>

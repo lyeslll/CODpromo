@@ -40,12 +40,15 @@
   "how": {
     "kicker": "In three steps",
     "title": "How does CODpromo work?",
-    "step1Title": "Find your store",
-    "step1Desc": "Browse hundreds of local and global stores and find your deal in seconds.",
+    "step1Title": "Discover the deals",
+    "step1Desc": "Browse dozens of companies and services every online seller needs — from shipping and tools to payment cards — and find the right deal in seconds.",
     "step2Title": "Copy the code",
-    "step2Desc": "One click and CODpromo copies the working code straight to your clipboard.",
+    "step2Desc": "One click copies the working code, ready to paste, and takes you straight to the store.",
     "step3Title": "Save at checkout",
-    "step3Desc": "Paste the code at checkout and enjoy the discount or cashback instantly."
+    "step3Desc": "Paste the code at checkout and enjoy the discount or cashback instantly.",
+    "premiumTitle": "Premium — stronger codes, bigger savings",
+    "premiumDesc": "Activate Premium to unlock the strongest codes and exclusive deals, and save more on every order.",
+    "premiumCta": "Get Premium"
   },
   "search": {
     "placeholder": "Search for a store, category, or promo code…",

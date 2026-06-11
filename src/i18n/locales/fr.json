@@ -40,12 +40,15 @@
   "how": {
     "kicker": "En trois étapes",
     "title": "Comment fonctionne CODpromo ?",
-    "step1Title": "Trouvez votre boutique",
-    "step1Desc": "Parcourez des centaines de boutiques locales et internationales et trouvez votre offre en quelques secondes.",
+    "step1Title": "Découvrez les offres",
+    "step1Desc": "Parcourez des dizaines d'entreprises et de services dont tout e-commerçant a besoin — de la livraison et des outils aux cartes de paiement — et trouvez la bonne offre en quelques secondes.",
     "step2Title": "Copiez le code",
-    "step2Desc": "En un clic, CODpromo copie le code valide directement dans votre presse-papiers.",
+    "step2Desc": "En un clic, copiez le code valide prêt à coller, et accédez directement au site de la boutique.",
     "step3Title": "Économisez au paiement",
-    "step3Desc": "Collez le code lors du paiement et profitez instantanément de la réduction ou du cashback."
+    "step3Desc": "Collez le code lors du paiement et profitez instantanément de la réduction ou du cashback.",
+    "premiumTitle": "Premium — des codes plus forts, plus d'économies",
+    "premiumDesc": "Activez Premium pour débloquer les codes les plus forts et les offres exclusives, et économisez davantage sur chaque commande.",
+    "premiumCta": "Activer Premium"
   },
   "search": {
     "placeholder": "Rechercher une boutique, une catégorie ou un code promo…",

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Search, Copy, ShoppingBag } from "lucide-react";
+import { Search, Copy, ShoppingBag, Crown, ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const STEPS = [
@@ -8,7 +8,7 @@ const STEPS = [
   { icon: ShoppingBag, n: 3 },
 ];
 
-export default function HowItWorks() {
+export default function HowItWorks({ onPremium }) {
   const { t } = useTranslation();
   return (
     <section id="how" className="relative mx-auto max-w-6xl px-4 py-20">
@@ -51,6 +51,40 @@ export default function HowItWorks() {
           </motion.div>
         ))}
       </div>
+
+      {/* عنصر Premium — callout مميّز بالهوية الذهبية (ليس خطوة مرقّمة) */}
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+        className="relative mt-5 flex flex-col items-center gap-5 overflow-hidden rounded-[var(--radius-card)] border p-6 text-center sm:flex-row sm:justify-between sm:text-start"
+        style={{
+          borderColor: "rgba(207,154,30,0.45)",
+          background: "linear-gradient(90deg, rgba(240,198,60,0.10), rgba(240,198,60,0.03))",
+        }}
+      >
+        <div className="flex items-center gap-3.5">
+          <span
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-[#0a0a0a]"
+            style={{ background: "linear-gradient(135deg, #ffe486, #cf9a1e)" }}
+          >
+            <Crown size={24} />
+          </span>
+          <div>
+            <h3 className="text-[18px] font-black tracking-tight text-[var(--text)]">{t("how.premiumTitle")}</h3>
+            <p className="mt-0.5 text-[13.5px] leading-relaxed text-[var(--text-soft)]">{t("how.premiumDesc")}</p>
+          </div>
+        </div>
+        <button
+          onClick={onPremium}
+          className="group flex shrink-0 items-center gap-2 rounded-xl px-6 py-3 text-[15px] font-extrabold text-[#0a0a0a] transition-transform hover:scale-[1.02]"
+          style={{ background: "linear-gradient(135deg, #ffe486, #cf9a1e)" }}
+        >
+          {t("how.premiumCta")}
+          <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
+        </button>
+      </motion.div>
     </section>
   );
 }

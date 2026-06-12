@@ -42,8 +42,8 @@ export default function SearchFilter({
         </div>
       </div>
 
-      {/* فلاتر النوع */}
-      <div className="no-scrollbar mt-3 flex items-center gap-2 overflow-x-auto pb-0.5">
+      {/* فلاتر النوع — كل الأزرار الأربعة تظهر دفعة واحدة بلا تمرير أفقي (موبايل: شبكة 4 أعمدة، حاسوب: صف طبيعي) */}
+      <div className="mt-3 grid grid-cols-4 gap-1.5 sm:flex sm:items-center sm:gap-2">
         {FILTERS.map((f) => {
           const active = activeFilter === f;
           const meta = f === "الكل" ? null : getTypeMeta(f);
@@ -52,7 +52,7 @@ export default function SearchFilter({
             <button
               key={f}
               onClick={() => setActiveFilter(f)}
-              className="relative shrink-0 rounded-xl px-4 py-2 text-[13.5px] font-bold transition-colors"
+              className="relative rounded-xl px-1.5 py-2 text-[12px] font-bold transition-colors sm:px-4 sm:text-[13.5px]"
               style={{
                 color: active ? "#0a0a0a" : "var(--text-softer)",
               }}
@@ -70,8 +70,8 @@ export default function SearchFilter({
                   }}
                 />
               )}
-              <span className="relative flex items-center gap-1.5">
-                {Icon && <Icon size={14} />}
+              <span className="relative flex items-center justify-center gap-1 whitespace-nowrap sm:gap-1.5">
+                {Icon && <Icon size={13} className="shrink-0" />}
                 {t(`filters.${getTypeKey(f)}`)}
               </span>
             </button>

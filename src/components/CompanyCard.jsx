@@ -112,7 +112,19 @@ export default function CompanyCard({
         }}
       />
 
-      {/* الرأس — badge والقلب مثبتان أعلى البطاقة (items-start + shrink-0) ولا يتأثران بطول النص */}
+      {/* شارة Premium في سطر مستقل فوق الاسم — خارج صف الاسم تماماً حتى لا تقصّ الاسم مهما طال (موبايل + حاسوب) */}
+      {premium && (
+        <div className="relative mb-3 flex">
+          <span
+            className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-black text-[#0a0a0a]"
+            style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`, boxShadow: `0 4px 14px -5px ${GOLD_GLOW}` }}
+          >
+            <Crown size={11} /> PREMIUM
+          </span>
+        </div>
+      )}
+
+      {/* الرأس — القلب مثبت أعلى البطاقة (items-start + shrink-0) ولا يتأثر بطول النص */}
       <div className="relative flex items-start justify-between gap-2">
         {linkToStore ? (
           <Link to={storeHref} className="group/link flex min-w-0 items-center gap-3">
@@ -137,14 +149,6 @@ export default function CompanyCard({
         )}
 
         <div className="flex shrink-0 items-center gap-1.5 self-start">
-          {premium && (
-            <span
-              className="flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-black text-[#0a0a0a]"
-              style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`, boxShadow: `0 4px 14px -5px ${GOLD_GLOW}` }}
-            >
-              <Crown size={11} /> PREMIUM
-            </span>
-          )}
           {hot && !premium && (
             <span className="flex items-center gap-1 rounded-full bg-orange-500/15 px-2 py-1 text-[10.5px] font-bold text-orange-400">
               <Flame size={11} /> {t("card.hot")}

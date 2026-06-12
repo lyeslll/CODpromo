@@ -77,6 +77,8 @@
     "toggleHint": "بدّل بين العادي و Premium لترى الفرق",
     "offersCount": "{{count}} عرض",
     "premiumBanner": "تشاهد خصومات Premium — اشترك أو فعّل كود Stork لكشف الأكواد",
+    "premiumUnlocked": "Premium مُفعّل — كل الأكواد الحصرية مكشوفة لك. استمتع بأقوى الخصومات.",
+    "normalInfo": "تشاهد العروض العادية — أكواد مجانية ومُتحقَّق منها. بدّل إلى Premium لكشف أقوى الأكواد الحصرية.",
     "openPremium": "افتح Premium",
     "copiedToast": "تم نسخ الكود"
   },

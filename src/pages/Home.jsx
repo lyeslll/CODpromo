@@ -130,7 +130,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[var(--color-ink)] text-[var(--text)]">
-      <Navbar />
+      <Navbar onPremium={() => setPremiumModal(true)} />
       <Hero stats={stats} onExplore={scrollToStores} />
 
       {/* ===== قسم المتاجر ===== */}

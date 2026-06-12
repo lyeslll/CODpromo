@@ -19,7 +19,15 @@
     "themeToDark": "Mode sombre",
     "enableLight": "Passer en mode clair",
     "enableDark": "Passer en mode sombre",
-    "backToSite": "Retour au site"
+    "backToSite": "Retour au site",
+    "browse": "Naviguer",
+    "premium": "Débloquer Premium",
+    "premiumSub": "Réductions plus fortes & codes exclusifs",
+    "settings": "Paramètres",
+    "language": "Langue",
+    "theme": "Apparence",
+    "light": "Clair",
+    "dark": "Sombre"
   },
   "logo": {
     "tagline": "Réductions · Coupons · Cashback"

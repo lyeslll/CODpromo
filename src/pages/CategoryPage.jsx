@@ -137,7 +137,7 @@ export default function CategoryPage({ lang = "ar" }) {
         alternates={buildAlternates("category", slug)}
         jsonLd={jsonLd}
       />
-      <Navbar />
+      <Navbar onPremium={() => setPremiumModal(true)} />
 
       <main className="mx-auto max-w-6xl px-4 pb-10 pt-[96px] sm:pt-[104px]">
         <Breadcrumbs

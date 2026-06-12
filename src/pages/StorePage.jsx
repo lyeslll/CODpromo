@@ -172,7 +172,7 @@ export default function StorePage({ lang = "ar" }) {
         alternates={buildAlternates("store", company.slug)}
         jsonLd={jsonLd}
       />
-      <Navbar />
+      <Navbar onPremium={() => setPremiumModal(true)} />
 
       <main className="mx-auto max-w-5xl px-4 pb-10 pt-[96px] sm:pt-[104px]">
         <Breadcrumbs items={breadcrumbItems} />

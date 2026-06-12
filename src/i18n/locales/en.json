@@ -19,7 +19,15 @@
     "themeToDark": "Dark mode",
     "enableLight": "Switch to light mode",
     "enableDark": "Switch to dark mode",
-    "backToSite": "Back to site"
+    "backToSite": "Back to site",
+    "browse": "Browse",
+    "premium": "Unlock Premium",
+    "premiumSub": "Stronger discounts & exclusive codes",
+    "settings": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark"
   },
   "logo": {
     "tagline": "Discounts · Coupons · Cashback"

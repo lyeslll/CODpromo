@@ -18,14 +18,30 @@ function localizedPath(pathname, code) {
 }
 
 // اللغات الثلاث: الاسم بلغته + رمز دولة العلم (flag-icons) — أعلام SVG حقيقية لا emoji.
-const LANGS = [
+export const LANGS = [
   { code: "ar", label: "العربية", flag: "dz" },
   { code: "en", label: "English", flag: "gb" },
   { code: "fr", label: "Français", flag: "fr" },
 ];
 
+/**
+ * منطق تبديل اللغة المشترك (مصدر واحد): في صفحات /store و/category ننتقل لرابط
+ * اللغة المقابل (المسار مصدر الحقيقة + RouteLangSync)، وإلا setLang عادي.
+ * يُستعمل في القائمة المنسدلة (الهيدر) والمبدّل المجزّأ (الميغا مينيو) معاً.
+ */
+export function useLangPick() {
+  const { setLang } = useLocale();
+  const location = useLocation();
+  const navigate = useNavigate();
+  return (code) => {
+    const target = localizedPath(location.pathname, code);
+    if (target) navigate(target);
+    else setLang(code);
+  };
+}
+
 /** علم دائري حقيقي (SVG عبر flag-icons) — يظهر على كل الأنظمة بما فيها Windows. */
-function Flag({ code, size = 18 }) {
+export function Flag({ code, size = 18 }) {
   return (
     <span
       className={`fi fi-${code}`}
@@ -46,9 +62,8 @@ function Flag({ code, size = 18 }) {
 /** زر اللغة الأنيق — علم اللغة الحالية + قائمة منسدلة بالخيارات الثلاثة. */
 export default function LanguageSwitcher({ className = "" }) {
   const { t } = useTranslation();
-  const { lang, setLang } = useLocale();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { lang } = useLocale();
+  const pickLang = useLangPick();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -70,10 +85,7 @@ export default function LanguageSwitcher({ className = "" }) {
   const current = LANGS.find((l) => l.code === lang) || LANGS[0];
 
   const pick = (code) => {
-    // في صفحات الشركة/الفئة: انتقل لرابط اللغة المقابل (RouteLangSync يضبط اللغة من المسار).
-    const target = localizedPath(location.pathname, code);
-    if (target) navigate(target);
-    else setLang(code);
+    pickLang(code);
     setOpen(false);
   };
 

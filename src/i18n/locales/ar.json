@@ -19,7 +19,15 @@
     "themeToDark": "الوضع الداكن",
     "enableLight": "تفعيل الوضع الفاتح",
     "enableDark": "تفعيل الوضع الداكن",
-    "backToSite": "العودة للموقع"
+    "backToSite": "العودة للموقع",
+    "browse": "تصفّح",
+    "premium": "افتح Premium",
+    "premiumSub": "خصومات أقوى وأكواد حصرية",
+    "settings": "الإعدادات",
+    "language": "اللغة",
+    "theme": "المظهر",
+    "light": "فاتح",
+    "dark": "داكن"
   },
   "logo": {
     "tagline": "خصومات · كوبونات · كاش باك"

@@ -1,8 +1,10 @@
 import { useRef, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence, animate } from "framer-motion";
 import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getTypeMeta, getTypeKey } from "../lib/types.js";
+import { companySlug } from "../lib/slug.js";
 import { isImageUrl } from "./CompanyLogo.jsx";
 
 // هوية Premium الذهبية
@@ -20,6 +22,7 @@ export default function CompanyCard({
   premium = false,
   unlocked = false,
   onUnlock,
+  linkToStore = true,
 }) {
   const { t, i18n } = useTranslation();
   const meta = getTypeMeta(company.type);
@@ -27,6 +30,8 @@ export default function CompanyCard({
 
   // المحتوى الديناميكي: نعرض ترجمة اللغة النشطة، مع fallback للعربية الأصلية
   const lang = i18n.language;
+  // رابط صفحة الشركة (بادئة اللغة لغير العربية)
+  const storeHref = `${lang && lang !== "ar" ? `/${lang}` : ""}/store/${companySlug(company)}`;
   const loc = (field) => (lang !== "ar" && company[`${field}_${lang}`]) || company[field];
   const desc = loc("description") || "";
   const category = loc("category");
@@ -109,15 +114,27 @@ export default function CompanyCard({
 
       {/* الرأس — badge والقلب مثبتان أعلى البطاقة (items-start + shrink-0) ولا يتأثران بطول النص */}
       <div className="relative flex items-start justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-3">
-          <CardLogo logo={company.logo} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
-          <div className="min-w-0">
-            <h3 className="truncate text-[17px] font-extrabold text-[var(--text)]">{company.name}</h3>
-            <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">
-              {category}
-            </p>
+        {linkToStore ? (
+          <Link to={storeHref} className="group/link flex min-w-0 items-center gap-3">
+            <CardLogo logo={company.logo} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
+            <div className="min-w-0">
+              <h3 className="truncate text-[17px] font-extrabold text-[var(--text)] transition-colors group-hover/link:text-[var(--accent-text)]">{company.name}</h3>
+              <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">
+                {category}
+              </p>
+            </div>
+          </Link>
+        ) : (
+          <div className="flex min-w-0 items-center gap-3">
+            <CardLogo logo={company.logo} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
+            <div className="min-w-0">
+              <h3 className="truncate text-[17px] font-extrabold text-[var(--text)]">{company.name}</h3>
+              <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">
+                {category}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex shrink-0 items-center gap-1.5 self-start">
           {premium && (

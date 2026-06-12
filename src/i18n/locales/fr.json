@@ -347,5 +347,28 @@
     "reset": "Réinitialiser les filtres",
     "errorTitle": "Impossible de charger les offres",
     "retry": "Réessayer"
+  },
+  "store": {
+    "breadcrumbHome": "Accueil",
+    "offers": "Offres disponibles",
+    "share": "Partager",
+    "copyLink": "Copier le lien",
+    "howTitle": "Comment utiliser le code promo ?",
+    "how1Title": "Copiez le code",
+    "how1Desc": "Cliquez sur le bouton copier pour récupérer le code de réduction instantanément.",
+    "how2Title": "Visitez la boutique",
+    "how2Desc": "Rendez-vous sur {{name}} et ajoutez vos articles au panier.",
+    "how3Title": "Collez & économisez",
+    "how3Desc": "Collez le code dans le champ promo au moment du paiement et profitez des économies.",
+    "faqTitle": "Questions fréquentes",
+    "similarTitle": "Boutiques similaires",
+    "notFoundTitle": "Page introuvable",
+    "notFoundDesc": "Nous n'avons pas trouvé cette boutique — le lien a peut-être changé.",
+    "backHome": "Retour à l'accueil"
+  },
+  "category": {
+    "count": "{{count}} boutiques dans cette catégorie",
+    "notFoundTitle": "Catégorie introuvable",
+    "notFoundDesc": "Il n'y a pas encore de boutiques dans cette catégorie."
   }
 }

@@ -7,6 +7,8 @@ export const SUPABASE_KEY = "sb_publishable_kxiLaS2RxTEeZA6TrJQR_w_ws8twFBt";
 
 export const LOGOS_BUCKET = "logos";
 
+import { slugify } from "./slug.js";
+
 const headers = {
   apikey: SUPABASE_KEY,
   Authorization: `Bearer ${SUPABASE_KEY}`,
@@ -72,6 +74,11 @@ const ALLOWED = [
   // ترجمات المحتوى الديناميكي (تُولَّد تلقائياً — العربية تبقى المصدر/الـ fallback)
   "description_en", "description_fr", "category_en", "category_fr",
   "discount_en", "discount_fr", "premium_discount_en", "premium_discount_fr",
+  // SEO: الرابط + عنوان/وصف/كلمات مفتاحية (+ ترجماتها)
+  "slug",
+  "seo_title", "seo_title_en", "seo_title_fr",
+  "seo_description", "seo_description_en", "seo_description_fr",
+  "seo_keywords", "seo_keywords_en", "seo_keywords_fr",
 ];
 
 /** يبقي فقط الحقول المسموح بها ويحوّل الفراغات إلى null. */
@@ -128,15 +135,28 @@ async function withTranslations(payload) {
   }
 }
 
-/** يضيف شركة جديدة (مع ترجمة تلقائية للوصف والفئة) ويعيد السجل المُنشأ. */
+/** يضيف شركة جديدة (مع ترجمة تلقائية للوصف والفئة + توليد slug للسيو) ويعيد السجل المُنشأ. */
 export async function addCompany(payload) {
   const translated = await withTranslations(payload);
-  const body = { status: "active", ...clean(translated) };
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/companies`, {
-    method: "POST",
-    headers: { ...jsonHeaders, Prefer: "return=representation" },
-    body: JSON.stringify(body),
-  });
+  const base = { status: "active", ...clean(translated) };
+  // توليد slug للسيو إن لم يُحدَّد يدوياً (من الاسم، وإلا من الوقت كاحتياط).
+  if (!base.slug) base.slug = slugify(payload.name) || `store-${Date.now().toString(36)}`;
+
+  // محاولة الإدراج مع معالجة تعارض الـ slug الفريد (نُلحق لاحقة قصيرة ونعيد المحاولة مرة).
+  const insert = async (body) => {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/companies`, {
+      method: "POST",
+      headers: { ...jsonHeaders, Prefer: "return=representation" },
+      body: JSON.stringify(body),
+    });
+    return res;
+  };
+
+  let res = await insert(base);
+  if (res.status === 409) {
+    // slug مكرّر — أعد المحاولة بلاحقة عشوائية قصيرة.
+    res = await insert({ ...base, slug: `${base.slug}-${Math.random().toString(36).slice(2, 6)}` });
+  }
   if (!res.ok) throw await toError(res, "تعذّر إضافة الشركة");
   const data = await res.json();
   return Array.isArray(data) ? data[0] : data;
@@ -189,4 +209,136 @@ export async function uploadLogo(file) {
   if (!res.ok) throw await toError(res, "تعذّر رفع الصورة");
 
   return `${SUPABASE_URL}/storage/v1/object/public/${LOGOS_BUCKET}/${safe}`;
+}
+
+// ===================== SEO: تحديث بدون إعادة ترجمة =====================
+
+/**
+ * يحدّث شركة موجودة دون استدعاء الترجمة التلقائية (للحقول التي لا تحتاجها مثل
+ * slug وحقول SEO — الترجمة هنا تُدار يدوياً بزر "ترجمة تلقائية" في تبويب SEO).
+ */
+export async function updateCompanyRaw(id, payload) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${id}`, {
+    method: "PATCH",
+    headers: { ...jsonHeaders, Prefer: "return=representation" },
+    body: JSON.stringify(clean(payload)),
+  });
+  if (!res.ok) throw await toError(res, "تعذّر حفظ بيانات SEO");
+  const data = await res.json();
+  return Array.isArray(data) ? data[0] : data;
+}
+
+// ===================== صفحة الشركة العامة =====================
+
+/** يجلب شركة واحدة بالـ slug مع أسئلتها الشائعة (مرتّبة)، أو null إن لم توجد. */
+export async function fetchCompanyBySlug(slug) {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/companies?slug=eq.${encodeURIComponent(slug)}&select=*,company_faqs(*)`,
+    { headers }
+  );
+  if (!res.ok) throw new Error("فشل الاتصال بالخادم");
+  const data = await res.json();
+  const company = Array.isArray(data) ? data[0] : data;
+  if (!company) return null;
+  // ترتيب الأسئلة حسب sort_order ثم id
+  if (Array.isArray(company.company_faqs)) {
+    company.company_faqs.sort(
+      (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.id - b.id
+    );
+  }
+  return company;
+}
+
+// ===================== الأسئلة الشائعة (الأدمن) =====================
+
+/** يجلب عدد الأسئلة الشائعة لكل شركة (خريطة company_id → عدد) — لمؤشّر حالة SEO. */
+export async function fetchFaqCounts() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/company_faqs?select=company_id`, { headers });
+  if (!res.ok) return {};
+  const rows = await res.json();
+  const map = {};
+  for (const r of rows) map[r.company_id] = (map[r.company_id] || 0) + 1;
+  return map;
+}
+
+/** يجلب أسئلة شركة مرتّبة. */
+export async function fetchCompanyFaqs(companyId) {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/company_faqs?company_id=eq.${companyId}&order=sort_order.asc,id.asc`,
+    { headers }
+  );
+  if (!res.ok) throw new Error("تعذّر جلب الأسئلة الشائعة");
+  return res.json();
+}
+
+/**
+ * يستبدل كل أسئلة الشركة بقائمة جديدة (أبسط وأضمن طريقة للإضافة/الحذف/الترتيب).
+ * كل عنصر: { question, answer, question_en?, answer_en?, question_fr?, answer_fr? }.
+ */
+export async function saveCompanyFaqs(companyId, faqs) {
+  // 1) حذف القديم
+  const del = await fetch(
+    `${SUPABASE_URL}/rest/v1/company_faqs?company_id=eq.${companyId}`,
+    { method: "DELETE", headers }
+  );
+  if (!del.ok) throw await toError(del, "تعذّر تحديث الأسئلة الشائعة");
+
+  // 2) إدراج الجديد (مع الترتيب)
+  const rows = (faqs || [])
+    .filter((f) => (f.question || "").trim() && (f.answer || "").trim())
+    .map((f, i) => ({
+      company_id: companyId,
+      question: f.question.trim(),
+      answer: f.answer.trim(),
+      question_en: f.question_en?.trim() || null,
+      question_fr: f.question_fr?.trim() || null,
+      answer_en: f.answer_en?.trim() || null,
+      answer_fr: f.answer_fr?.trim() || null,
+      sort_order: i,
+    }));
+  if (rows.length === 0) return [];
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/company_faqs`, {
+    method: "POST",
+    headers: { ...jsonHeaders, Prefer: "return=representation" },
+    body: JSON.stringify(rows),
+  });
+  if (!res.ok) throw await toError(res, "تعذّر حفظ الأسئلة الشائعة");
+  return res.json();
+}
+
+// ===================== إعدادات الموقع العامة (SEO) =====================
+
+/** يجلب صف الإعدادات الوحيد (id = 1)، أو {} إن لم يوجد. */
+export async function fetchSiteSettings() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?id=eq.1&select=*`, {
+    headers,
+  });
+  if (!res.ok) throw new Error("تعذّر جلب إعدادات الموقع");
+  const data = await res.json();
+  return (Array.isArray(data) ? data[0] : data) || {};
+}
+
+const SETTINGS_ALLOWED = [
+  "home_title", "home_title_en", "home_title_fr",
+  "home_description", "home_description_en", "home_description_fr",
+];
+
+/** يحدّث إعدادات الموقع (يُنشئ الصف إن لزم). */
+export async function updateSiteSettings(payload) {
+  const body = { id: 1, updated_at: new Date().toISOString() };
+  for (const k of SETTINGS_ALLOWED) {
+    if (payload[k] === undefined) continue;
+    const v = typeof payload[k] === "string" ? payload[k].trim() : payload[k];
+    body[k] = v === "" ? null : v;
+  }
+  // upsert على المفتاح id=1
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/site_settings`, {
+    method: "POST",
+    headers: { ...jsonHeaders, Prefer: "resolution=merge-duplicates,return=representation" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw await toError(res, "تعذّر حفظ إعدادات الموقع");
+  const data = await res.json();
+  return (Array.isArray(data) ? data[0] : data) || body;
 }

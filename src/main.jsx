@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { HelmetProvider } from "react-helmet-async";
 import App from "./App.jsx";
 import { ThemeProvider } from "./lib/theme.jsx";
 import { LocaleProvider } from "./lib/locale.jsx";
@@ -9,11 +10,13 @@ import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <LocaleProvider>
-      <ThemeProvider>
-        <App />
-      </ThemeProvider>
-    </LocaleProvider>
+    <HelmetProvider>
+      <LocaleProvider>
+        <ThemeProvider>
+          <App />
+        </ThemeProvider>
+      </LocaleProvider>
+    </HelmetProvider>
   </React.StrictMode>
 );
 

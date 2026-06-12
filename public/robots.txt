@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# الصفحات الخاصة لا تُفهرس
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /payment-success
+Disallow: /payment-cancel
+Disallow: /payment-return
+Disallow: /payment-return-paypal
+
+Sitemap: https://codpromo.com/sitemap.xml

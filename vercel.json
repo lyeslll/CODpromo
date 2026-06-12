@@ -1,3 +1,12 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/store/:slug", "destination": "/api/prerender?type=store&lang=ar&slug=:slug" },
+    { "source": "/en/store/:slug", "destination": "/api/prerender?type=store&lang=en&slug=:slug" },
+    { "source": "/fr/store/:slug", "destination": "/api/prerender?type=store&lang=fr&slug=:slug" },
+    { "source": "/category/:slug", "destination": "/api/prerender?type=category&lang=ar&slug=:slug" },
+    { "source": "/en/category/:slug", "destination": "/api/prerender?type=category&lang=en&slug=:slug" },
+    { "source": "/fr/category/:slug", "destination": "/api/prerender?type=category&lang=fr&slug=:slug" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }

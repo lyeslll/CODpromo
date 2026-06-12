@@ -347,5 +347,28 @@
     "reset": "Reset filters",
     "errorTitle": "Couldn't load deals",
     "retry": "Try again"
+  },
+  "store": {
+    "breadcrumbHome": "Home",
+    "offers": "Available deals",
+    "share": "Share",
+    "copyLink": "Copy link",
+    "howTitle": "How to use the promo code?",
+    "how1Title": "Copy the code",
+    "how1Desc": "Tap the copy button to grab the discount code instantly.",
+    "how2Title": "Visit the store",
+    "how2Desc": "Head to {{name}} and add your items to the cart.",
+    "how3Title": "Paste & save",
+    "how3Desc": "Paste the code in the promo field at checkout and enjoy the savings.",
+    "faqTitle": "Frequently asked questions",
+    "similarTitle": "Similar stores",
+    "notFoundTitle": "Page not found",
+    "notFoundDesc": "We couldn't find this store — the link may have changed.",
+    "backHome": "Back to home"
+  },
+  "category": {
+    "count": "{{count}} stores in this category",
+    "notFoundTitle": "Category not found",
+    "notFoundDesc": "There are no stores in this category yet."
   }
 }

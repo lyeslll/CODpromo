@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./lib/auth.jsx";
 import { PremiumProvider } from "./lib/premium.jsx";
 import Home from "./pages/Home.jsx";
+import StorePage from "./pages/StorePage.jsx";
+import CategoryPage from "./pages/CategoryPage.jsx";
 import Admin from "./pages/Admin.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -21,6 +23,16 @@ export default function App() {
         <PremiumProvider>
           <Routes>
           <Route path="/" element={<Home />} />
+
+          {/* صفحات الشركات (SEO) — العربية افتراضية، en/fr ببادئة لغة */}
+          <Route path="/store/:slug" element={<StorePage lang="ar" />} />
+          <Route path="/en/store/:slug" element={<StorePage lang="en" />} />
+          <Route path="/fr/store/:slug" element={<StorePage lang="fr" />} />
+
+          {/* صفحات الفئات (SEO) */}
+          <Route path="/category/:slug" element={<CategoryPage lang="ar" />} />
+          <Route path="/en/category/:slug" element={<CategoryPage lang="en" />} />
+          <Route path="/fr/category/:slug" element={<CategoryPage lang="fr" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

@@ -18,6 +18,7 @@ import {
   Crown,
   Languages,
   Loader2,
+  Globe,
 } from "lucide-react";
 
 import {
@@ -40,6 +41,7 @@ import RequestsManager from "../components/admin/RequestsManager.jsx";
 import SubscribersTable from "../components/admin/SubscribersTable.jsx";
 import StorkManager from "../components/admin/StorkManager.jsx";
 import PremiumMembers from "../components/admin/PremiumMembers.jsx";
+import SeoManager from "../components/admin/SeoManager.jsx";
 
 export default function Admin() {
   const [unlocked, setUnlocked] = useState(
@@ -380,6 +382,9 @@ function Dashboard({ onLock }) {
           <TabButton active={tab === "companies"} onClick={() => setTab("companies")} icon={Store}>
             الشركات
           </TabButton>
+          <TabButton active={tab === "seo"} onClick={() => setTab("seo")} icon={Globe}>
+            SEO
+          </TabButton>
           <TabButton active={tab === "users"} onClick={() => setTab("users")} icon={Users}>
             المستخدمون
           </TabButton>
@@ -474,6 +479,17 @@ function Dashboard({ onLock }) {
               />
             </div>
           </>
+        )}
+
+        {/* SEO — تحكم كامل لكل شركة + إعدادات عامة */}
+        {tab === "seo" && (
+          <SeoManager
+            companies={companies}
+            notify={notify}
+            onUpdated={(patch) =>
+              setCompanies((prev) => prev.map((c) => (c.id === patch.id ? { ...c, ...patch } : c)))
+            }
+          />
         )}
 
         {/* المستخدمون + تصدير CSV */}

@@ -1,8 +1,21 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLocale } from "../lib/locale.jsx";
+
+/**
+ * في صفحات /store و/category تكون اللغة محدّدة بالمسار (مصدر الحقيقة).
+ * فتبديل اللغة هناك يجب أن ينقل لرابط اللغة المقابل بدل setLang فقط.
+ * يعيد المسار المستهدف أو null لو لم تكن صفحة قابلة للتعريب بالرابط.
+ */
+function localizedPath(pathname, code) {
+  const m = pathname.match(/^\/(en|fr)(\/.*)?$/);
+  const rest = m ? m[2] || "/" : pathname; // المسار بصيغته العربية (بلا بادئة)
+  if (!rest.startsWith("/store/") && !rest.startsWith("/category/")) return null;
+  return code === "ar" ? rest : `/${code}${rest}`;
+}
 
 // اللغات الثلاث: الاسم بلغته + رمز دولة العلم (flag-icons) — أعلام SVG حقيقية لا emoji.
 const LANGS = [
@@ -34,6 +47,8 @@ function Flag({ code, size = 18 }) {
 export default function LanguageSwitcher({ className = "" }) {
   const { t } = useTranslation();
   const { lang, setLang } = useLocale();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -55,7 +70,10 @@ export default function LanguageSwitcher({ className = "" }) {
   const current = LANGS.find((l) => l.code === lang) || LANGS[0];
 
   const pick = (code) => {
-    setLang(code);
+    // في صفحات الشركة/الفئة: انتقل لرابط اللغة المقابل (RouteLangSync يضبط اللغة من المسار).
+    const target = localizedPath(location.pathname, code);
+    if (target) navigate(target);
+    else setLang(code);
     setOpen(false);
   };
 

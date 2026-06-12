@@ -1,4 +1,5 @@
 import { useRef, useState, useLayoutEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../lib/theme.jsx";
@@ -13,7 +14,8 @@ import { useTheme } from "../lib/theme.jsx";
  */
 export default function Logo({ compact = false }) {
   const { theme } = useTheme();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const ref = useRef(null);
   const [forcedDark, setForcedDark] = useState(false);
 
@@ -26,8 +28,16 @@ export default function Logo({ compact = false }) {
   const effective = forcedDark ? "dark" : theme;
   const src = effective === "light" ? "/logo-light.png" : "/logo-dark.png";
 
+  // الرئيسية بلغة المستخدم الحالية (/ للعربية، /en، /fr) — تنقّل React Router ثم scroll للأعلى.
+  const homeHref = i18n.language && i18n.language !== "ar" ? `/${i18n.language}` : "/";
+  const goHome = (e) => {
+    e.preventDefault();
+    navigate(homeHref);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <a ref={ref} href="#top" className="group flex select-none flex-col items-start gap-1">
+    <a ref={ref} href={homeHref} onClick={goHome} className="group flex select-none flex-col items-start gap-1">
       <motion.img
         key={src}
         src={src}

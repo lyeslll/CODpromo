@@ -8,7 +8,6 @@ import { fetchCompanies, trackClick } from "../lib/supabase.js";
 import { fetchFavoriteIds, addFavorite, removeFavorite } from "../lib/favorites.js";
 import { useAuth } from "../lib/auth.jsx";
 import { usePremium } from "../lib/premium.jsx";
-import { useLocale } from "../lib/locale.jsx";
 import { findCategoryBySlug } from "../lib/slug.js";
 import {
   categoryTitle, categoryDescription, categoryUrl, homeUrl,
@@ -25,7 +24,6 @@ import Breadcrumbs from "../components/seo/Breadcrumbs.jsx";
 export default function CategoryPage({ lang = "ar" }) {
   const { slug } = useParams();
   const { t } = useTranslation();
-  const { setLang } = useLocale();
   const { user } = useAuth();
   const { unlocked } = usePremium();
   const navigate = useNavigate();
@@ -37,9 +35,7 @@ export default function CategoryPage({ lang = "ar" }) {
   const [premiumModal, setPremiumModal] = useState(false);
   const toastTimer = useRef(null);
 
-  useEffect(() => {
-    setLang(lang);
-  }, [lang, setLang]);
+  // ملاحظة: لغة/اتجاه الواجهة تُضبط مركزياً في RouteLangSync (App.jsx) من المسار.
 
   useEffect(() => {
     let active = true;

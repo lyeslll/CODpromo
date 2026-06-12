@@ -8,7 +8,6 @@ import { fetchCompanyBySlug, fetchCompanies, trackClick } from "../lib/supabase.
 import { fetchFavoriteIds, addFavorite, removeFavorite } from "../lib/favorites.js";
 import { useAuth } from "../lib/auth.jsx";
 import { usePremium } from "../lib/premium.jsx";
-import { useLocale } from "../lib/locale.jsx";
 import { getTypeMeta, getTypeKey } from "../lib/types.js";
 import { categorySlug } from "../lib/slug.js";
 import {
@@ -29,7 +28,6 @@ import FaqSection from "../components/seo/FaqSection.jsx";
 export default function StorePage({ lang = "ar" }) {
   const { slug } = useParams();
   const { t } = useTranslation();
-  const { setLang } = useLocale();
   const { user } = useAuth();
   const { unlocked } = usePremium();
   const navigate = useNavigate();
@@ -43,10 +41,7 @@ export default function StorePage({ lang = "ar" }) {
   const [premiumModal, setPremiumModal] = useState(false);
   const toastTimer = useRef(null);
 
-  // مزامنة لغة الواجهة مع لغة الرابط (روابط مشتركة بلغة معيّنة تُعرض بها)
-  useEffect(() => {
-    setLang(lang);
-  }, [lang, setLang]);
+  // ملاحظة: لغة/اتجاه الواجهة تُضبط مركزياً في RouteLangSync (App.jsx) من المسار.
 
   // تحميل الشركة + كل الشركات (للمشابهة)
   useEffect(() => {

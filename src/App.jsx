@@ -1,6 +1,9 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "./lib/auth.jsx";
 import { PremiumProvider } from "./lib/premium.jsx";
+import { useLocale } from "./lib/locale.jsx";
+import { dirOf } from "./i18n/index.js";
 import Home from "./pages/Home.jsx";
 import StorePage from "./pages/StorePage.jsx";
 import CategoryPage from "./pages/CategoryPage.jsx";
@@ -16,11 +19,39 @@ import PaymentReturn from "./pages/PaymentReturn.jsx";
 import PaymentReturnPaypal from "./pages/PaymentReturnPaypal.jsx";
 import RequireAuth from "./components/auth/RequireAuth.jsx";
 
+/** اللغة المقصودة من المسار: بادئة /en أو /fr، صفحات /store و/category بلا بادئة عربية، وإلا تبقى لغة المستخدم. */
+function langFromPath(pathname, current) {
+  if (pathname === "/en" || pathname.startsWith("/en/")) return "en";
+  if (pathname === "/fr" || pathname.startsWith("/fr/")) return "fr";
+  if (pathname.startsWith("/store/") || pathname.startsWith("/category/")) return "ar";
+  return current;
+}
+
+/**
+ * مصدر الحقيقة الوحيد لاتجاه/لغة <html>: يضبطهما عند كل تغيير مسار،
+ * بما في ذلك زر الرجوع/التقدّم في المتصفح (popstate) — يصلح انعكاس RTL/LTR.
+ */
+function RouteLangSync() {
+  const { pathname } = useLocation();
+  const { lang, setLang } = useLocale();
+
+  useEffect(() => {
+    const desired = langFromPath(pathname, lang);
+    if (desired !== lang) setLang(desired); // يحدّث i18n + ترجمات الواجهة
+    const root = document.documentElement;
+    root.setAttribute("lang", desired);
+    root.setAttribute("dir", dirOf(desired));
+  }, [pathname, lang, setLang]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <PremiumProvider>
+          <RouteLangSync />
           <Routes>
           <Route path="/" element={<Home />} />
 

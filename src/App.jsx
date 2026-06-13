@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "./lib/auth.jsx";
 import { PremiumProvider } from "./lib/premium.jsx";
+import { CategoriesProvider } from "./lib/categories.jsx";
 import { useLocale } from "./lib/locale.jsx";
 import { dirOf } from "./i18n/index.js";
 import Home from "./pages/Home.jsx";
@@ -51,6 +52,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <PremiumProvider>
+          <CategoriesProvider>
           <RouteLangSync />
           <Routes>
           <Route path="/" element={<Home />} />
@@ -91,6 +93,7 @@ export default function App() {
           />
           <Route path="*" element={<Home />} />
           </Routes>
+          </CategoriesProvider>
         </PremiumProvider>
       </AuthProvider>
     </BrowserRouter>

@@ -167,22 +167,47 @@ export default async function handler(req, res) {
     }
 
     if (type === "category") {
-      const companies = (await fetchJson(
-        `${SUPABASE_URL}/rest/v1/companies?select=category,category_en,category_fr`
-      )) || [];
       let label = "";
       let count = 0;
-      for (const c of companies) {
-        const cs = slugify(c.category_en) || slugify(c.category);
-        if (cs === slug) {
-          count += 1;
-          if (!label) label = loc(c, "category", lang) || c.category;
+      let descText = "";
+
+      // المصدر الحقيقي: سجلّ الفئة من جدول categories حسب slug
+      const cats = await fetchJson(
+        `${SUPABASE_URL}/rest/v1/categories?slug=eq.${encodeURIComponent(slug)}&select=*`
+      );
+      const cat = Array.isArray(cats) ? cats[0] : null;
+
+      if (cat) {
+        label = (lang !== "ar" && cat[`name_${lang}`]) || cat.name_ar || cat.slug;
+        descText = (lang !== "ar" && cat[`description_${lang}`]) || cat.description_ar || "";
+        // العدّ بـ category_id (المصدر)، مع fallback للنص العربي القديم
+        const linked = await fetchJson(
+          `${SUPABASE_URL}/rest/v1/companies?category_id=eq.${cat.id}&select=id`
+        );
+        count = Array.isArray(linked) ? linked.length : 0;
+        if (count === 0 && cat.name_ar) {
+          const legacy = await fetchJson(
+            `${SUPABASE_URL}/rest/v1/companies?category=eq.${encodeURIComponent(cat.name_ar)}&select=id`
+          );
+          count = Array.isArray(legacy) ? legacy.length : 0;
+        }
+      } else {
+        // قبل الهجرة / لا سجلّ في الجدول: fallback للنص الحر القديم كي لا يختفي شيء
+        const companies = (await fetchJson(
+          `${SUPABASE_URL}/rest/v1/companies?select=category,category_en,category_fr`
+        )) || [];
+        for (const c of companies) {
+          const cs = slugify(c.category_en) || slugify(c.category);
+          if (cs === slug) {
+            count += 1;
+            if (!label) label = loc(c, "category", lang) || c.category;
+          }
         }
       }
       if (!label) return serveTemplate(res, template);
 
       const title = categoryTitle(label, lang);
-      const description = categoryDescription(label, count, lang);
+      const description = descText || categoryDescription(label, count, lang);
       const canonical = categoryUrl(slug, lang);
       const alternates = ["ar", "en", "fr"].map((l) => ({ lang: l, url: categoryUrl(slug, l) }));
       const jsonLd = [

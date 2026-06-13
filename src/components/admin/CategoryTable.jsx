@@ -131,16 +131,19 @@ export default function CategoryTable({ categories, counts, loading, editingId, 
                     </motion.div>
                   ) : (
                     <div className="flex items-center gap-1.5">
-                      <span
-                        className="grid h-9 w-9 place-items-center rounded-lg border border-[var(--color-ink-line)]"
-                        title={active ? "مفعّلة — تظهر للزوار" : "مخفية"}
+                      <a
+                        href={`/category/${c.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={active ? "فتح صفحة الفئة (مفعّلة)" : "فتح صفحة الفئة (مخفية حالياً)"}
+                        className="grid h-9 w-9 place-items-center rounded-lg border border-[var(--color-ink-line)] transition-colors hover:border-[var(--color-lime)]"
                       >
                         {active ? (
                           <Eye size={15} className="text-[var(--color-lime)]" />
                         ) : (
                           <EyeOff size={15} className="text-[var(--color-mute)]" />
                         )}
-                      </span>
+                      </a>
                       <button
                         onClick={() => onEdit(c)}
                         title="تعديل"

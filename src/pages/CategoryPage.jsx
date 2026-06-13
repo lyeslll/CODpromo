@@ -8,7 +8,10 @@ import { fetchCompanies, trackClick } from "../lib/supabase.js";
 import { fetchFavoriteIds, addFavorite, removeFavorite } from "../lib/favorites.js";
 import { useAuth } from "../lib/auth.jsx";
 import { usePremium } from "../lib/premium.jsx";
-import { findCategoryBySlug } from "../lib/slug.js";
+import { useCategories } from "../lib/categories.jsx";
+import {
+  findCategoryRecordBySlug, categoryName, categoryDesc, categorySlug,
+} from "../lib/slug.js";
 import {
   categoryTitle, categoryDescription, categoryUrl, homeUrl,
   buildAlternates, loc, breadcrumbLd,
@@ -26,6 +29,7 @@ export default function CategoryPage({ lang = "ar" }) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { unlocked } = usePremium();
+  const { categories, loading: catsLoading } = useCategories();
   const navigate = useNavigate();
 
   const [all, setAll] = useState([]);
@@ -77,21 +81,37 @@ export default function CategoryPage({ lang = "ar" }) {
     toastTimer.current = setTimeout(() => setToast(null), 2200);
   }, []);
 
-  // الفئة المرجعية (عربية) المطابقة للـ slug، والشركات ضمنها
-  const categoryAr = useMemo(() => findCategoryBySlug(all, slug), [all, slug]);
-  const companies = useMemo(
-    () => all.filter((c) => c.category && c.category === categoryAr),
-    [all, categoryAr]
-  );
-  // عنوان الفئة بلغة العرض (من أول شركة)
+  // سجلّ الفئة من الجدول (المصدر الحقيقي) المطابق للـ slug
+  const catRecord = useMemo(() => findCategoryRecordBySlug(categories, slug), [categories, slug]);
+
+  // الشركات ضمن الفئة: بالأساس عبر category_id، مع fallback للنص العربي القديم
+  // للشركات غير المربوطة بعد. وإن لم يوجد سجلّ فئة في الجدول إطلاقاً (قبل الهجرة)
+  // نرجع للنص الحر القديم عبر slug حتى لا تختفي الصفحة.
+  const companies = useMemo(() => {
+    if (catRecord) {
+      return all.filter(
+        (c) =>
+          c.category_id === catRecord.id ||
+          (!c.category_id && c.category && c.category === catRecord.name_ar)
+      );
+    }
+    const target = String(slug || "").toLowerCase();
+    return all.filter((c) => c.category && categorySlug(c) === target);
+  }, [all, catRecord, slug]);
+
+  // اسم/وصف الفئة بلغة العرض: من الجدول إن وُجد، وإلا من أول شركة (نص حر)
   const label = useMemo(() => {
+    if (catRecord) return categoryName(catRecord, lang);
     const first = companies[0];
-    return (first && loc(first, "category", lang)) || categoryAr || slug;
-  }, [companies, categoryAr, slug, lang]);
+    return (first && loc(first, "category", lang)) || slug;
+  }, [catRecord, companies, slug, lang]);
+
+  const headerDesc = catRecord ? categoryDesc(catRecord, lang) : "";
+  const headerIcon = catRecord?.icon || "";
 
   const canonical = categoryUrl(slug, lang);
 
-  if (loading) {
+  if (loading || catsLoading) {
     return (
       <div className="min-h-screen bg-[var(--color-ink)] text-[var(--text)]">
         <Navbar />
@@ -102,7 +122,7 @@ export default function CategoryPage({ lang = "ar" }) {
     );
   }
 
-  if (!categoryAr || companies.length === 0) {
+  if (companies.length === 0) {
     return (
       <div className="min-h-screen bg-[var(--color-ink)] text-[var(--text)]">
         <Seo lang={lang} title={`${t("category.notFoundTitle")} | CODpromo`} description={t("category.notFoundDesc")} noindex canonical={canonical} />
@@ -132,7 +152,7 @@ export default function CategoryPage({ lang = "ar" }) {
       <Seo
         lang={lang}
         title={categoryTitle(label, lang)}
-        description={categoryDescription(label, companies.length, lang)}
+        description={headerDesc || categoryDescription(label, companies.length, lang)}
         canonical={canonical}
         alternates={buildAlternates("category", slug)}
         jsonLd={jsonLd}
@@ -149,9 +169,18 @@ export default function CategoryPage({ lang = "ar" }) {
 
         <header className="mb-6">
           <h1 className="flex items-center gap-2.5 text-[26px] font-black tracking-tight sm:text-[32px]">
-            <LayoutGrid size={26} className="text-[var(--accent-text)]" />
+            {headerIcon ? (
+              <span className="text-[26px] leading-none sm:text-[30px]">{headerIcon}</span>
+            ) : (
+              <LayoutGrid size={26} className="text-[var(--accent-text)]" />
+            )}
             {label}
           </h1>
+          {headerDesc && (
+            <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-[var(--color-mute)]">
+              {headerDesc}
+            </p>
+          )}
           <p className="mt-1.5 text-[14px] text-[var(--color-mute)]">
             {t("category.count", { count: companies.length })}
           </p>

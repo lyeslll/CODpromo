@@ -9,7 +9,8 @@ import { fetchFavoriteIds, addFavorite, removeFavorite } from "../lib/favorites.
 import { useAuth } from "../lib/auth.jsx";
 import { usePremium } from "../lib/premium.jsx";
 import { getTypeMeta, getTypeKey } from "../lib/types.js";
-import { categorySlug } from "../lib/slug.js";
+import { categorySlug, companyCategoryRecord, categoryRecordSlug, categoryName } from "../lib/slug.js";
+import { useCategories } from "../lib/categories.jsx";
 import {
   storeTitle, storeDescription, storeKeywords, storeImage, storeUrl, categoryUrl, homeUrl,
   buildAlternates, loc, organizationLd, offerLd, faqLd, breadcrumbLd,
@@ -92,16 +93,23 @@ export default function StorePage({ lang = "ar" }) {
     toastTimer.current = setTimeout(() => setToast(null), 2200);
   }, []);
 
+  const { byId, categories } = useCategories();
   const meta = company ? getTypeMeta(company.type) : null;
-  const catLabel = company ? loc(company, "category", lang) : "";
-  const catSlug = company ? categorySlug(company) : "";
+  // الفئة من category_id عبر الجدول (المصدر)، مع fallback للنص الحر القديم
+  const catRecord = company ? companyCategoryRecord(company, byId, categories) : null;
+  const catLabel = catRecord ? categoryName(catRecord, lang) : company ? loc(company, "category", lang) : "";
+  const catSlug = catRecord ? categoryRecordSlug(catRecord) : company ? categorySlug(company) : "";
   const description = company ? loc(company, "description", lang) : "";
 
-  // شركات مشابهة (نفس الفئة، باستثناء الحالية)
+  // شركات مشابهة: نفس الفئة عبر category_id (المصدر)، مع fallback للنص الحر القديم
   const similar = useMemo(() => {
     if (!company) return [];
     return all
-      .filter((c) => c.id !== company.id && c.category && c.category === company.category)
+      .filter((c) => {
+        if (c.id === company.id) return false;
+        if (company.category_id) return c.category_id === company.category_id;
+        return c.category && c.category === company.category;
+      })
       .slice(0, 6);
   }, [all, company]);
 

@@ -50,11 +50,19 @@ function urlNode(loc, urlFor, lastmod) {
 
 export default async function handler(req, res) {
   try {
+    const sbHeaders = { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` };
     const r = await fetch(
       `${SUPABASE_URL}/rest/v1/companies?select=slug,category,category_en,created_at&order=created_at.desc`,
-      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+      { headers: sbHeaders }
     );
     const companies = r.ok ? await r.json() : [];
+
+    // الفئات من الجدول (المصدر الحقيقي) — المفعّلة فقط
+    const cr = await fetch(
+      `${SUPABASE_URL}/rest/v1/categories?select=slug,is_active&is_active=eq.true&order=sort_order.asc`,
+      { headers: sbHeaders }
+    );
+    const categories = cr.ok ? await cr.json() : [];
 
     const nodes = [];
 
@@ -63,15 +71,20 @@ export default async function handler(req, res) {
       nodes.push(urlNode(homeUrl(lang), (l) => homeUrl(l), null));
     }
 
-    // صفحات الفئات (فريدة)
+    // صفحات الفئات (فريدة) — من جدول categories، مع fallback للنص الحر القديم
     const seenCat = new Set();
-    for (const c of companies) {
-      const cslug = slugify(c.category_en) || slugify(c.category);
-      if (!cslug || seenCat.has(cslug)) continue;
+    const addCat = (cslug) => {
+      if (!cslug || seenCat.has(cslug)) return;
       seenCat.add(cslug);
       for (const lang of LANGS) {
         nodes.push(urlNode(categoryUrl(cslug, lang), (l) => categoryUrl(cslug, l), null));
       }
+    };
+    if (categories.length > 0) {
+      for (const cat of categories) addCat(cat.slug);
+    } else {
+      // قبل الهجرة / تعذّر جلب الجدول: اشتقّ من النص الحر للشركات كي لا تختفي الفئات
+      for (const c of companies) addCat(slugify(c.category_en) || slugify(c.category));
     }
 
     // صفحات الشركات

@@ -4,7 +4,8 @@ import { motion, AnimatePresence, animate } from "framer-motion";
 import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getTypeMeta, getTypeKey } from "../lib/types.js";
-import { companySlug } from "../lib/slug.js";
+import { companySlug, companyCategoryRecord, categoryName } from "../lib/slug.js";
+import { useCategories } from "../lib/categories.jsx";
 import { isImageUrl } from "./CompanyLogo.jsx";
 
 // هوية Premium الذهبية
@@ -25,6 +26,7 @@ export default function CompanyCard({
   linkToStore = true,
 }) {
   const { t, i18n } = useTranslation();
+  const { byId, categories } = useCategories();
   const meta = getTypeMeta(company.type);
   const Icon = meta.icon;
 
@@ -34,7 +36,9 @@ export default function CompanyCard({
   const storeHref = `${lang && lang !== "ar" ? `/${lang}` : ""}/store/${companySlug(company)}`;
   const loc = (field) => (lang !== "ar" && company[`${field}_${lang}`]) || company[field];
   const desc = loc("description") || "";
-  const category = loc("category");
+  // اسم الفئة: من category_id عبر الجدول (المصدر الحقيقي)، مع fallback للنص الحر القديم
+  const catRecord = companyCategoryRecord(company, byId, categories);
+  const category = (catRecord ? categoryName(catRecord, lang) : loc("category")) || "";
   const [copied, setCopied] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const cardRef = useRef(null);

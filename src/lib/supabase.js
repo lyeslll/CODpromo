@@ -8,13 +8,46 @@ export const SUPABASE_KEY = "sb_publishable_kxiLaS2RxTEeZA6TrJQR_w_ws8twFBt";
 export const LOGOS_BUCKET = "logos";
 
 import { slugify } from "./slug.js";
+import { supabase as sessionClient } from "./supabaseClient.js";
 
+// ترويسات القراءة العامة (وتتبّع النقرات): تستعمل المفتاح العام (anon) كما كان.
 const headers = {
   apikey: SUPABASE_KEY,
   Authorization: `Bearer ${SUPABASE_KEY}`,
 };
 
 const jsonHeaders = { ...headers, "Content-Type": "application/json" };
+
+// ============================================================
+//  ترويسات الكتابة الإدارية — بهوية المستخدم المُصادَق (S1)
+//  apikey يبقى المفتاح العام (يتطلّبه PostgREST دائماً)، أمّا Authorization
+//  فيحمل توكن جلسة المستخدم (JWT) بدل مفتاح anon — حتى تُنسَب الكتابة للمستخدم
+//  وتحمل صلاحياته (is_admin) مستقبلاً. إن لم تكن هناك جلسة نرجع لمفتاح anon
+//  (fallback) كي لا تنكسر اللوحة الآن، لأن سياسات RLS لم تتغيّر بعد.
+// ============================================================
+async function getAccessToken() {
+  try {
+    const { data } = await sessionClient.auth.getSession();
+    return data?.session?.access_token || null;
+  } catch {
+    return null;
+  }
+}
+
+/** ترويسات كتابة بهوية المستخدم المُصادَق (مع fallback لمفتاح anon). */
+async function adminHeaders(extra = {}) {
+  const token = await getAccessToken();
+  return {
+    apikey: SUPABASE_KEY,
+    Authorization: `Bearer ${token || SUPABASE_KEY}`,
+    ...extra,
+  };
+}
+
+/** مثل adminHeaders لكن مع Content-Type: application/json. */
+async function adminJsonHeaders(extra = {}) {
+  return adminHeaders({ "Content-Type": "application/json", ...extra });
+}
 
 /** يحوّل استجابة خطأ من Supabase إلى رسالة مفهومة. */
 async function toError(res, fallback) {
@@ -146,7 +179,7 @@ export async function addCompany(payload) {
   const insert = async (body) => {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/companies`, {
       method: "POST",
-      headers: { ...jsonHeaders, Prefer: "return=representation" },
+      headers: await adminJsonHeaders({ Prefer: "return=representation" }),
       body: JSON.stringify(body),
     });
     return res;
@@ -167,7 +200,7 @@ export async function updateCompany(id, payload) {
   const translated = await withTranslations(payload);
   const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${id}`, {
     method: "PATCH",
-    headers: { ...jsonHeaders, Prefer: "return=representation" },
+    headers: await adminJsonHeaders({ Prefer: "return=representation" }),
     body: JSON.stringify(clean(translated)),
   });
   if (!res.ok) throw await toError(res, "تعذّر تحديث الشركة");
@@ -179,7 +212,7 @@ export async function updateCompany(id, payload) {
 export async function deleteCompany(id) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${id}`, {
     method: "DELETE",
-    headers,
+    headers: await adminHeaders(),
   });
   if (!res.ok) throw await toError(res, "تعذّر حذف الشركة");
   return true;
@@ -260,10 +293,10 @@ export async function addCategory(payload) {
       slugify(translated.name_en) || slugify(payload.name_ar) || `cat-${Date.now().toString(36)}`;
   }
 
-  const insert = (body) =>
+  const insert = async (body) =>
     fetch(`${SUPABASE_URL}/rest/v1/categories`, {
       method: "POST",
-      headers: { ...jsonHeaders, Prefer: "return=representation" },
+      headers: await adminJsonHeaders({ Prefer: "return=representation" }),
       body: JSON.stringify(body),
     });
 
@@ -286,7 +319,7 @@ export async function updateCategory(id, payload) {
   const body = cleanCategory(translated);
   const res = await fetch(`${SUPABASE_URL}/rest/v1/categories?id=eq.${id}`, {
     method: "PATCH",
-    headers: { ...jsonHeaders, Prefer: "return=representation" },
+    headers: await adminJsonHeaders({ Prefer: "return=representation" }),
     body: JSON.stringify(body),
   });
   if (!res.ok) throw await toError(res, "تعذّر تحديث الفئة");
@@ -301,7 +334,7 @@ export async function updateCategory(id, payload) {
 export async function deleteCategory(id) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/categories?id=eq.${id}`, {
     method: "DELETE",
-    headers,
+    headers: await adminHeaders(),
   });
   if (!res.ok) throw await toError(res, "تعذّر حذف الفئة");
   return true;
@@ -321,11 +354,10 @@ export async function uploadLogo(file) {
 
   const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${LOGOS_BUCKET}/${safe}`, {
     method: "POST",
-    headers: {
-      ...headers,
+    headers: await adminHeaders({
       "Content-Type": file.type || "application/octet-stream",
       "x-upsert": "true",
-    },
+    }),
     body: file,
   });
   if (!res.ok) throw await toError(res, "تعذّر رفع الصورة");
@@ -342,7 +374,7 @@ export async function uploadLogo(file) {
 export async function updateCompanyRaw(id, payload) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${id}`, {
     method: "PATCH",
-    headers: { ...jsonHeaders, Prefer: "return=representation" },
+    headers: await adminJsonHeaders({ Prefer: "return=representation" }),
     body: JSON.stringify(clean(payload)),
   });
   if (!res.ok) throw await toError(res, "تعذّر حفظ بيانات SEO");
@@ -401,7 +433,7 @@ export async function saveCompanyFaqs(companyId, faqs) {
   // 1) حذف القديم
   const del = await fetch(
     `${SUPABASE_URL}/rest/v1/company_faqs?company_id=eq.${companyId}`,
-    { method: "DELETE", headers }
+    { method: "DELETE", headers: await adminHeaders() }
   );
   if (!del.ok) throw await toError(del, "تعذّر تحديث الأسئلة الشائعة");
 
@@ -422,7 +454,7 @@ export async function saveCompanyFaqs(companyId, faqs) {
 
   const res = await fetch(`${SUPABASE_URL}/rest/v1/company_faqs`, {
     method: "POST",
-    headers: { ...jsonHeaders, Prefer: "return=representation" },
+    headers: await adminJsonHeaders({ Prefer: "return=representation" }),
     body: JSON.stringify(rows),
   });
   if (!res.ok) throw await toError(res, "تعذّر حفظ الأسئلة الشائعة");
@@ -457,7 +489,7 @@ export async function updateSiteSettings(payload) {
   // upsert على المفتاح id=1
   const res = await fetch(`${SUPABASE_URL}/rest/v1/site_settings`, {
     method: "POST",
-    headers: { ...jsonHeaders, Prefer: "resolution=merge-duplicates,return=representation" },
+    headers: await adminJsonHeaders({ Prefer: "resolution=merge-duplicates,return=representation" }),
     body: JSON.stringify(body),
   });
   if (!res.ok) throw await toError(res, "تعذّر حفظ إعدادات الموقع");

@@ -20,7 +20,11 @@ import {
   Loader2,
   Globe,
   FolderTree,
+  ShieldCheck,
+  LogIn,
 } from "lucide-react";
+
+import { useAuth } from "../lib/auth.jsx";
 
 import {
   fetchCompanies,
@@ -54,9 +58,75 @@ export default function Admin() {
   const [unlocked, setUnlocked] = useState(
     () => sessionStorage.getItem(ADMIN_SESSION_KEY) === "1"
   );
+  // الجلسة المُصادَقة: لازمة كي تحمل كتابات اللوحة توكن المستخدم (JWT) بدل مفتاح anon.
+  const { user, loading } = useAuth();
 
+  // 1) بوابة الرمز كما هي (لا تتغيّر).
   if (!unlocked) return <PinGate onUnlock={() => setUnlocked(true)} />;
+  // 2) ننتظر تحميل الجلسة قبل الحكم على تسجيل الدخول (تفادي وميض شاشة الدعوة).
+  if (loading) return <AdminLoading />;
+  // 3) إن لم يكن المستخدم مسجّلاً عبر نظام المصادقة → دعوة لتسجيل الدخول (ليس حاجزاً صلباً على is_admin).
+  if (!user) return <LoginInvite onLock={() => setUnlocked(false)} />;
   return <Dashboard onLock={() => setUnlocked(false)} />;
+}
+
+/* ===================== شاشة انتظار تحميل الجلسة ===================== */
+function AdminLoading() {
+  return (
+    <div className="grid min-h-screen place-items-center bg-[var(--color-ink)]">
+      <Loader2 size={28} className="animate-spin text-[var(--color-lime)]" />
+    </div>
+  );
+}
+
+/* ===================== دعوة لتسجيل الدخول (بعد الرمز) ===================== */
+// الرمز صحيح لكن لا توجد جلسة مُصادَقة — نطلب تسجيل الدخول حتى تحمل الكتابات JWT.
+function LoginInvite({ onLock }) {
+  return (
+    <div className="relative grid min-h-screen place-items-center overflow-hidden bg-[var(--color-ink)] px-4">
+      <div
+        className="pointer-events-none absolute left-1/2 top-1/3 h-[400px] w-[600px] -translate-x-1/2 rounded-full blur-[120px]"
+        style={{ background: "radial-gradient(circle, rgba(166,240,0,0.14), transparent 65%)" }}
+      />
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="relative w-full max-w-sm rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] p-7 text-center"
+      >
+        <div
+          className="mx-auto grid h-16 w-16 place-items-center rounded-2xl"
+          style={{
+            background: "linear-gradient(150deg, rgba(166,240,0,0.18), rgba(166,240,0,0.04))",
+            border: "1px solid rgba(166,240,0,0.25)",
+          }}
+        >
+          <ShieldCheck size={26} className="text-[var(--color-lime)]" />
+        </div>
+        <h1 className="mt-5 text-[22px] font-black text-white">سجّل الدخول للمتابعة</h1>
+        <p className="mt-1.5 text-[13.5px] leading-relaxed text-[var(--color-mute)]">
+          الرمز صحيح. لإدارة المحتوى يجب تسجيل الدخول بحسابك أولاً حتى تُحفَظ تعديلاتك بهويتك.
+        </p>
+
+        <Link
+          to="/login"
+          className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-[14.5px] font-extrabold text-[#0a0a0a]"
+          style={{
+            background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))",
+          }}
+        >
+          <LogIn size={16} /> تسجيل الدخول
+        </Link>
+
+        <button
+          onClick={onLock}
+          className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--color-mute)] transition-colors hover:text-white"
+        >
+          <ArrowLeft size={14} /> رجوع لبوابة الرمز
+        </button>
+      </motion.div>
+    </div>
+  );
 }
 
 /* ===================== بوابة الرمز ===================== */

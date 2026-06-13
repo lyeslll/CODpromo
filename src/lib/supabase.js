@@ -185,6 +185,128 @@ export async function deleteCompany(id) {
   return true;
 }
 
+// ===================== التصنيفات (الفئات) =====================
+// جدول categories: المصدر العربي في name_ar / description_ar، وen/fr ترجمة تلقائية.
+
+// الأعمدة المسموح كتابتها على categories.
+const CATEGORY_ALLOWED = [
+  "slug", "icon",
+  "name_ar", "name_en", "name_fr",
+  "description_ar", "description_en", "description_fr",
+  "sort_order", "is_active",
+];
+
+/** يبقي فقط أعمدة الفئة المسموح بها مع ضبط الأنواع (sort_order رقم، is_active منطقي، النصوص الفارغة → null). */
+function cleanCategory(payload) {
+  const out = {};
+  for (const k of CATEGORY_ALLOWED) {
+    if (payload[k] === undefined) continue;
+    let v = payload[k];
+    if (k === "sort_order") {
+      const n = Number(v);
+      out[k] = Number.isFinite(n) ? Math.trunc(n) : 0;
+    } else if (k === "is_active") {
+      out[k] = !(v === false || v === "false" || v === 0);
+    } else {
+      if (typeof v === "string") v = v.trim();
+      out[k] = v === "" ? null : v;
+    }
+  }
+  return out;
+}
+
+/**
+ * يضيف ترجمة en/fr لاسم/وصف الفئة عبر نفس Edge Function (translate-company).
+ * المصدر العربي: name_ar → name، description_ar → description.
+ * إن فشلت الترجمة لا نكسر الحفظ — نحفظ بالعربية فقط (تُترجَم لاحقاً عند التعديل).
+ */
+async function withCategoryTranslations(payload) {
+  const src = {};
+  if (typeof payload.name_ar === "string" && payload.name_ar.trim()) src.name = payload.name_ar.trim();
+  if (typeof payload.description_ar === "string" && payload.description_ar.trim())
+    src.description = payload.description_ar.trim();
+  if (Object.keys(src).length === 0) return payload;
+  try {
+    const { en = {}, fr = {} } = await translateCompanyFields(src);
+    const out = { ...payload };
+    if (en.name != null) out.name_en = en.name;
+    if (fr.name != null) out.name_fr = fr.name;
+    if (en.description != null) out.description_en = en.description;
+    if (fr.description != null) out.description_fr = fr.description;
+    return out;
+  } catch (e) {
+    console.warn("translate category failed, saving Arabic only:", e?.message);
+    return payload;
+  }
+}
+
+/** يجلب كل الفئات مرتّبة حسب sort_order ثم الأحدث. */
+export async function fetchCategories() {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/categories?select=*&order=sort_order.asc,created_at.desc`,
+    { headers }
+  );
+  if (!res.ok) throw new Error("فشل الاتصال بالخادم");
+  return res.json();
+}
+
+/** يضيف فئة جديدة (ترجمة تلقائية للاسم/الوصف + توليد slug مرّة واحدة) ويعيد السجل المُنشأ. */
+export async function addCategory(payload) {
+  const translated = await withCategoryTranslations(payload);
+  const base = cleanCategory(translated);
+  // الـ slug يتولّد مرّة واحدة عند الإنشاء: من name_en المترجم، وإلا name_ar، وإلا احتياط.
+  if (!base.slug) {
+    base.slug =
+      slugify(translated.name_en) || slugify(payload.name_ar) || `cat-${Date.now().toString(36)}`;
+  }
+
+  const insert = (body) =>
+    fetch(`${SUPABASE_URL}/rest/v1/categories`, {
+      method: "POST",
+      headers: { ...jsonHeaders, Prefer: "return=representation" },
+      body: JSON.stringify(body),
+    });
+
+  let res = await insert(base);
+  if (res.status === 409) {
+    // slug مكرّر — أعد المحاولة بلاحقة عشوائية قصيرة.
+    res = await insert({ ...base, slug: `${base.slug}-${Math.random().toString(36).slice(2, 6)}` });
+  }
+  if (!res.ok) throw await toError(res, "تعذّر إضافة الفئة");
+  const data = await res.json();
+  return Array.isArray(data) ? data[0] : data;
+}
+
+/**
+ * يحدّث فئة موجودة (يعيد ترجمة الاسم/الوصف). لا يُعيد توليد الـ slug تلقائياً —
+ * يبقى كما هو إلا إن مرّره المستخدم صراحةً في الـ payload (تعديل يدوي).
+ */
+export async function updateCategory(id, payload) {
+  const translated = await withCategoryTranslations(payload);
+  const body = cleanCategory(translated);
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/categories?id=eq.${id}`, {
+    method: "PATCH",
+    headers: { ...jsonHeaders, Prefer: "return=representation" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw await toError(res, "تعذّر تحديث الفئة");
+  const data = await res.json();
+  return Array.isArray(data) ? data[0] : data;
+}
+
+/**
+ * يحذف فئة. عمود companies.category_id معرّف بـ ON DELETE SET NULL (راجع phase14)،
+ * فتتحوّل category_id للشركات المرتبطة إلى null تلقائياً دون حذف الشركات.
+ */
+export async function deleteCategory(id) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/categories?id=eq.${id}`, {
+    method: "DELETE",
+    headers,
+  });
+  if (!res.ok) throw await toError(res, "تعذّر حذف الفئة");
+  return true;
+}
+
 // ===================== رفع الصور =====================
 
 /**

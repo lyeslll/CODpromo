@@ -19,6 +19,7 @@ import {
   Languages,
   Loader2,
   Globe,
+  FolderTree,
 } from "lucide-react";
 
 import {
@@ -27,6 +28,10 @@ import {
   updateCompany,
   deleteCompany,
   translateCompanyFields,
+  fetchCategories,
+  addCategory,
+  updateCategory,
+  deleteCategory,
 } from "../lib/supabase.js";
 import { fetchAllProfiles, fetchAllRequests, acceptRequest, setRequestStatus } from "../lib/admin.js";
 import { fetchSubscribers } from "../lib/subscribers.js";
@@ -42,6 +47,8 @@ import SubscribersTable from "../components/admin/SubscribersTable.jsx";
 import StorkManager from "../components/admin/StorkManager.jsx";
 import PremiumMembers from "../components/admin/PremiumMembers.jsx";
 import SeoManager from "../components/admin/SeoManager.jsx";
+import CategoryForm from "../components/admin/CategoryForm.jsx";
+import CategoryTable from "../components/admin/CategoryTable.jsx";
 
 export default function Admin() {
   const [unlocked, setUnlocked] = useState(
@@ -153,6 +160,13 @@ function Dashboard({ onLock }) {
   const toastTimer = useRef(null);
   const formRef = useRef(null);
 
+  // الفئات (المرحلة 2)
+  const [categories, setCategories] = useState([]);
+  const [loadingCats, setLoadingCats] = useState(true);
+  const [editingCat, setEditingCat] = useState(null); // الفئة قيد التعديل
+  const [submittingCat, setSubmittingCat] = useState(false);
+  const catFormRef = useRef(null);
+
   // بيانات المراحل الجديدة (مستخدمون + طلبات)
   const [profiles, setProfiles] = useState([]);
   const [requests, setRequests] = useState([]);
@@ -190,6 +204,10 @@ function Dashboard({ onLock }) {
       .then(setStorkCodes)
       .catch(() => setStorkCodes([]))
       .finally(() => setLoadingStork(false));
+    fetchCategories()
+      .then((d) => setCategories(Array.isArray(d) ? d : []))
+      .catch(() => setCategories([]))
+      .finally(() => setLoadingCats(false));
   }, [load]);
 
   const handleAddStork = async (code) => {
@@ -215,6 +233,64 @@ function Dashboard({ onLock }) {
       cashback: by("كاش باك"),
     };
   }, [companies]);
+
+  // عدد الشركات في كل فئة: بالأساس عبر category_id، ومع fallback لمطابقة النص العربي
+  // للشركات التي لم يُملأ لها category_id بعد (قبل/بدون backfill).
+  const categoryCounts = useMemo(() => {
+    const map = {};
+    for (const cat of categories) map[cat.id] = 0;
+    for (const c of companies) {
+      let id = c.category_id;
+      if (!id && c.category) {
+        const match = categories.find((cat) => cat.name_ar === c.category);
+        if (match) id = match.id;
+      }
+      if (id && map[id] != null) map[id] += 1;
+    }
+    return map;
+  }, [categories, companies]);
+
+  // إضافة/تعديل فئة (الترجمة en/fr تلقائية داخل addCategory/updateCategory)
+  const handleCatSubmit = async (form) => {
+    setSubmittingCat(true);
+    try {
+      if (editingCat?.id) {
+        const updated = await updateCategory(editingCat.id, form);
+        setCategories((prev) => prev.map((c) => (c.id === editingCat.id ? { ...c, ...updated } : c)));
+        notify("success", "تم حفظ الفئة بنجاح");
+        setEditingCat(null);
+      } else {
+        const created = await addCategory(form);
+        setCategories((prev) => [created, ...prev]);
+        notify("success", "تمت إضافة الفئة بنجاح");
+      }
+    } catch (e) {
+      notify("error", e.message);
+    } finally {
+      setSubmittingCat(false);
+    }
+  };
+
+  const startEditCat = (cat) => {
+    setEditingCat(cat);
+    catFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  // حذف فئة: القاعدة تُفرّغ category_id للشركات المرتبطة (ON DELETE SET NULL).
+  // نعكس ذلك محلياً كي يتحدّث العدّاد فوراً دون إعادة جلب.
+  const handleDeleteCategory = async (id) => {
+    try {
+      await deleteCategory(id);
+      setCategories((prev) => prev.filter((c) => c.id !== id));
+      setCompanies((prev) =>
+        prev.map((c) => (c.category_id === id ? { ...c, category_id: null } : c))
+      );
+      if (editingCat?.id === id) setEditingCat(null);
+      notify("success", "تم حذف الفئة");
+    } catch (e) {
+      notify("error", e.message);
+    }
+  };
 
   const handleSubmit = async (form) => {
     setSubmitting(true);
@@ -382,6 +458,9 @@ function Dashboard({ onLock }) {
           <TabButton active={tab === "companies"} onClick={() => setTab("companies")} icon={Store}>
             الشركات
           </TabButton>
+          <TabButton active={tab === "categories"} onClick={() => setTab("categories")} icon={FolderTree}>
+            الفئات
+          </TabButton>
           <TabButton active={tab === "seo"} onClick={() => setTab("seo")} icon={Globe}>
             SEO
           </TabButton>
@@ -479,6 +558,45 @@ function Dashboard({ onLock }) {
               />
             </div>
           </>
+        )}
+
+        {/* الفئات — إدارة كاملة (إضافة/تعديل/حذف + ترجمة تلقائية) */}
+        {tab === "categories" && (
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[420px_1fr]">
+            <div ref={catFormRef} className="lg:sticky lg:top-[84px] lg:self-start">
+              <div className="rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] p-5">
+                <div className="mb-5 flex items-center justify-between">
+                  <h2 className="text-[17px] font-extrabold text-white">
+                    {editingCat ? "تعديل فئة" : "إضافة فئة جديدة"}
+                  </h2>
+                  {editingCat && (
+                    <span
+                      className="rounded-md bg-[var(--color-lime)]/15 px-2 py-1 text-[11.5px] font-bold text-[var(--color-lime)]"
+                      dir="ltr"
+                    >
+                      {editingCat.slug}
+                    </span>
+                  )}
+                </div>
+                <CategoryForm
+                  key={editingCat?.id || "new"}
+                  initial={editingCat}
+                  submitting={submittingCat}
+                  onSubmit={handleCatSubmit}
+                  onCancel={() => setEditingCat(null)}
+                />
+              </div>
+            </div>
+
+            <CategoryTable
+              categories={categories}
+              counts={categoryCounts}
+              loading={loadingCats}
+              editingId={editingCat?.id}
+              onEdit={startEditCat}
+              onDelete={handleDeleteCategory}
+            />
+          </div>
         )}
 
         {/* SEO — تحكم كامل لكل شركة + إعدادات عامة */}

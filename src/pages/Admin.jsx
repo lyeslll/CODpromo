@@ -36,6 +36,7 @@ import {
   addCategory,
   updateCategory,
   deleteCategory,
+  getPremiumCode,
 } from "../lib/supabase.js";
 import { fetchAllProfiles, fetchAllRequests, acceptRequest, setRequestStatus } from "../lib/admin.js";
 import { fetchSubscribers } from "../lib/subscribers.js";
@@ -437,9 +438,23 @@ function Dashboard({ onLock }) {
     }
   };
 
-  const startEdit = (company) => {
+  const startEdit = async (company) => {
     setEditing(company);
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // كود/رابط Premium لم يعودا ضمن الجلب العام (مقفلان خادمياً) — نجلبهما عبر RPC
+    // (مسموح للأدمن) كي يظهرا في النموذج، وإلا قد يُحفظ الحقلان فارغين عند التعديل.
+    try {
+      const pc = await getPremiumCode(company.id);
+      if (pc) {
+        setEditing((cur) =>
+          cur && cur.id === company.id
+            ? { ...cur, premium_code: pc.premium_code || "", premium_url: pc.premium_url || "" }
+            : cur
+        );
+      }
+    } catch {
+      /* تجاهل — يبقى الحقلان فارغين، ويعيد الأدمن إدخالهما عند الحاجة */
+    }
   };
 
   // تبديل دعم Premium لشركة مباشرةً من الجدول (تحديث متفائل مع تراجع عند الفشل)

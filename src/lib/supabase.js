@@ -71,14 +71,41 @@ async function toError(res, fallback) {
 
 // ===================== قراءة =====================
 
-/** يجلب كل الشركات مرتبة من الأحدث للأقدم. */
+// أعمدة companies الآمنة للعرض العام — **بدون** premium_code / premium_url.
+// هذان العمودان سرّيان: لا يُجلبان في أي select عام، ويُكشفان خادمياً فقط عبر
+// RPC get_premium_code (التي تتحقق من اشتراك المستخدم). أي قارئ يحتاج صف شركة
+// كامل للعرض يستعمل هذه القائمة. (الكود/الرابط العاديان code/link يبقيان عامين.)
+export const COMPANY_PUBLIC_COLUMNS =
+  "id,created_at,clicks,name,logo,category,category_id,code,discount,premium_discount," +
+  "supports_premium,type,description,link,status," +
+  "description_en,description_fr,category_en,category_fr," +
+  "discount_en,discount_fr,premium_discount_en,premium_discount_fr," +
+  "slug,seo_title,seo_title_en,seo_title_fr," +
+  "seo_description,seo_description_en,seo_description_fr," +
+  "seo_keywords,seo_keywords_en,seo_keywords_fr";
+
+/** يجلب كل الشركات مرتبة من الأحدث للأقدم (بأعمدة آمنة بلا أكواد Premium). */
 export async function fetchCompanies() {
   const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/companies?select=*&order=created_at.desc`,
+    `${SUPABASE_URL}/rest/v1/companies?select=${COMPANY_PUBLIC_COLUMNS}&order=created_at.desc`,
     { headers }
   );
   if (!res.ok) throw new Error("فشل الاتصال بالخادم");
   return res.json();
+}
+
+/**
+ * يكشف كود/رابط Premium لشركة عبر RPC خادمية تتحقق من اشتراك المستخدم.
+ * يعمل بجلسة المستخدم المُصادَقة. يعيد { premium_code, premium_url } أو null
+ * إن لم يكن المستخدم مشتركاً فعّالاً (أو أدمن). لا يُرسَل الكود إلا بعد التحقق.
+ */
+export async function getPremiumCode(companyId) {
+  const { data, error } = await sessionClient.rpc("get_premium_code", {
+    company_id: companyId,
+  });
+  if (error) throw new Error(error.message);
+  const row = Array.isArray(data) ? data[0] : data;
+  return row || null;
 }
 
 /**
@@ -177,7 +204,8 @@ export async function addCompany(payload) {
 
   // محاولة الإدراج مع معالجة تعارض الـ slug الفريد (نُلحق لاحقة قصيرة ونعيد المحاولة مرة).
   const insert = async (body) => {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/companies`, {
+    // نطلب إرجاع أعمدة آمنة فقط (بعد قفل phase17b لا يُسمح بقراءة premium_code/url).
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?select=${COMPANY_PUBLIC_COLUMNS}`, {
       method: "POST",
       headers: await adminJsonHeaders({ Prefer: "return=representation" }),
       body: JSON.stringify(body),
@@ -198,11 +226,14 @@ export async function addCompany(payload) {
 /** يحدّث شركة موجودة (يعيد ترجمة الوصف/الفئة إن تغيّرا) ويعيد السجل المُحدَّث. */
 export async function updateCompany(id, payload) {
   const translated = await withTranslations(payload);
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${id}`, {
-    method: "PATCH",
-    headers: await adminJsonHeaders({ Prefer: "return=representation" }),
-    body: JSON.stringify(clean(translated)),
-  });
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/companies?id=eq.${id}&select=${COMPANY_PUBLIC_COLUMNS}`,
+    {
+      method: "PATCH",
+      headers: await adminJsonHeaders({ Prefer: "return=representation" }),
+      body: JSON.stringify(clean(translated)),
+    }
+  );
   if (!res.ok) throw await toError(res, "تعذّر تحديث الشركة");
   const data = await res.json();
   return Array.isArray(data) ? data[0] : data;
@@ -372,11 +403,14 @@ export async function uploadLogo(file) {
  * slug وحقول SEO — الترجمة هنا تُدار يدوياً بزر "ترجمة تلقائية" في تبويب SEO).
  */
 export async function updateCompanyRaw(id, payload) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${id}`, {
-    method: "PATCH",
-    headers: await adminJsonHeaders({ Prefer: "return=representation" }),
-    body: JSON.stringify(clean(payload)),
-  });
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/companies?id=eq.${id}&select=${COMPANY_PUBLIC_COLUMNS}`,
+    {
+      method: "PATCH",
+      headers: await adminJsonHeaders({ Prefer: "return=representation" }),
+      body: JSON.stringify(clean(payload)),
+    }
+  );
   if (!res.ok) throw await toError(res, "تعذّر حفظ بيانات SEO");
   const data = await res.json();
   return Array.isArray(data) ? data[0] : data;
@@ -387,7 +421,7 @@ export async function updateCompanyRaw(id, payload) {
 /** يجلب شركة واحدة بالـ slug مع أسئلتها الشائعة (مرتّبة)، أو null إن لم توجد. */
 export async function fetchCompanyBySlug(slug) {
   const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/companies?slug=eq.${encodeURIComponent(slug)}&select=*,company_faqs(*)`,
+    `${SUPABASE_URL}/rest/v1/companies?slug=eq.${encodeURIComponent(slug)}&select=${COMPANY_PUBLIC_COLUMNS},company_faqs(*)`,
     { headers }
   );
   if (!res.ok) throw new Error("فشل الاتصال بالخادم");

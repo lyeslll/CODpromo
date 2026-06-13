@@ -1,4 +1,5 @@
 import { supabase } from "./supabaseClient.js";
+import { COMPANY_PUBLIC_COLUMNS } from "./supabase.js";
 
 // ============================================================
 //  المفضّلة — مرتبطة بالمستخدم المسجّل (جدول favorites)
@@ -20,7 +21,7 @@ export async function fetchFavoritesWithCompany(userId) {
   if (!userId) return [];
   const { data, error } = await supabase
     .from("favorites")
-    .select("company_id, created_at, companies(*)")
+    .select(`company_id, created_at, companies(${COMPANY_PUBLIC_COLUMNS})`)
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);

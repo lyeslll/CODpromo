@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, animate } from "framer-motion";
 import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock } from "lucide-react";
@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { getTypeMeta, getTypeKey } from "../lib/types.js";
 import { companySlug, companyCategoryRecord, categoryName } from "../lib/slug.js";
 import { useCategories } from "../lib/categories.jsx";
+import { getPremiumCode } from "../lib/supabase.js";
 import { isImageUrl } from "./CompanyLogo.jsx";
 
 // هوية Premium الذهبية
@@ -41,22 +42,51 @@ export default function CompanyCard({
   const category = (catRecord ? categoryName(catRecord, lang) : loc("category")) || "";
   const [copied, setCopied] = useState(false);
   const [revealed, setRevealed] = useState(false);
+  // بيانات Premium تُجلب خادمياً عبر RPC (لا تأتي ضمن صف الشركة العام).
+  // null = لم تُطلب/لم تصل بعد. { premium_code, premium_url } = وصلت.
+  const [premiumData, setPremiumData] = useState(null);
   const cardRef = useRef(null);
 
-  // إعادة ضبط الخدش عند تبديل الوضع أو تغيّر حالة الاشتراك
+  // إعادة ضبط الخدش وبيانات Premium عند تبديل الوضع أو تغيّر حالة الاشتراك
   useEffect(() => {
     setRevealed(false);
+    setPremiumData(null);
   }, [premium, unlocked]);
+
+  // يجلب كود/رابط Premium مرّة واحدة عند الحاجة (مشترك فعّال فقط؛ الخادم يتحقق).
+  const ensurePremium = useCallback(async () => {
+    if (!premium || !unlocked) return null;
+    if (premiumData) return premiumData;
+    let d;
+    try {
+      d = await getPremiumCode(company.id);
+    } catch {
+      d = null;
+    }
+    const val = d || { premium_code: null, premium_url: null };
+    setPremiumData(val);
+    return val;
+  }, [premium, unlocked, premiumData, company.id]);
 
   const hot = (company.clicks || 0) >= 50;
 
   // ألوان حسب الوضع (عادي / Premium ذهبي)
   const accent = premium ? GOLD : meta.color;
   const accentGlow = premium ? GOLD_GLOW : meta.glow;
+  // قيمة الخصم عامة (تُعرض دائماً)؛ أما الكود/الرابط Premium فيُكشفان خادمياً.
   const shownDiscount = premium ? loc("premium_discount") || loc("discount") : loc("discount");
-  // كود ورابط Premium universal (لا تُترجَم) مع fallback للعادي عند الفراغ
-  const shownCode = premium ? company.premium_code || company.code : company.code;
-  const shownLink = premium ? company.premium_url || company.link : company.link;
+  // في وضع Premium: قبل وصول بيانات RPC نعرض حاجباً (••••••)، وبعده الكود الحقيقي
+  // (مع fallback للكود العادي إن كان premium_code فارغاً). غير Premium: الكود العادي.
+  const shownCode = premium
+    ? premiumData
+      ? premiumData.premium_code || company.code
+      : "••••••"
+    : company.code;
+  const shownLink = premium
+    ? premiumData
+      ? premiumData.premium_url || company.link
+      : null
+    : company.link;
 
   const handleMouseMove = (e) => {
     const el = cardRef.current;
@@ -66,13 +96,19 @@ export default function CompanyCard({
     el.style.setProperty("--my", `${e.clientY - r.top}px`);
   };
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
     // كود Premium مقفل: لا نسخ — نوجّه للاشتراك
     if (premium && !unlocked) {
       onUnlock?.();
       return;
     }
-    onCopy(company, shownCode);
+    // في وضع Premium نجلب الكود الحقيقي خادمياً قبل النسخ (لا نعتمد على صف الشركة)
+    let code = company.code;
+    if (premium) {
+      const d = await ensurePremium();
+      code = d?.premium_code || company.code;
+    }
+    onCopy(company, code);
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
   };
@@ -210,7 +246,15 @@ export default function CompanyCard({
             </span>
           </div>
           {premium && !revealed && (
-            <ScratchLayer t={t} unlocked={unlocked} onReveal={() => setRevealed(true)} onUnlock={() => onUnlock?.()} />
+            <ScratchLayer
+              t={t}
+              unlocked={unlocked}
+              onReveal={() => {
+                setRevealed(true);
+                ensurePremium();
+              }}
+              onUnlock={() => onUnlock?.()}
+            />
           )}
         </div>
 

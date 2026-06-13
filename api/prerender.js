@@ -26,6 +26,18 @@ const dirOf = (l) => (l === "ar" ? "rtl" : "ltr");
 // ذاكرة مؤقتة لقالب index.html (لكل host) عبر الاستدعاءات الساخنة.
 const templateCache = {};
 
+// أعمدة companies الآمنة (بدون premium_code/premium_url المقفلين خادمياً منذ phase17b).
+// لا يستعمل البريرندر أعمدة Premium السرّية أصلاً؛ نطلب الأعمدة الصريحة فقط حتى لا يفشل
+// select=* بعد منع قراءة العمودين عن المفتاح العام (anon).
+const COMPANY_PUBLIC_COLUMNS =
+  "id,created_at,clicks,name,logo,category,category_id,code,discount,premium_discount," +
+  "supports_premium,type,description,link,status," +
+  "description_en,description_fr,category_en,category_fr," +
+  "discount_en,discount_fr,premium_discount_en,premium_discount_fr," +
+  "slug,seo_title,seo_title_en,seo_title_fr," +
+  "seo_description,seo_description_en,seo_description_fr," +
+  "seo_keywords,seo_keywords_en,seo_keywords_fr";
+
 function slugify(v) {
   return String(v || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-{2,}/g, "-").replace(/^-+|-+$/g, "");
 }
@@ -142,7 +154,7 @@ export default async function handler(req, res) {
   try {
     if (type === "store") {
       const data = await fetchJson(
-        `${SUPABASE_URL}/rest/v1/companies?slug=eq.${encodeURIComponent(slug)}&select=*,company_faqs(*)`
+        `${SUPABASE_URL}/rest/v1/companies?slug=eq.${encodeURIComponent(slug)}&select=${COMPANY_PUBLIC_COLUMNS},company_faqs(*)`
       );
       const c = Array.isArray(data) ? data[0] : null;
       if (!c) return serveTemplate(res, template);

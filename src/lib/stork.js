@@ -1,44 +1,23 @@
 import { supabase } from "./supabaseClient.js";
 
-const PREMIUM_DAYS = 30;
-
 /**
- * يفعّل كود Stork:
- *  - يتحقق من وجوده وعدم استخدامه
- *  - يعلّمه مستخدماً (used_by للمسجّل)
- *  - يمنح المستخدم المسجّل صفة Premium لمدة 30 يوماً
- * يعيد { ok } أو { ok:false, error }.
+ * يفعّل كود Stork عبر RPC خادمية ذرّية (redeem_stork_code):
+ *  - يتحقق خادمياً من وجود الكود وعدم استخدامه
+ *  - يعلّمه مستخدماً (used_by = صاحب الجلسة) ويمنحه 30 يوم Premium ذرّياً
+ * المنطق كله في الخادم — لا كتابة مباشرة على stork_codes/profiles من المتصفّح.
+ * يعيد { ok } أو { ok:false, errorKey } لتترجمه الواجهة عبر t(`premium.storkErr.${key}`).
  */
-export async function redeemStork(code, userId) {
-  // الأخطاء تُعاد كمفاتيح (errorKey) ليترجمها الواجهة عبر t(`premium.storkErr.${key}`).
+export async function redeemStork(code) {
   const c = (code || "").trim().toUpperCase();
   if (!c) return { ok: false, errorKey: "enter" };
 
-  const { data, error } = await supabase
-    .from("stork_codes")
-    .select("id,is_used")
-    .eq("code", c)
-    .maybeSingle();
+  const { data, error } = await supabase.rpc("redeem_stork_code", { code: c });
   if (error) return { ok: false, errorKey: "verify" };
-  if (!data) return { ok: false, errorKey: "invalid" };
-  if (data.is_used) return { ok: false, errorKey: "used" };
 
-  const { error: uErr } = await supabase
-    .from("stork_codes")
-    .update({ is_used: true, used_by: userId || null, used_at: new Date().toISOString() })
-    .eq("id", data.id);
-  if (uErr) return { ok: false, errorKey: "activate" };
-
-  if (userId) {
-    await supabase
-      .from("profiles")
-      .update({
-        is_premium: true,
-        premium_until: new Date(Date.now() + PREMIUM_DAYS * 86400000).toISOString(),
-      })
-      .eq("id", userId);
-  }
-  return { ok: true };
+  if (data === "ok") return { ok: true };
+  // خريطة حالات الخادم → مفاتيح ترجمة معروفة (غير المعروف → verify)
+  const known = { invalid: "invalid", used: "used", enter: "enter" };
+  return { ok: false, errorKey: known[data] || "verify" };
 }
 
 // ===================== إدارة (لوحة الأدمن) =====================

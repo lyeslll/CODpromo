@@ -21,6 +21,7 @@ import { getTypeMeta, getTypeKey } from "../../lib/types.js";
 import { useAuth } from "../../lib/auth.jsx";
 import { usePremium } from "../../lib/premium.jsx";
 import { fetchFavoritesWithCompany, removeFavorite } from "../../lib/favorites.js";
+import { getPremiumCode } from "../../lib/supabase.js";
 
 export default function CustomerDashboard() {
   const { user, profile } = useAuth();
@@ -134,10 +135,25 @@ function FavoriteItem({ company, unlocked, onRemove }) {
   // نفس منطق البطاقة الرئيسية: عضو Premium (unlocked) + الشركة تدعم Premium
   const premium = unlocked && company.supports_premium !== false;
   const loc = (field) => (lang !== "ar" && company[`${field}_${lang}`]) || company[field];
-  // القيمة تتبع i18n؛ الكود/الرابط universal — كلها مع fallback للعادي
+  // كود/رابط Premium يُجلبان خادمياً عبر RPC (لا يأتيان ضمن صف الشركة العام).
+  const [pdata, setPdata] = useState(null);
+  useEffect(() => {
+    if (!premium) {
+      setPdata(null);
+      return;
+    }
+    let active = true;
+    getPremiumCode(company.id)
+      .then((d) => active && setPdata(d))
+      .catch(() => active && setPdata(null));
+    return () => {
+      active = false;
+    };
+  }, [premium, company.id]);
+  // القيمة تتبع i18n؛ الكود/الرابط مع fallback للعادي عند الفراغ
   const discount = premium ? loc("premium_discount") || loc("discount") : loc("discount");
-  const code = premium ? company.premium_code || company.code : company.code;
-  const link = premium ? company.premium_url || company.link : company.link;
+  const code = premium ? pdata?.premium_code || company.code : company.code;
+  const link = premium ? pdata?.premium_url || company.link : company.link;
   const meta = getTypeMeta(company.type);
   const [copied, setCopied] = useState(false);
   const copy = () => {

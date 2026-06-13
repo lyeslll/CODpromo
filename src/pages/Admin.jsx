@@ -542,6 +542,7 @@ function Dashboard({ onLock }) {
                     key={editing?.id || "new"}
                     initial={editing}
                     submitting={submitting}
+                    categories={categories}
                     onSubmit={handleSubmit}
                     onCancel={() => setEditing(null)}
                   />

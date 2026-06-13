@@ -67,7 +67,7 @@ export async function trackClick(id, currentClicks = 0) {
 // ===================== كتابة (لوحة التحكم) =====================
 
 const ALLOWED = [
-  "name", "logo", "category", "code", "discount", "premium_discount",
+  "name", "logo", "category", "category_id", "code", "discount", "premium_discount",
   "supports_premium", "type", "description", "link", "status",
   // كود ورابط عرض Premium (universal — لا تُترجَم)
   "premium_code", "premium_url",

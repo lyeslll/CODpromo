@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import {
   ImagePlus,
@@ -31,10 +32,13 @@ const EMPTY = {
   code: "",
   link: "",
   category: "",
+  category_id: "",
   logo: "",
 };
 
-export default function CompanyForm({ initial, onSubmit, onCancel, submitting }) {
+export default function CompanyForm({ initial, onSubmit, onCancel, submitting, categories = [] }) {
+  const { i18n } = useTranslation();
+  const lang = i18n.language;
   const [form, setForm] = useState(EMPTY);
   const [uploading, setUploading] = useState(false);
   const [uploadErr, setUploadErr] = useState("");
@@ -43,11 +47,30 @@ export default function CompanyForm({ initial, onSubmit, onCancel, submitting })
 
   const editing = Boolean(initial?.id);
 
+  // اسم الفئة باللغة النشطة مع fallback للعربية ثم للـ slug.
+  const catName = (c) => (lang !== "ar" && c[`name_${lang}`]) || c.name_ar || c.slug;
+
+  // الفئات مرتّبة حسب sort_order ثم الاسم (لملء القائمة المنسدلة).
+  const sortedCats = useMemo(
+    () =>
+      [...categories].sort(
+        (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || catName(a).localeCompare(catName(b))
+      ),
+    [categories, lang]
+  );
+
   useEffect(() => {
-    setForm(initial ? { ...EMPTY, ...initial } : EMPTY);
+    const base = initial ? { ...EMPTY, ...initial } : EMPTY;
+    // اختيار الفئة تلقائياً: category_id إن وُجد، وإلا طابِق النص العربي القديم باسم فئة موجودة.
+    let catId = initial?.category_id || "";
+    if (!catId && initial?.category) {
+      const match = categories.find((c) => c.name_ar === initial.category);
+      if (match) catId = match.id;
+    }
+    setForm({ ...base, category_id: catId });
     setUploadErr("");
     setTouched(false);
-  }, [initial]);
+  }, [initial, categories]);
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
@@ -77,7 +100,14 @@ export default function CompanyForm({ initial, onSubmit, onCancel, submitting })
     e.preventDefault();
     setTouched(true);
     if (!valid || uploading) return;
-    onSubmit(form);
+    // الفئة: المصدر الحقيقي هو category_id، ونُحدّث النص category ليطابق اسمها العربي
+    // (توافق مع الكود القديم والـ fallback حتى المرحلة 4). "بدون فئة" → null + نص فارغ.
+    const selected = categories.find((c) => c.id === form.category_id);
+    onSubmit({
+      ...form,
+      category_id: form.category_id || null,
+      category: selected ? selected.name_ar || "" : "",
+    });
   };
 
   const meta = getTypeMeta(form.type);
@@ -258,12 +288,23 @@ export default function CompanyForm({ initial, onSubmit, onCancel, submitting })
       {/* الفئة + الرابط */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="الفئة">
-          <input
-            value={form.category}
-            onChange={set("category")}
-            placeholder="متجر، دفع، استضافة…"
-            className={inputCls}
-          />
+          <select
+            value={form.category_id || ""}
+            onChange={set("category_id")}
+            style={{ colorScheme: "dark" }}
+            className={`${inputCls} cursor-pointer`}
+          >
+            <option value="">بدون فئة</option>
+            {sortedCats.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.icon ? `${c.icon} ` : ""}
+                {catName(c)}
+              </option>
+            ))}
+          </select>
+          <span className="mt-1.5 block text-[11px] text-[var(--color-mute)]">
+            لإضافة فئة جديدة استعمل تبويب «الفئات».
+          </span>
         </Field>
         <Field label="رابط الموقع">
           <input

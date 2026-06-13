@@ -78,7 +78,7 @@
     "offersCount": "{{count}} deals",
     "premiumBanner": "You're viewing Premium deals — subscribe or redeem a Stork code to reveal the codes",
     "premiumUnlocked": "Premium is active — every exclusive code is unlocked for you. Enjoy the best discounts.",
-    "normalInfo": "You're viewing standard deals — free, verified codes. Switch to Premium to reveal the strongest exclusive codes.",
+    "normalInfo": "You're viewing standard deals — switch to Premium to reveal the exclusive codes.",
     "openPremium": "Unlock Premium",
     "copiedToast": "Code copied"
   },

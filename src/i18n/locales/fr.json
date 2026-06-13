@@ -78,7 +78,7 @@
     "offersCount": "{{count}} offres",
     "premiumBanner": "Vous consultez les offres Premium — abonnez-vous ou activez un code Stork pour révéler les codes",
     "premiumUnlocked": "Premium est activé — tous les codes exclusifs sont débloqués. Profitez des meilleures réductions.",
-    "normalInfo": "Vous consultez les offres standard — des codes gratuits et vérifiés. Passez à Premium pour révéler les codes exclusifs les plus puissants.",
+    "normalInfo": "Vous consultez les offres standard — passez à Premium pour révéler les codes exclusifs.",
     "openPremium": "Débloquer Premium",
     "copiedToast": "Code copié"
   },

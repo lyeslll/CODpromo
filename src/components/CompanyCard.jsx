@@ -112,16 +112,16 @@ export default function CompanyCard({
         }}
       />
 
-      {/* شارة Premium في سطر مستقل فوق الاسم — خارج صف الاسم تماماً حتى لا تقصّ الاسم مهما طال (موبايل + حاسوب) */}
+      {/* شارة Premium كـ overlay مطلق في زاوية البطاقة — خارج تدفّق المحتوى تماماً:
+          لا تغيّر حجم البطاقة عند التبديل، ولا تشارك صف الاسم فلا تقصّه مهما طال (موبايل + حاسوب).
+          pointer-events-none حتى يمرّ النقر إلى رابط اللوجو تحتها. */}
       {premium && (
-        <div className="relative mb-3 flex">
-          <span
-            className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-black text-[#0a0a0a]"
-            style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`, boxShadow: `0 4px 14px -5px ${GOLD_GLOW}` }}
-          >
-            <Crown size={11} /> PREMIUM
-          </span>
-        </div>
+        <span
+          className="pointer-events-none absolute top-3 start-3 z-20 flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-black text-[#0a0a0a]"
+          style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`, boxShadow: `0 4px 14px -5px ${GOLD_GLOW}` }}
+        >
+          <Crown size={11} /> PREMIUM
+        </span>
       )}
 
       {/* الرأس — القلب مثبت أعلى البطاقة (items-start + shrink-0) ولا يتأثر بطول النص */}

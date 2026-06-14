@@ -82,7 +82,8 @@
     "openPremium": "Débloquer Premium",
     "copiedToast": "Code copié",
     "browseByCategory": "Parcourir par catégorie",
-    "categoryCount": "{{count}} offres"
+    "categoryCount": "{{count}} offres",
+    "allCategories": "Toutes les catégories"
   },
   "premiumToggle": {
     "normal": "Standard",

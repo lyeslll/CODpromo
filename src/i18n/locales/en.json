@@ -82,7 +82,8 @@
     "openPremium": "Unlock Premium",
     "copiedToast": "Code copied",
     "browseByCategory": "Browse by category",
-    "categoryCount": "{{count}} deals"
+    "categoryCount": "{{count}} deals",
+    "allCategories": "All categories"
   },
   "premiumToggle": {
     "normal": "Standard",

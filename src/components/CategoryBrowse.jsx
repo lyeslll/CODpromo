@@ -1,11 +1,14 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Tag } from "lucide-react";
+import { Tag, ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useCategories } from "../lib/categories.jsx";
 import { categoryRecordSlug, categoryName } from "../lib/slug.js";
-import { categoryPath } from "../lib/seo.js";
+import { categoryPath, categoriesPath } from "../lib/seo.js";
+
+// أقصى عدد فئات يظهر في الهوم (الباقي خلف بطاقة "كل الفئات ←" → /categories)
+const HOME_MAX = 8;
 
 // ============================================================
 //  قسم "تصفّح حسب الفئة" — تنقّل فقط (مستقل عن قائمة العروض/البحث/الفلاتر).
@@ -46,6 +49,10 @@ export default function CategoryBrowse({ companies = [] }) {
   // لا نعرض القسم قبل التحميل أو إن لا توجد فئات نشطة
   if (loading || active.length === 0) return null;
 
+  // الهوم نظيف: أهم 8 فئات فقط، والباقي خلف بطاقة "كل الفئات ←"
+  const shown = active.slice(0, HOME_MAX);
+  const hasMore = active.length > HOME_MAX;
+
   return (
     <section className="mx-auto max-w-6xl px-4 pt-12">
       <div className="mb-5">
@@ -55,15 +62,39 @@ export default function CategoryBrowse({ companies = [] }) {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-        {active.map((cat, i) => (
+        {shown.map((cat, i) => (
           <CategoryTile key={cat.id} cat={cat} count={counts[cat.id] || 0} lang={lang} index={i} t={t} />
         ))}
+        {hasMore && <AllCategoriesTile lang={lang} index={shown.length} t={t} />}
       </div>
     </section>
   );
 }
 
-function CategoryTile({ cat, count, lang, index, t }) {
+// بطاقة "كل الفئات ←" بنفس هوية البطاقات — تنقل إلى /categories.
+function AllCategoriesTile({ lang, index, t }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.4, delay: Math.min(index * 0.04, 0.3), ease: [0.16, 1, 0.3, 1] }}
+    >
+      <Link
+        to={categoriesPath(lang)}
+        className="group relative flex h-full flex-col items-center justify-center gap-3 overflow-hidden rounded-2xl border p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_42px_-22px_rgba(166,240,0,0.55)]"
+        style={{ borderColor: "rgba(166,240,0,0.4)", background: "linear-gradient(150deg, rgba(166,240,0,0.12), rgba(166,240,0,0.03))" }}
+      >
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl text-[#0a0a0a]" style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}>
+          <ArrowLeft size={22} className="ltr:rotate-180" />
+        </span>
+        <span className="text-[14px] font-extrabold text-[var(--text)]">{t("home.allCategories")}</span>
+      </Link>
+    </motion.div>
+  );
+}
+
+export function CategoryTile({ cat, count, lang, index, t }) {
   const name = categoryName(cat, lang);
   const slug = categoryRecordSlug(cat);
   const icon = (cat.icon || "").trim();

@@ -8,6 +8,7 @@ import { dirOf } from "./i18n/index.js";
 import Home from "./pages/Home.jsx";
 import StorePage from "./pages/StorePage.jsx";
 import CategoryPage from "./pages/CategoryPage.jsx";
+import CategoriesPage from "./pages/CategoriesPage.jsx";
 import Admin from "./pages/Admin.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -24,7 +25,7 @@ import RequireAuth from "./components/auth/RequireAuth.jsx";
 function langFromPath(pathname, current) {
   if (pathname === "/en" || pathname.startsWith("/en/")) return "en";
   if (pathname === "/fr" || pathname.startsWith("/fr/")) return "fr";
-  if (pathname.startsWith("/store/") || pathname.startsWith("/category/")) return "ar";
+  if (pathname.startsWith("/store/") || pathname.startsWith("/category/") || pathname.startsWith("/categories")) return "ar";
   return current;
 }
 
@@ -66,6 +67,11 @@ export default function App() {
           <Route path="/category/:slug" element={<CategoryPage lang="ar" />} />
           <Route path="/en/category/:slug" element={<CategoryPage lang="en" />} />
           <Route path="/fr/category/:slug" element={<CategoryPage lang="fr" />} />
+
+          {/* صفحة كل الفئات (SEO) */}
+          <Route path="/categories" element={<CategoriesPage lang="ar" />} />
+          <Route path="/en/categories" element={<CategoriesPage lang="en" />} />
+          <Route path="/fr/categories" element={<CategoriesPage lang="fr" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

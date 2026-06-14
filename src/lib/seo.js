@@ -24,18 +24,21 @@ const langPrefix = (lang) => (lang && lang !== "ar" ? `/${lang}` : "");
 export const homePath = (lang) => `${langPrefix(lang)}/` || "/";
 export const storePath = (slug, lang) => `${langPrefix(lang)}/store/${slug}`;
 export const categoryPath = (slug, lang) => `${langPrefix(lang)}/category/${slug}`;
+export const categoriesPath = (lang) => `${langPrefix(lang)}/categories`;
 
 export const absUrl = (path) => `${SITE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
 
 export const storeUrl = (slug, lang) => absUrl(storePath(slug, lang));
 export const categoryUrl = (slug, lang) => absUrl(categoryPath(slug, lang));
+export const categoriesUrl = (lang) => absUrl(categoriesPath(lang));
 export const homeUrl = (lang) => absUrl(homePath(lang));
 
-/** روابط hreflang المتبادلة لصفحة (المتجر/الفئة/الرئيسية) عبر اللغات الثلاث. */
+/** روابط hreflang المتبادلة لصفحة (المتجر/الفئة/قائمة الفئات/الرئيسية) عبر اللغات الثلاث. */
 export function buildAlternates(kind, slug) {
   const urlFor = (lang) =>
     kind === "store" ? storeUrl(slug, lang)
     : kind === "category" ? categoryUrl(slug, lang)
+    : kind === "categories" ? categoriesUrl(lang)
     : homeUrl(lang);
   return SEO_LANGS.map((lang) => ({ lang, url: urlFor(lang) }));
 }
@@ -120,6 +123,22 @@ export function categoryDescription(label, count, lang) {
   if (lang === "fr")
     return `Découvrez ${count} codes promo, coupons et offres cashback ${label} vérifiés sur ${SITE_NAME}.`;
   return `تصفّح ${count} كود خصم وكوبون وعروض كاش باك في فئة ${label} على ${SITE_NAME}.`;
+}
+
+// ===================== عنوان/وصف صفحة كل الفئات =====================
+
+export function allCategoriesTitle(lang) {
+  if (lang === "en") return `All Categories | ${SITE_NAME}`;
+  if (lang === "fr") return `Toutes les catégories | ${SITE_NAME}`;
+  return `كل الفئات | ${SITE_NAME}`;
+}
+
+export function allCategoriesDescription(count, lang) {
+  if (lang === "en")
+    return `Browse all ${count} deal categories on ${SITE_NAME} — find promo codes, coupons and cashback by category.`;
+  if (lang === "fr")
+    return `Parcourez les ${count} catégories d'offres sur ${SITE_NAME} — codes promo, coupons et cashback par catégorie.`;
+  return `تصفّح كل فئات العروض (${count}) على ${SITE_NAME} — أكواد خصم وكوبونات وكاش باك حسب الفئة.`;
 }
 
 // ===================== JSON-LD (بيانات منظّمة) =====================

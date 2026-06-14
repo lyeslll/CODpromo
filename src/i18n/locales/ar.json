@@ -82,7 +82,8 @@
     "openPremium": "افتح Premium",
     "copiedToast": "تم نسخ الكود",
     "browseByCategory": "تصفّح حسب الفئة",
-    "categoryCount": "{{count}} عرض"
+    "categoryCount": "{{count}} عرض",
+    "allCategories": "كل الفئات"
   },
   "premiumToggle": {
     "normal": "عادي",

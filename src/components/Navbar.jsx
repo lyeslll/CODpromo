@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogIn, LogOut, Sparkles, Menu, X, Sun, Moon, Store, HelpCircle, Flame, Crown, ChevronLeft } from "lucide-react";
@@ -8,6 +8,7 @@ import LanguageSwitcher, { LANGS, Flag, useLangPick } from "./LanguageSwitcher.j
 import { useTheme } from "../lib/theme.jsx";
 import { useLocale } from "../lib/locale.jsx";
 import { useAuth } from "../lib/auth.jsx";
+import { useScrollDirection } from "../lib/useScrollDirection.js";
 
 // روابط التنقّل + أيقونة لكل رابط (الميغا مينيو يعرضها بهرمية واضحة).
 const LINKS = [
@@ -142,29 +143,13 @@ const itemVariants = {
 };
 
 export default function Navbar({ onPremium }) {
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  // إخفاء/إظهار الهيدر حسب اتجاه التمرير (موبايل فقط — الحاسوب يبقى ظاهراً عبر md:translate)
-  const [hidden, setHidden] = useState(false);
-  const lastY = useRef(0);
+  // إخفاء/إظهار الهيدر حسب اتجاه التمرير (مشترك مع شريط التنقّل السفلي ليتزامنا).
+  // موبايل فقط — الحاسوب يبقى ظاهراً عبر md:!translate-y-0.
+  const { scrolled, hidden } = useScrollDirection();
   const { user, signOut } = useAuth();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY;
-      setScrolled(y > 12);
-      // قرب الأعلى: أظهر دائماً. نزول: أخفِ. صعود: أظهر فوراً. (عتبة صغيرة تمنع الاهتزاز)
-      if (y < 80) setHidden(false);
-      else if (y > lastY.current + 4) setHidden(true);
-      else if (y < lastY.current - 4) setHidden(false);
-      lastY.current = y;
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   // قفل تمرير الصفحة عند فتح الميغا مينيو (تجربة شبيهة بالتطبيق)
   useEffect(() => {

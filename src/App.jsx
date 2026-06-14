@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "./lib/auth.jsx";
 import { PremiumProvider } from "./lib/premium.jsx";
@@ -20,6 +20,8 @@ import PaymentCancel from "./pages/PaymentCancel.jsx";
 import PaymentReturn from "./pages/PaymentReturn.jsx";
 import PaymentReturnPaypal from "./pages/PaymentReturnPaypal.jsx";
 import RequireAuth from "./components/auth/RequireAuth.jsx";
+import BottomNav from "./components/BottomNav.jsx";
+import PremiumModal from "./components/PremiumModal.jsx";
 
 /** اللغة المقصودة من المسار: بادئة /en أو /fr، صفحات /store و/category بلا بادئة عربية، وإلا تبقى لغة المستخدم. */
 function langFromPath(pathname, current) {
@@ -46,6 +48,29 @@ function RouteLangSync() {
   }, [pathname, lang, setLang]);
 
   return null;
+}
+
+/**
+ * شريط التنقّل السفلي العام (هاتف فقط) + نافذة Premium التي يفتحها زره المركزي.
+ * مخفي على لوحة الأدمن. يضيف صنفاً للـ body ليحجز مسافة سفلية للمحتوى (index.css).
+ */
+function MobileBottomNav() {
+  const { pathname } = useLocation();
+  const [premiumOpen, setPremiumOpen] = useState(false);
+  const enabled = !pathname.startsWith("/admin");
+
+  useEffect(() => {
+    document.body.classList.toggle("has-bottom-nav", enabled);
+    return () => document.body.classList.remove("has-bottom-nav");
+  }, [enabled]);
+
+  if (!enabled) return null;
+  return (
+    <>
+      <BottomNav onPremium={() => setPremiumOpen(true)} />
+      <PremiumModal open={premiumOpen} onClose={() => setPremiumOpen(false)} />
+    </>
+  );
 }
 
 export default function App() {
@@ -99,6 +124,7 @@ export default function App() {
           />
           <Route path="*" element={<Home />} />
           </Routes>
+          <MobileBottomNav />
           </CategoriesProvider>
         </PremiumProvider>
       </AuthProvider>

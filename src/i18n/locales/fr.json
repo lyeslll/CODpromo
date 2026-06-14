@@ -85,6 +85,15 @@
     "categoryCount": "{{count}} offres",
     "allCategories": "Toutes les catégories"
   },
+  "bottomNav": {
+    "label": "Navigation rapide",
+    "home": "Accueil",
+    "categories": "Catégories",
+    "premium": "Premium",
+    "favorites": "Favoris",
+    "account": "Compte",
+    "login": "Connexion"
+  },
   "premiumToggle": {
     "normal": "Standard",
     "premium": "Premium"

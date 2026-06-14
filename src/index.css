@@ -231,3 +231,11 @@ input::placeholder {
   -webkit-text-fill-color: transparent;
   animation: var(--animate-shimmer);
 }
+
+/* مسافة سفلية للمحتوى على الهاتف حتى لا يغطّيه شريط التنقّل السفلي (BottomNav).
+   تُضاف فقط عند وجود الشريط (الصنف يضبطه App) وعلى الهاتف فقط، مع احترام safe-area. */
+@media (max-width: 767px) {
+  body.has-bottom-nav {
+    padding-bottom: calc(68px + env(safe-area-inset-bottom));
+  }
+}

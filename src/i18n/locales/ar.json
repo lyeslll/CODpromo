@@ -85,6 +85,15 @@
     "categoryCount": "{{count}} عرض",
     "allCategories": "كل الفئات"
   },
+  "bottomNav": {
+    "label": "التنقّل السريع",
+    "home": "الرئيسية",
+    "categories": "الفئات",
+    "premium": "بريميوم",
+    "favorites": "المفضّلة",
+    "account": "حسابي",
+    "login": "دخول"
+  },
   "premiumToggle": {
     "normal": "عادي",
     "premium": "Premium"

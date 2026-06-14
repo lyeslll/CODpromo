@@ -73,10 +73,9 @@ export default function FavoritesPage({ lang = "ar" }) {
       <Seo lang={lang} title={`${t("favorites.title")} | CODpromo`} canonical={canonical} noindex />
       <Navbar onPremium={() => setPremiumModal(true)} />
 
-      <main className="mx-auto max-w-6xl px-4 pb-10 pt-[96px] sm:pt-[104px]">
+      <main className="mx-auto max-w-6xl px-4 pb-10 pt-[112px] sm:pt-[120px]">
         <header className="mb-6">
-          <h1 className="flex items-center gap-2.5 text-[26px] font-black tracking-tight sm:text-[32px]">
-            <Heart size={26} className="fill-red-500 text-red-500" />
+          <h1 className="text-[26px] font-black tracking-tight sm:text-[32px]">
             {t("favorites.title")}
           </h1>
           {user && !loading && companies.length > 0 && (

@@ -24,8 +24,10 @@ There is no test runner, linter, or formatter configured. Deployment is Vercel (
 التصميم الكامل · مصادقة كاملة (Google + hCaptcha) · داشبورد الأعضاء (زبون / شركة) · لوحة الأدمن (إحصائيات / تصدير CSV / إدارة الطلبات) · نافذة جمع الإيميل (Email popup) · نظام Premium.
 
 ### المتبقي (To do)
-- إصلاحات Premium: تأثير الخدش (scratch)، الإطار الذهبي، ارتفاع البطاقة، و`supports_premium` لكل بطاقة على حدة.
+- إصلاحات Premium: الإطار الذهبي، ارتفاع البطاقة، و`supports_premium` لكل بطاقة على حدة. (تأثير الخدش scratch صار نظام Canvas حقيقي — أُنجز.)
 - قالب الإيميلات.
+
+> **كشف كود Premium (الخدش):** `ScratchCanvas` في `src/components/CompanyCard.jsx` — خدش حقيقي بـ HTML5 Canvas (Pointer Events + `destination-out`)، كشف تلقائي عند ~50٪، جزيئات ذهبية، اهتزاز (`navigator.vibrate`)، ولمعة احتفالية. يظهر فقط للمشترك المصرّح له؛ الكود الحقيقي يبقى يُجلب خادمياً عبر `get_premium_code` (قبل الكشف تحت الغطاء `••••••` فقط).
 
 ### العمل مع المالك (إلياس)
 المالك **إلياس مبتدئ**. عند الشرح أو التوجيه:

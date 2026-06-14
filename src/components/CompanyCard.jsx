@@ -251,6 +251,7 @@ export default function CompanyCard({
             <ScratchLayer
               t={t}
               unlocked={unlocked}
+              accent={accent}
               onReveal={() => {
                 setRevealed(true);
                 ensurePremium();
@@ -339,9 +340,7 @@ const METAL_BG = {
   boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.2)",
 };
 
-function ScratchLayer({ t, unlocked, onReveal, onUnlock }) {
-  const [progress, setProgress] = useState(0);
-
+function ScratchLayer({ t, unlocked, accent = GOLD, onReveal, onUnlock }) {
   // غير مشترك: غطاء مقفل — أيقونة قفل فقط، والضغط عليه يفتح نافذة "افتح خصومات Premium"
   if (!unlocked) {
     return (
@@ -358,36 +357,280 @@ function ScratchLayer({ t, unlocked, onReveal, onUnlock }) {
     );
   }
 
-  // مشترك: غطاء معدني يُخدش للكشف عن الكود
-  const scratch = () => {
-    setProgress((p) => {
-      const np = Math.min(1, p + 0.1);
-      if (np >= 0.65) onReveal();
-      return np;
-    });
+  // مشترك مصرّح له: نظام خدش حقيقي بالـCanvas (يعمل بنفس القوة في الهاتف والحاسوب)
+  return <ScratchCanvas accent={accent} onReveal={onReveal} />;
+}
+
+/* ===== خدش بالـHTML5 Canvas (Scratch-to-Reveal) =====
+   - غطاء بتدرّج أسود/ذهبي + نقشة + نص "اخدش للكشف 👆".
+   - الخدش الحقيقي عبر Pointer Events (ماوس + لمس) بفرشاة destination-out ناعمة.
+   - كشف تلقائي عند ~50٪ ممسوحة (تلاشٍ ناعم + لمعة sweep احتفالية).
+   - جزيئات ذهبية أثناء الخدش + اهتزاز خفيف (vibrate) في الهاتف.
+   - touch-action:none + preventDefault لمنع تمرير الصفحة أثناء الخدش. */
+function ScratchCanvas({ accent = GOLD, onReveal }) {
+  const { t, i18n } = useTranslation();
+  const rootRef = useRef(null);
+  const coverRef = useRef(null); // كانفاس الغطاء (يُخدش)
+  const partRef = useRef(null); // كانفاس الجزيئات (فوق، بلا تفاعل)
+  const s = useRef({ drawing: false, revealed: false, started: false, last: null, particles: [], lastSample: 0, raf: 0 });
+  const [done, setDone] = useState(false);
+
+  const vibrate = (ms) => {
+    try {
+      navigator.vibrate?.(ms);
+    } catch {
+      /* غير مدعوم */
+    }
   };
+
+  // رسم الغطاء (تدرّج + نقشة + نص)
+  const drawCover = useCallback(
+    (ctx, w, h) => {
+      ctx.clearRect(0, 0, w, h);
+      const g = ctx.createLinearGradient(0, 0, w, h);
+      g.addColorStop(0, "#0b0b0d");
+      g.addColorStop(0.5, GOLD_DEEP);
+      g.addColorStop(1, "#0b0b0d");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+      // نقشة نقاط خفيفة
+      ctx.fillStyle = "rgba(255,255,255,0.06)";
+      for (let y = 4; y < h; y += 8) {
+        for (let x = (Math.floor(y / 8) % 2 ? 4 : 0); x < w; x += 8) {
+          ctx.beginPath();
+          ctx.arc(x, y, 0.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      // النص
+      const dir = i18n.dir ? i18n.dir() : "ltr";
+      ctx.direction = dir;
+      ctx.fillStyle = "rgba(10,10,10,0.9)";
+      const fs = Math.max(11, Math.min(14, Math.round(h * 0.32)));
+      ctx.font = `800 ${fs}px Tajawal, system-ui, -apple-system, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(`${t("card.scratchReveal")} 👆`, w / 2, h / 2 + 1);
+    },
+    [t, i18n]
+  );
+
+  // إعداد الكانفاس + إعادة الضبط عند تغيّر المقاس
+  useEffect(() => {
+    const root = rootRef.current;
+    const cover = coverRef.current;
+    const part = partRef.current;
+    if (!root || !cover || !part) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const setup = () => {
+      if (s.current.revealed) return; // لا نعيد رسم الغطاء بعد الكشف
+      const r = root.getBoundingClientRect();
+      const w = Math.max(1, Math.round(r.width));
+      const h = Math.max(1, Math.round(r.height));
+      for (const c of [cover, part]) {
+        c.width = w * dpr;
+        c.height = h * dpr;
+        c.style.width = `${w}px`;
+        c.style.height = `${h}px`;
+        c.getContext("2d").setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      drawCover(cover.getContext("2d"), w, h);
+    };
+    setup();
+    const ro = new ResizeObserver(setup);
+    ro.observe(root);
+    return () => {
+      ro.disconnect();
+      if (s.current.raf) cancelAnimationFrame(s.current.raf);
+      s.current.raf = 0;
+    };
+  }, [drawCover]);
+
+  // حلقة الجزيئات
+  const tick = useCallback(() => {
+    const part = partRef.current;
+    if (!part) return;
+    const ctx = part.getContext("2d");
+    const w = part.clientWidth;
+    const h = part.clientHeight;
+    ctx.clearRect(0, 0, w, h);
+    const st = s.current;
+    st.particles = st.particles.filter((p) => p.life > 0);
+    for (const p of st.particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.13;
+      p.life -= 1;
+      ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    st.raf = st.particles.length || st.drawing ? requestAnimationFrame(tick) : 0;
+  }, []);
+
+  const ensureTick = useCallback(() => {
+    if (!s.current.raf) s.current.raf = requestAnimationFrame(tick);
+  }, [tick]);
+
+  const spawnParticles = useCallback(
+    (x, y) => {
+      const st = s.current;
+      const colors = [GOLD_SOFT, GOLD, GOLD_DEEP, "#a6f000"];
+      for (let i = 0; i < 4; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const sp = Math.random() * 2 + 0.5;
+        st.particles.push({
+          x,
+          y,
+          vx: Math.cos(a) * sp,
+          vy: Math.sin(a) * sp - 1,
+          life: 28 + Math.random() * 22,
+          maxLife: 50,
+          size: Math.random() * 1.6 + 0.6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+        });
+      }
+      if (st.particles.length > 140) st.particles.splice(0, st.particles.length - 140);
+      ensureTick();
+    },
+    [ensureTick]
+  );
+
+  const pos = (e) => {
+    const r = coverRef.current.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  };
+
+  const scratchTo = useCallback(
+    (x, y) => {
+      const ctx = coverRef.current.getContext("2d");
+      const st = s.current;
+      const radius = 22;
+      ctx.globalCompositeOperation = "destination-out";
+      const stamp = (px, py) => {
+        const rg = ctx.createRadialGradient(px, py, 0, px, py, radius);
+        rg.addColorStop(0, "rgba(0,0,0,1)");
+        rg.addColorStop(0.55, "rgba(0,0,0,0.65)");
+        rg.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = rg;
+        ctx.beginPath();
+        ctx.arc(px, py, radius, 0, Math.PI * 2);
+        ctx.fill();
+      };
+      if (st.last) {
+        const dx = x - st.last.x;
+        const dy = y - st.last.y;
+        const dist = Math.hypot(dx, dy);
+        const steps = Math.max(1, Math.floor(dist / 6));
+        for (let i = 0; i <= steps; i++) stamp(st.last.x + (dx * i) / steps, st.last.y + (dy * i) / steps);
+      } else {
+        stamp(x, y);
+      }
+      ctx.globalCompositeOperation = "source-over";
+      st.last = { x, y };
+      spawnParticles(x, y);
+    },
+    [spawnParticles]
+  );
+
+  // نسبة المساحة الممسوحة (عيّنة مخفّفة لتفادي ثقل getImageData)
+  const sampleRatio = () => {
+    const cover = coverRef.current;
+    const ctx = cover.getContext("2d");
+    let data;
+    try {
+      data = ctx.getImageData(0, 0, cover.width, cover.height).data;
+    } catch {
+      return 0;
+    }
+    let cleared = 0;
+    let total = 0;
+    const step = 4 * 24; // كل ~24 بكسل
+    for (let i = 3; i < data.length; i += step) {
+      total++;
+      if (data[i] < 100) cleared++;
+    }
+    return total ? cleared / total : 0;
+  };
+
+  const reveal = useCallback(() => {
+    const st = s.current;
+    if (st.revealed) return;
+    st.revealed = true;
+    st.drawing = false;
+    vibrate([18, 30, 18]); // اهتزاز احتفالي عند الكشف الكامل
+    setDone(true); // تلاشٍ ناعم + لمعة sweep
+    setTimeout(() => onReveal?.(), 520);
+  }, [onReveal]);
+
+  const onDown = (e) => {
+    const st = s.current;
+    if (st.revealed) return;
+    e.preventDefault();
+    st.drawing = true;
+    st.last = null;
+    if (!st.started) {
+      st.started = true;
+      vibrate(12); // اهتزاز خفيف عند بداية الخدش
+    }
+    coverRef.current.setPointerCapture?.(e.pointerId);
+    const { x, y } = pos(e);
+    scratchTo(x, y);
+    ensureTick();
+  };
+
   const onMove = (e) => {
-    // الماوس (تمرير) أو اللمس (سحب الإصبع)
-    if (e.pointerType === "mouse" ? true : e.pressure > 0 || e.buttons === 1) scratch();
+    const st = s.current;
+    if (!st.drawing || st.revealed) return;
+    e.preventDefault();
+    const { x, y } = pos(e);
+    scratchTo(x, y);
+    const now = performance.now();
+    if (now - st.lastSample > 110) {
+      st.lastSample = now;
+      if (sampleRatio() >= 0.5) reveal();
+    }
+  };
+
+  const onUp = (e) => {
+    const st = s.current;
+    st.drawing = false;
+    st.last = null;
+    coverRef.current?.releasePointerCapture?.(e.pointerId);
   };
 
   return (
-    <motion.div
-      onPointerMove={onMove}
-      onPointerDown={scratch}
-      animate={{ opacity: 1 - progress * 0.95 }}
-      transition={{ duration: 0.15 }}
-      className="absolute inset-0 flex cursor-pointer touch-none select-none items-center justify-center gap-1.5 overflow-hidden rounded-xl"
-      style={METAL_BG}
+    <div
+      ref={rootRef}
+      className={`absolute inset-0 overflow-hidden rounded-xl transition-opacity duration-500 ${done ? "opacity-0" : "opacity-100"}`}
+      style={{ touchAction: "none" }}
     >
-      <Lock size={13} className="text-[#4a4f58]" />
-      <span className="text-[11.5px] font-extrabold text-[#4a4f58]">{t("card.scratchReveal")}</span>
-      {/* لمعة معدنية */}
-      <span
-        className="pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 opacity-50"
-        style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)", left: `${progress * 120 - 20}%` }}
+      <canvas
+        ref={coverRef}
+        onPointerDown={onDown}
+        onPointerMove={onMove}
+        onPointerUp={onUp}
+        onPointerLeave={onUp}
+        onPointerCancel={onUp}
+        className="absolute inset-0 h-full w-full cursor-pointer select-none touch-none"
       />
-    </motion.div>
+      <canvas ref={partRef} className="pointer-events-none absolute inset-0 h-full w-full" />
+      {/* لمعة ذهبية احتفالية عند الكشف */}
+      {done && (
+        <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
+          <motion.span
+            initial={{ x: "-130%" }}
+            animate={{ x: "130%" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="absolute inset-y-0 w-2/3 -skew-x-12"
+            style={{ background: `linear-gradient(90deg, transparent, ${GOLD_SOFT}, transparent)` }}
+          />
+        </span>
+      )}
+    </div>
   );
 }
 

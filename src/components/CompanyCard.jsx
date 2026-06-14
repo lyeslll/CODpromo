@@ -368,7 +368,7 @@ function ScratchLayer({ t, unlocked, accent = GOLD, onReveal, onUnlock }) {
    - جزيئات ذهبية أثناء الخدش + اهتزاز خفيف (vibrate) في الهاتف.
    - touch-action:none + preventDefault لمنع تمرير الصفحة أثناء الخدش. */
 function ScratchCanvas({ accent = GOLD, onReveal }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const rootRef = useRef(null);
   const coverRef = useRef(null); // كانفاس الغطاء (يُخدش)
   const partRef = useRef(null); // كانفاس الجزيئات (فوق، بلا تفاعل)
@@ -384,44 +384,41 @@ function ScratchCanvas({ accent = GOLD, onReveal }) {
   };
 
   // رسم الغطاء (تدرّج + نقشة + نص)
-  const drawCover = useCallback(
-    (ctx, w, h) => {
-      ctx.clearRect(0, 0, w, h);
-      // قاعدة معدنية رمادية (نفس لون METAL_BG القديم)
-      const base = ctx.createLinearGradient(0, 0, w, h);
-      base.addColorStop(0, "#c2c7d0");
-      base.addColorStop(0.4, "#9aa0aa");
-      base.addColorStop(0.6, "#d6dbe3");
-      base.addColorStop(1, "#8f95a0");
-      ctx.fillStyle = base;
-      ctx.fillRect(0, 0, w, h);
-      // خطوط معدنية مائلة خفيفة (نفس إحساس الستان القديم)
-      ctx.save();
-      ctx.translate(w / 2, h / 2);
-      ctx.rotate((115 * Math.PI) / 180);
-      const diag = Math.hypot(w, h);
-      const cols = ["#c6cbd4", "#aab0ba", "#d4d9e1", "#9aa0aa"];
-      ctx.globalAlpha = 0.35;
-      let idx = 0;
-      for (let x = -diag; x < diag; x += 6) {
-        ctx.fillStyle = cols[idx % cols.length];
-        ctx.fillRect(x, -diag, 6, diag * 2);
-        idx++;
-      }
-      ctx.restore();
-      ctx.globalAlpha = 1;
-      // النص (رمادي داكن، بلا إيموجي)
-      const dir = i18n.dir ? i18n.dir() : "ltr";
-      ctx.direction = dir;
-      ctx.fillStyle = "#4a4f58";
-      const fs = Math.max(11, Math.min(14, Math.round(h * 0.32)));
-      ctx.font = `800 ${fs}px Tajawal, system-ui, -apple-system, sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(t("card.scratchReveal"), w / 2, h / 2 + 1);
-    },
-    [t, i18n]
-  );
+  // يرسم نفس خلفية METAL_BG بالضبط على الكانفاس (قابلة للخدش). النص/الأيقونة
+  // ليسا هنا — هما عنصر DOM فوق الكانفاس (pointer-events:none) ليرثا Tajawal تماماً.
+  const drawCover = useCallback((ctx, w, h) => {
+    ctx.clearRect(0, 0, w, h);
+    // 1) القاعدة: linear-gradient(135deg, #c2c7d0, #9aa0aa 40%, #d6dbe3 60%, #8f95a0)
+    const base = ctx.createLinearGradient(0, 0, w, h);
+    base.addColorStop(0, "#c2c7d0");
+    base.addColorStop(0.4, "#9aa0aa");
+    base.addColorStop(0.6, "#d6dbe3");
+    base.addColorStop(1, "#8f95a0");
+    ctx.fillStyle = base;
+    ctx.fillRect(0, 0, w, h);
+    // 2) repeating-linear-gradient(115deg, …) بدمج overlay (نفس METAL_BG)
+    ctx.save();
+    ctx.globalCompositeOperation = "overlay";
+    ctx.translate(w / 2, h / 2);
+    ctx.rotate((115 * Math.PI) / 180);
+    const diag = Math.hypot(w, h);
+    for (let x = -diag; x < diag; x += 18) {
+      const stripe = ctx.createLinearGradient(x, 0, x + 18, 0);
+      stripe.addColorStop(0, "#c6cbd4");
+      stripe.addColorStop(6 / 18, "#aab0ba");
+      stripe.addColorStop(12 / 18, "#d4d9e1");
+      stripe.addColorStop(1, "#9aa0aa");
+      ctx.fillStyle = stripe;
+      ctx.fillRect(x, -diag, 18, diag * 2);
+    }
+    ctx.restore();
+    ctx.globalCompositeOperation = "source-over";
+    // 3) لمعات داخلية (نفس boxShadow inset في METAL_BG)
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.fillRect(0, 0, w, 1);
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(0, h - 1, w, 1);
+  }, []);
 
   // إعداد الكانفاس + إعادة الضبط عند تغيّر المقاس
   useEffect(() => {
@@ -625,6 +622,12 @@ function ScratchCanvas({ accent = GOLD, onReveal }) {
         onPointerCancel={onUp}
         className="absolute inset-0 h-full w-full cursor-pointer select-none touch-none"
       />
+      {/* الأيقونة + النص كعنصر DOM (pointer-events:none) — نفس markup زر القفل العادي
+          بالضبط فيرث Tajawal ونفس الحجم/السماكة/اللون، فيتطابق المظهر تماماً. */}
+      <div className="pointer-events-none absolute inset-0 flex select-none items-center justify-center gap-1.5">
+        <Lock size={13} className="text-[#4a4f58]" />
+        <span className="text-[11.5px] font-extrabold text-[#4a4f58]">{t("card.scratchReveal")}</span>
+      </div>
       <canvas ref={partRef} className="pointer-events-none absolute inset-0 h-full w-full" />
       {/* لمعة ذهبية احتفالية عند الكشف */}
       {done && (

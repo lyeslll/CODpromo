@@ -36,7 +36,8 @@ export default function CompanyCard({
   // رابط صفحة الشركة (بادئة اللغة لغير العربية)
   const storeHref = `${lang && lang !== "ar" ? `/${lang}` : ""}/store/${companySlug(company)}`;
   const loc = (field) => (lang !== "ar" && company[`${field}_${lang}`]) || company[field];
-  const desc = loc("description") || "";
+  // في وضع Premium نعرض وصف Premium (باللغة الحالية) مع fallback للوصف العادي إن كان فارغاً.
+  const desc = (premium ? loc("premium_description") || loc("description") : loc("description")) || "";
   // اسم الفئة: من category_id عبر الجدول (المصدر الحقيقي)، مع fallback للنص الحر القديم
   const catRecord = companyCategoryRecord(company, byId, categories);
   const category = (catRecord ? categoryName(catRecord, lang) : loc("category")) || "";

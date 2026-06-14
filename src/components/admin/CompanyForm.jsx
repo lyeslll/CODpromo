@@ -25,6 +25,7 @@ const EMPTY = {
   description: "",
   discount: "",
   premium_discount: "",
+  premium_description: "",
   premium_code: "",
   premium_url: "",
   supports_premium: true,
@@ -240,6 +241,19 @@ export default function CompanyForm({ initial, onSubmit, onCancel, submitting, c
           className={inputCls}
         />
         <span className="mt-1 block text-[11px] text-[var(--color-mute)]">يظهر لأعضاء Premium بدل الخصم العادي. اتركه فارغاً ليبقى نفس الخصم.</span>
+
+        {/* وصف Premium (عربي) — يُترجَم تلقائياً en/fr مثل الوصف العادي */}
+        <span className="mt-3 mb-1.5 flex items-center gap-1.5 text-[12.5px] font-bold" style={{ color: "#cf9a1e" }}>
+          <Crown size={14} /> وصف Premium
+        </span>
+        <textarea
+          value={form.premium_description}
+          onChange={set("premium_description")}
+          placeholder="وصف يظهر لأعضاء Premium بدل الوصف العادي…"
+          rows={2}
+          className={`${inputCls} resize-none`}
+        />
+        <span className="mt-1 block text-[11px] text-[var(--color-mute)]">يظهر لأعضاء Premium بدل الوصف العادي. اتركه فارغاً ليبقى نفس الوصف. (تُترجَم en/fr تلقائياً)</span>
 
         {/* كود ورابط Premium — متناظران مع العادي، مع fallback عند الفراغ */}
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">

@@ -78,6 +78,7 @@ async function toError(res, fallback) {
 export const COMPANY_PUBLIC_COLUMNS =
   "id,created_at,clicks,name,logo,category,category_id,code,discount,premium_discount," +
   "supports_premium,type,description,link,status," +
+  "premium_description,premium_description_en,premium_description_fr," +
   "description_en,description_fr,category_en,category_fr," +
   "discount_en,discount_fr,premium_discount_en,premium_discount_fr," +
   "slug,seo_title,seo_title_en,seo_title_fr," +
@@ -129,11 +130,14 @@ export async function trackClick(id, currentClicks = 0) {
 const ALLOWED = [
   "name", "logo", "category", "category_id", "code", "discount", "premium_discount",
   "supports_premium", "type", "description", "link", "status",
+  // وصف Premium المنفصل (علني، يُترجَم تلقائياً مثل الوصف العادي)
+  "premium_description",
   // كود ورابط عرض Premium (universal — لا تُترجَم)
   "premium_code", "premium_url",
   // ترجمات المحتوى الديناميكي (تُولَّد تلقائياً — العربية تبقى المصدر/الـ fallback)
   "description_en", "description_fr", "category_en", "category_fr",
   "discount_en", "discount_fr", "premium_discount_en", "premium_discount_fr",
+  "premium_description_en", "premium_description_fr",
   // SEO: الرابط + عنوان/وصف/كلمات مفتاحية (+ ترجماتها)
   "slug",
   "seo_title", "seo_title_en", "seo_title_fr",
@@ -154,7 +158,7 @@ function clean(payload) {
 
 // الحقول النصية القابلة للترجمة (تظهر في البطاقة): الوصف، الفئة، وقيمة العرض.
 // قيمة العرض تُترجَم وتُنسَّق حسب اللغة (مثل "5$ هدية" → "$5 gift" / "5$ cadeau").
-const I18N_FIELDS = ["description", "category", "discount", "premium_discount"];
+const I18N_FIELDS = ["description", "category", "discount", "premium_discount", "premium_description"];
 
 /**
  * يترجم حقولاً عربية إلى en + fr عبر Edge Function translate-company.

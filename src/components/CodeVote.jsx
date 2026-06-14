@@ -103,22 +103,23 @@ export default function CodeVote({ companyId, accent, glow }) {
         />
       </div>
 
-      {/* شارة النسبة + آخر نجاح (تظهر فقط عند بلوغ حد أدنى من الأصوات) */}
-      <div className="mt-2.5 flex min-h-[18px] flex-wrap items-center justify-between gap-x-3 gap-y-1">
-        <AnimatePresence mode="wait" initial={false}>
-          {justVoted ? (
-            <motion.span
-              key="thanks"
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              className="flex items-center gap-1 text-[11.5px] font-bold"
-              style={{ color: accent }}
-            >
-              <CheckCircle2 size={13} /> {t("vote.thanks")}
-            </motion.span>
-          ) : total >= MIN_VOTES ? (
-            rate >= HIGH_RATE ? (
+      {/* شارة النسبة + آخر نجاح — ترندر شرطي: لا تحجز أي مساحة وهي فاضية
+          (تظهر فقط بعد التصويت مباشرة، أو عند بلوغ حد أدنى من الأصوات). */}
+      {(justVoted || total >= MIN_VOTES) && (
+        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+          <AnimatePresence mode="wait" initial={false}>
+            {justVoted ? (
+              <motion.span
+                key="thanks"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="flex items-center gap-1 text-[11.5px] font-bold"
+                style={{ color: accent }}
+              >
+                <CheckCircle2 size={13} /> {t("vote.thanks")}
+              </motion.span>
+            ) : rate >= HIGH_RATE ? (
               <motion.span
                 key="high"
                 initial={{ opacity: 0 }}
@@ -136,18 +137,16 @@ export default function CodeVote({ companyId, accent, glow }) {
               >
                 {t("vote.rateBadge", { rate, count: total })}
               </motion.span>
-            )
-          ) : (
-            <span key="empty" />
-          )}
-        </AnimatePresence>
+            )}
+          </AnimatePresence>
 
-        {!justVoted && lastWin && total >= MIN_VOTES && (
-          <span className="text-[11px] font-medium text-[var(--color-mute)]">
-            {t("vote.lastWin", { time: lastWin })}
-          </span>
-        )}
-      </div>
+          {!justVoted && lastWin && total >= MIN_VOTES && (
+            <span className="text-[11px] font-medium text-[var(--color-mute)]">
+              {t("vote.lastWin", { time: lastWin })}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

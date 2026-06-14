@@ -8,11 +8,12 @@ import { fetchCompanies, trackClick } from "../lib/supabase.js";
 import { getTypeKey } from "../lib/types.js";
 import { useAuth } from "../lib/auth.jsx";
 import { usePremium } from "../lib/premium.jsx";
+import { useVoteStats } from "../lib/voteStats.jsx";
 import { fetchFavoriteIds, addFavorite, removeFavorite } from "../lib/favorites.js";
 import Navbar from "../components/Navbar.jsx";
 import PremiumToggle from "../components/PremiumToggle.jsx";
 import PremiumModal from "../components/PremiumModal.jsx";
-import { Crown, Tag } from "lucide-react";
+import { Crown, Tag, Clock, TrendingUp } from "lucide-react";
 import Hero from "../components/Hero.jsx";
 import SearchFilter from "../components/SearchFilter.jsx";
 import CompanyCard from "../components/CompanyCard.jsx";
@@ -25,6 +26,7 @@ import { SkeletonGrid, EmptyState, ErrorState } from "../components/States.jsx";
 export default function Home() {
   const { user } = useAuth();
   const { unlocked } = usePremium();
+  const { stats: voteStats } = useVoteStats();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -37,6 +39,7 @@ export default function Home() {
 
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("الكل");
+  const [sortMode, setSortMode] = useState("newest"); // newest | success
   const [favorites, setFavorites] = useState([]); // معرّفات الشركات المفضّلة (للمسجّلين)
   const [toast, setToast] = useState(null);
 
@@ -83,6 +86,18 @@ export default function Home() {
       );
     });
   }, [companies, search, activeFilter]);
+
+  // ===== الترتيب: الأحدث (الافتراضي) أو الأعلى نسبة نجاح =====
+  const ordered = useMemo(() => {
+    if (sortMode !== "success") return filtered;
+    const rank = (c) => {
+      const s = voteStats[c.id];
+      // نرتّب حسب النسبة ثم عدد الأصوات؛ بلا أصوات → في الأسفل
+      if (!s || !s.total_count) return -1;
+      return s.success_rate * 1000 + Math.min(s.total_count, 999);
+    };
+    return [...filtered].sort((a, b) => rank(b) - rank(a));
+  }, [filtered, sortMode, voteStats]);
 
   // ===== إحصائيات الـ Hero =====
   const stats = useMemo(
@@ -157,6 +172,7 @@ export default function Home() {
                 </p>
               </div>
               <div className="flex items-center gap-3">
+                <SortToggle value={sortMode} onChange={setSortMode} t={t} />
                 <PremiumToggle value={premiumView} onChange={setPremiumView} />
                 <span className="hidden rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-3 py-1.5 text-[13px] font-bold text-[var(--accent-text)] sm:block">
                   {t("home.offersCount", { count: filtered.length })}
@@ -185,7 +201,7 @@ export default function Home() {
         {!loading && !error && filtered.length > 0 && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <AnimatePresence>
-              {filtered.map((c, i) => (
+              {ordered.map((c, i) => (
                 <CompanyCard
                   key={c.id}
                   company={c}
@@ -235,6 +251,41 @@ export default function Home() {
 
       {/* نافذة جمع الإيميل (للزوّار غير المسجّلين، مرة واحدة) */}
       <EmailPopup />
+    </div>
+  );
+}
+
+/**
+ * مبدّل الترتيب: الأحدث (الافتراضي) / الأعلى نسبة نجاح.
+ * نفس هوية مبدّل Premium (segmented) — أيقونة على الهاتف، أيقونة+نص على الشاشات الأكبر.
+ */
+function SortToggle({ value, onChange, t }) {
+  const opts = [
+    { key: "newest", icon: Clock, label: t("vote.sortNewest") },
+    { key: "success", icon: TrendingUp, label: t("vote.sortSuccess") },
+  ];
+  return (
+    <div className="flex items-center gap-1 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] p-1">
+      {opts.map((o) => {
+        const active = value === o.key;
+        return (
+          <button
+            key={o.key}
+            type="button"
+            onClick={() => onChange(o.key)}
+            aria-pressed={active}
+            title={o.label}
+            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12.5px] font-bold transition-colors ${
+              active
+                ? "bg-[var(--color-lime)] text-[#0a0a0a]"
+                : "text-[var(--color-mute)] hover:text-[var(--text)]"
+            }`}
+          >
+            <o.icon size={14} />
+            <span className="hidden sm:inline">{o.label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -86,6 +86,14 @@ When you add a column or table in code, add a matching idempotent migration as t
 
 Offer types are a fixed Arabic enum used across UI and stats — `"تخفيض"` (discount), `"كوبون"` (coupon), `"كاش باك"` (cashback) — defined with their colors/icons in `src/lib/types.js`.
 
+## Code voting (التصويت على الأكواد)
+
+كل بطاقة كود فيها قسم "هل نجح هذا الكود معك؟" (👍/👎) بنسبة نجاح وشارة "🔥 الأكثر نجاحاً" — لبناء الثقة و SEO. الهجرة `supabase-phase19-code-votes.sql` (شغّلها مرّة واحدة):
+
+- جدول `code_votes` (صوت واحد لكل مصوّت لكل شركة عبر `unique(company_id, voter_id)`). RLS: **قراءة عامة فقط**؛ كل كتابة تمرّ حصراً عبر RPC `cast_vote` (SECURITY DEFINER، ذرّية). هوية المسجّل تُشتقّ خادمياً من `auth.uid()` (`'u:'||uid`) فلا تُنتحَل؛ الزائر بمعرّف `localStorage` (`'a:'||id`). لا حذف/تعديل مباشر.
+- View `code_vote_stats`: `up_count`/`down_count`/`total_count`/`success_rate`/`last_up_at` لكل شركة (للقراءة العامة المجمّعة).
+- الواجهة: `src/lib/votes.js` (RPC + voter id + التخزين المحلي `codpromo:voter-id` / `codpromo:votes` + `relativeTime`)، و`VoteStatsProvider` (`src/lib/voteStats.jsx`، مركّب في `App.jsx` فوق الراوتر) يجلب خريطة الإحصائيات مرّة واحدة ويوفّرها لكل البطاقات. مكوّن `src/components/CodeVote.jsx` داخل `CompanyCard` فيظهر تلقائياً في الرئيسية/الفئة/الشركة/المفضّلة وللأكواد العادية و Premium. الرئيسية تدعم الترتيب حسب نسبة النجاح. لوحة الأدمن: تبويب «التصويت» (`src/components/admin/VotesTable.jsx`) لاكتشاف الأكواد الميتة (نسبة منخفضة).
+
 ## i18n — اللغات (عربي / إنجليزي / فرنسي)
 
 الموقع متعدّد اللغات عبر **react-i18next**: العربية (الافتراضية، RTL) + الإنجليزية + الفرنسية (LTR).

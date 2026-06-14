@@ -122,6 +122,19 @@
     "scratchReveal": "Scratch to reveal",
     "unlockPremium": "Unlock Premium deals"
   },
+  "vote": {
+    "question": "Did this code work for you?",
+    "yes": "Yes",
+    "no": "No",
+    "thanks": "Thanks for your feedback!",
+    "successBadge": "Worked for {{rate}}% ({{count}} votes)",
+    "rateBadge": "{{rate}}% success ({{count}} votes)",
+    "lastWin": "Last worked: {{time}}",
+    "mostSuccessful": "Top performing",
+    "sortLabel": "Sort",
+    "sortNewest": "Newest",
+    "sortSuccess": "Top success rate"
+  },
   "footer": {
     "tagline": "Your platform for discount codes, coupons and cashback — saving you money on every online purchase.",
     "ctaTitle": "Premium — stronger codes, bigger savings",

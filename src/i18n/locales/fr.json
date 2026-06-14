@@ -122,6 +122,19 @@
     "scratchReveal": "Grattez pour révéler",
     "unlockPremium": "Débloquer les offres Premium"
   },
+  "vote": {
+    "question": "Ce code a-t-il fonctionné pour vous ?",
+    "yes": "Oui",
+    "no": "Non",
+    "thanks": "Merci pour votre retour !",
+    "successBadge": "A marché pour {{rate}}% ({{count}} votes)",
+    "rateBadge": "{{rate}}% de réussite ({{count}} votes)",
+    "lastWin": "Dernier succès : {{time}}",
+    "mostSuccessful": "Le plus efficace",
+    "sortLabel": "Trier",
+    "sortNewest": "Plus récents",
+    "sortSuccess": "Taux de réussite"
+  },
   "footer": {
     "tagline": "Votre plateforme de codes de réduction, coupons et cashback — pour économiser sur chaque achat en ligne.",
     "ctaTitle": "Premium — des codes plus forts, plus d'économies",

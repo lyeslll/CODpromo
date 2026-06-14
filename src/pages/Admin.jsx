@@ -22,6 +22,7 @@ import {
   FolderTree,
   ShieldCheck,
   LogIn,
+  Vote,
 } from "lucide-react";
 
 import { useAuth } from "../lib/auth.jsx";
@@ -54,6 +55,7 @@ import PremiumMembers from "../components/admin/PremiumMembers.jsx";
 import SeoManager from "../components/admin/SeoManager.jsx";
 import CategoryForm from "../components/admin/CategoryForm.jsx";
 import CategoryTable from "../components/admin/CategoryTable.jsx";
+import VotesTable from "../components/admin/VotesTable.jsx";
 
 export default function Admin() {
   const [unlocked, setUnlocked] = useState(
@@ -561,6 +563,9 @@ function Dashboard({ onLock }) {
           <TabButton active={tab === "stork"} onClick={() => setTab("stork")} icon={Crown} badge={premiumCount}>
             Premium / Stork
           </TabButton>
+          <TabButton active={tab === "votes"} onClick={() => setTab("votes")} icon={Vote}>
+            التصويت
+          </TabButton>
         </div>
 
         {/* نظرة عامة */}
@@ -728,6 +733,9 @@ function Dashboard({ onLock }) {
             />
           </div>
         )}
+
+        {/* التصويت على الأكواد */}
+        {tab === "votes" && <VotesTable companies={companies} />}
       </div>
 
       {/* التوست */}

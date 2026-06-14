@@ -8,6 +8,7 @@ import { companySlug, companyCategoryRecord, categoryName } from "../lib/slug.js
 import { useCategories } from "../lib/categories.jsx";
 import { getPremiumCode } from "../lib/supabase.js";
 import { isImageUrl } from "./CompanyLogo.jsx";
+import CodeVote from "./CodeVote.jsx";
 
 // هوية Premium الذهبية
 const GOLD = "#f0c63c";
@@ -322,6 +323,9 @@ export default function CompanyCard({
           {t("card.visit")}
         </div>
       )}
+
+      {/* قسم التصويت على الكود — "هل نجح هذا الكود معك؟" (عادي + Premium) */}
+      <CodeVote companyId={company.id} accent={accent} glow={accentGlow} />
     </motion.article>
   );
 }

@@ -122,6 +122,19 @@
     "scratchReveal": "امسح للكشف",
     "unlockPremium": "افتح خصومات Premium"
   },
+  "vote": {
+    "question": "هل نجح هذا الكود معك؟",
+    "yes": "نعم",
+    "no": "لا",
+    "thanks": "شكراً لتقييمك!",
+    "successBadge": "نجح مع {{rate}}% ({{count}} صوت)",
+    "rateBadge": "{{rate}}% نجاح ({{count}} صوت)",
+    "lastWin": "آخر نجاح: {{time}}",
+    "mostSuccessful": "الأكثر نجاحاً",
+    "sortLabel": "ترتيب",
+    "sortNewest": "الأحدث",
+    "sortSuccess": "الأكثر نجاحاً"
+  },
   "footer": {
     "tagline": "منصة عربية لأكواد الخصم والكوبونات والكاش باك — نوفّر لك المال في كل عملية شراء أونلاين.",
     "ctaTitle": "Premium — أكواد أقوى، توفير أكبر",

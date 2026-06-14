@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogIn, LogOut, Sparkles, Menu, X, Sun, Moon, Store, HelpCircle, Flame, Crown, ChevronLeft } from "lucide-react";
+import { LogIn, LogOut, Sparkles, Menu, X, Sun, Moon, Store, HelpCircle, Flame, Crown, ChevronLeft, LayoutGrid } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Logo from "./Logo.jsx";
 import LanguageSwitcher, { LANGS, Flag, useLangPick } from "./LanguageSwitcher.jsx";
@@ -150,14 +150,53 @@ export default function Navbar({ onPremium }) {
   const { user, signOut } = useAuth();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // قفل تمرير الصفحة عند فتح الميغا مينيو (تجربة شبيهة بالتطبيق)
+  // مسار الرئيسية بلغة الواجهة الحالية + رابط الفئات
+  const L = i18n.language && i18n.language !== "ar" ? `/${i18n.language}` : "";
+  const homePath = `${L}/` || "/";
+  const catsTo = `${L}/categories`;
+
+  // قفل تمرير الصفحة عند فتح الميغا مينيو (آمن على iOS: تثبيت body مع حفظ موضع التمرير)
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const prev = {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+    };
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.width = "100%";
+    return () => {
+      body.style.overflow = prev.overflow;
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.width = prev.width;
+      window.scrollTo(0, scrollY);
+    };
   }, [open]);
+
+  // "الأكثر استخداماً": يغلق القائمة، ثم يمرّر لقسم العروض (#stores) في الرئيسية —
+  // من أي صفحة (ينتقل للرئيسية أولاً ثم يمرّر بعد تحميلها).
+  const scrollToStores = () =>
+    document.getElementById("stores")?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  const goPopular = () => {
+    setOpen(false);
+    const onHome = location.pathname === homePath || location.pathname === "/";
+    if (onHome) {
+      // ننتظر تحرير قفل التمرير (يعيد الموضع) ثم نمرّر بنعومة
+      setTimeout(scrollToStores, 90);
+    } else {
+      navigate(homePath);
+      setTimeout(scrollToStores, 420);
+    }
+  };
 
   const logout = async () => {
     await signOut();
@@ -316,26 +355,34 @@ export default function Navbar({ onPremium }) {
                     {t("nav.browse")}
                   </motion.span>
 
-                  {/* روابط التنقّل */}
-                  {LINKS.map((l) => {
-                    const Icon = l.icon;
-                    return (
-                      <motion.a
-                        key={l.key}
-                        variants={itemVariants}
-                        href={l.href}
-                        onClick={() => setOpen(false)}
-                        whileTap={{ scale: 0.98 }}
-                        className="group flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-[var(--text)] transition-colors hover:bg-[var(--fill)]"
-                      >
-                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--accent-text)] transition-colors group-hover:border-[var(--color-lime)]/40">
-                          <Icon size={17} />
-                        </span>
-                        <span className="flex-1">{t(`nav.${l.key}`)}</span>
-                        <ChevronLeft size={16} className="text-[var(--color-mute)] opacity-0 transition-all group-hover:opacity-100 ltr:rotate-180" />
-                      </motion.a>
-                    );
-                  })}
+                  {/* الفئات → /categories */}
+                  <motion.div variants={itemVariants}>
+                    <Link
+                      to={catsTo}
+                      onClick={() => setOpen(false)}
+                      className="group flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-[var(--text)] transition-colors hover:bg-[var(--fill)]"
+                    >
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--accent-text)] transition-colors group-hover:border-[var(--color-lime)]/40">
+                        <LayoutGrid size={17} />
+                      </span>
+                      <span className="flex-1">{t("nav.categories")}</span>
+                      <ChevronLeft size={16} className="text-[var(--color-mute)] opacity-0 transition-all group-hover:opacity-100 ltr:rotate-180" />
+                    </Link>
+                  </motion.div>
+
+                  {/* الأكثر استخداماً → الرئيسية ثم تمرير لقسم العروض */}
+                  <motion.button
+                    variants={itemVariants}
+                    onClick={goPopular}
+                    whileTap={{ scale: 0.98 }}
+                    className="group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-start text-[15px] font-semibold text-[var(--text)] transition-colors hover:bg-[var(--fill)]"
+                  >
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--accent-text)] transition-colors group-hover:border-[var(--color-lime)]/40">
+                      <Flame size={17} />
+                    </span>
+                    <span className="flex-1">{t("nav.popular")}</span>
+                    <ChevronLeft size={16} className="text-[var(--color-mute)] opacity-0 transition-all group-hover:opacity-100 ltr:rotate-180" />
+                  </motion.button>
 
                   {/* فاصل */}
                   <motion.div variants={itemVariants} className="my-2.5 h-px bg-[var(--color-ink-line)]" />

@@ -387,30 +387,38 @@ function ScratchCanvas({ accent = GOLD, onReveal }) {
   const drawCover = useCallback(
     (ctx, w, h) => {
       ctx.clearRect(0, 0, w, h);
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "#0b0b0d");
-      g.addColorStop(0.5, GOLD_DEEP);
-      g.addColorStop(1, "#0b0b0d");
-      ctx.fillStyle = g;
+      // قاعدة معدنية رمادية (نفس لون METAL_BG القديم)
+      const base = ctx.createLinearGradient(0, 0, w, h);
+      base.addColorStop(0, "#c2c7d0");
+      base.addColorStop(0.4, "#9aa0aa");
+      base.addColorStop(0.6, "#d6dbe3");
+      base.addColorStop(1, "#8f95a0");
+      ctx.fillStyle = base;
       ctx.fillRect(0, 0, w, h);
-      // نقشة نقاط خفيفة
-      ctx.fillStyle = "rgba(255,255,255,0.06)";
-      for (let y = 4; y < h; y += 8) {
-        for (let x = (Math.floor(y / 8) % 2 ? 4 : 0); x < w; x += 8) {
-          ctx.beginPath();
-          ctx.arc(x, y, 0.8, 0, Math.PI * 2);
-          ctx.fill();
-        }
+      // خطوط معدنية مائلة خفيفة (نفس إحساس الستان القديم)
+      ctx.save();
+      ctx.translate(w / 2, h / 2);
+      ctx.rotate((115 * Math.PI) / 180);
+      const diag = Math.hypot(w, h);
+      const cols = ["#c6cbd4", "#aab0ba", "#d4d9e1", "#9aa0aa"];
+      ctx.globalAlpha = 0.35;
+      let idx = 0;
+      for (let x = -diag; x < diag; x += 6) {
+        ctx.fillStyle = cols[idx % cols.length];
+        ctx.fillRect(x, -diag, 6, diag * 2);
+        idx++;
       }
-      // النص
+      ctx.restore();
+      ctx.globalAlpha = 1;
+      // النص (رمادي داكن، بلا إيموجي)
       const dir = i18n.dir ? i18n.dir() : "ltr";
       ctx.direction = dir;
-      ctx.fillStyle = "rgba(10,10,10,0.9)";
+      ctx.fillStyle = "#4a4f58";
       const fs = Math.max(11, Math.min(14, Math.round(h * 0.32)));
       ctx.font = `800 ${fs}px Tajawal, system-ui, -apple-system, sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(`${t("card.scratchReveal")} 👆`, w / 2, h / 2 + 1);
+      ctx.fillText(t("card.scratchReveal"), w / 2, h / 2 + 1);
     },
     [t, i18n]
   );

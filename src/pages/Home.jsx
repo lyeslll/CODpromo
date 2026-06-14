@@ -16,6 +16,7 @@ import { Crown, Tag } from "lucide-react";
 import Hero from "../components/Hero.jsx";
 import SearchFilter from "../components/SearchFilter.jsx";
 import CompanyCard from "../components/CompanyCard.jsx";
+import CategoryBrowse from "../components/CategoryBrowse.jsx";
 import HowItWorks from "../components/HowItWorks.jsx";
 import Footer from "../components/Footer.jsx";
 import EmailPopup from "../components/EmailPopup.jsx";
@@ -201,6 +202,9 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* قسم تصفّح حسب الفئة — تنقّل فقط (بعد شبكة العروض، قبل "كيف يعمل") */}
+      <CategoryBrowse companies={companies} />
 
       <HowItWorks />
       <Footer onPremium={() => setPremiumModal(true)} />

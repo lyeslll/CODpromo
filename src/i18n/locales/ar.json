@@ -80,7 +80,9 @@
     "premiumUnlocked": "Premium مُفعّل — كل الأكواد الحصرية مكشوفة لك. استمتع بأقوى الخصومات.",
     "normalInfo": "تشاهد العروض العادية — بدّل إلى Premium لكشف الأكواد الحصرية.",
     "openPremium": "افتح Premium",
-    "copiedToast": "تم نسخ الكود"
+    "copiedToast": "تم نسخ الكود",
+    "browseByCategory": "تصفّح حسب الفئة",
+    "categoryCount": "{{count}} عرض"
   },
   "premiumToggle": {
     "normal": "عادي",

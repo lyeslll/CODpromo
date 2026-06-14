@@ -13,9 +13,9 @@ import { useScrollDirection } from "../lib/useScrollDirection.js";
 
 // روابط التنقّل + أيقونة لكل رابط (الميغا مينيو يعرضها بهرمية واضحة).
 const LINKS = [
-  { key: "stores", href: "#stores", icon: Store },
+  { key: "offers", href: "#stores", icon: Store },
   { key: "how", href: "#how", icon: HelpCircle },
-  { key: "popular", href: "#stores", icon: Flame },
+  { key: "categories", href: "#categories", icon: LayoutGrid },
 ];
 
 // هوية Premium الذهبية (نفس البطاقات)

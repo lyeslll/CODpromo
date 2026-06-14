@@ -57,7 +57,7 @@ export default function CategoryBrowse({ companies = [] }) {
   const shown = hasMore ? active.slice(0, HOME_MAX - 1) : active;
 
   return (
-    <section className="mx-auto max-w-6xl px-4 pt-12">
+    <section id="categories" className="mx-auto max-w-6xl px-4 pt-12 scroll-mt-24">
       <div className="mb-5">
         <h2 className="text-[24px] font-black tracking-tight sm:text-[28px]">
           {t("home.browseByCategory")}

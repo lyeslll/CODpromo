@@ -285,8 +285,21 @@ export default function CompanyCard({
         </motion.button>
       </div>
 
-      {/* زر زيارة الموقع */}
-      {shownLink && (
+      {/* زر زيارة الموقع — موجود دائماً بنفس الارتفاع (لا قفزة عند الكشف).
+          - عادي / Premium مكشوف وله رابط: زر فعّال بالرابط الحقيقي (shownLink).
+          - Premium قبل الكشف: مقفول مظهراً فقط (أيقونة قفل، disabled، بلا href —
+            ولا يوضع premium_url في DOM إطلاقاً قبل الكشف).
+          - لا رابط متاح: نفس الزر معطّلاً (ليبقى الارتفاع ثابتاً). */}
+      {premium && !revealed ? (
+        <div
+          aria-disabled="true"
+          className="relative mt-2.5 flex cursor-not-allowed select-none items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold text-[var(--color-mute)] opacity-60"
+          style={{ borderColor: `${accent}33`, background: `${accent}08` }}
+        >
+          <Lock size={14} style={{ color: accent }} />
+          {t("card.visit")}
+        </div>
+      ) : shownLink ? (
         <motion.a
           href={shownLink}
           target="_blank"
@@ -298,6 +311,15 @@ export default function CompanyCard({
           <ExternalLink size={15} style={{ color: accent }} />
           {t("card.visit")}
         </motion.a>
+      ) : (
+        <div
+          aria-disabled="true"
+          className="relative mt-2.5 flex cursor-not-allowed select-none items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold text-[var(--color-mute)] opacity-60"
+          style={{ borderColor: `${accent}33`, background: `${accent}08` }}
+        >
+          <ExternalLink size={15} style={{ color: accent }} />
+          {t("card.visit")}
+        </div>
       )}
     </motion.article>
   );

@@ -25,12 +25,14 @@ export const homePath = (lang) => `${langPrefix(lang)}/` || "/";
 export const storePath = (slug, lang) => `${langPrefix(lang)}/store/${slug}`;
 export const categoryPath = (slug, lang) => `${langPrefix(lang)}/category/${slug}`;
 export const categoriesPath = (lang) => `${langPrefix(lang)}/categories`;
+export const favoritesPath = (lang) => `${langPrefix(lang)}/favorites`;
 
 export const absUrl = (path) => `${SITE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
 
 export const storeUrl = (slug, lang) => absUrl(storePath(slug, lang));
 export const categoryUrl = (slug, lang) => absUrl(categoryPath(slug, lang));
 export const categoriesUrl = (lang) => absUrl(categoriesPath(lang));
+export const favoritesUrl = (lang) => absUrl(favoritesPath(lang));
 export const homeUrl = (lang) => absUrl(homePath(lang));
 
 /** روابط hreflang المتبادلة لصفحة (المتجر/الفئة/قائمة الفئات/الرئيسية) عبر اللغات الثلاث. */

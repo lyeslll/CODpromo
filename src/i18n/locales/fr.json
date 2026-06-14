@@ -95,6 +95,16 @@
     "account": "Compte",
     "login": "Connexion"
   },
+  "favorites": {
+    "title": "Favoris",
+    "subtitle": "{{count}} éléments",
+    "emptyTitle": "Aucun favori pour l'instant",
+    "emptyDesc": "Touchez le cœur sur une carte pour l'ajouter ici et y accéder rapidement.",
+    "browse": "Parcourir les offres",
+    "loginTitle": "Connectez-vous pour voir vos favoris",
+    "loginDesc": "Les favoris sont enregistrés dans votre compte — connectez-vous pour y accéder depuis n'importe quel appareil.",
+    "login": "Se connecter"
+  },
   "premiumToggle": {
     "normal": "Standard",
     "premium": "Premium"

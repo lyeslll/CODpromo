@@ -22,13 +22,14 @@ export default function BottomNav({ onPremium }) {
   // الروابط (الرئيسية/الفئات تحترم بادئة اللغة؛ لوحة المستخدم وتسجيل الدخول بلا بادئة)
   const homeTo = `${L}/` || "/";
   const catsTo = `${L}/categories`;
+  const favTo = `${L}/favorites`; // صفحة المفضّلة المخصّصة
   const accountTo = user ? "/dashboard" : "/login";
-  const favTo = user ? "/dashboard" : "/login"; // المفضّلة تُعرض داخل لوحة الزبون
 
   // الحالة النشطة (نتجاهل بادئة اللغة)
   const base = pathname.replace(/^\/(en|fr)(?=\/|$)/, "") || "/";
   const isHome = base === "/";
   const isCats = base.startsWith("/categories");
+  const isFav = base.startsWith("/favorites");
   const isDash = base.startsWith("/dashboard");
 
   return (
@@ -68,7 +69,7 @@ export default function BottomNav({ onPremium }) {
           </motion.button>
         </div>
 
-        <NavItem to={favTo} icon={Heart} label={t("bottomNav.favorites")} active={false} />
+        <NavItem to={favTo} icon={Heart} label={t("bottomNav.favorites")} active={isFav} />
         <NavItem
           to={accountTo}
           icon={user ? User : LogIn}

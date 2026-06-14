@@ -9,6 +9,7 @@ import Home from "./pages/Home.jsx";
 import StorePage from "./pages/StorePage.jsx";
 import CategoryPage from "./pages/CategoryPage.jsx";
 import CategoriesPage from "./pages/CategoriesPage.jsx";
+import FavoritesPage from "./pages/FavoritesPage.jsx";
 import Admin from "./pages/Admin.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -27,7 +28,13 @@ import PremiumModal from "./components/PremiumModal.jsx";
 function langFromPath(pathname, current) {
   if (pathname === "/en" || pathname.startsWith("/en/")) return "en";
   if (pathname === "/fr" || pathname.startsWith("/fr/")) return "fr";
-  if (pathname.startsWith("/store/") || pathname.startsWith("/category/") || pathname.startsWith("/categories")) return "ar";
+  if (
+    pathname.startsWith("/store/") ||
+    pathname.startsWith("/category/") ||
+    pathname.startsWith("/categories") ||
+    pathname.startsWith("/favorites")
+  )
+    return "ar";
   return current;
 }
 
@@ -97,6 +104,11 @@ export default function App() {
           <Route path="/categories" element={<CategoriesPage lang="ar" />} />
           <Route path="/en/categories" element={<CategoriesPage lang="en" />} />
           <Route path="/fr/categories" element={<CategoriesPage lang="fr" />} />
+
+          {/* صفحة المفضّلة (خاصة بالمستخدم — noindex، تبديل لغة فقط) */}
+          <Route path="/favorites" element={<FavoritesPage lang="ar" />} />
+          <Route path="/en/favorites" element={<FavoritesPage lang="en" />} />
+          <Route path="/fr/favorites" element={<FavoritesPage lang="fr" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

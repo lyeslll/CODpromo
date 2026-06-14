@@ -13,7 +13,12 @@ import { useLocale } from "../lib/locale.jsx";
 function localizedPath(pathname, code) {
   const m = pathname.match(/^\/(en|fr)(\/.*)?$/);
   const rest = m ? m[2] || "/" : pathname; // المسار بصيغته العربية (بلا بادئة)
-  if (!rest.startsWith("/store/") && !rest.startsWith("/category/") && !rest.startsWith("/categories"))
+  if (
+    !rest.startsWith("/store/") &&
+    !rest.startsWith("/category/") &&
+    !rest.startsWith("/categories") &&
+    !rest.startsWith("/favorites")
+  )
     return null;
   return code === "ar" ? rest : `/${code}${rest}`;
 }

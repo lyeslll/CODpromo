@@ -7,8 +7,9 @@ import { useCategories } from "../lib/categories.jsx";
 import { categoryRecordSlug, categoryName } from "../lib/slug.js";
 import { categoryPath, categoriesPath } from "../lib/seo.js";
 
-// أقصى عدد فئات يظهر في الهوم (الباقي خلف بطاقة "كل الفئات ←" → /categories)
-const HOME_MAX = 8;
+// أقصى عدد خلايا في صفّ الهوم النظيف (6 = قابلة للقسمة على 2 و3 و6 بلا التفاف مكسور).
+// إن زادت الفئات عن 6 نعرض أول 5 + بطاقة "كل الفئات ←" كخلية سادسة → /categories.
+const HOME_MAX = 6;
 
 // ============================================================
 //  قسم "تصفّح حسب الفئة" — تنقّل فقط (مستقل عن قائمة العروض/البحث/الفلاتر).
@@ -49,9 +50,11 @@ export default function CategoryBrowse({ companies = [] }) {
   // لا نعرض القسم قبل التحميل أو إن لا توجد فئات نشطة
   if (loading || active.length === 0) return null;
 
-  // الهوم نظيف: أهم 8 فئات فقط، والباقي خلف بطاقة "كل الفئات ←"
-  const shown = active.slice(0, HOME_MAX);
+  // الهوم نظيف بحدّ أقصى 6 خلايا:
+  // - 6 فئات أو أقل → اعرضها كلها بلا زر.
+  // - أكثر من 6 → أول 5 فئات + بطاقة "كل الفئات ←" (المجموع 6).
   const hasMore = active.length > HOME_MAX;
+  const shown = hasMore ? active.slice(0, HOME_MAX - 1) : active;
 
   return (
     <section className="mx-auto max-w-6xl px-4 pt-12">
@@ -61,7 +64,8 @@ export default function CategoryBrowse({ companies = [] }) {
         </h2>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+      {/* أعمدة قابلة للقسمة على 6 بلا التفاف مكسور: هاتف 2، لوح 3، حاسوب 6 */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {shown.map((cat, i) => (
           <CategoryTile key={cat.id} cat={cat} count={counts[cat.id] || 0} lang={lang} index={i} t={t} />
         ))}

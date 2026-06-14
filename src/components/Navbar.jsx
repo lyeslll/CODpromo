@@ -8,6 +8,7 @@ import LanguageSwitcher, { LANGS, Flag, useLangPick } from "./LanguageSwitcher.j
 import { useTheme } from "../lib/theme.jsx";
 import { useLocale } from "../lib/locale.jsx";
 import { useAuth } from "../lib/auth.jsx";
+import { usePremium } from "../lib/premium.jsx";
 import { useScrollDirection } from "../lib/useScrollDirection.js";
 
 // روابط التنقّل + أيقونة لكل رابط (الميغا مينيو يعرضها بهرمية واضحة).
@@ -148,6 +149,7 @@ export default function Navbar({ onPremium }) {
   // موبايل فقط — الحاسوب يبقى ظاهراً عبر md:!translate-y-0.
   const { scrolled, hidden } = useScrollDirection();
   const { user, signOut } = useAuth();
+  const { isPremiumActive } = usePremium();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -387,24 +389,26 @@ export default function Navbar({ onPremium }) {
                   {/* فاصل */}
                   <motion.div variants={itemVariants} className="my-2.5 h-px bg-[var(--color-ink-line)]" />
 
-                  {/* زر Premium الذهبي البارز — أهم زر */}
-                  <motion.button
-                    variants={itemVariants}
-                    onClick={handlePremium}
-                    whileTap={{ scale: 0.98 }}
-                    className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border px-3.5 py-3.5 text-start"
-                    style={{ borderColor: "rgba(207,154,30,0.5)", background: "linear-gradient(100deg, rgba(240,198,60,0.16), rgba(240,198,60,0.05))" }}
-                  >
-                    <span className="absolute inset-0 -translate-x-full bg-white/20 transition-transform duration-700 group-hover:translate-x-full" />
-                    <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-xl text-[#0a0a0a]" style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`, boxShadow: "0 8px 22px -8px rgba(240,198,60,0.6)" }}>
-                      <Crown size={20} />
-                    </span>
-                    <span className="relative flex-1">
-                      <span className="block text-[15px] font-black" style={{ color: GOLD_SOFT }}>{t("nav.premium")}</span>
-                      <span className="mt-0.5 block text-[12px] font-medium text-[var(--text-soft)]">{t("nav.premiumSub")}</span>
-                    </span>
-                    <ChevronLeft size={18} className="relative ltr:rotate-180" style={{ color: GOLD_DEEP }} />
-                  </motion.button>
+                  {/* زر Premium الذهبي البارز — يظهر فقط لغير المشتركين (يُخفى عمّن لديه Premium فعّال) */}
+                  {!isPremiumActive && (
+                    <motion.button
+                      variants={itemVariants}
+                      onClick={handlePremium}
+                      whileTap={{ scale: 0.98 }}
+                      className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border px-3.5 py-3.5 text-start"
+                      style={{ borderColor: "rgba(207,154,30,0.5)", background: "linear-gradient(100deg, rgba(240,198,60,0.16), rgba(240,198,60,0.05))" }}
+                    >
+                      <span className="absolute inset-0 -translate-x-full bg-white/20 transition-transform duration-700 group-hover:translate-x-full" />
+                      <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-xl text-[#0a0a0a]" style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`, boxShadow: "0 8px 22px -8px rgba(240,198,60,0.6)" }}>
+                        <Crown size={20} />
+                      </span>
+                      <span className="relative flex-1">
+                        <span className="block text-[15px] font-black" style={{ color: GOLD_SOFT }}>{t("nav.premium")}</span>
+                        <span className="mt-0.5 block text-[12px] font-medium text-[var(--text-soft)]">{t("nav.premiumSub")}</span>
+                      </span>
+                      <ChevronLeft size={18} className="relative ltr:rotate-180" style={{ color: GOLD_DEEP }} />
+                    </motion.button>
+                  )}
 
                   {/* أزرار الحساب */}
                   {user ? (

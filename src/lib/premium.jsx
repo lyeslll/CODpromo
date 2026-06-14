@@ -19,7 +19,11 @@ const write = (v) => {
   }
 };
 
-const PremiumContext = createContext({ unlocked: false, redeem: async () => ({ ok: false }) });
+const PremiumContext = createContext({
+  unlocked: false,
+  isPremiumActive: false,
+  redeem: async () => ({ ok: false }),
+});
 
 export function PremiumProvider({ children }) {
   const { user, profile, refreshProfile } = useAuth();
@@ -46,7 +50,9 @@ export function PremiumProvider({ children }) {
   );
 
   return (
-    <PremiumContext.Provider value={{ unlocked, redeem }}>{children}</PremiumContext.Provider>
+    <PremiumContext.Provider value={{ unlocked, isPremiumActive: profileUnlock, redeem }}>
+      {children}
+    </PremiumContext.Provider>
   );
 }
 

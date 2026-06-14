@@ -2,10 +2,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Sun, Moon, LogOut, Home } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import Logo from "../Logo.jsx";
 import LanguageSwitcher from "../LanguageSwitcher.jsx";
 import { useTheme } from "../../lib/theme.jsx";
 import { useAuth } from "../../lib/auth.jsx";
+import { useScrollDirection } from "../../lib/useScrollDirection.js";
 
 function ThemeToggle() {
   const { theme, toggle } = useTheme();
@@ -27,6 +27,8 @@ export default function DashboardShell({ badge, children }) {
   const { user, signOut } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  // نفس سلوك التمرير للـ bottom bar: يختفي عند النزول، يظهر عند الصعود (موبايل؛ الحاسوب ثابت).
+  const { hidden } = useScrollDirection();
   const name = user?.user_metadata?.full_name || user?.email || t("nav.account");
   const initial = (name || "؟").trim().charAt(0).toUpperCase();
 
@@ -37,11 +39,25 @@ export default function DashboardShell({ badge, children }) {
 
   return (
     <div className="min-h-screen bg-[var(--color-ink)] text-[var(--text)]">
-      <header className="sticky top-0 z-40 border-b border-[var(--color-ink-line)] bg-[var(--elev)]/85 backdrop-blur-xl">
+      <header
+        className={`sticky top-0 z-40 border-b border-[var(--color-ink-line)] bg-[var(--elev)]/85 backdrop-blur-xl transition-transform duration-300 will-change-transform md:!translate-y-0 ${
+          hidden ? "-translate-y-full" : "translate-y-0"
+        }`}
+      >
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <Link to="/">
-              <Logo compact />
+            <Link to="/" className="flex items-center" aria-label="CODpromo">
+              {/* اللوجو الصغير (الأيقونة فقط) — توفيراً للمساحة. fallback مؤقّت للّوجو الحالي. */}
+              <img
+                src="/logo-icon.png"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "/logo-dark.png";
+                }}
+                alt="CODpromo"
+                className="h-9 w-auto object-contain"
+                style={{ maxWidth: 120 }}
+              />
             </Link>
             {badge && (
               <span className="hidden rounded-lg border border-[var(--color-ink-line)] bg-[var(--fill)] px-2.5 py-1 text-[12px] font-bold text-[var(--accent-text)] sm:inline">

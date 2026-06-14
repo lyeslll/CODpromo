@@ -9,7 +9,7 @@ import { ChevronLeft } from "lucide-react";
 /** items: [{ name, to }] — العنصر الأخير هو الصفحة الحالية (بلا رابط). */
 export default function Breadcrumbs({ items }) {
   return (
-    <nav aria-label="breadcrumb" className="mb-5">
+    <nav aria-label="breadcrumb" className="mt-2 mb-5 sm:mt-3">
       <ol className="flex flex-wrap items-center gap-1.5 text-[12.5px] font-medium text-[var(--color-mute)]">
         {items.map((it, i) => {
           const last = i === items.length - 1;

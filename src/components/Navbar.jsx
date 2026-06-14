@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogIn, LogOut, Sparkles, Menu, X, Sun, Moon, Store, HelpCircle, Flame, Crown, ChevronLeft } from "lucide-react";
@@ -144,12 +144,23 @@ const itemVariants = {
 export default function Navbar({ onPremium }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  // إخفاء/إظهار الهيدر حسب اتجاه التمرير (موبايل فقط — الحاسوب يبقى ظاهراً عبر md:translate)
+  const [hidden, setHidden] = useState(false);
+  const lastY = useRef(0);
   const { user, signOut } = useAuth();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 12);
+      // قرب الأعلى: أظهر دائماً. نزول: أخفِ. صعود: أظهر فوراً. (عتبة صغيرة تمنع الاهتزاز)
+      if (y < 80) setHidden(false);
+      else if (y > lastY.current + 4) setHidden(true);
+      else if (y < lastY.current - 4) setHidden(false);
+      lastY.current = y;
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -185,7 +196,11 @@ export default function Navbar({ onPremium }) {
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className="fixed inset-x-0 top-0 z-50"
     >
-      <div className="mx-auto max-w-6xl px-4 pt-3 sm:pt-4">
+      <div
+        className={`mx-auto max-w-6xl px-4 pt-3 transition-transform duration-300 will-change-transform sm:pt-4 md:!translate-y-0 ${
+          hidden && !open ? "-translate-y-[150%]" : "translate-y-0"
+        }`}
+      >
         {/* ===== الكبسولة (الهيدر) — لمسة تعريف خفيفة في الأعلى، زجاجية عند النزول ===== */}
         <div
           className={`relative flex items-center justify-between rounded-2xl border px-3.5 py-2.5 transition-all duration-300 sm:px-5 ${

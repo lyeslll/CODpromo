@@ -171,7 +171,10 @@ export default function Home() {
                   {t("home.toggleHint")}
                 </p>
               </div>
-              <div className="flex items-center gap-3">
+              {/* الهاتف: تكديس عمودي (Premium فوق وفي الوسط، ثم الترتيب تحته) عبر
+                  flex-col-reverse — لأن Premium هو الطفل التالي في DOM فيصعد للأعلى،
+                  والعدّاد مخفي على الهاتف. الحاسوب يبقى صفّاً أفقياً كما هو (sm:flex-row). */}
+              <div className="flex w-full flex-col-reverse items-center gap-3 sm:w-auto sm:flex-row">
                 <SortToggle value={sortMode} onChange={setSortMode} t={t} />
                 <PremiumToggle value={premiumView} onChange={setPremiumView} />
                 <span className="hidden rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-3 py-1.5 text-[13px] font-bold text-[var(--accent-text)] sm:block">

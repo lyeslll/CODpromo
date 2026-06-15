@@ -142,7 +142,44 @@
     "ctaDesc": "Activate Premium to unlock the strongest codes and exclusive deals, and save more on every order.",
     "ctaBtn": "Activate Premium",
     "follow": "Follow us",
-    "poweredBy": "Powered by"
+    "poweredBy": "Powered by",
+    "privacy": "Privacy Policy"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: {{date}}",
+    "intro": "At CODpromo we respect your privacy and are committed to protecting your personal data. This policy explains what data we collect, how we use and protect it, and what rights you have over it.",
+    "s1Title": "Data we collect",
+    "s1Desc": "We collect the minimum data needed to operate the platform and provide its services:",
+    "s1Items": [
+      "Email address",
+      "Full name or company name",
+      "Account type (user / company)",
+      "Login credentials and session information"
+    ],
+    "s2Title": "Login and authentication",
+    "s2Desc": "You can create an account and sign in using email and password, or via your Google account (OAuth). We use the hCaptcha service to verify you are not a bot and to protect accounts from abuse.",
+    "s3Title": "How we use your data",
+    "s3Desc": "We use your data only for the following purposes:",
+    "s3Items": [
+      "Creating and managing your account",
+      "Displaying discount codes, coupons and cashback",
+      "Letting you vote on codes and save favorites",
+      "Contacting you about your account or our services"
+    ],
+    "s4Title": "Payments",
+    "s4Desc": "All payments are processed by trusted third-party providers: Stripe, PayPal and SlickPay on the website, and Google Play Billing in the app. Your card details are handled directly by these providers — CODpromo does not store or have access to any bank card information.",
+    "s5Title": "Data storage and emails",
+    "s5Desc": "Your data is stored securely in a Supabase database. Emails (such as account confirmation and offers) are sent via the Brevo service.",
+    "s6Title": "Your rights",
+    "s6Desc": "You have full control over your data, including the right to:",
+    "s6Items": [
+      "Access and review your personal data",
+      "Edit or correct your data",
+      "Request permanent deletion of your account and data"
+    ],
+    "s7Title": "Contact us",
+    "s7Desc": "For any privacy question or to exercise your rights, contact us at:"
   },
   "emailPopup": {
     "doneTitle": "You're in! 🎉",

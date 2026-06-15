@@ -1,5 +1,6 @@
 import { Mail, Crown, ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import Logo from "./Logo.jsx";
 
 /* أيقونات العلامات الحقيقية (Instagram/Facebook) — مكتبة lucide الحالية حذفت أيقونات
@@ -90,7 +91,15 @@ export default function Footer({ onPremium }) {
 
         {/* الشريط السفلي */}
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-[var(--color-ink-line)] pt-6 text-[12.5px] text-[var(--color-mute)] sm:flex-row">
-          <span>© {year} CODpromo</span>
+          <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:gap-4">
+            <span>© {year} CODpromo</span>
+            <Link
+              to="/privacy"
+              className="font-medium transition-colors hover:text-[var(--accent-text)]"
+            >
+              {t("footer.privacy")}
+            </Link>
+          </div>
           <a
             href="https://ilyesderradji.com/"
             target="_blank"

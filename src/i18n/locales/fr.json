@@ -142,7 +142,44 @@
     "ctaDesc": "Activez Premium pour débloquer les codes les plus forts et les offres exclusives, et économisez davantage sur chaque commande.",
     "ctaBtn": "Activer Premium",
     "follow": "Suivez-nous",
-    "poweredBy": "Développé par"
+    "poweredBy": "Développé par",
+    "privacy": "Politique de confidentialité"
+  },
+  "privacy": {
+    "title": "Politique de confidentialité",
+    "lastUpdated": "Dernière mise à jour : {{date}}",
+    "intro": "Chez CODpromo, nous respectons votre vie privée et nous nous engageons à protéger vos données personnelles. Cette politique explique quelles données nous collectons, comment nous les utilisons et les protégeons, et quels sont vos droits.",
+    "s1Title": "Données que nous collectons",
+    "s1Desc": "Nous collectons le minimum de données nécessaires au fonctionnement de la plateforme et à ses services :",
+    "s1Items": [
+      "Adresse e-mail",
+      "Nom complet ou nom de l'entreprise",
+      "Type de compte (utilisateur / entreprise)",
+      "Identifiants de connexion et informations de session"
+    ],
+    "s2Title": "Connexion et authentification",
+    "s2Desc": "Vous pouvez créer un compte et vous connecter avec votre e-mail et mot de passe, ou via votre compte Google (OAuth). Nous utilisons le service hCaptcha pour vérifier que vous n'êtes pas un robot et protéger les comptes contre les abus.",
+    "s3Title": "Comment nous utilisons vos données",
+    "s3Desc": "Nous utilisons vos données uniquement aux fins suivantes :",
+    "s3Items": [
+      "Créer et gérer votre compte",
+      "Afficher les codes de réduction, coupons et cashback",
+      "Vous permettre de voter sur les codes et d'enregistrer vos favoris",
+      "Vous contacter au sujet de votre compte ou de nos services"
+    ],
+    "s4Title": "Paiements",
+    "s4Desc": "Tous les paiements sont traités par des prestataires tiers de confiance : Stripe, PayPal et SlickPay sur le site, et Google Play Billing dans l'application. Les données de votre carte sont gérées directement par ces prestataires — CODpromo ne stocke ni n'a accès à aucune information de carte bancaire.",
+    "s5Title": "Stockage des données et e-mails",
+    "s5Desc": "Vos données sont stockées de manière sécurisée dans une base de données Supabase. Les e-mails (comme la confirmation de compte et les offres) sont envoyés via le service Brevo.",
+    "s6Title": "Vos droits",
+    "s6Desc": "Vous avez le contrôle total de vos données, y compris le droit de :",
+    "s6Items": [
+      "Accéder à vos données personnelles et les consulter",
+      "Modifier ou corriger vos données",
+      "Demander la suppression définitive de votre compte et de vos données"
+    ],
+    "s7Title": "Nous contacter",
+    "s7Desc": "Pour toute question de confidentialité ou pour exercer vos droits, contactez-nous à :"
   },
   "emailPopup": {
     "doneTitle": "C'est fait ! 🎉",

@@ -39,7 +39,8 @@ async function makeMaskable(size, out) {
 await makeFill(192, p("pwa-192.png"));
 await makeFill(512, p("pwa-512.png"));
 await makeFill(180, p("apple-touch-icon.png"));
-await makeFill(256, p("favicon.png")); // أيقونة المتصفّح (favicon)
+// ⚠️ لا نولّد public/favicon.png إطلاقاً — هو التصميم الأصلي بخلفية شفافة
+//    لتبويب المتصفّح (قاعدة دائمة في CLAUDE.md). أيقونات PWA فقط تُولَّد هنا.
 
 // نسخ maskable (هامش أمان 20٪)
 await makeMaskable(192, p("pwa-maskable-192.png"));

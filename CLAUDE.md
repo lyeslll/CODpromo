@@ -88,6 +88,12 @@ When you add a column or table in code, add a matching idempotent migration as t
 
 Offer types are a fixed Arabic enum used across UI and stats — `"تخفيض"` (discount), `"كوبون"` (coupon), `"كاش باك"` (cashback) — defined with their colors/icons in `src/lib/types.js`.
 
+## PWA والأيقونات
+
+طبقة PWA عبر `vite-plugin-pwa` (إعدادها في `vite.config.js`): manifest + service worker (Network-First لبيانات Supabase، CacheFirst للصور/الخطوط، autoUpdate). أيقونات التطبيق (`pwa-192/512`, `pwa-maskable-192/512`, `apple-touch-icon`) تُولَّد من `public/favicon-1024.png` عبر `npm run pwa-icons` (`scripts/gen-pwa-icons.mjs`).
+
+> **قاعدة دائمة (إلزامية):** `public/favicon.png` هو التصميم **الأصلي بخلفية شفافة** لأيقونة تبويب المتصفح — **ممنوع إعادة توليده أو استبداله نهائياً**. فقط أيقونات PWA تُولَّد من `favicon-1024.png` (سكربت `pwa-icons` لا يلمس `favicon.png`).
+
 ## Code voting (التصويت على الأكواد)
 
 كل بطاقة كود فيها قسم "هل نجح هذا الكود معك؟" (👍/👎) بنسبة نجاح وشارة "🔥 الأكثر نجاحاً" — لبناء الثقة و SEO. الهجرة `supabase-phase19-code-votes.sql` (شغّلها مرّة واحدة):

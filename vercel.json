@@ -7,6 +7,12 @@
     { "source": "/category/:slug", "destination": "/api/prerender?type=category&lang=ar&slug=:slug" },
     { "source": "/en/category/:slug", "destination": "/api/prerender?type=category&lang=en&slug=:slug" },
     { "source": "/fr/category/:slug", "destination": "/api/prerender?type=category&lang=fr&slug=:slug" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/((?!\\.well-known/).*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/.well-known/assetlinks.json",
+      "headers": [{ "key": "Content-Type", "value": "application/json" }]
+    }
   ]
 }

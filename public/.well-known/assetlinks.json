@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.codpromo.twa",
+      "sha256_cert_fingerprints": [
+        "CA:5A:E1:A6:6C:14:88:BF:25:2A:6A:FB:7C:FF:D4:F3:A0:D7:81:A5:58:60:A6:08:0F:52:E9:03:36:78:EC:29"
+      ]
+    }
+  }
+]

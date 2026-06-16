@@ -20,6 +20,24 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   </React.StrictMode>
 );
 
+// TWA/تطبيق: امنع قائمة الكليك اليمين / الضغط المطوّل (Copier / Traduire / Partager)
+// مع استثناء حقول الإدخال باش الكتابة و التحديد فيهم يبقاو يخدمو عادي (البحث).
+document.addEventListener(
+  "contextmenu",
+  (e) => {
+    const el = e.target;
+    if (
+      el &&
+      el.closest &&
+      el.closest('input, textarea, select, [contenteditable="true"], [contenteditable=""]')
+    ) {
+      return; // اترك السلوك الافتراضي داخل حقول الإدخال
+    }
+    e.preventDefault();
+  },
+  { capture: true }
+);
+
 // Fade out the first-paint boot loader once React has mounted.
 requestAnimationFrame(() => {
   const boot = document.getElementById("boot");

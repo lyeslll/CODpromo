@@ -99,6 +99,12 @@ export default function Footer({ onPremium }) {
             >
               {t("footer.privacy")}
             </Link>
+            <Link
+              to="/account-deletion"
+              className="font-medium transition-colors hover:text-[var(--accent-text)]"
+            >
+              {t("footer.accountDeletion")}
+            </Link>
           </div>
           <a
             href="https://ilyesderradji.com/"

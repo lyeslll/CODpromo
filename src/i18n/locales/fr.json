@@ -143,7 +143,16 @@
     "ctaBtn": "Activer Premium",
     "follow": "Suivez-nous",
     "poweredBy": "Développé par",
-    "privacy": "Politique de confidentialité"
+    "privacy": "Politique de confidentialité",
+    "accountDeletion": "Suppression du compte"
+  },
+  "accountDeletion": {
+    "title": "Suppression du compte CODpromo",
+    "intro": "Si vous avez créé un compte dans l'application CODpromo, vous pouvez demander la suppression de votre compte et des données associées en nous contactant à :",
+    "p1": "Veuillez envoyer votre demande depuis la même adresse e-mail utilisée pour créer votre compte CODpromo.",
+    "p2": "À la réception de votre demande, nous supprimerons votre compte et les données personnelles associées, y compris les informations de votre profil, votre adresse e-mail, vos éléments enregistrés et vos préférences de compte.",
+    "p3": "Certaines données peuvent être conservées uniquement lorsque cela est requis pour des raisons légales, de sécurité, de prévention de la fraude, de paiement ou de conformité.",
+    "p4": "Les demandes de suppression de compte sont traitées dans un délai raisonnable."
   },
   "privacy": {
     "title": "Politique de confidentialité",

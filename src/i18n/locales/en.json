@@ -143,7 +143,16 @@
     "ctaBtn": "Activate Premium",
     "follow": "Follow us",
     "poweredBy": "Powered by",
-    "privacy": "Privacy Policy"
+    "privacy": "Privacy Policy",
+    "accountDeletion": "Account Deletion"
+  },
+  "accountDeletion": {
+    "title": "CODpromo Account Deletion",
+    "intro": "If you created an account in the CODpromo app, you can request deletion of your account and associated data by contacting us at:",
+    "p1": "Please send your request from the same email address used to create your CODpromo account.",
+    "p2": "When we receive your request, we will delete your account and associated personal data, including your profile information, email address, saved items, and account preferences.",
+    "p3": "Some data may be retained only when required for legal, security, fraud prevention, payment, or compliance reasons.",
+    "p4": "Account deletion requests are processed within a reasonable period of time."
   },
   "privacy": {
     "title": "Privacy Policy",

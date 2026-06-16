@@ -223,13 +223,13 @@ export default function Navbar({ onPremium }) {
       className="fixed inset-x-0 top-0 z-50"
     >
       <div
-        className={`mx-auto max-w-6xl px-4 pt-3 transition-transform duration-300 will-change-transform sm:pt-4 md:!translate-y-0 ${
+        className={`nav-inner mx-auto max-w-6xl px-4 pt-3 transition-transform duration-300 will-change-transform sm:pt-4 md:!translate-y-0 ${
           hidden && !open ? "-translate-y-[150%]" : "translate-y-0"
         }`}
       >
         {/* ===== الكبسولة (الهيدر) — لمسة تعريف خفيفة في الأعلى، زجاجية عند النزول ===== */}
         <div
-          className={`relative flex items-center justify-between rounded-2xl border px-3.5 py-2.5 transition-all duration-300 sm:px-5 ${
+          className={`nav-capsule relative flex items-center justify-between rounded-2xl border px-3.5 py-2.5 transition-all duration-300 sm:px-5 ${
             scrolled
               ? "border-[var(--color-ink-line)] bg-[var(--elev)]/80 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.5)] backdrop-blur-xl"
               : "border-[var(--color-ink-line)]/40 bg-[var(--elev)]/25 shadow-[0_4px_24px_-18px_rgba(0,0,0,0.5)] backdrop-blur-md"

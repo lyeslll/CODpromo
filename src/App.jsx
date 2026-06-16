@@ -84,6 +84,17 @@ function MobileBottomNav() {
 }
 
 export default function App() {
+  // كشف وضع التطبيق (Android TWA / standalone) مرّة واحدة عند التحميل:
+  // نضيف صنف is-twa-app على <body> لتفعيل هيدر مدمج خاص بالتطبيق (CSS في index.css).
+  // في المتصفح العادي/سطح المكتب لا يُضاف الصنف → صفر تغيير.
+  useEffect(() => {
+    const standalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.matchMedia("(display-mode: fullscreen)").matches ||
+      window.navigator.standalone === true;
+    if (standalone) document.body.classList.add("is-twa-app");
+  }, []);
+
   return (
     <BrowserRouter>
       <AuthProvider>

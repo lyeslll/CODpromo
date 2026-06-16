@@ -254,3 +254,46 @@ input::placeholder {
     padding-bottom: calc(68px + env(safe-area-inset-bottom));
   }
 }
+
+/* ======================================================================
+   هيدر مدمج خاص بوضع التطبيق (Android TWA / standalone) — الموبايل فقط.
+   الهدف: نرفع الهيدر لأقصى الأعلى ونصغّر محتواه بشكل أنيق ومتناسق، باش
+   خط تحميل Chrome الأصلي (الثابت قرب أعلى الشاشة، لا API لحذفه) يطيح في
+   أسفل الهيدر كفاصل طبيعي بدل ما يقطع اللوجو.
+   نطاق صارم: body.is-twa-app + (max-width: 767px) + داخل #top فقط.
+   → المتصفح العادي وسطح المكتب: صفر تغيير.
+   → لا نلمس الشعرة الليمونية العلوية (span في Navbar.jsx 238-243).
+   ====================================================================== */
+@media (max-width: 767px) {
+  /* (1) نرفع الهيدر للأعلى: نلغي الفراغ العلوي، ونترك فقط مساحة شريط النظام
+     (الساعة/البطارية) عبر safe-area كي لا يغطّي عليه. نغتنم كل سنتيمتر. */
+  body.is-twa-app #top .nav-inner {
+    padding-top: env(safe-area-inset-top, 0px) !important;
+  }
+
+  /* (2) كبسولة مدمجة: padding عمودي أقل + زوايا أنعم تليق بشريط تطبيق */
+  body.is-twa-app #top .nav-capsule {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+  }
+
+  /* (3) اللوجو أصغر ~32% مع بقاء وضوحه التام */
+  body.is-twa-app #top .nav-capsule a img {
+    height: 30px;
+  }
+
+  /* (4) سطر "خصومات · كوبونات · كاش باك": أصغر وألصق باللوجو */
+  body.is-twa-app #top .nav-capsule a {
+    gap: 0.0625rem;
+  }
+  body.is-twa-app #top .nav-capsule a span {
+    font-size: 9px;
+    line-height: 1.1;
+  }
+
+  /* (5) زر القائمة (الميجا منيو) أصغر بنفس النسبة للتناسق — وظيفته تبقى كما هي */
+  body.is-twa-app #top .nav-capsule > button {
+    height: 2.1rem;
+    width: 2.1rem;
+  }
+}

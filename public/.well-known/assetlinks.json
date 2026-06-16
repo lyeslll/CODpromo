@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "com.codpromo.twa",
       "sha256_cert_fingerprints": [
-        "CA:5A:E1:A6:6C:14:88:BF:25:2A:6A:FB:7C:FF:D4:F3:A0:D7:81:A5:58:60:A6:08:0F:52:E9:03:36:78:EC:29"
+        "CA:5A:E1:A6:6C:14:88:BF:25:2A:6A:FB:7C:FF:D4:F3:A0:D7:81:A5:58:60:A6:08:0F:52:E9:03:36:78:EC:29",
+        "D1:82:5A:B0:EB:27:F6:2B:C1:2D:A3:BB:2A:D1:59:03:AC:7C:63:B0:11:B1:2B:6C:E1:DE:38:43:81:4D:7C:6A"
       ]
     }
   }

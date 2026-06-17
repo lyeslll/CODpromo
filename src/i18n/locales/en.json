@@ -45,6 +45,7 @@
     "statCodes": "Active codes",
     "statStores": "Partner stores",
     "statRating": "User rating",
+    "statRatingShort": "Rating",
     "trust": "Every code is reviewed by hand before it goes live"
   },
   "how": {

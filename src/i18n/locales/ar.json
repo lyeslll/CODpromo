@@ -45,6 +45,7 @@
     "statCodes": "كود فعّال",
     "statStores": "متجر شريك",
     "statRating": "تقييم المستخدمين",
+    "statRatingShort": "التقييم",
     "trust": "كل كود يُراجَع يدوياً قبل النشر"
   },
   "how": {

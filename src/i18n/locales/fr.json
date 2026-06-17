@@ -45,6 +45,7 @@
     "statCodes": "Codes actifs",
     "statStores": "Boutiques partenaires",
     "statRating": "Note des utilisateurs",
+    "statRatingShort": "Note",
     "trust": "Chaque code est vérifié à la main avant publication"
   },
   "how": {

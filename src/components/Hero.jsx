@@ -105,7 +105,13 @@ export default function Hero({ stats, onExplore }) {
           <Stat value={stats.stores} label={t("hero.statStores")} suffix="+" />
           <Stat
             value={stats.rating}
-            label={t("hero.statRating")}
+            label={
+              <>
+                {/* الهاتف: "التقييم" مختصر كي يبقى البوكس صغيراً متناسقاً — الحاسوب: النص الكامل */}
+                <span className="sm:hidden">{t("hero.statRatingShort")}</span>
+                <span className="hidden sm:inline">{t("hero.statRating")}</span>
+              </>
+            }
             icon={<Star size={15} className="fill-[var(--color-lime)] text-[var(--color-lime)]" />}
           />
         </motion.div>

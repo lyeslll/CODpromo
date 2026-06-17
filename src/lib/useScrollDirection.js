@@ -12,16 +12,44 @@ import { useEffect, useState, useRef } from "react";
 //   - ما دمنا فوق المرساة (لسا تحت الهيدر) → ظاهر دائماً حتى عند النزول.
 //   - من المرساة وتحت → السلوك العادي: نزول=اختفاء، صعود=ظهور.
 //   إن لم توجد المرساة في الصفحة → نرجع للسلوك الافتراضي (لا نكسر شيئاً).
+//
+//  قفل التحميل (التطبيق فقط — standalone): عند تحميل/تحديث الصفحة، يبقى
+//  الهيدر ظاهراً دائماً (يتجاهل الاختفاء عند النزول) لـ4 ثوانٍ، حتى لا يبقى
+//  شريط تحميل المتصفح وحده كخط شارد بينما الصفحة لسا تحمّل. بعدها ترجع
+//  القواعد العادية. لا يطبّق في المتصفح/سطح المكتب.
 // ============================================================
 export function useScrollDirection({ anchorSelector } = {}) {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const lastY = useRef(0);
+  const loadLockRef = useRef(false);
 
   useEffect(() => {
+    // كشف وضع التطبيق مباشرةً (لا نعتمد على ترتيب تأثير body.is-twa-app)
+    const isApp =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.matchMedia("(display-mode: fullscreen)").matches ||
+      window.navigator.standalone === true;
+
+    let lockTimer;
+    if (isApp) {
+      loadLockRef.current = true;
+      setHidden(false);
+      lockTimer = setTimeout(() => {
+        loadLockRef.current = false;
+      }, 4000);
+    }
+
     const onScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 12);
+
+      // قفل التحميل مفعّل → ظاهر دائماً، ونحدّث lastY فقط لتفادي قفزة بعد رفعه
+      if (loadLockRef.current) {
+        setHidden(false);
+        lastY.current = y;
+        return;
+      }
 
       const anchor = anchorSelector ? document.querySelector(anchorSelector) : null;
       if (anchor) {
@@ -48,7 +76,10 @@ export function useScrollDirection({ anchorSelector } = {}) {
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (lockTimer) clearTimeout(lockTimer);
+    };
   }, [anchorSelector]);
 
   return { scrolled, hidden };

@@ -296,4 +296,11 @@ input::placeholder {
     height: 2.1rem;
     width: 2.1rem;
   }
+
+  /* (6) تقليل الفراغ بين الهيدر المدمج وبداية الهيرو (شارة "عروض جديدة…").
+     نحسبها نسبة لـsafe-area كي تبقى متناسقة على كل الأجهزة (notch أو لا):
+     ارتفاع الهيدر ≈ safe-area + ~55px، فنبدأ الهيرو فوقه بقليل بفراغ صغير. */
+  body.is-twa-app .hero-section {
+    padding-top: calc(4.25rem + env(safe-area-inset-top, 0px));
+  }
 }

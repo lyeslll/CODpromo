@@ -14,7 +14,7 @@ const item = {
 export default function Hero({ stats, onExplore }) {
   const { t } = useTranslation();
   return (
-    <section className="relative overflow-hidden pt-28 pb-14 sm:pt-36 sm:pb-20">
+    <section className="hero-section relative overflow-hidden pt-28 pb-14 sm:pt-36 sm:pb-20">
       {/* ===== خلفية الأنيميشن ===== */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-grid" />

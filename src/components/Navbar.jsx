@@ -147,7 +147,7 @@ export default function Navbar({ onPremium }) {
   const [open, setOpen] = useState(false);
   // إخفاء/إظهار الهيدر حسب اتجاه التمرير (مشترك مع شريط التنقّل السفلي ليتزامنا).
   // موبايل فقط — الحاسوب يبقى ظاهراً عبر md:!translate-y-0.
-  const { scrolled, hidden } = useScrollDirection();
+  const { scrolled, hidden } = useScrollDirection({ anchorSelector: "#search-anchor" });
   const { user, signOut } = useAuth();
   const { isPremiumActive } = usePremium();
   const { t, i18n } = useTranslation();
@@ -223,7 +223,7 @@ export default function Navbar({ onPremium }) {
       className="fixed inset-x-0 top-0 z-50"
     >
       <div
-        className={`nav-inner mx-auto max-w-6xl px-4 pt-3 transition-transform duration-300 will-change-transform sm:pt-4 md:!translate-y-0 ${
+        className={`nav-inner mx-auto max-w-6xl px-4 pt-3 transition-transform duration-300 will-change-transform sm:pt-4 ${
           hidden && !open ? "-translate-y-[150%]" : "translate-y-0"
         }`}
       >

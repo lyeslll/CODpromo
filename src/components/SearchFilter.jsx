@@ -13,8 +13,8 @@ export default function SearchFilter({
   const { t } = useTranslation();
   return (
     <div className="mb-8 pt-2">
-      {/* حقل البحث */}
-      <div className="group relative">
+      {/* حقل البحث — مرساة سلوك الهيدر عند التمرير (id ثابت مستقل عن اللغة) */}
+      <div id="search-anchor" className="group relative">
         <div
           className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 blur transition-opacity duration-300 group-focus-within:opacity-100"
           style={{ background: "linear-gradient(120deg, rgba(166,240,0,0.4), rgba(56,189,248,0.25))" }}

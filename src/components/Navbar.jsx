@@ -9,7 +9,7 @@ import { useTheme } from "../lib/theme.jsx";
 import { useLocale } from "../lib/locale.jsx";
 import { useAuth } from "../lib/auth.jsx";
 import { usePremium } from "../lib/premium.jsx";
-import { useScrollDirection } from "../lib/useScrollDirection.js";
+import { useScrollVisibility } from "../lib/scrollVisibility.jsx";
 
 // روابط التنقّل + أيقونة لكل رابط (الميغا مينيو يعرضها بهرمية واضحة).
 const LINKS = [
@@ -147,7 +147,7 @@ export default function Navbar({ onPremium }) {
   const [open, setOpen] = useState(false);
   // إخفاء/إظهار الهيدر حسب اتجاه التمرير (مشترك مع شريط التنقّل السفلي ليتزامنا).
   // موبايل فقط — الحاسوب يبقى ظاهراً عبر md:!translate-y-0.
-  const { scrolled, hidden } = useScrollDirection({ anchorSelector: "#search-anchor" });
+  const { scrolled, hidden } = useScrollVisibility();
   const { user, signOut } = useAuth();
   const { isPremiumActive } = usePremium();
   const { t, i18n } = useTranslation();

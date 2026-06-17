@@ -3,17 +3,18 @@ import { motion } from "framer-motion";
 import { Home, LayoutGrid, Heart, Crown, User, LogIn } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../lib/auth.jsx";
-import { useScrollDirection } from "../lib/useScrollDirection.js";
+import { useScrollVisibility } from "../lib/scrollVisibility.jsx";
 
 // ============================================================
 //  CODpromo — شريط التنقّل السفلي (Bottom Navigation) — للهاتف فقط (md:hidden).
 //  بهوية الموقع (أسود + أخضر Lime + Tajawal)، زر مركزي بارز مرفوع (Premium).
-//  يرث سلوك الهيدر في التمرير عبر useScrollDirection (يختفي عند النزول، يظهر عند الصعود).
+//  مرآة للهيدر: يقرأ نفس حالة الظهور/الاختفاء من المصدر المشترك
+//  (useScrollVisibility) بلا أي منطق تمرير خاص به → مزامنة تامة مع الهيدر.
 // ============================================================
 export default function BottomNav({ onPremium }) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
-  const { hidden } = useScrollDirection();
+  const { hidden } = useScrollVisibility();
   const { pathname } = useLocation();
 
   const lang = i18n.language;

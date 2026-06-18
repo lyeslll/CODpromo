@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -14,11 +14,13 @@ import {
   ChevronRight,
   ChevronLeft,
   ExternalLink,
+  Smartphone,
 } from "lucide-react";
 import { useTranslation, Trans } from "react-i18next";
 import { usePremium } from "../lib/premium.jsx";
 import { useAuth } from "../lib/auth.jsx";
 import { startPremiumCheckout, startPaypalCheckout, startSlickpayCheckout } from "../lib/billing.js";
+import { isPlayBillingSupported, getPlayDetails, purchasePlay } from "../lib/playBilling.js";
 import { USD_PLANS, fmtUSD, DZ_PLANS, fmtDZ } from "../lib/plans.js";
 
 const GOLD_SOFT = "#ffe486";
@@ -37,7 +39,7 @@ const planBadgeKey = (p) => (p.best ? "badgeBest" : p.badge ? "badgePopular" : n
 export default function PremiumModal({ open, onClose }) {
   const { t } = useTranslation();
   const { redeem } = usePremium();
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
   const [step, setStep] = useState("home"); // home | pay | stripe | slickpay | paypal | stork
@@ -52,10 +54,35 @@ export default function PremiumModal({ open, onClose }) {
   const [slickpayLoading, setSlickpayLoading] = useState(false);
   const [slickpayPlan, setSlickpayPlan] = useState("year");
   const [payError, setPayError] = useState("");
+  // Google Play Billing (داخل تطبيق TWA فقط — لا أثر على الويب)
+  const [playAvailable, setPlayAvailable] = useState(false);
+  const [playDetails, setPlayDetails] = useState({});
+  const [playPlan, setPlayPlan] = useState("year");
+  const [playLoading, setPlayLoading] = useState(false);
 
   const stripeSelected = USD_PLANS.find((p) => p.key === stripePlan) || USD_PLANS[0];
   const paypalSelected = USD_PLANS.find((p) => p.key === paypalPlan) || USD_PLANS[0];
   const slickpaySelected = DZ_PLANS.find((p) => p.key === slickpayPlan) || DZ_PLANS[0];
+
+  // كشف توفّر Google Play Billing مرّة واحدة (صحيح فقط داخل تطبيق TWA المؤهّل).
+  // إن لم يتوفّر يبقى playAvailable=false وكل مسارات الدفع الويب كما هي تماماً.
+  useEffect(() => {
+    if (!isPlayBillingSupported()) return;
+    let active = true;
+    setPlayAvailable(true);
+    getPlayDetails().then((d) => {
+      if (active) setPlayDetails(d);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // قائمة طرق الدفع: داخل تطبيق Play تُعرض طريقة Play فقط (سياسة Google)،
+  // وعلى الويب تبقى القائمة الأصلية (Stripe / SlickPay / PayPal) دون تغيير.
+  const methods = playAvailable
+    ? [{ key: "play", icon: Smartphone, enabled: true }]
+    : METHODS;
 
   const close = () => {
     setError("");
@@ -68,7 +95,7 @@ export default function PremiumModal({ open, onClose }) {
   const goBack = () => {
     setError("");
     setPayError("");
-    setStep(["stripe", "paypal", "slickpay"].includes(step) ? "pay" : "home");
+    setStep(["stripe", "paypal", "slickpay", "play"].includes(step) ? "pay" : "home");
   };
 
   // الدفع يتطلّب تسجيل الدخول أولاً
@@ -125,6 +152,23 @@ export default function PremiumModal({ open, onClose }) {
     if (m.key === "stripe") setStep("stripe");
     else if (m.key === "slickpay") setStep("slickpay");
     else if (m.key === "paypal") setStep("paypal");
+    else if (m.key === "play") setStep("play");
+  };
+
+  // الدفع عبر Google Play (داخل التطبيق فقط). المنح الفعلي خادمي عبر
+  // verify-play-purchase؛ هنا نرسل الرمز فقط ثم نحدّث الملف الشخصي عند النجاح.
+  const payPlay = async () => {
+    setPayError("");
+    if (requireLogin()) return;
+    setPlayLoading(true);
+    const res = await purchasePlay(playPlan, { onVerified: refreshProfile });
+    setPlayLoading(false);
+    if (!res.ok) {
+      if (res.errorKey === "cancelled") return; // إلغاء صامت — بلا رسالة خطأ
+      return setPayError(t(`premium.playErr.${res.errorKey || "generic"}`));
+    }
+    setDone(true);
+    setTimeout(close, 1700);
   };
 
   // تفعيل كود Stork
@@ -145,6 +189,7 @@ export default function PremiumModal({ open, onClose }) {
     stripe: { h: t("premium.titles.stripeH"), s: t("premium.titles.stripeS") },
     slickpay: { h: t("premium.titles.slickpayH"), s: t("premium.titles.slickpayS") },
     paypal: { h: t("premium.titles.paypalH"), s: t("premium.titles.paypalS") },
+    play: { h: t("premium.titles.playH"), s: t("premium.titles.playS") },
     stork: { h: t("premium.titles.storkH"), s: t("premium.titles.storkS") },
   };
 
@@ -271,7 +316,7 @@ export default function PremiumModal({ open, onClose }) {
                       transition={{ duration: 0.18 }}
                       className="flex flex-col gap-2.5"
                     >
-                      {METHODS.map((m) => {
+                      {methods.map((m) => {
                         return (
                           <button
                             key={m.key}
@@ -496,6 +541,68 @@ export default function PremiumModal({ open, onClose }) {
                       </button>
                       <p className="mt-2 text-center text-[11px] text-[var(--color-mute)]">
                         {t("premium.paypalNote")}
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {/* ===== خطوة باقات Google Play (داخل تطبيق TWA فقط) ===== */}
+                  {step === "play" && (
+                    <motion.div
+                      key="play"
+                      initial={{ opacity: 0, x: 12 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -12 }}
+                      transition={{ duration: 0.18 }}
+                      className="flex flex-col"
+                    >
+                      <div className="grid grid-cols-3 gap-2 pt-2.5">
+                        {USD_PLANS.map((p) => {
+                          const active = playPlan === p.key;
+                          const priceLabel = playDetails[p.key]?.price || fmtUSD(p.price);
+                          return (
+                            <button
+                              key={p.key}
+                              type="button"
+                              onClick={() => setPlayPlan(p.key)}
+                              className="relative flex flex-col items-center gap-1 rounded-2xl border px-2 py-3 text-center transition-all"
+                              style={{
+                                borderColor: active ? GOLD_DEEP : "var(--color-ink-line)",
+                                background: active ? `${GOLD_DEEP}14` : "var(--fill)",
+                              }}
+                            >
+                              {p.badge && (
+                                <span
+                                  className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-1.5 py-0.5 text-[8.5px] font-extrabold"
+                                  style={{
+                                    background: p.best ? `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` : "var(--fill-strong)",
+                                    color: p.best ? "#0a0a0a" : "var(--text-soft)",
+                                  }}
+                                >
+                                  {t(`premium.plans.${planBadgeKey(p)}`)}
+                                </span>
+                              )}
+                              <span className="text-[12.5px] font-extrabold text-[var(--text)]">{t(`premium.plans.${p.key}`)}</span>
+                              <span
+                                className="text-[13px] font-black"
+                                style={{ color: active ? GOLD_DEEP : "var(--text)" }}
+                              >
+                                {priceLabel}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <button
+                        onClick={payPlay}
+                        disabled={playLoading}
+                        className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[15px] font-extrabold text-[#0a0a0a] disabled:opacity-70"
+                        style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
+                      >
+                        {playLoading ? <Loader2 size={18} className="animate-spin" /> : <Smartphone size={18} />}
+                        {t("premium.playBtn")}
+                      </button>
+                      <p className="mt-2 text-center text-[11px] text-[var(--color-mute)]">
+                        {t("premium.playNote")}
                       </p>
                     </motion.div>
                   )}

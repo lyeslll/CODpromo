@@ -221,7 +221,9 @@
       "paypalH": "PayPal — اختر الباقة",
       "paypalS": "ادفع مرة واحدة وفعّل Premium للمدة المختارة",
       "storkH": "عضوية Team Stork",
-      "storkS": "أدخل كودك لفتح كل المزايا"
+      "storkS": "أدخل كودك لفتح كل المزايا",
+      "playH": "الدفع عبر Google Play",
+      "playS": "ادفع بأمان عبر حسابك في Google Play"
     },
     "methods": {
       "stripeName": "بطاقة دولية",
@@ -230,6 +232,8 @@
       "slickpayDesc": "CIB / Edahabia عبر SATIM",
       "paypalName": "PayPal",
       "paypalDesc": "الدفع عبر حساب PayPal بالدولار",
+      "playName": "Google Play",
+      "playDesc": "ادفع عبر حسابك في Google Play",
       "soon": "قريباً"
     },
     "subscribeBtn": "اشترك بـ 10$/شهر",
@@ -242,6 +246,14 @@
     "slickpayNote": "دفعة واحدة بالبطاقة الجزائرية — تفعّل Premium لمدة الباقة المختارة",
     "paypalBtn": "ادفع عبر PayPal",
     "paypalNote": "دفعة واحدة — تفعّل Premium لمدة الباقة المختارة",
+    "playBtn": "ادفع عبر Google Play",
+    "playNote": "يتم الدفع والتجديد عبر حسابك في Google Play",
+    "playErr": {
+      "unavailable": "الدفع عبر Google Play غير متاح حالياً",
+      "cancelled": "تم إلغاء عملية الدفع",
+      "verify": "تعذّر تأكيد الدفع، حاول مجدداً",
+      "generic": "حدث خطأ أثناء الدفع، حاول مجدداً"
+    },
     "storkLabel": "كود Stork الخاص بك",
     "storkPlaceholder": "أدخل كود Stork الخاص بك",
     "storkActivate": "تفعيل",

@@ -221,7 +221,9 @@
       "paypalH": "PayPal — choisissez une formule",
       "paypalS": "Payez une fois et activez Premium pour la durée choisie",
       "storkH": "Adhésion Team Stork",
-      "storkS": "Saisissez votre code pour débloquer tous les avantages"
+      "storkS": "Saisissez votre code pour débloquer tous les avantages",
+      "playH": "Payer via Google Play",
+      "playS": "Payez en toute sécurité avec votre compte Google Play"
     },
     "methods": {
       "stripeName": "Carte internationale",
@@ -230,6 +232,8 @@
       "slickpayDesc": "CIB / Edahabia via SATIM",
       "paypalName": "PayPal",
       "paypalDesc": "Payez avec votre compte PayPal en USD",
+      "playName": "Google Play",
+      "playDesc": "Payez avec votre compte Google Play",
       "soon": "Bientôt"
     },
     "subscribeBtn": "S'abonner pour 10 $/mois",
@@ -242,6 +246,14 @@
     "slickpayNote": "Un paiement par carte algérienne — active Premium pour la formule choisie",
     "paypalBtn": "Payer avec PayPal",
     "paypalNote": "Paiement unique — active Premium pour la formule choisie",
+    "playBtn": "Payer via Google Play",
+    "playNote": "Facturé et renouvelé via votre compte Google Play",
+    "playErr": {
+      "unavailable": "Le paiement Google Play n'est pas disponible pour le moment",
+      "cancelled": "Le paiement a été annulé",
+      "verify": "Impossible de confirmer le paiement, veuillez réessayer",
+      "generic": "Une erreur est survenue lors du paiement, veuillez réessayer"
+    },
     "storkLabel": "Votre code Stork",
     "storkPlaceholder": "Saisissez votre code Stork",
     "storkActivate": "Activer",

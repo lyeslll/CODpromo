@@ -25,3 +25,7 @@ verify_jwt = true
 
 [functions.paypal-capture-order]
 verify_jwt = true
+
+# تحقّق Google Play (داخل تطبيق TWA) — يتطلّب جلسة مستخدم (JWT)
+[functions.verify-play-purchase]
+verify_jwt = true

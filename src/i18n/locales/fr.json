@@ -209,6 +209,10 @@
     "back": "Retour",
     "doneTitle": "Premium activé ! 👑",
     "doneDesc": "Tous les codes Premium sont débloqués — profitez des plus grosses réductions.",
+    "alreadyTitle": "Vous êtes déjà Premium 👑",
+    "alreadyDesc": "Votre abonnement est actif et tous les codes exclusifs sont débloqués — inutile de vous réabonner.",
+    "manageHint": "Pour gérer ou annuler votre abonnement : via Google Play si vous vous êtes abonné dans l'application, ou sur le site si vous vous êtes abonné sur le web.",
+    "alreadyClose": "Compris",
     "titles": {
       "homeH": "Débloquer les offres Premium",
       "homeS": "Des réductions plus fortes et des codes exclusifs",

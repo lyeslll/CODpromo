@@ -64,7 +64,13 @@ export function AuthProvider({ children }) {
     // نوع الحساب: من الـ profile أولاً ثم الميتاداتا، والافتراضي زبون
     accountType:
       profile?.account_type || user?.user_metadata?.account_type || "customer",
-    refreshProfile: () => user && loadProfile(user.id).then(setProfile),
+    // يعيد تحميل الملف الشخصي ويُرجِع النسخة الجديدة (للتحقّق الفوري من الاشتراك)
+    refreshProfile: async () => {
+      if (!user) return null;
+      const p = await loadProfile(user.id);
+      setProfile(p);
+      return p;
+    },
 
     // إنشاء حساب بالإيميل وكلمة المرور (metadata = نوع الحساب وبياناته) + captcha
     signUp: (email, password, metadata = {}, captchaToken) =>

@@ -19,6 +19,11 @@ const write = (v) => {
   }
 };
 
+// اشتراك Premium نشط حسب الملف الشخصي (مصدر الحقيقة الخادمي): is_premium=true
+// و premium_until في المستقبل (أو غير محدّد). يُستعمل لمنع الدفع المزدوج.
+export const isPremiumProfile = (p) =>
+  !!(p?.is_premium && (!p.premium_until || new Date(p.premium_until) > new Date()));
+
 const PremiumContext = createContext({
   unlocked: false,
   isPremiumActive: false,
@@ -30,10 +35,7 @@ export function PremiumProvider({ children }) {
   const [localUnlock, setLocalUnlock] = useState(read);
 
   // مفتوح إن كان الحساب Premium ساري المفعول، أو فُعّل كود في هذا المتصفّح
-  const profileUnlock = !!(
-    profile?.is_premium &&
-    (!profile.premium_until || new Date(profile.premium_until) > new Date())
-  );
+  const profileUnlock = isPremiumProfile(profile);
   const unlocked = profileUnlock || localUnlock;
 
   const redeem = useCallback(

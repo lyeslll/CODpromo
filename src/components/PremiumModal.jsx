@@ -17,7 +17,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import { useTranslation, Trans } from "react-i18next";
-import { usePremium } from "../lib/premium.jsx";
+import { usePremium, isPremiumProfile } from "../lib/premium.jsx";
 import { useAuth } from "../lib/auth.jsx";
 import { startPremiumCheckout, startPaypalCheckout, startSlickpayCheckout } from "../lib/billing.js";
 import { isPlayBillingSupported, getPlayDetails, purchasePlay } from "../lib/playBilling.js";
@@ -38,7 +38,7 @@ const planBadgeKey = (p) => (p.best ? "badgeBest" : p.badge ? "badgePopular" : n
 
 export default function PremiumModal({ open, onClose }) {
   const { t } = useTranslation();
-  const { redeem } = usePremium();
+  const { redeem, isPremiumActive } = usePremium();
   const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
@@ -161,6 +161,13 @@ export default function PremiumModal({ open, onClose }) {
     setPayError("");
     if (requireLogin()) return;
     setPlayLoading(true);
+    // احتياط ضد الدفع المزدوج: أعد التحقّق من الاشتراك قبل بدء الشراء.
+    // إن كان نشطاً بالفعل، يتحوّل المودال تلقائياً لرسالة "أنت مشترك Premium".
+    const fresh = await refreshProfile?.();
+    if (isPremiumProfile(fresh)) {
+      setPlayLoading(false);
+      return;
+    }
     const res = await purchasePlay(playPlan, { onVerified: refreshProfile });
     setPlayLoading(false);
     if (!res.ok) {
@@ -227,7 +234,7 @@ export default function PremiumModal({ open, onClose }) {
             </button>
 
             {/* زر رجوع (في الخطوات الداخلية) */}
-            {!done && step !== "home" && (
+            {!done && !isPremiumActive && step !== "home" && (
               <button
                 onClick={goBack}
                 aria-label={t("premium.back")}
@@ -244,6 +251,23 @@ export default function PremiumModal({ open, onClose }) {
                 </div>
                 <h3 className="text-[20px] font-black text-[var(--text)]">{t("premium.doneTitle")}</h3>
                 <p className="text-[14px] text-[var(--text-soft)]">{t("premium.doneDesc")}</p>
+              </div>
+            ) : isPremiumActive ? (
+              /* حارس منع الدفع المزدوج: مشترك Premium نشط أصلاً → لا أزرار دفع */
+              <div className="relative flex flex-col items-center gap-3 py-6 text-center">
+                <div className="grid h-16 w-16 place-items-center rounded-2xl" style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}>
+                  <Crown size={30} className="text-[#0a0a0a]" />
+                </div>
+                <h3 className="text-[20px] font-black text-[var(--text)]">{t("premium.alreadyTitle")}</h3>
+                <p className="text-[14px] text-[var(--text-soft)]">{t("premium.alreadyDesc")}</p>
+                <p className="mt-1 text-[12px] leading-relaxed text-[var(--color-mute)]">{t("premium.manageHint")}</p>
+                <button
+                  onClick={close}
+                  className="mt-2 rounded-2xl px-6 py-3 text-[14px] font-extrabold text-[#0a0a0a]"
+                  style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
+                >
+                  {t("premium.alreadyClose")}
+                </button>
               </div>
             ) : (
               <div className="relative">

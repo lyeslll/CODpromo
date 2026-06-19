@@ -209,6 +209,10 @@
     "back": "Back",
     "doneTitle": "Premium activated! 👑",
     "doneDesc": "Every Premium code is unlocked — enjoy the biggest discounts.",
+    "alreadyTitle": "You're already Premium 👑",
+    "alreadyDesc": "Your subscription is active and every exclusive code is unlocked — no need to subscribe again.",
+    "manageHint": "To manage or cancel your subscription: via Google Play if you subscribed in the app, or on the website if you subscribed on the web.",
+    "alreadyClose": "Got it",
     "titles": {
       "homeH": "Unlock Premium deals",
       "homeS": "Bigger discounts and exclusive codes",

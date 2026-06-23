@@ -304,3 +304,29 @@ input::placeholder {
     padding-top: calc(4.25rem + 4px + env(safe-area-inset-top, 0px));
   }
 }
+
+/* ======================================================================
+   Safe Area خاصة بـ iOS Capacitor (is-ios-app) — الموبايل فقط.
+   نطاق صارم: body.is-ios-app + (max-width: 767px) فقط.
+   → الويب والمتصفح وAndroid: صفر تغيير. الأحجام لا تتبدّل.
+   ====================================================================== */
+@media (max-width: 767px) {
+  /* (1) الهيدر: نطرح 0.75rem (= pt-3 الأصلي) من safe-area باش تبقى الكبسولة
+     مباشرة تحت الـ Dynamic Island. max() تضمن 0.75rem كحد أدنى على الأجهزة
+     القديمة (iPhone SE/8 حيث env صغير). */
+  body.is-ios-app #top .nav-inner {
+    padding-top: max(calc(env(safe-area-inset-top, 0px) - 0.75rem), 0.75rem) !important;
+  }
+
+  /* (2) هيرو: يتبع نفس الحساب (3.5rem = 4.25rem - 0.75rem) */
+  body.is-ios-app .hero-section {
+    padding-top: calc(3.5rem + 4px + env(safe-area-inset-top, 0px));
+  }
+
+  /* (3) Bottom Nav: الـ nav الخارجي عنده inline paddingBottom يرفع الأيقونات
+     فوق home indicator — نغطّي الفراغ الشفّاف تحت الـ inner div بلون الخلفية فقط.
+     لا نزيد حجم ولا padding إضافي (تفادياً لمضاعفة safe-area). */
+  body.is-ios-app nav[aria-label] {
+    background-color: var(--elev);
+  }
+}

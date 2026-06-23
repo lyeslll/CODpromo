@@ -7,6 +7,12 @@ import { LocaleProvider } from "./lib/locale.jsx";
 import "./i18n/index.js";
 import "flag-icons/css/flag-icons.min.css";
 import "./index.css";
+import { Capacitor } from "@capacitor/core";
+
+// iOS Capacitor: نضيف صنف للـ body باش تُطبَّق تعديلات safe area الخاصة بـ iOS فقط.
+if (Capacitor.getPlatform() === "ios") {
+  document.body.classList.add("is-ios-app");
+}
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

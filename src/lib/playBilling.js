@@ -29,7 +29,12 @@ const ALL_PRODUCT_IDS = Object.values(PLAY_PRODUCT_IDS);
 // كشف توفّر Play Billing (رَن-تايم). صحيح فقط داخل تطبيق TWA المؤهّل.
 // ----------------------------------------------------------------------------
 export function isPlayBillingSupported() {
-  return typeof window !== "undefined" && "getDigitalGoodsService" in window;
+  return (
+    typeof window !== "undefined" &&
+    "getDigitalGoodsService" in window &&
+    typeof document !== "undefined" &&
+    document.referrer.startsWith("android-app://")
+  );
 }
 
 // يجلب خدمة Digital Goods الخاصة بـ Play (أو null إن لم تتوفّر).

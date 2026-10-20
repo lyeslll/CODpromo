@@ -2,137 +2,124 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Commands
+> ⚠️ الريبو **عمومي**: ممنوع تكتب هنا (ولا في أي ملف داخل الريبو) أي مفتاح سرّي، PIN، أو كلمة سر. أسماء المتغيرات والـ secrets فقط.
 
+---
+
+## 1. المشروع
+
+- **CODpromo** — منصة عربية (RTL) لأكواد الخصم / الكوبونات / الكاش باك للسوق الجزائري والعربي، مع نظام اشتراك **Premium** يكشف أكواد حصرية.
+- **الموقع:** `codpromo.com` — منشور على **Vercel** (نشر تلقائي عند كل `git push` على `main`).
+- **المستودع:** GitHub `lyeslll/CODpromo` (عمومي).
+- **المسار المحلي (Windows):** `D:\CODPROMO\codpromo-project\codpromo`
+- **الـ Stack:** Vite 5 + React 18 + React Router 7 · Tailwind CSS v4 (عبر `@tailwindcss/vite`، **ما كاينش `tailwind.config.js`** — الـ tokens في `@theme` داخل `src/index.css`) · framer-motion · lucide-react · react-i18next · react-helmet-async · Supabase (DB + Auth + Storage + Edge Functions) · Capacitor 8 (iOS).
+- **الهوية البصرية:** أسود + أخضر ليموني (`--color-lime` `#a6f000`) · خط Tajawal للعربية و Inter للإنجليزية/الفرنسية · Dark افتراضي مع Light.
+
+### الأوامر
 ```bash
-npm run dev      # Vite dev server
-npm run build    # production build to dist/
-npm run preview  # serve the production build locally
+npm run dev        # Vite dev server
+npm run build      # build للإنتاج في dist/
+npm run preview    # تشغيل الـ build محلياً
+npm run pwa-icons  # توليد أيقونات PWA من public/favicon-1024.png
 ```
+ما كاين لا test runner لا linter لا formatter.
 
-There is no test runner, linter, or formatter configured. Deployment is Vercel (`vercel.json` rewrites all routes to `/index.html` for the SPA).
-
-## Project overview (نظرة عامة)
-
-- **CODpromo** — منصة أكواد خصم / كوبونات / كاش باك، عربية RTL.
-- **الهوية البصرية:** أسود + أخضر ليموني (`--color-lime` `#a6f000`) + خط Tajawal. تدعم الوضع الداكن والفاتح (Dark/Light).
-- **النشر:** منشور على **codpromo.com** عبر **Vercel** (نشر تلقائي عند كل `git push`).
-- **المستودع:** GitHub — `github.com/lyeslll/CODpromo`.
-- **قاعدة البيانات:** Supabase. لوحة `/admin` محمية بـ PIN في متغير بيئة (`VITE_ADMIN_PIN`).
-
-### المنجز (Done)
-التصميم الكامل · مصادقة كاملة (Google + hCaptcha) · داشبورد الأعضاء (زبون / شركة) · لوحة الأدمن (إحصائيات / تصدير CSV / إدارة الطلبات) · نافذة جمع الإيميل (Email popup) · نظام Premium.
-
-### المتبقي (To do)
-- إصلاحات Premium: الإطار الذهبي، ارتفاع البطاقة، و`supports_premium` لكل بطاقة على حدة. (تأثير الخدش scratch صار نظام Canvas حقيقي — أُنجز.)
-- قالب الإيميلات.
-
-> **كشف كود Premium (الخدش):** `ScratchCanvas` في `src/components/CompanyCard.jsx` — خدش حقيقي بـ HTML5 Canvas (Pointer Events + `destination-out`)، كشف تلقائي عند ~50٪، جزيئات ذهبية، اهتزاز (`navigator.vibrate`)، ولمعة احتفالية. يظهر فقط للمشترك المصرّح له؛ الكود الحقيقي يبقى يُجلب خادمياً عبر `get_premium_code` (قبل الكشف تحت الغطاء `••••••` فقط).
-
-### العمل مع المالك (إلياس)
-المالك **إلياس مبتدئ**. عند الشرح أو التوجيه:
-- اشرح **بالعربية**، بسطور قصيرة وبسيطة.
-- وجّهه **خطوة بخطوة**، ولا تفترض معرفة تقنية مسبقة.
-
-### رفع التعديلات (نشر)
+### النشر
 ```bash
 git add -A && git commit -m "وصف التعديل" && git push
 ```
-Vercel ينشر التغييرات تلقائياً بعد الدفع — لا حاجة لخطوة نشر يدوية.
+- **الويب:** Vercel ينشر وحدو بعد الـ push. `vercel.json`: كل المسارات → `index.html` (SPA)، ما عدا `/sitemap.xml` → `api/sitemap.js`، و `/store/:slug` و `/category/:slug` (بـ ar/en/fr) → `api/prerender.js` (SEO للـ bots). `/.well-known/assetlinks.json` مستثنى (لتطبيق Android).
+- **Edge Functions:** ما تنشرش مع Vercel. `supabase functions deploy <name> --project-ref uulcgvdsqivgkiulurhk` (و `translate-company` مع `--no-verify-jwt`).
 
-## What this is
+### البنية التقنية
+- **Providers:** `main.jsx` → `HelmetProvider` → `LocaleProvider` → `ThemeProvider` → `App.jsx` → `AuthProvider` → `PremiumProvider` → `CategoriesProvider` → `VoteStatsProvider` → `ScrollVisibilityProvider` → الراوتر. الـ hooks: `useAuth()`, `usePremium()`, `useTheme()`, `useLocale()`.
+- **جوج طرق للوصول لـ Supabase (مهم):**
+  - `src/lib/supabase.js` — `fetch` يدوي على PostgREST/Storage بالمفتاح العام: جدول `companies` (قراءة عامة + كتابة الأدمن) ورفع اللوغوهات لـ bucket `logos`. يقدر يبعث توكن المستخدم في كتابات الأدمن.
+  - `src/lib/supabaseClient.js` — SDK `@supabase/supabase-js` بجلسة محفوظة. كل شي مرتبط بالمستخدم: `auth.jsx`, `favorites.js`, `requests.js`, `stork.js`, `subscribers.js`, `admin.js`, `billing.js`, `playBilling.js`, `votes.js`.
+  - كل ملف في `src/lib/*.js` طبقة بيانات لمجال واحد؛ المكوّنات ما تنادي Supabase مباشرة.
+- **المسارات:** `/`، `/store/:slug`، `/category/:slug`، `/categories`، `/favorites` (كل وحدة بـ `/en/...` و `/fr/...`)، `/login`، `/signup`، `/forgot-password`، `/reset-password`، `/payment-success|cancel|return|return-paypal`، `/privacy`، `/account-deletion`، `/dashboard` (محمي بـ `RequireAuth`، يتفرّع لـ زبون/شركة حسب `accountType`)، `/admin` (دايماً dark و RTL). أي مسار مجهول → `Home`.
+- **الثيم:** سكربت inline في `index.html` يقرا `localStorage["codpromo:theme"]` قبل أول رسم. الألوان متغيرات CSS (`--text`, `--elev`, `--fill`, `--color-ink*`, `--color-lime`…) معرّفة تحت `.dark` / `.light` — استعملها في `className` (مثلاً `bg-[var(--color-ink-card)]`) بلا hex مباشر.
+- **أنواع العروض:** enum عربي ثابت `"تخفيض"` / `"كوبون"` / `"كاش باك"` في `src/lib/types.js`، يتعرض مترجم عبر `getTypeKey`.
+- **قاعدة البيانات:** ملفات SQL مرقّمة تتشغّل يدوياً في Supabase SQL Editor بالترتيب (كلها idempotent):
+  `supabase-setup` → `supabase-auth-setup` → `supabase-auth-phase2` → `phase3` → `phase4` → `phase5` → `phase6a` → `phase6a-note4` → `phase7-stripe` → `phase8-slickpay` → `phase9-paypal` → `phase10-i18n` → `phase11-i18n-value` → `phase12-premium-code-url` → `phase13-seo` → `phase14-categories` → `phase15-admin` → `phase16-rls-lock` → `phase17a-premium-rpcs` → `phase17b-premium-lock` → `phase18-premium-description` → `phase19-code-votes` → `phase20-google-play`.
+  أي عمود أو جدول جديد = ملف phase جديد، ماشي تعديل ملف قديم.
+- **متغيرات البيئة (الويب):** في `.env` (gitignored) و Vercel، شوف `.env.example`: `VITE_ADMIN_PIN`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_HCAPTCHA_SITE_KEY`. `supabase.js` و `supabaseClient.js` فيهم fallback للـ URL والمفتاح العام.
 
-CODpromo is an Arabic, RTL, dark-first single-page app for discount/coupon/cashback codes (Algeria / Arab market). Stack: Vite + React 18 + React Router 7, Tailwind CSS v4 (via the `@tailwindcss/vite` plugin — there is **no `tailwind.config.js`**; theme tokens live in `@theme` inside `src/index.css`), framer-motion, lucide-react. Source comments and UI strings are in Arabic.
+---
 
-## Two Supabase access patterns (important)
+## 2. طريقة الخدمة
 
-The codebase talks to one Supabase project through **two separate clients** — pick the right one when adding code:
+- البرومتات تجي من **محادثة Claude منفصلة**. **نفّذ مباشرة** — بلا ما تعطي plan وتستنى الموافقة.
+- **خدمة الويب في Windows برك، وخدمة iOS في الماك برك.** من Windows ما تمسّش دوسي `ios/`.
+- المالك (إلياس) مبتدئ: اشرح **بالعربية**، بسطور قصيرة وبسيطة، **خطوة بخطوة**، بلا ما تفترض معرفة تقنية.
 
-- **`src/lib/supabase.js`** — hand-rolled `fetch` against the PostgREST/Storage REST API using the publishable key directly. This is the **public `companies` table** layer (read for the storefront, write for the admin panel) plus logo uploads to the `logos` storage bucket. It does **not** carry an auth session.
-- **`src/lib/supabaseClient.js`** — the `@supabase/supabase-js` SDK with a persisted auth session (`detectSessionInUrl`, autorefresh). Everything **auth-aware** uses this: `auth.jsx`, `favorites.js`, `requests.js`, `stork.js`, `subscribers.js`, `admin.js`. Queries here run under the logged-in user and rely on RLS.
+---
 
-Each `src/lib/*.js` module is a thin data-access layer for one domain (companies, favorites, requests, stork, subscribers, admin reads, profiles). UI components import these — they do not call Supabase inline.
+## 3. القواعد الصارمة
 
-## Provider tree & routing
+- **`public/favicon.png` ممنوع تمسّو** — لا تعيد توليده لا تبدّلو. هو الأصل بخلفية شفافة لأيقونة التبويب. سكربت `pwa-icons` يولّد غير أيقونات PWA من `favicon-1024.png`.
+- **`src/components/Navbar.jsx` الأسطر 238–243 ممنوع تتبدّل** — هي `<span>` تاع "شعرة الضوء الليموني" فوق كبسولة الهيدر (تبدا بالتعليق `{/* شعرة ضوء ليموني علوية … */}` وتسالي بـ `/>`). إذا تبدّلو أرقام الأسطر، القاعدة تبقى على هاد البلوك.
+- **Android signing:** ممنوع تولّد signing key جديد. `signing.keystore` يبقى كيما راه.
+- **Android package ID يبقى `com.codpromo.twa`** (مربوط بـ Google Play و `public/.well-known/assetlinks.json`).
+- **iOS:** أي CSS ولا منطق خاص بـ iOS يكون محصور تحت **`body.is-ios-app`** برك (الصنف يتزاد في `src/main.jsx` كي `Capacitor.getPlatform() === "ios"`). ما يأثّرش على الويب ولا Android.
+- **ما كاين حتى نص ظاهر للمستخدم hardcoded:** كلش عبر react-i18next في `src/i18n/locales/{ar,en,fr}.json` بنفس المفاتيح في الثلاثة. الأعلام صور SVG (`flag-icons`) ماشي emoji. أي حقل نصي ديناميكي جديد في قاعدة البيانات يظهر للمستخدم: زيد `<field>_en` / `<field>_fr` في phase جديد، زيدو لـ `I18N_FIELDS` في `src/lib/supabase.js`، واعرض نسخة اللغة النشطة مع fallback للعربية.
+- **ممنوع تحلّ Xcode وحدك.**
+- **ممنوع تكتب أسرار** (مفاتيح، PIN، passwords) في أي ملف داخل الريبو.
 
-`main.jsx` → `ThemeProvider` → `App.jsx` → `AuthProvider` → `PremiumProvider` → `BrowserRouter` routes. Consume via the hooks `useTheme()`, `useAuth()`, `usePremium()`.
+---
 
-- `useAuth()` exposes `user`, `session`, `profile`, `accountType` (`"customer"` | `"company"`, read from the `profiles` row, falling back to `user_metadata`), and the auth actions (`signUp`, `signIn`, `signInWithGoogle`, `resetPassword`, `updatePassword`, `signOut`). All email/password and reset flows pass an hCaptcha token.
-- `/dashboard` is wrapped in `RequireAuth` (redirects unauthenticated users to `/login`). `pages/Dashboard.jsx` then forks to `CustomerDashboard` or `CompanyDashboard` based on `accountType`.
-- `/admin` is force-wrapped in a `<div className="dark">` so the admin panel stays dark regardless of the site theme.
-- Unknown routes fall through to `Home`.
+## 4. واش تكمّل
 
-## Premium / Stork unlocking
+**الموقع**
+- التصميم الكامل (RTL، Dark/Light)، هيدر بميغا مينيو، Bottom Nav للهاتف، فوتر.
+- صفحات الشركات والفئات (`/store`, `/category`, `/categories`) والمفضّلة (`/favorites`).
+- مصادقة كاملة (Email/Password + Google + hCaptcha، reset password)، داشبورد زبون / شركة.
+- لوحة `/admin`: الشركات، الفئات، الطلبات، المشتركين، أعضاء Premium، SEO، التصويت، تصدير CSV.
+- نافذة جمع الإيميل، نظام تصويت 👍/👎 على الأكواد (`code_votes` + RPC `cast_vote`).
+- SEO: صفحات بـ 3 لغات، `api/prerender.js` للـ bots، `api/sitemap.js`، Google Search Console.
+- PWA (`vite-plugin-pwa`: manifest + service worker + أيقونات).
+- صفحات `/privacy` و `/account-deletion` (مطلوبة من Google Play).
 
-`PremiumProvider` (`src/lib/premium.jsx`) computes `unlocked` as **either** a valid premium profile (`profile.is_premium` and `premium_until` in the future) **or** a local unlock flag in `localStorage` (`codpromo:premium-unlock`). Redeeming a Stork code (`stork.js`) marks the one-time code used, grants the signed-in user 30 days of premium, and sets the local flag. Per-company `supports_premium` controls whether a card shows premium pricing.
+**Premium**
+- `PremiumProvider` (`src/lib/premium.jsx`): `unlocked` = بروفايل Premium ساري (`is_premium` + `premium_until`) أو علم محلي `codpromo:premium-unlock`.
+- كود ورابط Premium مستقلين لكل شركة، `supports_premium` لكل شركة (مع زر في جدول الأدمن)، وصف Premium منفصل ومترجم.
+- كشف الكود بخدش حقيقي (`ScratchCanvas` في `src/components/CompanyCard.jsx`: Canvas + Pointer Events، كشف عند ~50٪). الكود الحقيقي يتجاب خادمياً عبر RPC `get_premium_code`.
+- حماية من الاشتراك المزدوج: الدفع يتخبّى إذا المستخدم راه Premium (ويب + Play).
 
-### Payment providers (طرق الدفع)
+**الدفع** (`src/components/PremiumModal.jsx` + `src/lib/billing.js` + `src/lib/plans.js`؛ المبالغ الموثوقة في الخادم فقط)
+- **Stripe** — live. 3 اشتراكات متجدّدة بالدولار: شهر $10 / 3 أشهر $25 / سنة $90. `create-checkout-session` → Stripe Checkout → `/payment-success`، و `stripe-webhook` يزامن `is_premium` / `premium_until` / `plan_type`.
+- **SlickPay** — live (CIB/Edahabia عبر SATIM). 3 باقات: 2500 / 6500 / 24000 دج (30/90/365 يوم)، المرجع الخادمي في `supabase/functions/_shared/slickpay.ts`. الـ payload لازم فيه `address`.
+- **PayPal** — مفعّل في الواجهة: باقات لمرة واحدة بالدولار (`paypal-create-order` → `/payment-return-paypal` → `paypal-capture-order`).
+- **Google Play Billing** — داخل تطبيق Android (TWA) برك، عبر Digital Goods API (`src/lib/playBilling.js`). المنتجات: `premium_monthly` / `premium_quarterly` / `premium_yearly`. المنح خادمي عبر Edge Function `verify-play-purchase` وجدول `google_play_purchases` (phase20). داخل التطبيق يبان Play وحدو؛ على الويب Stripe / SlickPay / PayPal كيما هوما.
+- **Stork** — أكواد ترويجية لمرة وحدة تعطي 30 يوم (RPC `redeem_stork_code`).
 
-`PremiumModal.jsx` offers four unlock paths: **Stripe** (recurring USD subscription), **PayPal** (one-time USD plans), **SlickPay** (Algerian CIB/Edahabia via SATIM), and **Stork** promo codes. Each provider has a 3-card plan-selection sub-step in the modal (USD plans = `USD_PLANS`, DZD = `DZ_PLANS`, both in `src/lib/plans.js`). `src/lib/billing.js` wraps the Supabase Edge Functions for each provider; the trusted amounts/durations live server-side (never trusted from the browser).
+**الأمان**
+- S1 (phase15): `profiles.is_admin` + دالة `is_admin()`.
+- S2 (phase16): قفل RLS — الكتابة على `companies` والجداول الإدارية للأدمن برك.
+- S3 (phase17a/b): `premium_code` / `premium_url` ممنوعين من القراءة العامة، trigger يحمي حقول الاشتراك في `profiles`، و `stork_codes` مقفول.
+- `/admin`: بوابة PIN في المتصفح (`VITE_ADMIN_PIN`) + تسجيل دخول إجباري؛ الكتابات تمشي بتوكن المستخدم والحماية الحقيقية هي RLS `is_admin()`.
 
-**Stripe is live in production** — three **recurring** USD plans: **month $10 / quarter $25 / year $90** (the year card shows "الأكثر توفيراً"). Each plan maps to a Stripe Price ID held in Supabase secrets: `STRIPE_PRICE_ID` (month, the original), `STRIPE_PRICE_ID_QUARTER` (every 3 months), `STRIPE_PRICE_ID_YEAR` (yearly) — all currency **USD**. Flow: `startPremiumCheckout(plan)` → `create-checkout-session` (validates `plan` ∈ month/quarter/year, defaults to month for back-compat; forces `currency:"usd"`; passes `plan_type` in subscription metadata) → Stripe hosted checkout (`mode:"subscription"`) → `/payment-success`. Stripe drives renewal; `stripe-webhook` syncs `is_premium`, `premium_until` (from `current_period_end`, so correct for every interval), `subscription_status`, `plan_type` (from sub metadata), and `payment_provider:"stripe"` on checkout/subscription/invoice events. Tested LIVE with a 100%-off coupon — Premium activated correctly. Other Stripe secrets: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`.
+**i18n**
+- ar (افتراضي، RTL) / en / fr (LTR) عبر react-i18next؛ المفاتيح متطابقة في الثلاثة (396 مفتاح).
+- `LocaleProvider` يضبط `lang` + `dir` على `<html>` ويحفظ `codpromo:lang`؛ زر `LanguageSwitcher`.
+- ترجمة تلقائية لمحتوى الشركات والفئات (`description_*`, `category_*`…) عبر Edge Function `translate-company` (Anthropic API، المفتاح في Supabase secrets برك) + زر "ترجم الكل" في الأدمن.
+- استعمل خصائص Tailwind المنطقية (`ps/pe`, `ms/me`, `start/end`)؛ الأيقونات الاتجاهية تنقلب بـ `ltr:rotate-180`. `/admin` يبقى عربي ثابت.
 
-**SlickPay is live in production.** Three DZD plans: **شهر 2500 / 3 أشهر 6500 / سنة 24000 دج** (30/90/365 days), defined in `src/lib/plans.js` (`DZ_PLANS`) for display and authoritatively in `supabase/functions/_shared/slickpay.ts` (`PLANS`). Flow: `startSlickpayCheckout` → `slickpay-create-invoice` → SATIM → `/payment-return` → `slickpay-invoice-status` → `activatePremium`, with `slickpay-webhook` as the server-to-server confirmation. The invoice payload **must include `address`** (SlickPay prod returns 422 without it). Secrets in Supabase: `SLICKPAY_PUBLIC_KEY`, `SLICKPAY_WEBHOOK_SIGNATURE`, `SLICKPAY_BASE_URL` (set to `https://prodapi.slick-pay.com/api/v2`). Edge Functions deploy via `supabase functions deploy <name> --project-ref uulcgvdsqivgkiulurhk` (not Vercel).
+**Android (TWA)**
+- مبني بـ Bubblewrap **خارج الريبو** في `D:\CODPROMO\bubblewrap-build` (`twa-manifest.json`: host `codpromo.com`، آخر نسخة versionCode 4 / 1.0.0.2).
+- الـ keystore خارج الريبو في `D:\CODPROMO\CODpromo - Google Play package\`.
+- `public/.well-known/assetlinks.json` فيه بصمتي Upload Key و Google Play App Signing (لإخفاء شريط المتصفح).
+- تخصيصات وضع التطبيق (standalone): هيدر مدمج، منع قائمة long-press وترجمة Chrome، الهيدر ظاهر ~4 ثواني عند التحميل.
 
-## Admin auth is frontend-only — and RLS is wide open
+**iOS (Capacitor 8)**
+- مشروع `ios/` متزاد (commit `07d29be`): `appId` / Bundle ID `com.codpromo.app`، نسخة 1.0 (build 1)، splash وأيقونة من `resources/`.
+- التطبيق يحمّل الـ `dist/` المبني محلياً (ما كاينش `server.url`) — أي تبديل في الويب يحتاج `npm run build` + `npx cap sync ios` على الماك.
+- Safe area في `src/index.css` تحت `body.is-ios-app` (موبايل فقط).
 
-The `/admin` panel is gated by a PIN compared in the browser (`src/lib/config.js`, `ADMIN_PIN` from `VITE_ADMIN_PIN`, unlock state in `sessionStorage`). This is **not** real security: the SQL policies grant the anonymous/publishable key full read+write on `companies`, and public read on `profiles`, `company_requests`, `email_subscribers`, and `stork_codes` (see the security notes in `supabase-phase4.sql` / `phase5` / `phase6a`). Treat all "admin" data as readable by anyone with the public key. Do not assume server-side authorization exists.
+---
 
-## Database
+## 5. واش باقي مفتوح (مؤكّد من الكود)
 
-Schema is applied by running the numbered SQL files manually in the Supabase SQL editor, **in order**, once each (all are idempotent / safe to re-run):
-
-`supabase-setup.sql` (companies + logos bucket) → `supabase-auth-setup.sql` (profiles) → `supabase-auth-phase2.sql` (account_type/company fields + `handle_new_user` trigger) → `supabase-phase3.sql` (favorites + company_requests) → `supabase-phase4.sql` (admin read policies) → `supabase-phase5.sql` (email_subscribers) → `supabase-phase6a.sql` (premium + stork_codes) → `supabase-phase6a-note4.sql` (`companies.supports_premium`).
-
-When you add a column or table in code, add a matching idempotent migration as the next phase file rather than editing earlier ones.
-
-Offer types are a fixed Arabic enum used across UI and stats — `"تخفيض"` (discount), `"كوبون"` (coupon), `"كاش باك"` (cashback) — defined with their colors/icons in `src/lib/types.js`.
-
-## PWA والأيقونات
-
-طبقة PWA عبر `vite-plugin-pwa` (إعدادها في `vite.config.js`): manifest + service worker (Network-First لبيانات Supabase، CacheFirst للصور/الخطوط، autoUpdate). أيقونات التطبيق (`pwa-192/512`, `pwa-maskable-192/512`, `apple-touch-icon`) تُولَّد من `public/favicon-1024.png` عبر `npm run pwa-icons` (`scripts/gen-pwa-icons.mjs`).
-
-> **قاعدة دائمة (إلزامية):** `public/favicon.png` هو التصميم **الأصلي بخلفية شفافة** لأيقونة تبويب المتصفح — **ممنوع إعادة توليده أو استبداله نهائياً**. فقط أيقونات PWA تُولَّد من `favicon-1024.png` (سكربت `pwa-icons` لا يلمس `favicon.png`).
-
-## Code voting (التصويت على الأكواد)
-
-كل بطاقة كود فيها قسم "هل نجح هذا الكود معك؟" (👍/👎) بنسبة نجاح وشارة "🔥 الأكثر نجاحاً" — لبناء الثقة و SEO. الهجرة `supabase-phase19-code-votes.sql` (شغّلها مرّة واحدة):
-
-- جدول `code_votes` (صوت واحد لكل مصوّت لكل شركة عبر `unique(company_id, voter_id)`). RLS: **قراءة عامة فقط**؛ كل كتابة تمرّ حصراً عبر RPC `cast_vote` (SECURITY DEFINER، ذرّية). هوية المسجّل تُشتقّ خادمياً من `auth.uid()` (`'u:'||uid`) فلا تُنتحَل؛ الزائر بمعرّف `localStorage` (`'a:'||id`). لا حذف/تعديل مباشر.
-- View `code_vote_stats`: `up_count`/`down_count`/`total_count`/`success_rate`/`last_up_at` لكل شركة (للقراءة العامة المجمّعة).
-- الواجهة: `src/lib/votes.js` (RPC + voter id + التخزين المحلي `codpromo:voter-id` / `codpromo:votes` + `relativeTime`)، و`VoteStatsProvider` (`src/lib/voteStats.jsx`، مركّب في `App.jsx` فوق الراوتر) يجلب خريطة الإحصائيات مرّة واحدة ويوفّرها لكل البطاقات. مكوّن `src/components/CodeVote.jsx` داخل `CompanyCard` فيظهر تلقائياً في الرئيسية/الفئة/الشركة/المفضّلة وللأكواد العادية و Premium. الرئيسية تدعم الترتيب حسب نسبة النجاح. لوحة الأدمن: تبويب «التصويت» (`src/components/admin/VotesTable.jsx`) لاكتشاف الأكواد الميتة (نسبة منخفضة).
-
-## i18n — اللغات (عربي / إنجليزي / فرنسي)
-
-الموقع متعدّد اللغات عبر **react-i18next**: العربية (الافتراضية، RTL) + الإنجليزية + الفرنسية (LTR).
-
-- ملفات الترجمة في `src/i18n/locales/{ar,en,fr}.json` (مفتاح واحد لكل نص، ويجب أن تبقى المفاتيح **متطابقة** في اللغات الثلاث). التهيئة في `src/i18n/index.js`.
-- `src/lib/locale.jsx` (`LocaleProvider` / `useLocale`) يضبط `lang` + `dir` على `<html>`، يحفظ الاختيار في `localStorage` (`codpromo:lang`)، والافتراضي عربي. سكربت anti-flash في `index.html` يضبط اللغة/الاتجاه قبل أول رسم.
-- زر اللغة: `src/components/LanguageSwitcher.jsx` (في Navbar + AuthShell + DashboardShell).
-- الخط يتبدّل عبر CSS حسب `[lang]` في `src/index.css`: Tajawal للعربية، Inter للإنجليزية/الفرنسية.
-- RTL/LTR: استعمل خصائص Tailwind المنطقية (`ps/pe`, `ms/me`, `start/end`, `text-start/text-end`) لا الفيزيائية (`pl/pr`, `left/right`)، والأيقونات الاتجاهية تنقلب بـ `ltr:rotate-180`.
-- لوحة `/admin` تبقى عربية RTL ثابتة (ملفوفة بـ `dir="rtl" lang="ar"`) ولا تُترجم. قيم أنواع العروض تبقى عربية في القاعدة وتُعرض مترجمة عبر `getTypeKey` في `src/lib/types.js`.
-
-### ترجمة المحتوى الديناميكي (حقول قاعدة البيانات)
-الأوصاف/الفئات الديناميكية للشركات تُترجم **تلقائياً** عند الحفظ، ولا تُترك بالعربية فقط:
-- الأعمدة: `description` + `description_en` + `description_fr`، و`category` + `category_en` + `category_fr` (العربية هي المصدر و fallback). الهجرة في `supabase-phase10-i18n.sql`.
-- Edge Function `translate-company` (موديل `claude-haiku-4-5-20251001`) يترجم عبر Anthropic API؛ المفتاح `ANTHROPIC_API_KEY` من Supabase secrets فقط (أبداً في الكود/GitHub). نشر: `supabase functions deploy translate-company --no-verify-jwt --project-ref uulcgvdsqivgkiulurhk`.
-- `addCompany`/`updateCompany` في `src/lib/supabase.js` يستدعيان الترجمة تلقائياً عبر `withTranslations` (إن فشلت، يُحفظ بالعربية ويُترجَم لاحقاً). زر **"ترجم الكل"** في لوحة الأدمن (تبويب الشركات) يعمل Backfill للموجود.
-- العرض في `CompanyCard.jsx` يختار نسخة اللغة النشطة مع fallback للعربية. أسماء العلامات والأكواد والأرقام تبقى كما هي بلا ترجمة.
-
-### قاعدة دائمة (إلزامية)
-> **أي ميزة أو محتوى جديد يُضاف إلى الموقع يجب أن يُترجَم تلقائياً للّغات الثلاث (ar/en/fr) عبر react-i18next بنفس النظام الحالي — لا نصوص مكتوبة مباشرة (hardcoded) في الواجهة. والأعلام تكون صوراً/SVG (مكتبة `flag-icons`) وليست emoji.**
->
-> **وأي حقل نصي ديناميكي جديد يُضاف لقاعدة البيانات ويظهر للمستخدم (وصف، فئة، عنوان عرض…) يجب أن يتبع نفس نظام الترجمة التلقائية:** أضِف أعمدة `<field>_en` / `<field>_fr` في هجرة جديدة، أدرِج الحقل في `I18N_FIELDS` بـ `src/lib/supabase.js` ليُترجَم عند الحفظ وفي زر "ترجم الكل"، واعرض نسخة اللغة النشطة مع fallback للعربية.
-
-## Theming
-
-Dark is the default. An inline script in `index.html` reads `localStorage["codpromo:theme"]` and sets the `<html>` class **before first paint** to avoid a flash, and shows a `#boot` spinner that `main.jsx` fades out after React mounts. `ThemeProvider` keeps the class in sync. Colors are CSS custom properties (`--text`, `--elev`, `--fill`, `--accent-text`, `--color-ink*`, `--color-lime`, …) redefined under `.dark` / `.light` in `src/index.css` — reference these vars in `className` (e.g. `bg-[var(--color-ink-card)]`) rather than hardcoding hex.
-
-## Environment variables
-
-Set in `.env` locally (gitignored) and in Vercel; see `.env.example`. Note that `supabase.js` and `supabaseClient.js` ship **hardcoded fallbacks** for the Supabase URL/key, so the app runs without env vars, but `VITE_ADMIN_PIN` defaults to a placeholder and must be set for the admin panel.
-
-- `VITE_ADMIN_PIN` — admin panel PIN
-- `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` — Supabase project
-- `VITE_HCAPTCHA_SITE_KEY` — hCaptcha site key (the `10000000-…0001` test key always passes)
+- **iOS — الدفع:** ما كاين حتى منطق دفع خاص بـ iOS. داخل تطبيق iOS، `PremiumModal` يعرض Stripe / SlickPay / PayPal كيما الويب (ما كاين لا In-App Purchase لا إخفاء). لازم قرار قبل التقديم للـ App Store.
+- **قالب الإيميلات:** ما كاين حتى قالب إيميل في الريبو.
+- **PayPal — وضع live:** الكود يستعمل sandbox افتراضياً (`_shared/paypal.ts`) إلا إذا تضبط secret `PAYPAL_BASE_URL`. الكود وحدو ما يأكّدش إذا راه live.

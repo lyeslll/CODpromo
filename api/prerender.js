@@ -10,6 +10,7 @@
 //    /store/:slug        → /api/prerender?type=store&lang=ar&slug=:slug
 //    /en/store/:slug     → ...lang=en...   (وكذلك fr، والفئات)
 //    /offers             → /api/prerender?type=offers&lang=ar   (وكذلك /en و/fr)
+//    /partners           → /api/prerender?type=partners&lang=ar (وكذلك /en و/fr)
 // ============================================================
 
 import { readFileSync } from "node:fs";
@@ -96,6 +97,7 @@ const prefix = (l) => (l === "ar" ? "" : `/${l}`);
 const storeUrl = (slug, l) => `${SITE_URL}${prefix(l)}/store/${slug}`;
 const categoryUrl = (slug, l) => `${SITE_URL}${prefix(l)}/category/${slug}`;
 const offersUrl = (l) => `${SITE_URL}${prefix(l)}/offers`;
+const partnersUrl = (l) => `${SITE_URL}${prefix(l)}/partners`;
 
 // نصوص الصفحات العامة من ملفات الترجمة نفسها (src/i18n/locales — مضمّنة عبر
 // functions.includeFiles في vercel.json) حتى لا تتكرّر النصوص هنا.
@@ -290,6 +292,31 @@ export default async function handler(req, res) {
         breadcrumbOf([
           { name: L.store?.breadcrumbHome || SITE_NAME, url: `${SITE_URL}${prefix(lang)}/` },
           { name: L.offers?.title || title, url: canonical },
+        ]),
+      ];
+      const headExtra = buildHead({ lang, title, description, canonical, image: DEFAULT_OG_IMAGE, alternates, jsonLd });
+      return serveTemplate(res, inject(template, { lang, title, description, headExtra }));
+    }
+
+    if (type === "partners") {
+      const L = locale(lang) || locale("ar");
+      const P = L?.partners;
+      if (!P?.seo) return serveTemplate(res, template);
+      const title = P.seo.title;
+      const description = P.seo.description;
+      const canonical = partnersUrl(lang);
+      const alternates = ["ar", "en", "fr"].map((l) => ({ lang: l, url: partnersUrl(l) }));
+      const faq = ["cost", "who", "time", "codes", "edit", "stats"]
+        .map((k) => P.faq?.[k])
+        .filter((f) => f?.q && f?.a);
+      const jsonLd = [
+        { "@context": "https://schema.org", "@type": "WebPage", name: title, description, url: canonical, inLanguage: lang },
+        ...(faq.length
+          ? [{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }]
+          : []),
+        breadcrumbOf([
+          { name: L.store?.breadcrumbHome || SITE_NAME, url: `${SITE_URL}${prefix(lang)}/` },
+          { name: P.breadcrumb || title, url: canonical },
         ]),
       ];
       const headExtra = buildHead({ lang, title, description, canonical, image: DEFAULT_OG_IMAGE, alternates, jsonLd });

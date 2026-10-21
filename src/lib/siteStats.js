@@ -13,6 +13,8 @@ export const SITE_STAT_FIELDS = [
   "total_codes",
   "partners_count",
   "premium_unlock_value_usd",
+  "users_count",
+  "audience_followers",
 ];
 
 const num = (v) => {
@@ -30,6 +32,8 @@ export async function fetchSiteStats() {
     totalCodes: num(data.total_codes),
     partnersCount: num(data.partners_count),
     premiumUnlockValueUsd: num(data.premium_unlock_value_usd),
+    usersCount: num(data.users_count),
+    audienceFollowers: num(data.audience_followers),
   };
 }
 
@@ -37,14 +41,14 @@ export async function fetchSiteStats() {
 export async function fetchSiteStatsAdmin() {
   const [raw, pub] = await Promise.all([
     supabase.from("site_stats").select("*").eq("id", 1).maybeSingle(),
-    supabase.from("site_stats_public").select("total_codes_auto,partners_count_auto").maybeSingle(),
+    supabase.from("site_stats_public").select("total_codes_auto,partners_count_auto,users_count_auto").maybeSingle(),
   ]);
   if (raw.error) throw new Error(raw.error.message);
   return { values: raw.data || {}, auto: pub.data || {} };
 }
 
 /**
- * للأدمن: يحفظ الأرقام الأربعة (خانة فارغة = null = تلقائي أو مخفي).
+ * للأدمن: يحفظ الأرقام (خانة فارغة = null = تلقائي أو مخفي).
  * يرمي Error("not-allowed") إن رفضت RLS التعديل (الحساب ليس أدمن).
  */
 export async function updateSiteStats(values) {

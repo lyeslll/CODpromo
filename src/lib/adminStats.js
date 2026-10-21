@@ -52,7 +52,7 @@ export async function fetchUserCopies(userId, limit = 10) {
 
 // ===================== معلومات الشركة الداخلية (company_private) =====================
 
-export const PRIVATE_FIELDS = ["website_url", "contact_name", "whatsapp", "email", "commission_pct", "affiliate_dashboard_url", "notes"];
+export const PRIVATE_FIELDS = ["website_url", "contact_name", "whatsapp", "email", "commission_pct", "affiliate_dashboard_url", "affiliate_url", "notes"];
 
 /** المعلومات الداخلية لشركة (أو null). */
 export async function fetchCompanyPrivate(companyId) {

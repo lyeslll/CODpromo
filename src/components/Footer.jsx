@@ -16,7 +16,7 @@ import { useAppTarget } from "../lib/appInstall.js";
 import { useCategories } from "../lib/categories.jsx";
 import { activeCategories, countByCategory } from "../lib/offerFilters.js";
 import { categoryName, categoryRecordSlug } from "../lib/slug.js";
-import { categoriesPath, homePath, offersLink, offersPath } from "../lib/seo.js";
+import { categoriesPath, homePath, offersLink, offersPath, partnersPath } from "../lib/seo.js";
 
 // رمز QR (ومكتبته) يُحمَّل فقط حين يقترب الفوتر وعلى الحاسوب — لا يثقل باقي الصفحات
 const PlayQr = lazy(() => import("./app/PlayQr.jsx"));
@@ -101,7 +101,8 @@ function FooterCol({ id, title, desktop, children }) {
  * التطبيق + تابعنا، كلمة CODpromo الضخمة، والسطر الأخير مع توقيع Ilyes Derradji.
  * onPremium: نافذة Premium الخاصة بالصفحة — وإلا يفتح الفوتر نسخته (نفس النافذة).
  */
-export default function Footer({ onPremium }) {
+/** showCta=false يخفي كوبون «افتح العروض / Premium» فوق الفوتر (صفحة الشركات لها CTA خاص بها). */
+export default function Footer({ onPremium, showCta = true }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const year = new Date().getFullYear();
@@ -150,7 +151,7 @@ export default function Footer({ onPremium }) {
 
   return (
     <>
-      <FooterCta onPremium={openPremium} innerRef={ctaRef} />
+      {showCta && <FooterCta onPremium={openPremium} innerRef={ctaRef} />}
 
       <footer ref={ref} className="relative mt-14 overflow-hidden border-t border-[var(--color-ink-line)] pb-12 md:pb-0">
         <div aria-hidden className="pointer-events-none absolute -top-28 left-1/2 h-56 w-[760px] -translate-x-1/2 rounded-full blur-[110px]" style={{ background: "radial-gradient(circle, rgba(166,240,0,0.09), transparent 65%)" }} />
@@ -212,7 +213,7 @@ export default function Footer({ onPremium }) {
 
               <FooterCol id="f-biz" title={t("footer.business")} desktop={desktop}>
                 <li>
-                  <Link to="/signup?type=company" className={linkCls}>
+                  <Link to={partnersPath(lang)} className={linkCls}>
                     <Building2 size={15} aria-hidden className="text-[var(--color-mute)]" /> {t("footer.addOffers")}
                   </Link>
                 </li>

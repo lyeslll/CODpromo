@@ -14,7 +14,9 @@ const GOLD_BG = "linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e)";
  */
 export default function PremiumNavButton({ onOpen, compact = false }) {
   const { t, i18n } = useTranslation();
-  const { isPremiumActive } = usePremium();
+  const { isPremiumActive, isLifetime } = usePremium();
+  // حساب الأدمن: Premium مدى الحياة
+  const memberLabel = isLifetime ? t("premium.lifetime") : t("header.member");
   const navigate = useNavigate();
   const size = compact ? "h-9 gap-1 rounded-xl px-2 text-[12.5px] max-[369px]:px-2.5" : "gap-1.5 rounded-xl px-3 py-2 text-[13.5px] xl:px-3.5";
   // الهواتف الضيّقة (< 370px) لا تتّسع للشعار والنص معاً: التاج وحده ظاهر، والنص يبقى لقارئ الشاشة
@@ -26,13 +28,13 @@ export default function PremiumNavButton({ onOpen, compact = false }) {
         type="button"
         onClick={() => navigate(offersLink(i18n.language, { mode: "premium" }))}
         title={t("hero.ctaMember")}
-        aria-label={t("header.member")}
+        aria-label={memberLabel}
         className={`flex shrink-0 items-center whitespace-nowrap border font-extrabold transition-colors hover:bg-[#f0c63c]/15 ${size}`}
         style={{ borderColor: "rgba(240,198,60,0.55)", background: "linear-gradient(120deg, rgba(240,198,60,0.16), rgba(240,198,60,0.05))", color: "#ffe486" }}
       >
         <Crown size={compact ? 14 : 15} />
         {/* الهاتف: مساحة ضيقة → "Premium" بإطار ذهبي يكفي لتمييز العضو */}
-        <span className={label}>{compact ? t("premiumToggle.premium") : t("header.member")}</span>
+        <span className={label}>{compact ? t("premiumToggle.premium") : memberLabel}</span>
       </button>
     );
   }

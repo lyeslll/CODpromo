@@ -36,7 +36,7 @@ const METHODS = [
 /** شارة الباقة المترجمة (الأكثر شيوعاً / الأكثر توفيراً) أو لا شيء. */
 const planBadgeKey = (p) => (p.best ? "badgeBest" : p.badge ? "badgePopular" : null);
 
-export default function PremiumModal({ open, onClose }) {
+export default function PremiumModal({ open, onClose, initialStep = "home" }) {
   const { t } = useTranslation();
   const { redeem, isPremiumActive } = usePremium();
   const { user, refreshProfile } = useAuth();
@@ -83,6 +83,11 @@ export default function PremiumModal({ open, onClose }) {
   const methods = playAvailable
     ? [{ key: "play", icon: Smartphone, enabled: true }]
     : METHODS;
+
+  // فتح النافذة مباشرة على خطوة معيّنة (مثلاً "stork" من الداشبورد)
+  useEffect(() => {
+    if (open) setStep(initialStep);
+  }, [open, initialStep]);
 
   const close = () => {
     setError("");

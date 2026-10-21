@@ -7,6 +7,7 @@ import { getTypeMeta, getTypeKey } from "../lib/types.js";
 import { companySlug, companyCategoryRecord, categoryName } from "../lib/slug.js";
 import { useCategories } from "../lib/categories.jsx";
 import { getPremiumCode } from "../lib/supabase.js";
+import { logCodeCopy } from "../lib/copies.js";
 import { isImageUrl } from "./CompanyLogo.jsx";
 import CodeVote from "./CodeVote.jsx";
 import { GlowSpot, useCardGlow } from "./CardGlow.jsx";
@@ -108,11 +109,14 @@ export default function CompanyCard({
     }
     // في وضع Premium نجلب الكود الحقيقي خادمياً قبل النسخ (لا نعتمد على صف الشركة)
     let code = company.code;
+    let copiedPremium = false;
     if (premium) {
       const d = await ensurePremium();
       code = d?.premium_code || company.code;
+      copiedPremium = !!d?.premium_code;
     }
     onCopy(company, code);
+    logCodeCopy(company.id, copiedPremium);
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
   };

@@ -303,7 +303,8 @@
       "year": "Year",
       "badgePopular": "Most popular",
       "badgeBest": "Best value"
-    }
+    },
+    "lifetime": "Lifetime Premium"
   },
   "auth": {
     "or": "or",
@@ -395,23 +396,15 @@
     "loading": "Loading…",
     "customer": {
       "badge": "Shopper account",
-      "welcome": "Hi, {{name}} 👋",
-      "subtitle": "This is your personal dashboard on CODpromo",
       "friend": "friend",
-      "email": "Email",
-      "accountType": "Account type",
-      "accountTypeVal": "Shopper",
+      "accountTypeVal": "Customer account",
       "memberSince": "Member since",
-      "upgradeTitle": "Upgrade to Premium",
       "upgradeDesc": "Bigger discounts, exclusive codes and higher cashback.",
-      "upgradeBtn": "Upgrade now",
       "favorites": "Favorites",
       "items": "{{count}} items",
       "emptyTitle": "No favorites yet",
       "emptyDesc": "Browse stores and tap the heart ♡ to save your favorite deals here.",
-      "browse": "Browse deals",
-      "copy": "Copy code",
-      "remove": "Remove"
+      "browse": "Browse deals"
     },
     "company": {
       "badge": "Business account",
@@ -444,6 +437,66 @@
       "pending": "Under review",
       "accepted": "Approved",
       "rejected": "Rejected"
+    },
+    "plan": {
+      "yourPlan": "Your plan",
+      "yourPlanFree": "Your plan: Regular",
+      "free": "Regular",
+      "plan_month": "Monthly Premium",
+      "plan_quarter": "3-month Premium",
+      "plan_year": "Yearly Premium",
+      "endsOn": "Ends on",
+      "noEnd": "No end date",
+      "paidWith": "Payment method",
+      "forever": "Every Premium code stays open for you",
+      "daysLeft": "Days left in your plan",
+      "perMonth": "per month",
+      "openPremium": "Open Premium",
+      "storkQ": "Member of the Stork community?",
+      "storkCta": "Activate Premium free with your code"
+    },
+    "stats": {
+      "copied": "codes copied",
+      "favorites": "in favorites",
+      "votes": "votes"
+    },
+    "copies": {
+      "title": "Codes you copied recently",
+      "last": "Last {{count}}",
+      "emptyTitle": "You haven't copied a code yet",
+      "emptyDesc": "Every code you copy from the offers shows up here, ready to copy again.",
+      "again": "Copy again",
+      "done": "Copied",
+      "unlock": "Open Premium"
+    },
+    "newOffers": {
+      "title": "New offers for you",
+      "fromFavs": "Latest in your favorite categories",
+      "latest": "Latest offers on CODpromo",
+      "all": "All offers"
+    },
+    "grow": {
+      "title": "Grow your business",
+      "ilyesDesc": "Content to learn e-commerce",
+      "storkTitle": "Stork Community",
+      "storkDesc": "The e-commerce community and its paid track.",
+      "storkPerk": "Members get Premium for free"
+    },
+    "settings": {
+      "title": "Settings",
+      "name": "Name",
+      "password": "Password",
+      "language": "Language",
+      "googleOnly": "You sign in with Google, so your password is managed in your Google account.",
+      "saved": "Saved",
+      "nameRequired": "Enter your name",
+      "failed": "Couldn't save. Try again.",
+      "saveName": "Save name",
+      "savePassword": "Change password",
+      "show": "Show password",
+      "hide": "Hide password",
+      "logout": "Log out",
+      "deleteAccount": "Delete account"
     }
   },
   "payment": {

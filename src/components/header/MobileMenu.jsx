@@ -57,7 +57,7 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
   const navigate = useNavigate();
   const reduce = useReducedMotion();
   const { user } = useAuth();
-  const { isPremiumActive } = usePremium();
+  const { isPremiumActive, isLifetime } = usePremium();
   const { categories } = useCategories();
   const offers = useHeaderOffers(open);
   const app = useAppTarget();
@@ -193,7 +193,7 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
                     <Crown size={21} />
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-[18px] font-black text-[#ffe486]">{isPremiumActive ? t("header.member") : t("premiumToggle.premium")}</span>
+                    <span className="block text-[18px] font-black text-[#ffe486]">{isPremiumActive ? (isLifetime ? t("premium.lifetime") : t("header.member")) : t("premiumToggle.premium")}</span>
                     <span className="mt-0.5 block text-[13px] font-medium text-[var(--text-soft)]">{isPremiumActive ? t("hero.ctaMember") : t("nav.premiumSub")}</span>
                   </span>
                 </div>

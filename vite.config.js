@@ -8,8 +8,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      // تحديث تلقائي: عند نشر نسخة جديدة، يتفعّل الـSW الجديد فوراً (skipWaiting)
-      // فلا يعلق المستخدم على نسخة قديمة. لا يحتاج أي كود في التطبيق (حقن تلقائي).
+      // تحديث تلقائي: عند نشر نسخة جديدة، يتفعّل الـSW الجديد فوراً (skipWaiting)،
+      // و src/lib/swAutoReload.js يعيد تحميل الصفحة المفتوحة في لحظة آمنة فلا تبقى النسخة القديمة.
       registerType: "autoUpdate",
       injectRegister: "auto",
       manifestFilename: "manifest.json",

@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { MotionConfig } from "framer-motion";
 import { AuthProvider } from "./lib/auth.jsx";
@@ -11,6 +11,7 @@ import { dirOf } from "./i18n/index.js";
 import Home from "./pages/Home.jsx";
 import RequireAuth from "./components/auth/RequireAuth.jsx";
 import CursorGlow from "./components/CursorGlow.jsx";
+import { reloadIfUpdatePending } from "./lib/swAutoReload.js";
 import AppBanner from "./components/app/AppBanner.jsx";
 
 // باقي الصفحات تُحمَّل عند زيارتها فقط (حزمة الصفحة الرئيسية أخفّ)
@@ -65,6 +66,16 @@ function langFromPath(pathname, current) {
 function RouteLangSync() {
   const { pathname } = useLocation();
   const { lang, setLang } = useLocale();
+
+  // نسخة جديدة من الموقع تنتظر؟ نحمّلها عند هذا التنقّل (لحظة آمنة — الصفحة تتبدّل أصلاً)
+  const firstPath = useRef(true);
+  useEffect(() => {
+    if (firstPath.current) {
+      firstPath.current = false;
+      return;
+    }
+    reloadIfUpdatePending();
+  }, [pathname]);
 
   useEffect(() => {
     const desired = langFromPath(pathname, lang);

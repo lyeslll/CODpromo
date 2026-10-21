@@ -7,6 +7,10 @@ import "./i18n/index.js";
 import "flag-icons/css/flag-icons.min.css";
 import "./index.css";
 import { Capacitor } from "@capacitor/core";
+import { startSwAutoReload } from "./lib/swAutoReload.js";
+
+// الموقع يحدّث نفسه تلقائياً عند نشر نسخة جديدة (بدل بقاء النسخة القديمة المحفوظة)
+startSwAutoReload();
 
 // iOS Capacitor: نضيف صنف للـ body باش تُطبَّق تعديلات safe area الخاصة بـ iOS فقط.
 if (Capacitor.getPlatform() === "ios") {

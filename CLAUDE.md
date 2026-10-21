@@ -46,7 +46,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 - **أنواع العروض:** enum عربي ثابت `"تخفيض"` / `"كوبون"` / `"كاش باك"` في `src/lib/types.js`، يتعرض مترجم عبر `getTypeKey`. في الرابط: `type=discount|coupon|cashback` (`TYPE_PARAMS` في `src/lib/offerFilters.js`).
 - **الألوان الثلاثة (من `types.js` بالضبط):** تخفيض `#a6f000` · كوبون `#38bdf8` · كاش باك `#fbbf24`. Premium = ذهبي (`#ffe486` / `#f0c63c` / `#cf9a1e`). اللون يعني النوع (أو Premium) فقط، ماشي زينة.
 - **قاعدة البيانات:** ملفات SQL مرقّمة تتشغّل بالترتيب (كلها idempotent):
-  `supabase-setup` → `supabase-auth-setup` → `supabase-auth-phase2` → `phase3` → `phase4` → `phase5` → `phase6a` → `phase6a-note4` → `phase7-stripe` → `phase8-slickpay` → `phase9-paypal` → `phase10-i18n` → `phase11-i18n-value` → `phase12-premium-code-url` → `phase13-seo` → `phase14-categories` → `phase15-admin` → `phase16-rls-lock` → `phase17a-premium-rpcs` → `phase17b-premium-lock` → `phase18-premium-description` → `phase19-code-votes` → `phase20-google-play` → `phase21-site-stats` → `phase22-admin-premium-copies`.
+  `supabase-setup` → `supabase-auth-setup` → `supabase-auth-phase2` → `phase3` → `phase4` → `phase5` → `phase6a` → `phase6a-note4` → `phase7-stripe` → `phase8-slickpay` → `phase9-paypal` → `phase10-i18n` → `phase11-i18n-value` → `phase12-premium-code-url` → `phase13-seo` → `phase14-categories` → `phase15-admin` → `phase16-rls-lock` → `phase17a-premium-rpcs` → `phase17b-premium-lock` → `phase18-premium-description` → `phase19-code-votes` → `phase20-google-play` → `phase21-site-stats` → `phase22-admin-premium-copies` → `phase23-admin-v2` → `phase24-lock-is-admin`.
   أي عمود أو جدول جديد = ملف phase جديد، ماشي تعديل ملف قديم.
 - **متغيرات البيئة (الويب):** في `.env` (gitignored) و Vercel، شوف `.env.example`: `VITE_ADMIN_PIN`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. `supabase.js` و `supabaseClient.js` فيهم fallback للـ URL والمفتاح العام.
 
@@ -82,7 +82,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 ### أرقام الصفحة الرئيسية — جدول `site_stats` (phase21)
 - سطر واحد (`id = 1`): `total_savings_dzd`, `total_codes`, `partners_count`, `premium_unlock_value_usd`. قراءة عامة، تعديل للأدمن برك (RLS `is_admin()`).
 - الواجهة تقرا `site_stats_public` (view): الخانة الفارغة تتحسب خادمياً بعدّ دقيق (`site_stats_auto()`: عدد الأكواد العادية + Premium، وعدد الشركاء). القيمتان الماليتان ما تتحسبوش — فارغة = مخفية.
-- لوحة الأدمن: تبويب "أرقام الرئيسية" (`src/components/admin/SiteStatsManager.jsx`). لوحة `/admin` عربية ثابتة: نصوصها الجديدة في ملفات الترجمة وتتعرض بالعربية عبر `i18n.getFixedT("ar")`.
+- لوحة الأدمن: صفحة "أرقام الصفحة الرئيسية" (`/admin/site-stats`، `src/components/admin/SiteStatsManager.jsx`). لوحة `/admin` عربية ثابتة: نصوصها الجديدة في ملفات الترجمة وتتعرض بالعربية عبر `i18n.getFixedT("ar")`.
 
 ---
 
@@ -139,15 +139,22 @@ git add -A && git commit -m "وصف التعديل" && git push
 - **Google Play Billing** — داخل تطبيق Android (TWA) برك، عبر Digital Goods API (`src/lib/playBilling.js`). المنتجات: `premium_monthly` / `premium_quarterly` / `premium_yearly`. المنح خادمي عبر Edge Function `verify-play-purchase` وجدول `google_play_purchases` (phase20). داخل التطبيق يبان Play وحدو؛ على الويب Stripe / SlickPay / PayPal كيما هوما.
 - **Stork** — أكواد ترويجية لمرة وحدة تعطي 30 يوم (RPC `redeem_stork_code`).
 
+**لوحة الأدمن v2** (`src/pages/Admin.jsx` + `src/components/admin/v2/`)
+- قائمة جانبية ثابتة على اليسار (تصغر لأيقونات، ودرج في الهاتف) ولكل صفحة رابط: `/admin`، `/admin/companies` (+ `/new` و `/:id`)، `/admin/categories`، `/admin/requests`، `/admin/votes`، `/admin/users`، `/admin/subscribers`، `/admin/premium`، `/admin/site-stats`، `/admin/seo`. المسار في `App.jsx` هو `/admin/*`.
+- الأرقام والمستخدمون من دوال خادمية (phase23، `src/lib/adminStats.js`): `admin_overview(range)`، `admin_list_users(...)` (الإيميل وآخر دخول وطريقة الدخول من `auth.users`)، `admin_user_copies(user)` — كلها SECURITY DEFINER وتبدأ بـ `admin_assert()`.
+- فورم الشركة مكوّن مستقل `src/components/offer-form/CompanyOfferForm.jsx` (لإعادة الاستعمال في بوابة الشركات) بمعاينة حية عبر `CompanyCard`. المعلومات الداخلية في جدول `company_private` (RLS للأدمن فقط) — ممنوع تخزين أي كلمة سر فيه. رابط الموقع الرسمي محفوظ فيه (`website_url`) لأن جدول `companies` ما فيهش عمود له.
+- نصوص اللوحة في `admin.v2.*` و `offerForm.*` (ar/en/fr)، وتتعرض بالعربية الثابتة.
+
 **الأمان**
 - S1 (phase15): `profiles.is_admin` + دالة `is_admin()`.
 - S2 (phase16): قفل RLS — الكتابة على `companies` والجداول الإدارية للأدمن برك.
 - S3 (phase17a/b): `premium_code` / `premium_url` ممنوعين من القراءة العامة، trigger يحمي حقول الاشتراك في `profiles`، و `stork_codes` مقفول.
 - phase21: `site_stats` قراءة عامة وتعديل للأدمن برك (مجرّب: anon ممنوع، المسجّل غير الأدمن 0 سطر).
+- phase24: trigger `protect_admin_column` يمنع تعديل `profiles.is_admin` من العميل (كان أي حساب يقدر يولّي أدمن). التعيين من SQL Editor / CLI برك.
 - `/admin`: بوابة PIN في المتصفح (`VITE_ADMIN_PIN`) + تسجيل دخول إجباري؛ الكتابات تمشي بتوكن المستخدم والحماية الحقيقية هي RLS `is_admin()`. حساب مسجّل بـ `profiles.is_admin = true` يدخل مباشرة بلا PIN (زر "افتح لوحة التحكم" في داشبورده، و"خروج" يرجعو للداشبورد).
 
 **i18n**
-- ar (افتراضي، RTL) / en / fr (LTR) عبر react-i18next؛ المفاتيح متطابقة في الثلاثة (580 مفتاح).
+- ar (افتراضي، RTL) / en / fr (LTR) عبر react-i18next؛ المفاتيح متطابقة في الثلاثة (788 مفتاح).
 - `LocaleProvider` يضبط `lang` + `dir` على `<html>` ويحفظ `codpromo:lang`؛ زر `LanguageSwitcher` (يحافظ على فلاتر `/offers` في الرابط).
 - ترجمة تلقائية لمحتوى الشركات والفئات (`description_*`, `category_*`…) عبر Edge Function `translate-company` (Anthropic API، المفتاح في Supabase secrets برك) + زر "ترجم الكل" في الأدمن.
 - استعمل خصائص Tailwind المنطقية (`ps/pe`, `ms/me`, `start/end`)؛ الأيقونات الاتجاهية تنقلب بـ `ltr:rotate-180`. `/admin` يبقى عربي ثابت.

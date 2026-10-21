@@ -593,6 +593,167 @@
       "loadError": "تعذّر تحميل الأرقام. تأكد من تشغيل ملف supabase-phase21-site-stats.sql.",
       "loading": "جارٍ التحميل…",
       "updatedAt": "آخر تحديث: {{date}}"
+    },
+    "v2": {
+      "common": {
+        "close": "إغلاق",
+        "loadFailed": "تعذّر تحميل البيانات",
+        "loading": "جارٍ التحميل…",
+        "retry": "أعد المحاولة"
+      },
+      "nav": {
+        "menu": "قائمة لوحة التحكم",
+        "open": "افتح القائمة",
+        "close": "أغلق القائمة",
+        "collapse": "صغّر القائمة",
+        "expand": "كبّر القائمة",
+        "site": "الموقع",
+        "logout": "خروج",
+        "pending": "{{count}} طلب معلّق",
+        "group": {
+          "home": "الرئيسية",
+          "content": "المحتوى",
+          "people": "المستخدمون",
+          "settings": "الإعدادات"
+        },
+        "overview": "نظرة عامة",
+        "companies": "الشركات",
+        "categories": "الفئات",
+        "requests": "الطلبات",
+        "votes": "التصويت",
+        "users": "المستخدمون",
+        "subscribers": "المشتركون في النشرة",
+        "premium": "Premium / Stork",
+        "siteStats": "أرقام الصفحة الرئيسية",
+        "seo": "SEO"
+      },
+      "range": {
+        "label": "الفترة",
+        "today": "اليوم",
+        "7d": "7 أيام",
+        "30d": "30 يوم",
+        "all": "الكل",
+        "in_today": "اليوم",
+        "in_7d": "آخر 7 أيام",
+        "in_30d": "آخر 30 يوم",
+        "in_all": "منذ البداية"
+      },
+      "ov": {
+        "sub": "أرقام CODpromo محسوبة مباشرة من قاعدة البيانات",
+        "kpi": {
+          "users": "المستخدمون",
+          "premium": "مشتركو Premium النشطون",
+          "companies": "الشركات",
+          "requests": "طلبات معلّقة",
+          "copies": "أكواد منسوخة",
+          "success": "نسبة نجاح الأكواد",
+          "subscribers": "مشتركو النشرة"
+        },
+        "today": "اليوم",
+        "last7": "7 أيام",
+        "offers": "عروض",
+        "premiumNote": "بلا حساب الأدمن",
+        "review": "افتح الطلبات للمراجعة",
+        "noPending": "لا طلبات تنتظر",
+        "votesCount": "من {{count}} تصويت في الفترة",
+        "chartSignups": "التسجيلات",
+        "chartCopies": "الأكواد المنسوخة",
+        "total": "المجموع",
+        "noData": "لا بيانات في هذه الفترة",
+        "topCopied": "أكثر 5 شركات نسخاً",
+        "topVoted": "أكثر 5 شركات تصويتاً",
+        "copiesUnit": "نسخة",
+        "votesUnit": "تصويت",
+        "successShort": "{{pct}}% نجاح",
+        "topEmpty": "لا شيء بعد في هذه الفترة",
+        "topEmptyDesc": "جرّب فترة أطول من فوق."
+      },
+      "plan": {
+        "free": "عادي",
+        "premium": "Premium",
+        "lifetime": "مدى الحياة"
+      },
+      "type": {
+        "customer": "زبون",
+        "company": "شركة"
+      },
+      "users": {
+        "count": "{{count}} مستخدم مطابق",
+        "export": "تصدير CSV",
+        "search": "ابحث بالاسم أو الإيميل",
+        "allPlans": "كل الخطط",
+        "allTypes": "كل الأنواع",
+        "joined_all": "سجّلوا في أي وقت",
+        "joined_today": "سجّلوا اليوم",
+        "joined_7d": "سجّلوا آخر 7 أيام",
+        "joined_30d": "سجّلوا آخر 30 يوم",
+        "col": {
+          "name": "الاسم والإيميل",
+          "type": "نوع الحساب",
+          "plan": "الخطة",
+          "provider": "طريقة الدخول",
+          "created": "التسجيل",
+          "lastSignIn": "آخر دخول",
+          "favorites": "المفضّلة",
+          "copies": "المنسوخة"
+        },
+        "providerEmail": "إيميل",
+        "until": "حتى {{date}}",
+        "emptyTitle": "لا مستخدمين يطابقون البحث",
+        "emptyDesc": "غيّر البحث أو الفلاتر.",
+        "page": "الصفحة {{page}} من {{pages}}",
+        "prev": "الصفحة السابقة",
+        "next": "الصفحة التالية",
+        "planType": "مدة الباقة",
+        "planTypes": {
+          "month": "شهر",
+          "quarter": "3 أشهر",
+          "year": "سنة"
+        },
+        "provider": "طريقة الدفع",
+        "company": "الشركة",
+        "recentCopies": "آخر الأكواد اللي نسخها",
+        "noCopies": "لم ينسخ أي كود بعد.",
+        "csv": {
+          "name": "الاسم",
+          "email": "الإيميل",
+          "type": "نوع الحساب",
+          "plan": "الخطة",
+          "premium_until": "نهاية Premium",
+          "provider": "طريقة الدخول",
+          "created": "تاريخ التسجيل",
+          "last_sign_in": "آخر دخول",
+          "favorites": "المفضّلة",
+          "copies": "الأكواد المنسوخة"
+        }
+      },
+      "companies": {
+        "sub": "{{count}} شركة في الموقع",
+        "add": "إضافة شركة",
+        "total": "إجمالي الشركات",
+        "translateTitle": "ترجمة المحتوى تلقائياً",
+        "translateDesc": "تترجم وصف وفئة كل الشركات إلى الإنجليزية والفرنسية (الجديد يُترجَم تلقائياً عند الحفظ).",
+        "translateAll": "ترجم الكل",
+        "translating": "جارٍ الترجمة… {{done}}/{{total}}",
+        "addTitle": "إضافة شركة جديدة",
+        "addSub": "املأ الأقسام وشوف البطاقة تتبدّل في المعاينة",
+        "editTitle": "تعديل {{name}}",
+        "back": "رجوع للشركات",
+        "notFound": "الشركة غير موجودة",
+        "notFoundDesc": "ربما حُذفت. ارجع لقائمة الشركات.",
+        "saved": "تم حفظ التعديلات",
+        "added": "تمت إضافة الشركة",
+        "categoryAdded": "تمت إضافة الفئة"
+      },
+      "pages": {
+        "categoriesSub": "رتّب الفئات اللي تظهر في الموقع",
+        "requestsSub": "{{count}} طلب ينتظر المراجعة",
+        "votesSub": "تصويت الزوار على نجاح الأكواد",
+        "subscribersSub": "الإيميلات المسجّلة في النشرة",
+        "premiumSub": "أعضاء Premium وأكواد Stork",
+        "siteStatsSub": "الأرقام اللي تظهر في الصفحة الرئيسية",
+        "seoSub": "عناوين ووصف صفحات الشركات في محركات البحث"
+      }
     }
   },
   "offers": {
@@ -760,5 +921,102 @@
     "bannerSub": "على Google Play",
     "bannerCta": "تثبيت",
     "getApp": "حمّل التطبيق"
+  },
+  "offerForm": {
+    "s": {
+      "company": "الشركة",
+      "companySub": "الهوية اللي تظهر فوق البطاقة",
+      "type": "نوع العرض",
+      "typeSub": "اللون يتبع النوع في كل الموقع",
+      "free": "العرض العادي (مجاني)",
+      "freeSub": "يظهر لكل الزوار بلا اشتراك",
+      "premium": "عرض Premium",
+      "premiumSub": "يظهر لأعضاء Premium بدل العرض العادي",
+      "private": "معلومات داخلية",
+      "privateSub": "ما تظهرش في الموقع أبداً",
+      "adminOnly": "للأدمن فقط"
+    },
+    "logo": {
+      "upload": "رفع لوجو",
+      "change": "تغيير اللوجو",
+      "remove": "إزالة",
+      "uploading": "جارٍ الرفع…",
+      "hint": "صورة مربعة بخلفية شفافة أحسن (PNG أو WebP)."
+    },
+    "f": {
+      "name": "اسم الشركة",
+      "category": "الفئة",
+      "noCategory": "بدون فئة",
+      "newCategory": "فئة جديدة",
+      "website": "رابط الموقع الرسمي",
+      "discount": "قيمة العرض",
+      "code": "كود الخصم",
+      "link": "رابط العرض",
+      "description": "الوصف",
+      "premiumDiscount": "قيمة Premium",
+      "premiumCode": "كود Premium",
+      "premiumUrl": "رابط Premium",
+      "premiumDescription": "وصف Premium",
+      "supportsPremium": "تظهر بهوية Premium",
+      "suggest": "اقترح كود",
+      "contactName": "اسم المسؤول",
+      "whatsapp": "رقم WhatsApp",
+      "email": "الإيميل",
+      "commission": "نسبة ربح المنصة (%)",
+      "affiliate": "رابط داشبورد الإحالة / الأفلييت",
+      "notes": "ملاحظات"
+    },
+    "h": {
+      "name": "مثال: YouCan",
+      "category": "تختار وحدة موجودة، ولا تزيد فئة جديدة بلا ما تخرج",
+      "website": "مثال: https://youcan.shop (يتحفظ في المعلومات الداخلية)",
+      "discount": "مثال: 20% أو 10$ أو 500 دج",
+      "code": "مثال: ILYES10",
+      "link": "مثال: https://youcan.shop/?ref=ilyes",
+      "description": "جملتين ولا ثلاثة: واش يربح التاجر بهاد العرض",
+      "premiumDiscount": "لازم تكون أقوى من العادية. مثال: 30%",
+      "premiumCode": "صعيب يتخمّن. مثال: ILY-X7Q9",
+      "premiumUrl": "رابط خاص بأعضاء Premium إن وُجد",
+      "premiumDescription": "واش يربح عضو Premium زيادة على العرض العادي",
+      "fallback": "أي حقل Premium فارغ يرجع للعرض العادي: القيمة والكود والرابط والوصف.",
+      "contactName": "الشخص اللي نتواصلو معاه في الشركة",
+      "whatsapp": "مثال: +213 555 12 34 56",
+      "email": "مثال: partners@youcan.shop",
+      "commission": "مثال: 15",
+      "affiliate": "رابط الداشبورد فقط، بلا كلمة سر",
+      "notes": "أي معلومة تفيدك: شروط الاتفاق، تاريخ التجديد…"
+    },
+    "types": {
+      "discount": "تخفيض",
+      "coupon": "كوبون",
+      "cashback": "كاش باك"
+    },
+    "warn": {
+      "https": "الرابط لازم يبدا بـ ⁦https://⁩",
+      "weaker": "قيمة Premium ماهيش أقوى من العادية"
+    },
+    "errors": {
+      "required": "هذا الحقل مطلوب",
+      "image": "الملف لازم يكون صورة",
+      "fixFields": "كمّل الحقول المطلوبة"
+    },
+    "preview": {
+      "title": "معاينة حية",
+      "normal": "عادي",
+      "premium": "Premium",
+      "namePh": "اسم الشركة",
+      "normalNote": "هكذا تظهر البطاقة لكل الزوار في /offers.",
+      "premiumNote": "هكذا يشوفها الزائر. عضو Premium يكشف الكود: {{code}}",
+      "premiumOff": "هوية Premium مطفية: البطاقة ما تظهرش في وضع Premium."
+    },
+    "cat": {
+      "title": "فئة جديدة",
+      "sub": "تتترجم للإنجليزية والفرنسية تلقائياً.",
+      "placeholder": "مثال: شركات التوصيل",
+      "save": "أضف الفئة"
+    },
+    "save": "احفظ التعديلات",
+    "add": "أضف الشركة",
+    "cancel": "إلغاء"
   }
 }

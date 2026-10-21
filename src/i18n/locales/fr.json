@@ -497,6 +497,10 @@
       "hide": "Masquer le mot de passe",
       "logout": "Se déconnecter",
       "deleteAccount": "Supprimer le compte"
+    },
+    "admin": {
+      "note": "Ceci est le compte admin",
+      "open": "Ouvrir le panneau admin"
     }
   },
   "payment": {

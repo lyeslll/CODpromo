@@ -144,10 +144,10 @@ git add -A && git commit -m "وصف التعديل" && git push
 - S2 (phase16): قفل RLS — الكتابة على `companies` والجداول الإدارية للأدمن برك.
 - S3 (phase17a/b): `premium_code` / `premium_url` ممنوعين من القراءة العامة، trigger يحمي حقول الاشتراك في `profiles`، و `stork_codes` مقفول.
 - phase21: `site_stats` قراءة عامة وتعديل للأدمن برك (مجرّب: anon ممنوع، المسجّل غير الأدمن 0 سطر).
-- `/admin`: بوابة PIN في المتصفح (`VITE_ADMIN_PIN`) + تسجيل دخول إجباري؛ الكتابات تمشي بتوكن المستخدم والحماية الحقيقية هي RLS `is_admin()`.
+- `/admin`: بوابة PIN في المتصفح (`VITE_ADMIN_PIN`) + تسجيل دخول إجباري؛ الكتابات تمشي بتوكن المستخدم والحماية الحقيقية هي RLS `is_admin()`. حساب مسجّل بـ `profiles.is_admin = true` يدخل مباشرة بلا PIN (زر "افتح لوحة التحكم" في داشبورده، و"خروج" يرجعو للداشبورد).
 
 **i18n**
-- ar (افتراضي، RTL) / en / fr (LTR) عبر react-i18next؛ المفاتيح متطابقة في الثلاثة (578 مفتاح).
+- ar (افتراضي، RTL) / en / fr (LTR) عبر react-i18next؛ المفاتيح متطابقة في الثلاثة (580 مفتاح).
 - `LocaleProvider` يضبط `lang` + `dir` على `<html>` ويحفظ `codpromo:lang`؛ زر `LanguageSwitcher` (يحافظ على فلاتر `/offers` في الرابط).
 - ترجمة تلقائية لمحتوى الشركات والفئات (`description_*`, `category_*`…) عبر Edge Function `translate-company` (Anthropic API، المفتاح في Supabase secrets برك) + زر "ترجم الكل" في الأدمن.
 - استعمل خصائص Tailwind المنطقية (`ps/pe`, `ms/me`, `start/end`)؛ الأيقونات الاتجاهية تنقلب بـ `ltr:rotate-180`. `/admin` يبقى عربي ثابت.

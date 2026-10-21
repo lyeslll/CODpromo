@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Lock,
@@ -65,7 +65,14 @@ export default function Admin() {
     () => sessionStorage.getItem(ADMIN_SESSION_KEY) === "1"
   );
   // الجلسة المُصادَقة: لازمة كي تحمل كتابات اللوحة توكن المستخدم (JWT) بدل مفتاح anon.
-  const { user, loading } = useAuth();
+  const { user, loading, profile, profileLoaded } = useAuth();
+  const navigate = useNavigate();
+
+  // 0) حساب أدمن مسجّل (profiles.is_admin) → يدخل مباشرة بلا رمز.
+  //    تسهيل فقط: الحماية الحقيقية لكل الكتابات هي RLS is_admin() في قاعدة البيانات.
+  if (loading || (user && !profileLoaded)) return <AdminLoading />;
+  //    "خروج" يرجع لداشبورد الحساب.
+  if (user && profile?.is_admin === true) return <Dashboard onLock={() => navigate("/dashboard")} />;
 
   // 1) بوابة الرمز كما هي (لا تتغيّر).
   if (!unlocked) return <PinGate onUnlock={() => setUnlocked(true)} />;

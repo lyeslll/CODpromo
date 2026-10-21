@@ -497,6 +497,10 @@
       "hide": "Hide password",
       "logout": "Log out",
       "deleteAccount": "Delete account"
+    },
+    "admin": {
+      "note": "This is the admin account",
+      "open": "Open the admin panel"
     }
   },
   "payment": {

@@ -12,6 +12,8 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
+  // انتهى جلب الملف الشخصي للمستخدم الحالي؟ (لتفادي وميض واجهة خاطئة قبل وصوله)
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -46,10 +48,14 @@ export function AuthProvider({ children }) {
     let active = true;
     if (!user) {
       setProfile(null);
+      setProfileLoaded(false);
       return;
     }
+    setProfileLoaded(false);
     loadProfile(user.id).then((p) => {
-      if (active) setProfile(p);
+      if (!active) return;
+      setProfile(p);
+      setProfileLoaded(true);
     });
     return () => {
       active = false;
@@ -61,6 +67,7 @@ export function AuthProvider({ children }) {
     session,
     loading,
     profile,
+    profileLoaded,
     // نوع الحساب: من الـ profile أولاً ثم الميتاداتا، والافتراضي زبون
     accountType:
       profile?.account_type || user?.user_metadata?.account_type || "customer",

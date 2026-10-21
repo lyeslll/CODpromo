@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Store, Check } from "lucide-react";
+import { Store, Check, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import DashboardShell from "../../components/dashboard/DashboardShell.jsx";
 import WelcomePanel from "../../components/dashboard/customer/WelcomePanel.jsx";
@@ -138,6 +138,21 @@ export default function CustomerDashboard() {
   return (
     <DashboardShell badge={t("dashboard.customer.badge")} wide>
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+        {/* حساب الأدمن فقط: دخول مباشر للوحة التحكم (بلا رمز) */}
+        {profile?.is_admin === true && (
+          <div className="order-0 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-card)] border border-[var(--color-lime)]/30 bg-[var(--color-lime)]/[0.06] px-5 py-3.5 lg:col-span-12">
+            <p className="flex items-center gap-2 text-[14px] font-bold text-[var(--text)]">
+              <ShieldCheck size={18} className="text-[var(--color-lime)]" /> {t("dashboard.admin.note")}
+            </p>
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13.5px] font-extrabold text-[#0a0a0a] transition-transform hover:scale-[1.02]"
+              style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
+            >
+              <ShieldCheck size={16} /> {t("dashboard.admin.open")}
+            </Link>
+          </div>
+        )}
         <div className="order-3 lg:order-none lg:col-span-7">
           <WelcomePanel name={name} email={user?.email} joined={joined} kind={kind} stats={{ copied: copiedCount, favorites: favLoading ? null : favorites.length, votes }} />
         </div>

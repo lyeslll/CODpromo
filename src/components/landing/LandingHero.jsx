@@ -378,7 +378,8 @@ export default function LandingHero({ companies, loading, voteStats, categories,
         {/* ===== النص ===== */}
         <div>
           <h1 className="text-balance text-[34px] font-black leading-[1.12] tracking-tight text-[var(--text)] sm:text-[48px] lg:text-[56px]">
-            {t("hero.title")}
+            <span className="block">{t("hero.titleLine1")}</span>
+            <span className="block">{t("hero.titleLine2")}</span>
           </h1>
           <p className="mt-4 text-[22px] font-black leading-snug text-[var(--color-lime)] sm:text-[26px]">{t("hero.tagline")}</p>
           <p className="mt-5 max-w-xl text-[16px] leading-[1.75] text-[var(--text-soft)] sm:text-[18px]">{t("hero.subtitle")}</p>

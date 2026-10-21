@@ -40,14 +40,15 @@
       "exampleNormal": "20%",
       "examplePremium": "30%"
     },
-    "title": "Une seule plateforme… toutes les réductions dont votre commerce a besoin.",
     "tagline": "Réduisez vos coûts. Multipliez vos bénéfices.",
     "value": {
       "free": "Gratuit pour tous",
       "unlock": "Pour seulement {{price}} $, Premium débloque +{{value}} $ de réductions",
       "unlockShort": "Débloquez Premium pour seulement {{price}} $",
       "multiplierAria": "Premium vaut {{x}} fois son prix"
-    }
+    },
+    "titleLine1": "Une seule plateforme…",
+    "titleLine2": "toutes les réductions dont votre commerce a besoin."
   },
   "how": {
     "title": "Gratuit, en trois étapes",

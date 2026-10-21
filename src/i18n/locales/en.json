@@ -40,14 +40,15 @@
       "exampleNormal": "20%",
       "examplePremium": "30%"
     },
-    "title": "One platform… every discount your business needs.",
     "tagline": "Cut your costs. Multiply your profits.",
     "value": {
       "free": "Free for everyone",
       "unlock": "Just ${{price}} unlocks +${{value}} in Premium discounts",
       "unlockShort": "Unlock Premium for just ${{price}}",
       "multiplierAria": "Premium is worth {{x}} times its price"
-    }
+    },
+    "titleLine1": "One platform…",
+    "titleLine2": "every discount your business needs."
   },
   "how": {
     "title": "Free, in three steps",

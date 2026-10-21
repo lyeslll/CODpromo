@@ -40,14 +40,15 @@
       "exampleNormal": "20%",
       "examplePremium": "30%"
     },
-    "title": "منصة واحدة… وكل الخصومات التي تحتاجها تجارتك.",
     "tagline": "قلّل تكاليفك. ضاعف أرباحك.",
     "value": {
       "free": "مجاني للجميع",
       "unlock": "بـ {{price}}$ فقط تفتح +{{value}}$ من خصومات Premium",
       "unlockShort": "افتح Premium بـ {{price}}$ فقط",
       "multiplierAria": "Premium يساوي {{x}} مرة سعره"
-    }
+    },
+    "titleLine1": "منصة واحدة…",
+    "titleLine2": "وكل الخصومات التي تحتاجها تجارتك."
   },
   "how": {
     "title": "مجاني، في ثلاث خطوات",

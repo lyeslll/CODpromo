@@ -43,7 +43,6 @@ export default function StatsStrip({ stats }) {
       value: stats.totalSavingsDzd,
       unit: t("stats.dzd"),
       label: t("stats.savings"),
-      wide: true,
     },
     stats?.totalCodes != null && { key: "codes", value: stats.totalCodes, label: t("stats.codes") },
     stats?.partnersCount != null && { key: "partners", value: stats.partnersCount, label: t("stats.partners") },
@@ -52,20 +51,24 @@ export default function StatsStrip({ stats }) {
 
   return (
     <section ref={ref} aria-label={t("stats.label")} className="relative mx-auto max-w-6xl px-4">
-      <div className="relative grid grid-cols-2 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] md:flex">
+      {/* خانات مرنة: الخانة الفارغة لا تُرسم أصلاً، والباقية تتمدّد لتملأ العرض كاملاً
+          (هاتف: خانتان في الصف والأخيرة الفردية تأخذ الصف كاملاً — حاسوب: صف واحد).
+          الخطوط المثقّبة = حافة علوية/بدائية لكل خانة، والحواف الخارجية مخفية بإزاحة 1px. */}
+      <div className="relative overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)]">
+        <div className="-ms-px -mt-px flex flex-wrap">
         {/* مجاني: الوعد الأول قبل أي رقم */}
-        <div className="col-span-2 flex flex-col justify-center gap-1 border-b border-dashed border-[var(--color-ink-line)] px-6 py-5 md:w-[23%] md:shrink-0 md:border-b-0 md:border-e">
+        <div
+          className={`flex basis-full flex-col justify-center gap-1 border-s border-t border-dashed border-[var(--color-ink-line)] px-6 py-5 ${
+            cells.length ? "md:shrink-0 md:basis-[23%]" : ""
+          }`}
+        >
           <span className="text-[30px] font-black leading-none text-[var(--accent-text)] sm:text-[34px]">{t("stats.free")}</span>
           <span className="text-[13px] font-medium leading-snug text-[var(--text-soft)]">{t("stats.freeSub")}</span>
         </div>
-        {cells.map((c, i) => (
+        {cells.map((c) => (
           <div
             key={c.key}
-            className={`relative flex flex-col justify-center gap-1 px-6 py-5 md:flex-1 ${
-              c.wide && cells.length % 2 === 1 ? "col-span-2" : ""
-            } ${i > 0 ? "md:border-s md:border-dashed md:border-[var(--color-ink-line)]" : ""} ${
-              i % 2 === 1 ? "border-s border-dashed border-[var(--color-ink-line)] md:border-s" : ""
-            } ${i >= 2 ? "border-t border-dashed border-[var(--color-ink-line)] md:border-t-0" : ""}`}
+            className="relative flex min-w-0 flex-[1_1_50%] flex-col justify-center gap-1 border-s border-t border-dashed border-[var(--color-ink-line)] px-6 py-5 md:flex-[1_1_0%]"
           >
             <span className="flex items-baseline gap-1.5 leading-none">
               <bdi
@@ -80,6 +83,7 @@ export default function StatsStrip({ stats }) {
             <span className="text-[13px] font-medium text-[var(--text-soft)]">{c.label}</span>
           </div>
         ))}
+        </div>
       </div>
     </section>
   );

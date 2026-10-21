@@ -2,8 +2,12 @@ import { motion } from "framer-motion";
 import { Crown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-/** مبدّل العرض: عادي ↔ Premium مع حركة pill سلسة. */
-export default function PremiumToggle({ value, onChange }) {
+/**
+ * مبدّل العرض: عادي ↔ Premium مع حركة pill سلسة.
+ * layoutId: مختلف لكل نسخة معروضة في نفس الصفحة (مثلاً شريط الأدوات + المبدّل العائم)
+ * حتى لا تتشارك نسختان نفس الـ pill.
+ */
+export default function PremiumToggle({ value, onChange, layoutId = "prem-pill" }) {
   const { t } = useTranslation();
   const items = [
     { key: "normal", label: t("premiumToggle.normal") },
@@ -17,13 +21,15 @@ export default function PremiumToggle({ value, onChange }) {
         return (
           <button
             key={it.key}
+            type="button"
             onClick={() => onChange(it.key)}
+            aria-pressed={active}
             className="relative z-10 flex items-center gap-1.5 rounded-xl px-4 py-2 text-[13.5px] font-extrabold transition-colors"
             style={{ color: active ? "#0a0a0a" : "var(--text-softer)" }}
           >
             {active && (
               <motion.span
-                layoutId="prem-pill"
+                layoutId={layoutId}
                 className="absolute inset-0 -z-10 rounded-xl"
                 style={{
                   background: gold

@@ -84,11 +84,11 @@
   "bottomNav": {
     "label": "Quick navigation",
     "home": "Home",
-    "categories": "Categories",
     "premium": "Premium",
     "favorites": "Favorites",
     "account": "Account",
-    "login": "Log in"
+    "login": "Log in",
+    "offers": "Offers"
   },
   "favorites": {
     "title": "Favorites",
@@ -505,6 +505,19 @@
       "loadError": "Couldn't load the numbers. Make sure supabase-phase21-site-stats.sql has been run.",
       "loading": "Loading…",
       "updatedAt": "Last updated: {{date}}"
+    }
+  },
+  "offers": {
+    "title": "All offers",
+    "subtitle": "Promo codes, coupons and cashback on what cash-on-delivery sellers pay for: shipping, store platforms, ads, payment cards and ERP.",
+    "typeLabel": "Offer type",
+    "categoryLabel": "Category",
+    "swipeHint": "Swipe the list sideways to switch"
+  },
+  "seo": {
+    "offers": {
+      "title": "All offers: promo codes, coupons and cashback | CODpromo",
+      "description": "Browse every promo code, coupon and cashback offer for cash-on-delivery sellers in Algeria and the Arab world: shipping, store platforms, ads, payment cards and ERP. Search and filter by type and category."
     }
   }
 }

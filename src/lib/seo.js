@@ -26,6 +26,21 @@ export const storePath = (slug, lang) => `${langPrefix(lang)}/store/${slug}`;
 export const categoryPath = (slug, lang) => `${langPrefix(lang)}/category/${slug}`;
 export const categoriesPath = (lang) => `${langPrefix(lang)}/categories`;
 export const favoritesPath = (lang) => `${langPrefix(lang)}/favorites`;
+export const offersPath = (lang) => `${langPrefix(lang)}/offers`;
+
+/**
+ * رابط صفحة العروض مع فلاتر جاهزة في الرابط (قابل للمشاركة):
+ * offersLink("ar", { type: "cashback", category: "payment-cards", mode: "premium", sort: "success", q: "…" })
+ * → /offers?type=cashback&category=payment-cards&mode=premium&sort=success&q=…
+ */
+export function offersLink(lang, params = {}) {
+  const qs = new URLSearchParams();
+  for (const key of ["type", "category", "mode", "sort", "q"]) {
+    if (params[key]) qs.set(key, params[key]);
+  }
+  const s = qs.toString();
+  return `${offersPath(lang)}${s ? `?${s}` : ""}`;
+}
 
 export const absUrl = (path) => `${SITE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
 
@@ -33,14 +48,16 @@ export const storeUrl = (slug, lang) => absUrl(storePath(slug, lang));
 export const categoryUrl = (slug, lang) => absUrl(categoryPath(slug, lang));
 export const categoriesUrl = (lang) => absUrl(categoriesPath(lang));
 export const favoritesUrl = (lang) => absUrl(favoritesPath(lang));
+export const offersUrl = (lang) => absUrl(offersPath(lang));
 export const homeUrl = (lang) => absUrl(homePath(lang));
 
-/** روابط hreflang المتبادلة لصفحة (المتجر/الفئة/قائمة الفئات/الرئيسية) عبر اللغات الثلاث. */
+/** روابط hreflang المتبادلة لصفحة (المتجر/الفئة/قائمة الفئات/العروض/الرئيسية) عبر اللغات الثلاث. */
 export function buildAlternates(kind, slug) {
   const urlFor = (lang) =>
     kind === "store" ? storeUrl(slug, lang)
     : kind === "category" ? categoryUrl(slug, lang)
     : kind === "categories" ? categoriesUrl(lang)
+    : kind === "offers" ? offersUrl(lang)
     : homeUrl(lang);
   return SEO_LANGS.map((lang) => ({ lang, url: urlFor(lang) }));
 }

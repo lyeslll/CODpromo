@@ -1,6 +1,14 @@
 {
+  "functions": {
+    "api/prerender.js": {
+      "includeFiles": "src/i18n/locales/**"
+    }
+  },
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/offers", "destination": "/api/prerender?type=offers&lang=ar" },
+    { "source": "/en/offers", "destination": "/api/prerender?type=offers&lang=en" },
+    { "source": "/fr/offers", "destination": "/api/prerender?type=offers&lang=fr" },
     { "source": "/store/:slug", "destination": "/api/prerender?type=store&lang=ar&slug=:slug" },
     { "source": "/en/store/:slug", "destination": "/api/prerender?type=store&lang=en&slug=:slug" },
     { "source": "/fr/store/:slug", "destination": "/api/prerender?type=store&lang=fr&slug=:slug" },

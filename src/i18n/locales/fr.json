@@ -84,11 +84,11 @@
   "bottomNav": {
     "label": "Navigation rapide",
     "home": "Accueil",
-    "categories": "Catégories",
     "premium": "Premium",
     "favorites": "Favoris",
     "account": "Compte",
-    "login": "Connexion"
+    "login": "Connexion",
+    "offers": "Offres"
   },
   "favorites": {
     "title": "Favoris",
@@ -505,6 +505,19 @@
       "loadError": "Impossible de charger les chiffres. Vérifiez que supabase-phase21-site-stats.sql a été exécuté.",
       "loading": "Chargement…",
       "updatedAt": "Dernière mise à jour : {{date}}"
+    }
+  },
+  "offers": {
+    "title": "Toutes les offres",
+    "subtitle": "Codes promo, coupons et cashback sur ce que paient les vendeurs en paiement à la livraison : livraison, plateformes e-commerce, publicité, cartes de paiement et ERP.",
+    "typeLabel": "Type d'offre",
+    "categoryLabel": "Catégorie",
+    "swipeHint": "Glissez la liste sur le côté pour changer"
+  },
+  "seo": {
+    "offers": {
+      "title": "Toutes les offres : codes promo, coupons et cashback | CODpromo",
+      "description": "Parcourez tous les codes promo, coupons et offres cashback pour les vendeurs en paiement à la livraison en Algérie et dans le monde arabe : livraison, plateformes, publicité, cartes de paiement et ERP. Recherchez et filtrez par type et catégorie."
     }
   }
 }

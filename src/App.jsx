@@ -12,6 +12,7 @@ import StorePage from "./pages/StorePage.jsx";
 import CategoryPage from "./pages/CategoryPage.jsx";
 import CategoriesPage from "./pages/CategoriesPage.jsx";
 import FavoritesPage from "./pages/FavoritesPage.jsx";
+import OffersPage from "./pages/OffersPage.jsx";
 import Admin from "./pages/Admin.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -28,7 +29,7 @@ import RequireAuth from "./components/auth/RequireAuth.jsx";
 import BottomNav from "./components/BottomNav.jsx";
 import PremiumModal from "./components/PremiumModal.jsx";
 
-/** اللغة المقصودة من المسار: بادئة /en أو /fr، صفحات /store و/category بلا بادئة عربية، وإلا تبقى لغة المستخدم. */
+/** اللغة المقصودة من المسار: بادئة /en أو /fr، صفحات /store و/category و/offers بلا بادئة عربية، وإلا تبقى لغة المستخدم. */
 function langFromPath(pathname, current) {
   if (pathname === "/en" || pathname.startsWith("/en/")) return "en";
   if (pathname === "/fr" || pathname.startsWith("/fr/")) return "fr";
@@ -36,7 +37,8 @@ function langFromPath(pathname, current) {
     pathname.startsWith("/store/") ||
     pathname.startsWith("/category/") ||
     pathname.startsWith("/categories") ||
-    pathname.startsWith("/favorites")
+    pathname.startsWith("/favorites") ||
+    pathname.startsWith("/offers")
   )
     return "ar";
   return current;
@@ -106,6 +108,11 @@ export default function App() {
           <RouteLangSync />
           <Routes>
           <Route path="/" element={<Home />} />
+
+          {/* كل العروض + الفلاتر (الفلاتر في الرابط: ?type=&category=&mode=&sort=&q=) */}
+          <Route path="/offers" element={<OffersPage lang="ar" />} />
+          <Route path="/en/offers" element={<OffersPage lang="en" />} />
+          <Route path="/fr/offers" element={<OffersPage lang="fr" />} />
 
           {/* صفحات الشركات (SEO) — العربية افتراضية، en/fr ببادئة لغة */}
           <Route path="/store/:slug" element={<StorePage lang="ar" />} />

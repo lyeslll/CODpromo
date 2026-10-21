@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogIn, LogOut, Sparkles, Menu, X, Store, HelpCircle, Flame, Crown, ChevronLeft, LayoutGrid } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -9,12 +9,13 @@ import { useLocale } from "../lib/locale.jsx";
 import { useAuth } from "../lib/auth.jsx";
 import { usePremium } from "../lib/premium.jsx";
 import { useScrollVisibility } from "../lib/scrollVisibility.jsx";
+import { offersPath, offersLink } from "../lib/seo.js";
 
-// روابط التنقّل + أيقونة لكل رابط (الميغا مينيو يعرضها بهرمية واضحة).
+// روابط التنقّل: "العروض" → صفحة /offers، والبقية أقسام في الصفحة الرئيسية (#how / #categories).
 const LINKS = [
-  { key: "offers", href: "#stores", icon: Store },
-  { key: "how", href: "#how", icon: HelpCircle },
-  { key: "categories", href: "#categories", icon: LayoutGrid },
+  { key: "offers", target: "offers", icon: Store },
+  { key: "how", target: "#how", icon: HelpCircle },
+  { key: "categories", target: "#categories", icon: LayoutGrid },
 ];
 
 // هوية Premium الذهبية (نفس البطاقات)
@@ -87,12 +88,12 @@ export default function Navbar({ onPremium }) {
   const { isPremiumActive } = usePremium();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // مسار الرئيسية بلغة الواجهة الحالية + رابط الفئات
+  // مسار الرئيسية بلغة الواجهة الحالية + رابط الفئات + صفحة العروض
   const L = i18n.language && i18n.language !== "ar" ? `/${i18n.language}` : "";
   const homePath = `${L}/` || "/";
   const catsTo = `${L}/categories`;
+  const offersTo = offersPath(i18n.language);
 
   // قفل تمرير الصفحة عند فتح الميغا مينيو (آمن على iOS: تثبيت body مع حفظ موضع التمرير)
   useEffect(() => {
@@ -118,21 +119,10 @@ export default function Navbar({ onPremium }) {
     };
   }, [open]);
 
-  // "الأكثر استخداماً": يغلق القائمة، ثم يمرّر لقسم العروض (#stores) في الرئيسية —
-  // من أي صفحة (ينتقل للرئيسية أولاً ثم يمرّر بعد تحميلها).
-  const scrollToStores = () =>
-    document.getElementById("stores")?.scrollIntoView({ behavior: "smooth", block: "start" });
-
+  // "الأكثر استخداماً": يغلق القائمة ويفتح صفحة العروض مرتّبة حسب نسبة النجاح.
   const goPopular = () => {
     setOpen(false);
-    const onHome = location.pathname === homePath || location.pathname === "/";
-    if (onHome) {
-      // ننتظر تحرير قفل التمرير (يعيد الموضع) ثم نمرّر بنعومة
-      setTimeout(scrollToStores, 90);
-    } else {
-      navigate(homePath);
-      setTimeout(scrollToStores, 420);
-    }
+    navigate(offersLink(i18n.language, { sort: "success" }));
   };
 
   const logout = async () => {
@@ -182,13 +172,13 @@ export default function Navbar({ onPremium }) {
           {/* روابط سطح المكتب */}
           <nav className="hidden items-center gap-1 md:flex">
             {LINKS.map((l) => (
-              <a
+              <Link
                 key={l.key}
-                href={l.href}
+                to={l.target === "offers" ? offersTo : { pathname: homePath, hash: l.target }}
                 className="rounded-lg px-3.5 py-2 text-[14px] font-medium text-[var(--text-softer)] transition-colors hover:text-[var(--text)]"
               >
                 {t(`nav.${l.key}`)}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -290,6 +280,21 @@ export default function Navbar({ onPremium }) {
                   <motion.span variants={itemVariants} className="px-3 pb-1.5 pt-1 text-[11px] font-bold uppercase tracking-wider text-[var(--color-mute)]">
                     {t("nav.browse")}
                   </motion.span>
+
+                  {/* العروض → /offers */}
+                  <motion.div variants={itemVariants}>
+                    <Link
+                      to={offersTo}
+                      onClick={() => setOpen(false)}
+                      className="group flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-[var(--text)] transition-colors hover:bg-[var(--fill)]"
+                    >
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--accent-text)] transition-colors group-hover:border-[var(--color-lime)]/40">
+                        <Store size={17} />
+                      </span>
+                      <span className="flex-1">{t("nav.offers")}</span>
+                      <ChevronLeft size={16} className="text-[var(--color-mute)] opacity-0 transition-all group-hover:opacity-100 ltr:rotate-180" />
+                    </Link>
+                  </motion.div>
 
                   {/* الفئات → /categories */}
                   <motion.div variants={itemVariants}>

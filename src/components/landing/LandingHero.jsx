@@ -1,7 +1,9 @@
 import { Component, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, Crown, Hand } from "lucide-react";
+import { ArrowLeft, Check, Crown, Hand } from "lucide-react";
+import { premiumMultiplier, monthlyUsdPrice } from "../../lib/siteStats.js";
+import { formatNumber } from "../../lib/values.js";
 import { useTranslation } from "react-i18next";
 import { offersLink, offersPath } from "../../lib/seo.js";
 import { categoryName, categoryRecordSlug } from "../../lib/slug.js";
@@ -55,7 +57,50 @@ const CHIP_SLOTS = ["top-[2%] end-[-11%]", "top-[40%] end-[-15%]", "top-[78%] en
  * كوبون 3D حقيقي يميل مع الماوس/ميلان الهاتف، ويُسحب أو يُنقر لينقلب إلى وجهه
  * الذهبي (Premium). شرائح التصنيفات تتحرك حوله وكل واحدة تفتح /offers?category=…
  */
-export default function LandingHero({ companies, loading, voteStats, categories, byId, counts, onOpenPremium, isPremiumActive }) {
+/**
+ * مربع القيمة تحت أزرار الـ Hero: "مجاني للجميع" + ما يفتحه Premium مقابل سعره.
+ * السعر من باقات الاشتراك (plans.js)، القيمة X من site_stats، والمضاعف N = X ÷ السعر.
+ * إذا X فارغ: نكتفي بـ "مجاني للجميع" و"افتح Premium بـ …" بلا رقم ولا مضاعف.
+ */
+function HeroValueBox({ stats, lang, t }) {
+  const price = monthlyUsdPrice();
+  if (price == null) return null;
+  const unlock = stats?.premiumUnlockValueUsd ?? null;
+  const multiplier = premiumMultiplier(unlock, price);
+  const numLang = lang === "fr" ? "fr" : "en";
+  const priceText = formatNumber(price, numLang);
+
+  return (
+    <div className="mt-7 flex max-w-xl flex-col gap-4 rounded-2xl border border-[#f0c63c]/35 bg-[linear-gradient(120deg,rgba(166,240,0,0.07),rgba(240,198,60,0.1))] p-4 sm:flex-row sm:items-center sm:gap-5 sm:p-5">
+      <span className="flex shrink-0 items-center gap-2 text-[17px] font-black text-[var(--color-lime)]">
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-[var(--color-lime)] text-[#0a0a0a]">
+          <Check size={16} strokeWidth={3} />
+        </span>
+        {t("hero.value.free")}
+      </span>
+      <span aria-hidden className="h-px w-full border-t border-dashed border-[#f0c63c]/35 sm:h-auto sm:w-px sm:self-stretch sm:border-s sm:border-t-0" />
+      <div className="flex min-w-0 flex-1 items-center justify-between gap-4">
+        <p className="min-w-0 text-[14.5px] font-bold leading-snug text-[var(--text-softer)]">
+          {unlock != null
+            ? t("hero.value.unlock", { price: priceText, value: formatNumber(unlock, numLang) })
+            : t("hero.value.unlockShort", { price: priceText })}
+        </p>
+        {multiplier && (
+          <bdi
+            dir="ltr"
+            aria-label={t("hero.value.multiplierAria", { x: multiplier })}
+            className="shrink-0 text-[40px] font-black leading-none tracking-tight text-[#ffe486] [font-family:Inter,sans-serif] sm:text-[46px]"
+            style={{ textShadow: "0 0 28px rgba(240,198,60,0.45)" }}
+          >
+            ×{formatNumber(multiplier, numLang)}
+          </bdi>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function LandingHero({ companies, loading, voteStats, categories, byId, counts, stats, onOpenPremium, isPremiumActive }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const reduced = useReducedMotion();
@@ -332,11 +377,11 @@ export default function LandingHero({ companies, loading, voteStats, categories,
       <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] lg:gap-14">
         {/* ===== النص ===== */}
         <div>
-          <h1 className="text-balance text-[38px] font-black leading-[1.08] tracking-tight sm:text-[54px] lg:text-[64px]">
-            <span className="block text-[var(--text-softer)]">{t("hero.titleLine1")}</span>
-            <span className="block text-[var(--text)]">{t("hero.titleLine2")}</span>
+          <h1 className="text-balance text-[34px] font-black leading-[1.12] tracking-tight text-[var(--text)] sm:text-[48px] lg:text-[56px]">
+            {t("hero.title")}
           </h1>
-          <p className="mt-6 max-w-xl text-[16px] leading-[1.75] text-[var(--text-soft)] sm:text-[18px]">{t("hero.subtitle")}</p>
+          <p className="mt-4 text-[22px] font-black leading-snug text-[var(--color-lime)] sm:text-[26px]">{t("hero.tagline")}</p>
+          <p className="mt-5 max-w-xl text-[16px] leading-[1.75] text-[var(--text-soft)] sm:text-[18px]">{t("hero.subtitle")}</p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link to={offersPath(lang)}>
@@ -373,6 +418,8 @@ export default function LandingHero({ companies, loading, voteStats, categories,
               </motion.button>
             )}
           </div>
+
+          <HeroValueBox stats={stats} lang={lang} t={t} />
         </div>
 
         {/* ===== الكوبون السحري ===== */}

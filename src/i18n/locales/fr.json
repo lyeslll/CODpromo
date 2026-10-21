@@ -29,9 +29,7 @@
   },
   "hero": {
     "ctaExplore": "Voir les offres",
-    "titleLine1": "Vos clients paient à la livraison.",
-    "titleLine2": "Vous, vous payez moins.",
-    "subtitle": "Codes promo, coupons et cashback sur ce qu'un vendeur en paiement à la livraison paie chaque mois : livraison, plateformes e-commerce, publicité, cartes de paiement et ERP. Gratuit, et chaque code est vérifié avant publication.",
+    "subtitle": "Codes promo, coupons et cashback exclusifs sur la livraison, les plateformes e-commerce, la publicité, les cartes de paiement et l'ERP. Gratuitement.",
     "ctaPremium": "Débloquer Premium",
     "ctaMember": "Vos offres Premium sont ouvertes",
     "magic": {
@@ -41,6 +39,14 @@
       "exampleName": "Offre exemple",
       "exampleNormal": "20%",
       "examplePremium": "30%"
+    },
+    "title": "Une seule plateforme… toutes les réductions dont votre commerce a besoin.",
+    "tagline": "Réduisez vos coûts. Multipliez vos bénéfices.",
+    "value": {
+      "free": "Gratuit pour tous",
+      "unlock": "Pour seulement {{price}} $, Premium débloque +{{value}} $ de réductions",
+      "unlockShort": "Débloquez Premium pour seulement {{price}} $",
+      "multiplierAria": "Premium vaut {{x}} fois son prix"
     }
   },
   "how": {

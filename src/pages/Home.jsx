@@ -136,6 +136,7 @@ export default function Home() {
           categories={cats}
           byId={byId}
           counts={counts}
+          stats={siteStats}
           onOpenPremium={openPremium}
           isPremiumActive={isPremiumActive}
         />

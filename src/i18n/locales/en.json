@@ -29,9 +29,7 @@
   },
   "hero": {
     "ctaExplore": "Explore offers",
-    "titleLine1": "Your customers pay on delivery.",
-    "titleLine2": "You pay less.",
-    "subtitle": "Promo codes, coupons and cashback on what a cash-on-delivery seller pays for every month: shipping, store platforms, ads, payment cards and ERP. Free, and every code is checked before it goes live.",
+    "subtitle": "Exclusive promo codes, coupons and cashback on shipping, store platforms, ads, payment cards and ERP. Free.",
     "ctaPremium": "Unlock Premium",
     "ctaMember": "Your Premium offers are open",
     "magic": {
@@ -41,6 +39,14 @@
       "exampleName": "Sample offer",
       "exampleNormal": "20%",
       "examplePremium": "30%"
+    },
+    "title": "One platform… every discount your business needs.",
+    "tagline": "Cut your costs. Multiply your profits.",
+    "value": {
+      "free": "Free for everyone",
+      "unlock": "Just ${{price}} unlocks +${{value}} in Premium discounts",
+      "unlockShort": "Unlock Premium for just ${{price}}",
+      "multiplierAria": "Premium is worth {{x}} times its price"
     }
   },
   "how": {

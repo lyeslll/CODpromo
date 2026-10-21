@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Lock,
@@ -24,6 +24,9 @@ import {
   LogIn,
   Vote,
   BarChart3,
+  Plus,
+  ArrowRight,
+  SearchX,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -46,10 +49,13 @@ import { fetchSubscribers } from "../lib/subscribers.js";
 import { fetchStorkCodes, addStorkCode } from "../lib/stork.js";
 import { ADMIN_PIN, ADMIN_SESSION_KEY } from "../lib/config.js";
 import Logo from "../components/Logo.jsx";
-import CompanyForm from "../components/admin/CompanyForm.jsx";
+import CompanyOfferForm from "../components/offer-form/CompanyOfferForm.jsx";
 import CompanyTable from "../components/admin/CompanyTable.jsx";
-import AdminOverview from "../components/admin/AdminOverview.jsx";
-import UsersTable from "../components/admin/UsersTable.jsx";
+import AdminShell from "../components/admin/v2/AdminShell.jsx";
+import OverviewPage from "../components/admin/v2/OverviewPage.jsx";
+import UsersPage from "../components/admin/v2/UsersPage.jsx";
+import { Glass, PageHeader, Skeleton, EmptyState, LIME_BG } from "../components/admin/v2/ui.jsx";
+import { fetchCompanyPrivate, saveCompanyPrivate } from "../lib/adminStats.js";
 import RequestsManager from "../components/admin/RequestsManager.jsx";
 import SubscribersTable from "../components/admin/SubscribersTable.jsx";
 import StorkManager from "../components/admin/StorkManager.jsx";
@@ -234,16 +240,15 @@ function PinGate({ onUnlock }) {
 function Dashboard({ onLock }) {
   const { i18n } = useTranslation();
   const tAr = useMemo(() => i18n.getFixedT("ar"), [i18n]);
-  const [tab, setTab] = useState("overview");
+  const tc = (k, o) => tAr(`admin.v2.${k}`, o);
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(null); // الشركة قيد التعديل
   const [submitting, setSubmitting] = useState(false);
   const [translatingAll, setTranslatingAll] = useState(false);
   const [translateProgress, setTranslateProgress] = useState({ done: 0, total: 0 });
   const [toast, setToast] = useState(null); // { type, msg }
   const toastTimer = useRef(null);
-  const formRef = useRef(null);
+  const navigate = useNavigate();
 
   // الفئات (المرحلة 2)
   const [categories, setCategories] = useState([]);
@@ -377,24 +382,34 @@ function Dashboard({ onLock }) {
     }
   };
 
-  const handleSubmit = async (form) => {
+  // حفظ شركة من صفحة المحرّر (+ المعلومات الداخلية في company_private)
+  const handleSave = async (id, form, priv) => {
     setSubmitting(true);
     try {
-      if (editing?.id) {
-        const updated = await updateCompany(editing.id, form);
-        setCompanies((prev) => prev.map((c) => (c.id === editing.id ? { ...c, ...updated } : c)));
-        notify("success", "تم حفظ التعديلات بنجاح");
-        setEditing(null);
+      let saved;
+      if (id) {
+        saved = await updateCompany(id, form);
+        setCompanies((prev) => prev.map((c) => (c.id === id ? { ...c, ...saved } : c)));
       } else {
-        const created = await addCompany(form);
-        setCompanies((prev) => [created, ...prev]);
-        notify("success", "تمت إضافة الشركة بنجاح");
+        saved = await addCompany(form);
+        setCompanies((prev) => [saved, ...prev]);
       }
+      if (priv && saved?.id) await saveCompanyPrivate(saved.id, priv);
+      notify("success", id ? tc("companies.saved") : tc("companies.added"));
+      navigate("/admin/companies");
     } catch (e) {
       notify("error", e.message);
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // "فئة جديدة" من داخل فورم الشركة
+  const handleQuickCategory = async (name_ar) => {
+    const created = await addCategory({ name_ar, is_active: true });
+    setCategories((prev) => [created, ...prev]);
+    notify("success", tc("companies.categoryAdded"));
+    return created;
   };
 
   // ترجمة كل الشركات (Backfill): تترجم الوصف + الفئة وتحفظ en/fr لكل شركة.
@@ -445,29 +460,9 @@ function Dashboard({ onLock }) {
     try {
       await deleteCompany(id);
       setCompanies((prev) => prev.filter((c) => c.id !== id));
-      if (editing?.id === id) setEditing(null);
       notify("success", "تم حذف الشركة");
     } catch (e) {
       notify("error", e.message);
-    }
-  };
-
-  const startEdit = async (company) => {
-    setEditing(company);
-    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    // كود/رابط Premium لم يعودا ضمن الجلب العام (مقفلان خادمياً) — نجلبهما عبر RPC
-    // (مسموح للأدمن) كي يظهرا في النموذج، وإلا قد يُحفظ الحقلان فارغين عند التعديل.
-    try {
-      const pc = await getPremiumCode(company.id);
-      if (pc) {
-        setEditing((cur) =>
-          cur && cur.id === company.id
-            ? { ...cur, premium_code: pc.premium_code || "", premium_url: pc.premium_url || "" }
-            : cur
-        );
-      }
-    } catch {
-      /* تجاهل — يبقى الحقلان فارغين، ويعيد الأدمن إدخالهما عند الحاجة */
     }
   };
 
@@ -521,240 +516,168 @@ function Dashboard({ onLock }) {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-ink)] text-white">
-      {/* شريط علوي */}
-      <header className="sticky top-0 z-40 border-b border-[var(--color-ink-line)] bg-[#0c0c0e]/85 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <Logo />
-            <span className="hidden rounded-lg border border-[var(--color-ink-line)] bg-white/[0.04] px-2.5 py-1 text-[12px] font-bold text-[var(--color-lime)] sm:inline">
-              لوحة التحكم
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link
-              to="/"
-              className="flex items-center gap-1.5 rounded-xl border border-[var(--color-ink-line)] px-3.5 py-2 text-[13.5px] font-bold text-white transition-colors hover:bg-white/5"
-            >
-              <ArrowLeft size={15} /> <span className="hidden sm:inline">الموقع</span>
-            </Link>
-            <button
-              onClick={logout}
-              className="flex items-center gap-1.5 rounded-xl border border-[var(--color-ink-line)] px-3.5 py-2 text-[13.5px] font-bold text-[#c9c9cf] transition-colors hover:border-red-500/40 hover:text-red-400"
-            >
-              <LogOut size={15} /> <span className="hidden sm:inline">خروج</span>
-            </button>
-          </div>
-        </div>
-      </header>
+    <AdminShell pendingCount={pendingCount} onLogout={logout}>
+      <Routes>
+        <Route index element={<OverviewPage />} />
 
-      <div className="mx-auto max-w-6xl px-4 py-6">
-        {/* شريط التبويبات */}
-        <div className="no-scrollbar mb-6 flex gap-2 overflow-x-auto">
-          <TabButton active={tab === "overview"} onClick={() => setTab("overview")} icon={LayoutDashboard}>
-            نظرة عامة
-          </TabButton>
-          <TabButton active={tab === "companies"} onClick={() => setTab("companies")} icon={Store}>
-            الشركات
-          </TabButton>
-          <TabButton active={tab === "categories"} onClick={() => setTab("categories")} icon={FolderTree}>
-            الفئات
-          </TabButton>
-          <TabButton active={tab === "seo"} onClick={() => setTab("seo")} icon={Globe}>
-            SEO
-          </TabButton>
-          <TabButton active={tab === "users"} onClick={() => setTab("users")} icon={Users}>
-            المستخدمون
-          </TabButton>
-          <TabButton active={tab === "requests"} onClick={() => setTab("requests")} icon={Inbox} badge={pendingCount}>
-            الطلبات
-          </TabButton>
-          <TabButton active={tab === "subscribers"} onClick={() => setTab("subscribers")} icon={AtSign}>
-            المشتركون
-          </TabButton>
-          <TabButton active={tab === "stork"} onClick={() => setTab("stork")} icon={Crown} badge={premiumCount}>
-            Premium / Stork
-          </TabButton>
-          <TabButton active={tab === "votes"} onClick={() => setTab("votes")} icon={Vote}>
-            التصويت
-          </TabButton>
-          <TabButton active={tab === "siteStats"} onClick={() => setTab("siteStats")} icon={BarChart3}>
-            {tAr("admin.siteStats.tab")}
-          </TabButton>
-        </div>
-
-        {/* نظرة عامة */}
-        {tab === "overview" && (
-          <AdminOverview profiles={profiles} companies={companies} requests={requests} />
-        )}
-
-        {/* الشركات (إدارة موجودة كما هي) */}
-        {tab === "companies" && (
-          <>
-            <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <StatCard icon={Store} label="إجمالي الشركات" value={stats.total} color="#a6f000" />
-              <StatCard icon={Tag} label="تخفيض" value={stats.discount} color="#a6f000" />
-              <StatCard icon={Ticket} label="كوبون" value={stats.coupon} color="#38bdf8" />
-              <StatCard icon={Wallet} label="كاش باك" value={stats.cashback} color="#fbbf24" />
-            </div>
-
-            {/* ترجمة تلقائية لكل الأوصاف (en + fr) */}
-            <div className="mb-6 flex flex-col items-start justify-between gap-3 rounded-2xl border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] p-4 sm:flex-row sm:items-center">
-              <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--color-lime)]/12 text-[var(--color-lime)]">
-                  <Languages size={20} />
-                </span>
-                <div className="min-w-0">
-                  <div className="text-[14px] font-extrabold text-white">ترجمة المحتوى تلقائياً</div>
-                  <div className="text-[12px] text-[var(--color-mute)]">
-                    تترجم وصف وفئة كل الشركات إلى الإنجليزية والفرنسية (الأوصاف الجديدة تُترجَم تلقائياً عند الحفظ).
-                  </div>
-                </div>
+        <Route
+          path="companies"
+          element={
+            <>
+              <PageHeader
+                title={tc("nav.companies")}
+                sub={tc("companies.sub", { count: stats.total })}
+                actions={
+                  <Link to="/admin/companies/new" className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13.5px] font-extrabold text-[#0a0a0a]" style={LIME_BG}>
+                    <Plus size={16} /> {tc("companies.add")}
+                  </Link>
+                }
+              />
+              <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <StatCard icon={Store} label={tc("companies.total")} value={stats.total} color="#a6f000" />
+                <StatCard icon={Tag} label={tAr("offerForm.types.discount")} value={stats.discount} color="#a6f000" />
+                <StatCard icon={Ticket} label={tAr("offerForm.types.coupon")} value={stats.coupon} color="#38bdf8" />
+                <StatCard icon={Wallet} label={tAr("offerForm.types.cashback")} value={stats.cashback} color="#fbbf24" />
               </div>
-              <button
-                onClick={handleTranslateAll}
-                disabled={translatingAll}
-                className="flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-[13.5px] font-extrabold text-[#0a0a0a] transition-transform hover:scale-[1.02] disabled:opacity-60"
-                style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
-              >
-                {translatingAll ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" />
-                    جارٍ الترجمة… {translateProgress.done}/{translateProgress.total}
-                  </>
-                ) : (
-                  <>
-                    <Languages size={16} /> ترجم الكل
-                  </>
-                )}
-              </button>
-            </div>
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[420px_1fr]">
-              <div ref={formRef} className="lg:sticky lg:top-[84px] lg:self-start">
-                <div className="rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] p-5">
-                  <div className="mb-5 flex items-center justify-between">
-                    <h2 className="text-[17px] font-extrabold text-white">
-                      {editing ? "تعديل شركة" : "إضافة شركة جديدة"}
-                    </h2>
-                    {editing && (
-                      <span className="rounded-md bg-[var(--color-lime)]/15 px-2 py-1 text-[11.5px] font-bold text-[var(--color-lime)]">
-                        #{editing.id}
-                      </span>
+              {/* ترجمة تلقائية لكل الأوصاف (en + fr) */}
+              <Glass className="mb-5 p-4">
+                <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+                  <div className="flex items-center gap-3">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--color-lime)]/12 text-[var(--color-lime)]">
+                      <Languages size={20} />
+                    </span>
+                    <div className="min-w-0">
+                      <div className="text-[14px] font-extrabold text-white">{tc("companies.translateTitle")}</div>
+                      <div className="text-[12px] text-[var(--color-mute)]">{tc("companies.translateDesc")}</div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleTranslateAll}
+                    disabled={translatingAll}
+                    className="flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-[13.5px] font-extrabold text-[#0a0a0a] transition-transform hover:scale-[1.02] disabled:opacity-60"
+                    style={LIME_BG}
+                  >
+                    {translatingAll ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        {tc("companies.translating", { done: translateProgress.done, total: translateProgress.total })}
+                      </>
+                    ) : (
+                      <>
+                        <Languages size={16} /> {tc("companies.translateAll")}
+                      </>
                     )}
-                  </div>
-                  <CompanyForm
-                    key={editing?.id || "new"}
-                    initial={editing}
-                    submitting={submitting}
-                    categories={categories}
-                    onSubmit={handleSubmit}
-                    onCancel={() => setEditing(null)}
-                  />
+                  </button>
                 </div>
-              </div>
+              </Glass>
 
               <CompanyTable
                 companies={companies}
                 loading={loading}
-                editingId={editing?.id}
-                onEdit={startEdit}
+                editingId={null}
+                onEdit={(c) => navigate(`/admin/companies/${c.id}`)}
                 onDelete={handleDelete}
                 onTogglePremium={handleTogglePremium}
               />
-            </div>
-          </>
-        )}
+            </>
+          }
+        />
+        <Route
+          path="companies/new"
+          element={<CompanyEditorPage companies={companies} loading={loading} categories={categories} submitting={submitting} onSave={handleSave} onCreateCategory={handleQuickCategory} />}
+        />
+        <Route
+          path="companies/:id"
+          element={<CompanyEditorPage companies={companies} loading={loading} categories={categories} submitting={submitting} onSave={handleSave} onCreateCategory={handleQuickCategory} />}
+        />
 
         {/* الفئات — إدارة كاملة (إضافة/تعديل/حذف + ترجمة تلقائية) */}
-        {tab === "categories" && (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[420px_1fr]">
-            <div ref={catFormRef} className="lg:sticky lg:top-[84px] lg:self-start">
-              <div className="rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] p-5">
-                <div className="mb-5 flex items-center justify-between">
-                  <h2 className="text-[17px] font-extrabold text-white">
-                    {editingCat ? "تعديل فئة" : "إضافة فئة جديدة"}
-                  </h2>
-                  {editingCat && (
-                    <span
-                      className="rounded-md bg-[var(--color-lime)]/15 px-2 py-1 text-[11.5px] font-bold text-[var(--color-lime)]"
-                      dir="ltr"
-                    >
-                      {editingCat.slug}
-                    </span>
-                  )}
+        <Route
+          path="categories"
+          element={
+            <>
+              <PageHeader title={tc("nav.categories")} sub={tc("pages.categoriesSub")} />
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-[420px_1fr]">
+                <div ref={catFormRef} className="lg:sticky lg:top-6 lg:self-start">
+                  <div className="rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] p-5">
+                    <div className="mb-5 flex items-center justify-between">
+                      <h2 className="text-[17px] font-extrabold text-white">{editingCat ? "تعديل فئة" : "إضافة فئة جديدة"}</h2>
+                      {editingCat && (
+                        <span className="rounded-md bg-[var(--color-lime)]/15 px-2 py-1 text-[11.5px] font-bold text-[var(--color-lime)]" dir="ltr">
+                          {editingCat.slug}
+                        </span>
+                      )}
+                    </div>
+                    <CategoryForm key={editingCat?.id || "new"} initial={editingCat} submitting={submittingCat} onSubmit={handleCatSubmit} onCancel={() => setEditingCat(null)} />
+                  </div>
                 </div>
-                <CategoryForm
-                  key={editingCat?.id || "new"}
-                  initial={editingCat}
-                  submitting={submittingCat}
-                  onSubmit={handleCatSubmit}
-                  onCancel={() => setEditingCat(null)}
-                />
+                <CategoryTable categories={categories} counts={categoryCounts} loading={loadingCats} editingId={editingCat?.id} onEdit={startEditCat} onDelete={handleDeleteCategory} />
               </div>
-            </div>
+            </>
+          }
+        />
 
-            <CategoryTable
-              categories={categories}
-              counts={categoryCounts}
-              loading={loadingCats}
-              editingId={editingCat?.id}
-              onEdit={startEditCat}
-              onDelete={handleDeleteCategory}
-            />
-          </div>
-        )}
-
-        {/* SEO — تحكم كامل لكل شركة + إعدادات عامة */}
-        {tab === "seo" && (
-          <SeoManager
-            companies={companies}
-            notify={notify}
-            onUpdated={(patch) =>
-              setCompanies((prev) => prev.map((c) => (c.id === patch.id ? { ...c, ...patch } : c)))
-            }
-          />
-        )}
-
-        {/* المستخدمون + تصدير CSV */}
-        {tab === "users" && <UsersTable profiles={profiles} loading={loadingUsers} />}
-
-        {/* طلبات الشركات */}
-        {tab === "requests" && (
-          <RequestsManager
-            requests={requests}
-            profiles={profiles}
-            loading={loadingRequests}
-            onAccept={handleAccept}
-            onReject={handleReject}
-            busyId={busyReqId}
-          />
-        )}
-
-        {/* مشتركو النشرة */}
-        {tab === "subscribers" && (
-          <SubscribersTable subscribers={subscribers} loading={loadingSubs} />
-        )}
-
-        {/* Premium / أكواد Stork */}
-        {tab === "stork" && (
-          <div className="flex flex-col gap-6">
-            <PremiumMembers profiles={profiles} codes={storkCodes} />
-            <StorkManager
-              codes={storkCodes}
-              loading={loadingStork}
-              onAdd={handleAddStork}
-              premiumCount={premiumCount}
-            />
-          </div>
-        )}
-
-        {/* التصويت على الأكواد */}
-        {tab === "votes" && <VotesTable companies={companies} />}
-
-        {/* أرقام الصفحة الرئيسية (site_stats) */}
-        {tab === "siteStats" && <SiteStatsManager notify={notify} />}
-      </div>
+        <Route
+          path="requests"
+          element={
+            <>
+              <PageHeader title={tc("nav.requests")} sub={tc("pages.requestsSub", { count: pendingCount })} />
+              <RequestsManager requests={requests} profiles={profiles} loading={loadingRequests} onAccept={handleAccept} onReject={handleReject} busyId={busyReqId} />
+            </>
+          }
+        />
+        <Route
+          path="votes"
+          element={
+            <>
+              <PageHeader title={tc("nav.votes")} sub={tc("pages.votesSub")} />
+              <VotesTable companies={companies} />
+            </>
+          }
+        />
+        <Route path="users" element={<UsersPage />} />
+        <Route
+          path="subscribers"
+          element={
+            <>
+              <PageHeader title={tc("nav.subscribers")} sub={tc("pages.subscribersSub")} />
+              <SubscribersTable subscribers={subscribers} loading={loadingSubs} />
+            </>
+          }
+        />
+        <Route
+          path="premium"
+          element={
+            <>
+              <PageHeader title={tc("nav.premium")} sub={tc("pages.premiumSub")} />
+              <div className="flex flex-col gap-6">
+                <PremiumMembers profiles={profiles} codes={storkCodes} />
+                <StorkManager codes={storkCodes} loading={loadingStork} onAdd={handleAddStork} premiumCount={premiumCount} />
+              </div>
+            </>
+          }
+        />
+        <Route
+          path="site-stats"
+          element={
+            <>
+              <PageHeader title={tc("nav.siteStats")} sub={tc("pages.siteStatsSub")} />
+              <SiteStatsManager notify={notify} />
+            </>
+          }
+        />
+        <Route
+          path="seo"
+          element={
+            <>
+              <PageHeader title={tc("nav.seo")} sub={tc("pages.seoSub")} />
+              <SeoManager companies={companies} notify={notify} onUpdated={(patch) => setCompanies((prev) => prev.map((c) => (c.id === patch.id ? { ...c, ...patch } : c)))} />
+            </>
+          }
+        />
+        <Route path="*" element={<Navigate to="/admin" replace />} />
+      </Routes>
 
       {/* التوست */}
       <AnimatePresence>
@@ -780,35 +703,14 @@ function Dashboard({ onLock }) {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
-  );
-}
-
-function TabButton({ active, onClick, icon: Icon, badge, children }) {
-  return (
-    <button
-      onClick={onClick}
-      className="relative flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold transition-all"
-      style={{
-        borderColor: active ? "var(--color-lime)" : "var(--color-ink-line)",
-        background: active ? "rgba(166,240,0,0.1)" : "transparent",
-        color: active ? "var(--color-lime)" : "#c9c9cf",
-      }}
-    >
-      <Icon size={16} />
-      {children}
-      {badge > 0 && (
-        <span className="grid h-5 min-w-5 place-items-center rounded-full bg-[#fbbf24] px-1.5 text-[11px] font-black text-[#0a0a0a]">
-          {badge}
-        </span>
-      )}
-    </button>
+    </AdminShell>
   );
 }
 
 function StatCard({ icon: Icon, label, value, color }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] p-4">
+    <Glass glow={`${color}2e`} className="p-4">
+      <div className="flex items-center gap-3">
       <span
         className="grid h-11 w-11 shrink-0 place-items-center rounded-xl"
         style={{ background: `${color}1a`, color }}
@@ -819,6 +721,87 @@ function StatCard({ icon: Icon, label, value, color }) {
         <div className="text-[24px] font-black leading-none text-white">{value}</div>
         <div className="mt-1 truncate text-[12px] font-medium text-[var(--color-mute)]">{label}</div>
       </div>
-    </div>
+      </div>
+    </Glass>
   );
 }
+
+/* ===================== صفحة إضافة/تعديل شركة (/admin/companies/new و /admin/companies/:id) ===================== */
+function CompanyEditorPage({ companies, loading, categories, submitting, onSave, onCreateCategory }) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const tc = useMemo(() => i18n.getFixedT("ar", null, "admin.v2"), [i18n]);
+  const isNew = !id;
+  const company = isNew ? null : companies.find((c) => String(c.id) === id);
+  // كود/رابط Premium + المعلومات الداخلية: تُجلب خادمياً (غير موجودة في الجلب العام)
+  const [extra, setExtra] = useState(isNew ? { premiumLoaded: true, priv: null } : null);
+
+  useEffect(() => {
+    if (isNew || !company) return;
+    let active = true;
+    setExtra(null);
+    Promise.all([
+      getPremiumCode(company.id).then((d) => ({ ok: true, d }), () => ({ ok: false })),
+      fetchCompanyPrivate(company.id).catch(() => null),
+    ]).then(([pc, priv]) => {
+      if (!active) return;
+      setExtra({ premiumLoaded: pc.ok, premium_code: pc.d?.premium_code || "", premium_url: pc.d?.premium_url || "", priv });
+    });
+    return () => {
+      active = false;
+    };
+  }, [isNew, company?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const back = (
+    <Link to="/admin/companies" className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] px-3.5 py-2 text-[13px] font-bold text-[#c9c9cf] hover:text-white">
+      <ArrowRight size={15} /> {tc("companies.back")}
+    </Link>
+  );
+
+  if (!isNew && !loading && !company) {
+    return (
+      <Glass>
+        <EmptyState icon={SearchX} title={tc("companies.notFound")} desc={tc("companies.notFoundDesc")} action={back} />
+      </Glass>
+    );
+  }
+
+  return (
+    <>
+      <PageHeader title={isNew ? tc("companies.addTitle") : tc("companies.editTitle", { name: company?.name || "" })} sub={isNew ? tc("companies.addSub") : `#${id}`} actions={back} />
+      {!extra || (!isNew && !company) ? (
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="space-y-5">
+            {[220, 120, 260, 260].map((h, i) => (
+              <Skeleton key={i} className="w-full rounded-[20px]" style={{ height: h }} />
+            ))}
+          </div>
+          <Skeleton className="h-[420px] w-full rounded-[20px]" />
+        </div>
+      ) : (
+        <CompanyOfferForm
+          key={company?.id || "new"}
+          lang="ar"
+          initial={isNew ? null : { ...company, premium_code: extra.premium_code, premium_url: extra.premium_url }}
+          privateInitial={extra.priv}
+          categories={categories}
+          submitting={submitting}
+          showPrivate
+          onCreateCategory={onCreateCategory}
+          onCancel={() => navigate("/admin/companies")}
+          onSubmit={(form, priv) => {
+            // إن تعذّر جلب كود/رابط Premium لا نرسلهما (حتى لا نمسح القيم المحفوظة)
+            const payload = { ...form };
+            if (!extra.premiumLoaded) {
+              delete payload.premium_code;
+              delete payload.premium_url;
+            }
+            onSave(isNew ? null : company.id, payload, priv);
+          }}
+        />
+      )}
+    </>
+  );
+}
+

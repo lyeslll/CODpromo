@@ -593,6 +593,167 @@
       "loadError": "Impossible de charger les chiffres. Vérifiez que supabase-phase21-site-stats.sql a été exécuté.",
       "loading": "Chargement…",
       "updatedAt": "Dernière mise à jour : {{date}}"
+    },
+    "v2": {
+      "common": {
+        "close": "Fermer",
+        "loadFailed": "Impossible de charger les données",
+        "loading": "Chargement…",
+        "retry": "Réessayer"
+      },
+      "nav": {
+        "menu": "Menu d'administration",
+        "open": "Ouvrir le menu",
+        "close": "Fermer le menu",
+        "collapse": "Réduire le menu",
+        "expand": "Agrandir le menu",
+        "site": "Site",
+        "logout": "Se déconnecter",
+        "pending": "{{count}} demandes en attente",
+        "group": {
+          "home": "Accueil",
+          "content": "Contenu",
+          "people": "Utilisateurs",
+          "settings": "Paramètres"
+        },
+        "overview": "Vue d'ensemble",
+        "companies": "Entreprises",
+        "categories": "Catégories",
+        "requests": "Demandes",
+        "votes": "Votes",
+        "users": "Utilisateurs",
+        "subscribers": "Abonnés à la newsletter",
+        "premium": "Premium / Stork",
+        "siteStats": "Chiffres de l'accueil",
+        "seo": "SEO"
+      },
+      "range": {
+        "label": "Période",
+        "today": "Aujourd'hui",
+        "7d": "7 jours",
+        "30d": "30 jours",
+        "all": "Tout",
+        "in_today": "Aujourd'hui",
+        "in_7d": "7 derniers jours",
+        "in_30d": "30 derniers jours",
+        "in_all": "Depuis le lancement"
+      },
+      "ov": {
+        "sub": "Les chiffres de CODpromo calculés en direct dans la base",
+        "kpi": {
+          "users": "Utilisateurs",
+          "premium": "Membres Premium actifs",
+          "companies": "Entreprises",
+          "requests": "Demandes en attente",
+          "copies": "Codes copiés",
+          "success": "Taux de réussite des codes",
+          "subscribers": "Abonnés à la newsletter"
+        },
+        "today": "Aujourd'hui",
+        "last7": "7 jours",
+        "offers": "offres",
+        "premiumNote": "Hors compte admin",
+        "review": "Ouvrir les demandes",
+        "noPending": "Rien en attente",
+        "votesCount": "Sur {{count}} votes de la période",
+        "chartSignups": "Inscriptions",
+        "chartCopies": "Codes copiés",
+        "total": "Total",
+        "noData": "Aucune donnée sur cette période",
+        "topCopied": "Top 5 des plus copiées",
+        "topVoted": "Top 5 des plus votées",
+        "copiesUnit": "copies",
+        "votesUnit": "votes",
+        "successShort": "{{pct}} % de réussite",
+        "topEmpty": "Rien pour l'instant sur cette période",
+        "topEmptyDesc": "Essayez une période plus longue."
+      },
+      "plan": {
+        "free": "Classique",
+        "premium": "Premium",
+        "lifetime": "À vie"
+      },
+      "type": {
+        "customer": "Client",
+        "company": "Entreprise"
+      },
+      "users": {
+        "count": "{{count}} utilisateurs correspondants",
+        "export": "Exporter en CSV",
+        "search": "Rechercher par nom ou e-mail",
+        "allPlans": "Toutes les formules",
+        "allTypes": "Tous les types",
+        "joined_all": "Inscrits à tout moment",
+        "joined_today": "Inscrits aujourd'hui",
+        "joined_7d": "Inscrits ces 7 jours",
+        "joined_30d": "Inscrits ces 30 jours",
+        "col": {
+          "name": "Nom et e-mail",
+          "type": "Type de compte",
+          "plan": "Formule",
+          "provider": "Connexion",
+          "created": "Inscription",
+          "lastSignIn": "Dernière connexion",
+          "favorites": "Favoris",
+          "copies": "Copiés"
+        },
+        "providerEmail": "E-mail",
+        "until": "Jusqu'au {{date}}",
+        "emptyTitle": "Aucun utilisateur ne correspond",
+        "emptyDesc": "Modifiez la recherche ou les filtres.",
+        "page": "Page {{page}} sur {{pages}}",
+        "prev": "Page précédente",
+        "next": "Page suivante",
+        "planType": "Durée de la formule",
+        "planTypes": {
+          "month": "Mois",
+          "quarter": "3 mois",
+          "year": "Année"
+        },
+        "provider": "Moyen de paiement",
+        "company": "Entreprise",
+        "recentCopies": "Ses derniers codes copiés",
+        "noCopies": "Aucun code copié pour l'instant.",
+        "csv": {
+          "name": "Nom",
+          "email": "E-mail",
+          "type": "Type de compte",
+          "plan": "Formule",
+          "premium_until": "Fin de Premium",
+          "provider": "Connexion",
+          "created": "Inscription",
+          "last_sign_in": "Dernière connexion",
+          "favorites": "Favoris",
+          "copies": "Codes copiés"
+        }
+      },
+      "companies": {
+        "sub": "{{count}} entreprises sur le site",
+        "add": "Ajouter une entreprise",
+        "total": "Total des entreprises",
+        "translateTitle": "Traduire le contenu automatiquement",
+        "translateDesc": "Traduit la description et la catégorie de chaque entreprise en anglais et en français (les nouvelles sont traduites à l'enregistrement).",
+        "translateAll": "Tout traduire",
+        "translating": "Traduction… {{done}}/{{total}}",
+        "addTitle": "Ajouter une entreprise",
+        "addSub": "Remplissez les sections et regardez la carte changer dans l'aperçu",
+        "editTitle": "Modifier {{name}}",
+        "back": "Retour aux entreprises",
+        "notFound": "Entreprise introuvable",
+        "notFoundDesc": "Elle a peut-être été supprimée. Revenez à la liste.",
+        "saved": "Modifications enregistrées",
+        "added": "Entreprise ajoutée",
+        "categoryAdded": "Catégorie ajoutée"
+      },
+      "pages": {
+        "categoriesSub": "Organisez les catégories affichées sur le site",
+        "requestsSub": "{{count}} demandes à examiner",
+        "votesSub": "Votes des visiteurs sur la réussite des codes",
+        "subscribersSub": "E-mails inscrits à la newsletter",
+        "premiumSub": "Membres Premium et codes Stork",
+        "siteStatsSub": "Chiffres affichés sur l'accueil",
+        "seoSub": "Titres et descriptions des pages entreprises pour les moteurs"
+      }
     }
   },
   "offers": {
@@ -760,5 +921,102 @@
     "bannerSub": "Sur Google Play",
     "bannerCta": "Installer",
     "getApp": "Télécharger l’app"
+  },
+  "offerForm": {
+    "s": {
+      "company": "Entreprise",
+      "companySub": "L'identité affichée en haut de la carte",
+      "type": "Type d'offre",
+      "typeSub": "La couleur suit le type sur tout le site",
+      "free": "Offre classique (gratuite)",
+      "freeSub": "Visible par tous, sans abonnement",
+      "premium": "Offre Premium",
+      "premiumSub": "Remplace l'offre classique pour les membres Premium",
+      "private": "Infos internes",
+      "privateSub": "Jamais affichées sur le site",
+      "adminOnly": "Admin uniquement"
+    },
+    "logo": {
+      "upload": "Importer un logo",
+      "change": "Changer le logo",
+      "remove": "Retirer",
+      "uploading": "Import…",
+      "hint": "Une image carrée sur fond transparent rend mieux (PNG ou WebP)."
+    },
+    "f": {
+      "name": "Nom de l'entreprise",
+      "category": "Catégorie",
+      "noCategory": "Sans catégorie",
+      "newCategory": "Nouvelle catégorie",
+      "website": "Site officiel",
+      "discount": "Valeur de l'offre",
+      "code": "Code promo",
+      "link": "Lien de l'offre",
+      "description": "Description",
+      "premiumDiscount": "Valeur Premium",
+      "premiumCode": "Code Premium",
+      "premiumUrl": "Lien Premium",
+      "premiumDescription": "Description Premium",
+      "supportsPremium": "Afficher avec l'identité Premium",
+      "suggest": "Proposer un code",
+      "contactName": "Interlocuteur",
+      "whatsapp": "Numéro WhatsApp",
+      "email": "E-mail",
+      "commission": "Commission de la plateforme (%)",
+      "affiliate": "Lien du tableau de bord d'affiliation",
+      "notes": "Notes"
+    },
+    "h": {
+      "name": "Exemple : YouCan",
+      "category": "Choisissez-en une, ou créez-en une sans quitter le formulaire",
+      "website": "Exemple : https://youcan.shop (enregistré dans les infos internes)",
+      "discount": "Exemple : 20 %, 10 $ ou 500 DA",
+      "code": "Exemple : ILYES10",
+      "link": "Exemple : https://youcan.shop/?ref=ilyes",
+      "description": "Deux ou trois phrases : ce que gagne le commerçant",
+      "premiumDiscount": "Doit dépasser la valeur classique. Exemple : 30 %",
+      "premiumCode": "Difficile à deviner. Exemple : ILY-X7Q9",
+      "premiumUrl": "Un lien réservé aux membres Premium, s'il existe",
+      "premiumDescription": "Ce que gagne un membre Premium en plus de l'offre classique",
+      "fallback": "Tout champ Premium vide reprend l'offre classique : valeur, code, lien et description.",
+      "contactName": "La personne à contacter dans l'entreprise",
+      "whatsapp": "Exemple : +213 555 12 34 56",
+      "email": "Exemple : partners@youcan.shop",
+      "commission": "Exemple : 15",
+      "affiliate": "Uniquement le lien, sans mot de passe",
+      "notes": "Toute info utile : conditions, date de renouvellement…"
+    },
+    "types": {
+      "discount": "Réduction",
+      "coupon": "Coupon",
+      "cashback": "Cashback"
+    },
+    "warn": {
+      "https": "Le lien doit commencer par https://",
+      "weaker": "La valeur Premium n'est pas plus forte que la classique"
+    },
+    "errors": {
+      "required": "Ce champ est obligatoire",
+      "image": "Le fichier doit être une image",
+      "fixFields": "Complétez les champs obligatoires"
+    },
+    "preview": {
+      "title": "Aperçu en direct",
+      "normal": "Classique",
+      "premium": "Premium",
+      "namePh": "Nom de l'entreprise",
+      "normalNote": "C'est la carte que voit chaque visiteur sur /offers.",
+      "premiumNote": "C'est ce que voit un visiteur. Un membre Premium révèle le code : {{code}}",
+      "premiumOff": "L'identité Premium est désactivée : la carte n'apparaît pas en mode Premium."
+    },
+    "cat": {
+      "title": "Nouvelle catégorie",
+      "sub": "Traduite automatiquement en anglais et en français.",
+      "placeholder": "Exemple : Sociétés de livraison",
+      "save": "Ajouter la catégorie"
+    },
+    "save": "Enregistrer",
+    "add": "Ajouter l'entreprise",
+    "cancel": "Annuler"
   }
 }

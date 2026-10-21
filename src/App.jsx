@@ -182,7 +182,7 @@ export default function App() {
           />
           {/* لوحة التحكم عربية RTL ثابتة (الموقع كله داكن) */}
           <Route
-            path="/admin"
+            path="/admin/*"
             element={
               <div dir="rtl" lang="ar">
                 <Admin />

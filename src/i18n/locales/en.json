@@ -593,6 +593,167 @@
       "loadError": "Couldn't load the numbers. Make sure supabase-phase21-site-stats.sql has been run.",
       "loading": "Loading…",
       "updatedAt": "Last updated: {{date}}"
+    },
+    "v2": {
+      "common": {
+        "close": "Close",
+        "loadFailed": "Couldn't load the data",
+        "loading": "Loading…",
+        "retry": "Try again"
+      },
+      "nav": {
+        "menu": "Admin menu",
+        "open": "Open menu",
+        "close": "Close menu",
+        "collapse": "Collapse menu",
+        "expand": "Expand menu",
+        "site": "Website",
+        "logout": "Log out",
+        "pending": "{{count}} pending requests",
+        "group": {
+          "home": "Home",
+          "content": "Content",
+          "people": "Users",
+          "settings": "Settings"
+        },
+        "overview": "Overview",
+        "companies": "Companies",
+        "categories": "Categories",
+        "requests": "Requests",
+        "votes": "Votes",
+        "users": "Users",
+        "subscribers": "Newsletter subscribers",
+        "premium": "Premium / Stork",
+        "siteStats": "Homepage numbers",
+        "seo": "SEO"
+      },
+      "range": {
+        "label": "Period",
+        "today": "Today",
+        "7d": "7 days",
+        "30d": "30 days",
+        "all": "All",
+        "in_today": "Today",
+        "in_7d": "Last 7 days",
+        "in_30d": "Last 30 days",
+        "in_all": "Since launch"
+      },
+      "ov": {
+        "sub": "CODpromo numbers computed live in the database",
+        "kpi": {
+          "users": "Users",
+          "premium": "Active Premium members",
+          "companies": "Companies",
+          "requests": "Pending requests",
+          "copies": "Codes copied",
+          "success": "Code success rate",
+          "subscribers": "Newsletter subscribers"
+        },
+        "today": "Today",
+        "last7": "7 days",
+        "offers": "offers",
+        "premiumNote": "Admin account excluded",
+        "review": "Open requests to review",
+        "noPending": "Nothing waiting",
+        "votesCount": "From {{count}} votes in the period",
+        "chartSignups": "Sign-ups",
+        "chartCopies": "Codes copied",
+        "total": "Total",
+        "noData": "No data in this period",
+        "topCopied": "Top 5 most copied",
+        "topVoted": "Top 5 most voted",
+        "copiesUnit": "copies",
+        "votesUnit": "votes",
+        "successShort": "{{pct}}% success",
+        "topEmpty": "Nothing yet in this period",
+        "topEmptyDesc": "Try a longer period above."
+      },
+      "plan": {
+        "free": "Regular",
+        "premium": "Premium",
+        "lifetime": "Lifetime"
+      },
+      "type": {
+        "customer": "Customer",
+        "company": "Company"
+      },
+      "users": {
+        "count": "{{count}} matching users",
+        "export": "Export CSV",
+        "search": "Search by name or email",
+        "allPlans": "All plans",
+        "allTypes": "All types",
+        "joined_all": "Joined any time",
+        "joined_today": "Joined today",
+        "joined_7d": "Joined last 7 days",
+        "joined_30d": "Joined last 30 days",
+        "col": {
+          "name": "Name and email",
+          "type": "Account type",
+          "plan": "Plan",
+          "provider": "Sign-in method",
+          "created": "Joined",
+          "lastSignIn": "Last sign-in",
+          "favorites": "Favorites",
+          "copies": "Copied"
+        },
+        "providerEmail": "Email",
+        "until": "Until {{date}}",
+        "emptyTitle": "No users match",
+        "emptyDesc": "Change the search or filters.",
+        "page": "Page {{page}} of {{pages}}",
+        "prev": "Previous page",
+        "next": "Next page",
+        "planType": "Plan length",
+        "planTypes": {
+          "month": "Month",
+          "quarter": "3 months",
+          "year": "Year"
+        },
+        "provider": "Payment method",
+        "company": "Company",
+        "recentCopies": "Codes they copied recently",
+        "noCopies": "No codes copied yet.",
+        "csv": {
+          "name": "Name",
+          "email": "Email",
+          "type": "Account type",
+          "plan": "Plan",
+          "premium_until": "Premium ends",
+          "provider": "Sign-in method",
+          "created": "Joined",
+          "last_sign_in": "Last sign-in",
+          "favorites": "Favorites",
+          "copies": "Codes copied"
+        }
+      },
+      "companies": {
+        "sub": "{{count}} companies on the site",
+        "add": "Add company",
+        "total": "Total companies",
+        "translateTitle": "Translate content automatically",
+        "translateDesc": "Translates every company's description and category to English and French (new ones are translated on save).",
+        "translateAll": "Translate all",
+        "translating": "Translating… {{done}}/{{total}}",
+        "addTitle": "Add a new company",
+        "addSub": "Fill the sections and watch the card update in the preview",
+        "editTitle": "Edit {{name}}",
+        "back": "Back to companies",
+        "notFound": "Company not found",
+        "notFoundDesc": "It may have been deleted. Go back to the list.",
+        "saved": "Changes saved",
+        "added": "Company added",
+        "categoryAdded": "Category added"
+      },
+      "pages": {
+        "categoriesSub": "Organize the categories shown on the site",
+        "requestsSub": "{{count}} requests waiting for review",
+        "votesSub": "Visitor votes on code success",
+        "subscribersSub": "Emails signed up to the newsletter",
+        "premiumSub": "Premium members and Stork codes",
+        "siteStatsSub": "Numbers shown on the homepage",
+        "seoSub": "Search titles and descriptions for company pages"
+      }
     }
   },
   "offers": {
@@ -760,5 +921,102 @@
     "bannerSub": "On Google Play",
     "bannerCta": "Install",
     "getApp": "Get the app"
+  },
+  "offerForm": {
+    "s": {
+      "company": "Company",
+      "companySub": "The identity shown at the top of the card",
+      "type": "Offer type",
+      "typeSub": "The color follows the type across the site",
+      "free": "Regular offer (free)",
+      "freeSub": "Shown to every visitor, no subscription",
+      "premium": "Premium offer",
+      "premiumSub": "Shown to Premium members instead of the regular offer",
+      "private": "Internal info",
+      "privateSub": "Never shown on the site",
+      "adminOnly": "Admin only"
+    },
+    "logo": {
+      "upload": "Upload logo",
+      "change": "Change logo",
+      "remove": "Remove",
+      "uploading": "Uploading…",
+      "hint": "A square image with a transparent background works best (PNG or WebP)."
+    },
+    "f": {
+      "name": "Company name",
+      "category": "Category",
+      "noCategory": "No category",
+      "newCategory": "New category",
+      "website": "Official website",
+      "discount": "Offer value",
+      "code": "Discount code",
+      "link": "Offer link",
+      "description": "Description",
+      "premiumDiscount": "Premium value",
+      "premiumCode": "Premium code",
+      "premiumUrl": "Premium link",
+      "premiumDescription": "Premium description",
+      "supportsPremium": "Show with Premium identity",
+      "suggest": "Suggest code",
+      "contactName": "Contact person",
+      "whatsapp": "WhatsApp number",
+      "email": "Email",
+      "commission": "Platform commission (%)",
+      "affiliate": "Referral / affiliate dashboard link",
+      "notes": "Notes"
+    },
+    "h": {
+      "name": "Example: YouCan",
+      "category": "Pick an existing one, or add a new category without leaving",
+      "website": "Example: https://youcan.shop (saved in internal info)",
+      "discount": "Example: 20%, $10 or 500 DZD",
+      "code": "Example: ILYES10",
+      "link": "Example: https://youcan.shop/?ref=ilyes",
+      "description": "Two or three sentences: what the merchant gains",
+      "premiumDiscount": "Should beat the regular value. Example: 30%",
+      "premiumCode": "Hard to guess. Example: ILY-X7Q9",
+      "premiumUrl": "A link just for Premium members, if any",
+      "premiumDescription": "What a Premium member gains on top of the regular offer",
+      "fallback": "Any empty Premium field falls back to the regular offer: value, code, link and description.",
+      "contactName": "Who we talk to at the company",
+      "whatsapp": "Example: +213 555 12 34 56",
+      "email": "Example: partners@youcan.shop",
+      "commission": "Example: 15",
+      "affiliate": "Dashboard link only, no password",
+      "notes": "Anything useful: deal terms, renewal date…"
+    },
+    "types": {
+      "discount": "Discount",
+      "coupon": "Coupon",
+      "cashback": "Cashback"
+    },
+    "warn": {
+      "https": "The link should start with https://",
+      "weaker": "The Premium value isn't stronger than the regular one"
+    },
+    "errors": {
+      "required": "This field is required",
+      "image": "The file must be an image",
+      "fixFields": "Fill in the required fields"
+    },
+    "preview": {
+      "title": "Live preview",
+      "normal": "Regular",
+      "premium": "Premium",
+      "namePh": "Company name",
+      "normalNote": "This is how every visitor sees the card on /offers.",
+      "premiumNote": "This is what a visitor sees. A Premium member reveals the code: {{code}}",
+      "premiumOff": "Premium identity is off: the card won't show in Premium mode."
+    },
+    "cat": {
+      "title": "New category",
+      "sub": "Translated to English and French automatically.",
+      "placeholder": "Example: Delivery companies",
+      "save": "Add category"
+    },
+    "save": "Save changes",
+    "add": "Add company",
+    "cancel": "Cancel"
   }
 }

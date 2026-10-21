@@ -98,10 +98,9 @@ html[lang="fr"] {
 }
 
 /* ======================================================================
-   Theme tokens — flip between dark (default) and light
+   Theme tokens — الموقع داكن فقط (لا يوجد وضع فاتح)
    ====================================================================== */
-:root,
-.dark {
+:root {
   color-scheme: dark;
   --color-ink: #0a0a0a;
   --color-ink-soft: #0f0f10;
@@ -119,26 +118,6 @@ html[lang="fr"] {
   --hero-text: #ffffff;
   --scroll-thumb: #26271f;
   --scroll-thumb-hover: #34361f;
-}
-
-.light {
-  color-scheme: light;
-  --color-ink: #f4f6ef;
-  --color-ink-soft: #ffffff;
-  --color-ink-card: #ffffff;
-  --color-ink-line: #e5e8dd;
-  --color-mute: #6b7280;
-  --text: #0a0a0a;
-  --text-soft: #4b5563;
-  --text-softer: #374151;
-  --elev: #ffffff;
-  --fill: rgba(10, 10, 10, 0.04);
-  --fill-strong: rgba(10, 10, 10, 0.07);
-  --accent-text: #5c8500;
-  --grid-line: rgba(10, 10, 10, 0.05);
-  --hero-text: #0a0a0a;
-  --scroll-thumb: #cdd3c0;
-  --scroll-thumb-hover: #b9c2a4;
 }
 
 * {
@@ -160,7 +139,6 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: clip;
-  transition: background-color 0.3s ease, color 0.3s ease;
   /* TWA/تطبيق: امنع تحديد النص و قائمة الضغط المطوّل (long-press) في المتصفح */
   user-select: none;
   -webkit-user-select: none;

@@ -17,19 +17,12 @@
     "signup": "اشترك مجاناً",
     "account": "حسابي",
     "menu": "القائمة",
-    "themeToLight": "الوضع الفاتح",
-    "themeToDark": "الوضع الداكن",
-    "enableLight": "تفعيل الوضع الفاتح",
-    "enableDark": "تفعيل الوضع الداكن",
     "backToSite": "العودة للموقع",
     "browse": "تصفّح",
     "premium": "افتح Premium",
     "premiumSub": "خصومات أقوى وأكواد حصرية",
     "settings": "الإعدادات",
-    "language": "اللغة",
-    "theme": "المظهر",
-    "light": "فاتح",
-    "dark": "داكن"
+    "language": "اللغة"
   },
   "logo": {
     "tagline": "خصومات · كوبونات · كاش باك"
@@ -283,7 +276,6 @@
   "auth": {
     "or": "أو",
     "backToSite": "العودة للموقع",
-    "toggleTheme": "تبديل الوضع",
     "login": {
       "title": "تسجيل الدخول",
       "subtitle": "مرحباً بعودتك إلى CODpromo",
@@ -368,7 +360,6 @@
   "dashboard": {
     "site": "الموقع",
     "logout": "خروج",
-    "toggleTheme": "تبديل الوضع",
     "loading": "جارٍ التحميل…",
     "customer": {
       "badge": "حساب زبون",

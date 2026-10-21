@@ -17,19 +17,12 @@
     "signup": "Join free",
     "account": "My account",
     "menu": "Menu",
-    "themeToLight": "Light mode",
-    "themeToDark": "Dark mode",
-    "enableLight": "Switch to light mode",
-    "enableDark": "Switch to dark mode",
     "backToSite": "Back to site",
     "browse": "Browse",
     "premium": "Unlock Premium",
     "premiumSub": "Stronger discounts & exclusive codes",
     "settings": "Settings",
-    "language": "Language",
-    "theme": "Theme",
-    "light": "Light",
-    "dark": "Dark"
+    "language": "Language"
   },
   "logo": {
     "tagline": "Discounts · Coupons · Cashback"
@@ -283,7 +276,6 @@
   "auth": {
     "or": "or",
     "backToSite": "Back to site",
-    "toggleTheme": "Toggle theme",
     "login": {
       "title": "Log in",
       "subtitle": "Welcome back to CODpromo",
@@ -368,7 +360,6 @@
   "dashboard": {
     "site": "Site",
     "logout": "Log out",
-    "toggleTheme": "Toggle theme",
     "loading": "Loading…",
     "customer": {
       "badge": "Shopper account",

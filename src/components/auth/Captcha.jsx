@@ -1,6 +1,5 @@
 import { forwardRef, useEffect, useRef, useState } from "react";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
-import { useTheme } from "../../lib/theme.jsx";
 
 // مفتاح الموقع من متغير البيئة. الافتراضي = مفتاح hCaptcha التجريبي (ينجح دائماً) للتطوير.
 const SITE_KEY =
@@ -12,7 +11,6 @@ const BASE_H = 78;
 
 /** حماية hCaptcha — يعيد التوكن عبر onVerify، ويُفرّغه عند الانتهاء/الخطأ. */
 const Captcha = forwardRef(function Captcha({ onVerify, onExpire }, ref) {
-  const { theme } = useTheme();
   const wrapRef = useRef(null);
   const [scale, setScale] = useState(1);
 
@@ -36,13 +34,12 @@ const Captcha = forwardRef(function Captcha({ onVerify, onExpire }, ref) {
       ref={wrapRef}
       className="flex w-full min-w-0 justify-center overflow-hidden"
       style={scale < 1 ? { height: Math.ceil(BASE_H * scale) } : undefined}
-      key={theme}
     >
       <div className="w-max" style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}>
         <HCaptcha
           ref={ref}
           sitekey={SITE_KEY}
-          theme={theme === "light" ? "light" : "dark"}
+          theme="dark"
           onVerify={(token) => onVerify?.(token)}
           onExpire={() => onExpire?.()}
           onError={() => onExpire?.()}

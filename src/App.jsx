@@ -144,11 +144,11 @@ export default function App() {
               </RequireAuth>
             }
           />
-          {/* لوحة التحكم تبقى داكنة دائماً بغضّ النظر عن ثيم الموقع */}
+          {/* لوحة التحكم عربية RTL ثابتة (الموقع كله داكن) */}
           <Route
             path="/admin"
             element={
-              <div className="dark" dir="rtl" lang="ar">
+              <div dir="rtl" lang="ar">
                 <Admin />
               </div>
             }

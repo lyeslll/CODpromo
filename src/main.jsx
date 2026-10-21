@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.jsx";
-import { ThemeProvider } from "./lib/theme.jsx";
 import { LocaleProvider } from "./lib/locale.jsx";
 import "./i18n/index.js";
 import "flag-icons/css/flag-icons.min.css";
@@ -18,9 +17,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <HelmetProvider>
       <LocaleProvider>
-        <ThemeProvider>
-          <App />
-        </ThemeProvider>
+        <App />
       </LocaleProvider>
     </HelmetProvider>
   </React.StrictMode>

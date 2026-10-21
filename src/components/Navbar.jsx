@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogIn, LogOut, Sparkles, Menu, X, Sun, Moon, Store, HelpCircle, Flame, Crown, ChevronLeft, LayoutGrid } from "lucide-react";
+import { LogIn, LogOut, Sparkles, Menu, X, Store, HelpCircle, Flame, Crown, ChevronLeft, LayoutGrid } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Logo from "./Logo.jsx";
 import LanguageSwitcher, { LANGS, Flag, useLangPick } from "./LanguageSwitcher.jsx";
-import { useTheme } from "../lib/theme.jsx";
 import { useLocale } from "../lib/locale.jsx";
 import { useAuth } from "../lib/auth.jsx";
 import { usePremium } from "../lib/premium.jsx";
@@ -21,70 +20,6 @@ const LINKS = [
 // هوية Premium الذهبية (نفس البطاقات)
 const GOLD_SOFT = "#ffe486";
 const GOLD_DEEP = "#cf9a1e";
-
-/* ===================== مبدّل الثيم (مدمج في الهيدر — حاسوب) ===================== */
-function ThemeToggle({ className = "" }) {
-  const { theme, toggle } = useTheme();
-  const { t } = useTranslation();
-  const isDark = theme === "dark";
-  return (
-    <motion.button
-      onClick={toggle}
-      whileTap={{ scale: 0.9 }}
-      aria-label={isDark ? t("nav.enableLight") : t("nav.enableDark")}
-      title={isDark ? t("nav.themeToLight") : t("nav.themeToDark")}
-      className={`relative grid h-9 w-9 place-items-center overflow-hidden rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)] ${className}`}
-    >
-      <AnimatePresence mode="wait" initial={false}>
-        {isDark ? (
-          <motion.span key="sun" initial={{ y: 14, opacity: 0, rotate: -90 }} animate={{ y: 0, opacity: 1, rotate: 0 }} exit={{ y: -14, opacity: 0, rotate: 90 }} transition={{ duration: 0.22 }}>
-            <Sun size={17} className="text-[var(--color-lime)]" />
-          </motion.span>
-        ) : (
-          <motion.span key="moon" initial={{ y: 14, opacity: 0, rotate: 90 }} animate={{ y: 0, opacity: 1, rotate: 0 }} exit={{ y: -14, opacity: 0, rotate: -90 }} transition={{ duration: 0.22 }}>
-            <Moon size={17} className="text-[var(--accent-text)]" />
-          </motion.span>
-        )}
-      </AnimatePresence>
-    </motion.button>
-  );
-}
-
-/* ===================== مبدّل الثيم المجزّأ (داخل الميغا مينيو) ===================== */
-function ThemeSegment() {
-  const { theme, setTheme } = useTheme();
-  const { t } = useTranslation();
-  const opts = [
-    { key: "light", icon: Sun, label: t("nav.light") },
-    { key: "dark", icon: Moon, label: t("nav.dark") },
-  ];
-  return (
-    <div className="flex items-center gap-1 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] p-1">
-      {opts.map((o) => {
-        const active = theme === o.key;
-        const Icon = o.icon;
-        return (
-          <button
-            key={o.key}
-            onClick={() => setTheme(o.key)}
-            aria-pressed={active}
-            className="relative flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-bold"
-          >
-            {active && (
-              <motion.span
-                layoutId="theme-active-seg"
-                className="absolute inset-0 rounded-lg bg-[var(--fill-strong)] ring-1 ring-[var(--color-lime)]/30"
-                transition={{ type: "spring", stiffness: 420, damping: 34 }}
-              />
-            )}
-            <Icon size={14} className={`relative ${active ? "text-[var(--accent-text)]" : "text-[var(--color-mute)]"}`} />
-            <span className={`relative ${active ? "text-[var(--text)]" : "text-[var(--color-mute)]"}`}>{o.label}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 /* ===================== مبدّل اللغة المجزّأ (داخل الميغا مينيو — بلا قائمة منسدلة) ===================== */
 function LanguageSegment() {
@@ -257,10 +192,9 @@ export default function Navbar({ onPremium }) {
             ))}
           </nav>
 
-          {/* ===== مجموعة الحاسوب: لغة + ثيم + حساب ===== */}
+          {/* ===== مجموعة الحاسوب: لغة + حساب ===== */}
           <div className="hidden items-center gap-2 md:flex">
             <LanguageSwitcher />
-            <ThemeToggle />
 
             {user ? (
               <>
@@ -459,7 +393,7 @@ export default function Navbar({ onPremium }) {
                   {/* فاصل */}
                   <motion.div variants={itemVariants} className="my-2.5 h-px bg-[var(--color-ink-line)]" />
 
-                  {/* صف الإعدادات: اللغة + الثيم */}
+                  {/* صف الإعدادات: اللغة */}
                   <motion.div variants={itemVariants}>
                     <span className="px-3 pb-2 block text-[11px] font-bold uppercase tracking-wider text-[var(--color-mute)]">
                       {t("nav.settings")}
@@ -467,10 +401,6 @@ export default function Navbar({ onPremium }) {
                     <div className="flex items-center justify-between gap-3 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-3 py-2.5">
                       <span className="text-[13px] font-bold text-[var(--text-softer)]">{t("nav.language")}</span>
                       <LanguageSegment />
-                    </div>
-                    <div className="mt-2 flex items-center justify-between gap-3 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-3 py-2.5">
-                      <span className="text-[13px] font-bold text-[var(--text-softer)]">{t("nav.theme")}</span>
-                      <ThemeSegment />
                     </div>
                   </motion.div>
                 </div>

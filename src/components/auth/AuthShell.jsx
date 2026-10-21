@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sun, Moon, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Logo from "../Logo.jsx";
 import LanguageSwitcher from "../LanguageSwitcher.jsx";
-import { useTheme } from "../../lib/theme.jsx";
 
 // نمط حقول الإدخال المشترك في صفحات الحساب
 export const authInputCls =
@@ -34,29 +33,10 @@ export function GoogleButton({ onClick, loading, label }) {
   );
 }
 
-function ThemeToggle() {
-  const { theme, toggle } = useTheme();
-  const { t } = useTranslation();
-  const isDark = theme === "dark";
-  return (
-    <button
-      onClick={toggle}
-      aria-label={t("auth.toggleTheme")}
-      className="grid h-10 w-10 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)]"
-    >
-      {isDark ? (
-        <Sun size={18} className="text-[var(--color-lime)]" />
-      ) : (
-        <Moon size={18} className="text-[var(--accent-text)]" />
-      )}
-    </button>
-  );
-}
-
 /**
  * إطار موحّد لصفحات الحساب (دخول/تسجيل/استعادة) بنفس الهوية البصرية.
  * tall=true: للصفحات ذات المحتوى الأطول (مثل إنشاء حساب) — يزيد الحشو العلوي
- * كي لا تصطدم البطاقة بزرّ الثيم ورابط "العودة للموقع" في الأعلى عند طول المحتوى.
+ * كي لا تصطدم البطاقة بزرّ اللغة ورابط "العودة للموقع" في الأعلى عند طول المحتوى.
  */
 export default function AuthShell({ title, subtitle, children, footer, tall = false }) {
   const { t } = useTranslation();
@@ -75,7 +55,7 @@ export default function AuthShell({ title, subtitle, children, footer, tall = fa
       />
       <div className="pointer-events-none absolute inset-0 bg-grid" />
 
-      {/* زر الثيم + رجوع */}
+      {/* زر اللغة + رجوع */}
       <div className="absolute inset-x-0 top-0 z-10 mx-auto flex max-w-md items-center justify-between px-4 pt-5">
         <Link
           to="/"
@@ -85,7 +65,6 @@ export default function AuthShell({ title, subtitle, children, footer, tall = fa
         </Link>
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
-          <ThemeToggle />
         </div>
       </div>
 

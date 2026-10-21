@@ -212,7 +212,7 @@ export default function Footer({ onPremium }) {
 
               <FooterCol id="f-biz" title={t("footer.business")} desktop={desktop}>
                 <li>
-                  <Link to="/signup" className={linkCls}>
+                  <Link to="/signup?type=company" className={linkCls}>
                     <Building2 size={15} aria-hidden className="text-[var(--color-mute)]" /> {t("footer.addOffers")}
                   </Link>
                 </li>

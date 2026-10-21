@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Mail,
@@ -40,7 +40,9 @@ export default function Signup() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [accountType, setAccountType] = useState("customer");
+  // ?type=company (رابط "أضف عروض شركتك" في الفوتر) يختار حساب الشركة مسبقاً
+  const [searchParams] = useSearchParams();
+  const [accountType, setAccountType] = useState(() => (searchParams.get("type") === "company" ? "company" : "customer"));
   const [fullName, setFullName] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [phone, setPhone] = useState("");

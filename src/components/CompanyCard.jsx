@@ -9,6 +9,7 @@ import { useCategories } from "../lib/categories.jsx";
 import { getPremiumCode } from "../lib/supabase.js";
 import { isImageUrl } from "./CompanyLogo.jsx";
 import CodeVote from "./CodeVote.jsx";
+import { GlowSpot, useCardGlow } from "./CardGlow.jsx";
 
 // هوية Premium الذهبية
 const GOLD = "#f0c63c";
@@ -78,6 +79,8 @@ export default function CompanyCard({
   }, [premium, unlocked, premiumData, company.id]);
 
   const hot = (company.clicks || 0) >= 50;
+  // ضوء دائري بلون النوع يتبع المؤشر (أو موضع اللمس في الهاتف)
+  const glow = useCardGlow();
 
   // ألوان حسب الوضع (عادي = لون النوع / Premium = ذهبي)
   const accent = premium ? GOLD : meta.color;
@@ -124,6 +127,8 @@ export default function CompanyCard({
 
   return (
     <motion.article
+      ref={glow.ref}
+      {...glow.handlers}
       initial={{ opacity: 0, y: 26 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10, scale: 0.97 }}
@@ -142,6 +147,7 @@ export default function CompanyCard({
             style={{ background: `radial-gradient(120% 70% at 50% 0%, ${GOLD}24, transparent 62%)` }}
           />
         )}
+        <GlowSpot color={accentGlow} />
         <span aria-hidden className="ticket-ring ticket-ring-l" />
         <span aria-hidden className="ticket-ring ticket-ring-r" />
 
@@ -225,6 +231,7 @@ export default function CompanyCard({
       {/* ===== الكعب: الكود + النسخ + الزيارة + التصويت ===== */}
       <div className="ticket-stub relative bg-[var(--color-ink-card)] px-5 pb-5 pt-4">
         <span aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "var(--stub)" }} />
+        <GlowSpot color={accentGlow} />
         <span aria-hidden className="ticket-ring ticket-ring-l" />
         <span aria-hidden className="ticket-ring ticket-ring-r" />
         <span aria-hidden className="ticket-perf" />

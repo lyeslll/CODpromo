@@ -68,6 +68,39 @@ function buildCouponGeometry(curve = 28, bevel = true) {
   return { body, face };
 }
 
+// ===== ضوء المؤشر على وجه الكوبون — نفس ضوء بطاقات العروض =====
+// بقعة دائرية بقطر 280px بلون النوع (0.35) أو ذهبي على الوجه Premium (0.4)، تتلاشى خطياً
+// حتى 65% من القطر (= radial-gradient في CSS). طبقة بشكل الوجه نفسه فوقه مباشرةً، فتُقصّ مع الكوبون.
+const GLOW_PX = 280;
+const GLOW_ALPHA = { front: 0.35, back: 0.4 };
+const GOLD_RGB = [240 / 255, 198 / 255, 60 / 255];
+
+const hexRgb = (hex) => {
+  const n = parseInt(String(hex || "#a6f000").slice(1), 16);
+  return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+};
+
+function makeGlowMaterial(rgb) {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      uPoint: { value: new THREE.Vector2() },
+      uRadius: { value: 1 },
+      uColor: { value: new THREE.Vector3(...rgb) },
+      uAlpha: { value: 0 },
+    },
+    vertexShader: `varying vec2 vPos;
+void main() { vPos = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+    // ألوان sRGB كما هي (بلا تحويل) — يطابق مزج CSS فوق الوجه
+    fragmentShader: `uniform vec2 uPoint; uniform float uRadius; uniform vec3 uColor; uniform float uAlpha; varying vec2 vPos;
+void main() { float d = distance(vPos, uPoint) / (uRadius * 0.65); gl_FragColor = vec4(uColor, uAlpha * clamp(1.0 - d, 0.0, 1.0)); }`,
+    transparent: true,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: -1,
+    polygonOffsetUnits: -1,
+  });
+}
+
 /** إضاءة بيئية بلا ملفات خارجية (RoomEnvironment) — تعطي الذهب انعكاساً حقيقياً. */
 function Environment() {
   const { gl, scene } = useThree();
@@ -131,6 +164,15 @@ function MainCoupon({ store, faces, labels, lang, onReady }) {
     [tex]
   );
 
+  // ضوء المؤشر: طبقة لكل وجه + raycast من موضع المؤشر (store.glow) إلى الوجه الظاهر
+  const glow = useMemo(() => ({ front: makeGlowMaterial(hexRgb()), back: makeGlowMaterial(GOLD_RGB) }), []);
+  const glowFront = useRef(null);
+  const glowBack = useRef(null);
+  const ray = useMemo(() => ({ caster: new THREE.Raycaster(), ndc: new THREE.Vector2(), local: new THREE.Vector3(), level: { front: 0, back: 0 } }), []);
+  useEffect(() => {
+    glow.front.uniforms.uColor.value.set(...hexRgb(faces.color));
+  }, [faces.color, glow]);
+
   const live = useRef({ parity: 0, counterStart: -1, lastDrawn: null, pendingReset: false, ready: false, frame: 0 });
   const normalParsed = useMemo(() => parseVal(faces.normal), [faces.normal]);
   const premiumParsed = useMemo(() => parseVal(faces.premium), [faces.premium]);
@@ -161,8 +203,9 @@ function MainCoupon({ store, faces, labels, lang, onReady }) {
       tex.front.dispose();
       tex.back.dispose();
       Object.values(mats).forEach((m) => m.dispose());
+      Object.values(glow).forEach((m) => m.dispose());
     },
-    [geo, tex, mats]
+    [geo, tex, mats, glow]
   );
 
   useFrame((state, delta) => {
@@ -201,6 +244,32 @@ function MainCoupon({ store, faces, labels, lang, onReady }) {
     const face = -Math.atan2(g.position.x, CAM_Z) * 0.7;
     const faceX = Math.atan2(g.position.y, CAM_Z) * 0.7;
     g.rotation.set(store.tilt.x + faceX + (store.reduced ? 0 : Math.sin(t * 0.7) * 0.03), store.angle + store.tilt.y + face, 0);
+
+    // ضوء المؤشر: أين يقع المؤشر/اللمس على الوجه الظاهر؟ (الفأرة: يظهر ويختفي في ~0.3 ثانية
+    // كالبطاقات؛ اللمس: يظهر فوراً في موضع الإصبع ثم ينطفئ بالتدريج بعد رفعه)
+    const p = store.glow;
+    let lit = null;
+    if (p.on && glowFront.current && glowBack.current) {
+      const rect = gl.domElement.getBoundingClientRect();
+      ray.ndc.set(((p.x - rect.left) / rect.width) * 2 - 1, -((p.y - rect.top) / rect.height) * 2 + 1);
+      g.updateMatrixWorld(true);
+      ray.caster.setFromCamera(ray.ndc, state.camera);
+      const hit = ray.caster.intersectObjects([glowFront.current, glowBack.current], false)[0];
+      if (hit) {
+        lit = hit.object === glowFront.current ? "front" : "back";
+        ray.local.copy(hit.point);
+        hit.object.worldToLocal(ray.local);
+        glow[lit].uniforms.uPoint.value.set(ray.local.x, ray.local.y);
+      }
+    }
+    const radius = (GLOW_PX * COUPON.W) / Math.max(a.w, 1);
+    for (const k of ["front", "back"]) {
+      const on = lit === k;
+      const rate = on ? (p.touch ? 20 : 10) : p.touch ? 2.6 : 10;
+      ray.level[k] += ((on ? 1 : 0) - ray.level[k]) * (1 - Math.exp(-dt * rate));
+      glow[k].uniforms.uRadius.value = radius;
+      glow[k].uniforms.uAlpha.value = GLOW_ALPHA[k] * ray.level[k];
+    }
 
     // لون الحافة يتبع الوجه الظاهر (أخضر ↔ ذهبي)
     const frontness = (Math.cos(store.angle) + 1) / 2;
@@ -257,6 +326,8 @@ function MainCoupon({ store, faces, labels, lang, onReady }) {
       <mesh geometry={geo.body} material={mats.edge} />
       <mesh geometry={geo.face} material={mats.front} position={[0, 0, FACE_Z]} />
       <mesh geometry={geo.face} material={mats.back} position={[0, 0, -FACE_Z]} rotation={[0, Math.PI, 0]} />
+      <mesh ref={glowFront} geometry={geo.face} material={glow.front} position={[0, 0, FACE_Z + 0.001]} renderOrder={2} />
+      <mesh ref={glowBack} geometry={geo.face} material={glow.back} position={[0, 0, -FACE_Z - 0.001]} rotation={[0, Math.PI, 0]} renderOrder={2} />
     </group>
   );
 }

@@ -46,6 +46,8 @@ function createStore() {
     measure: null,
     avoid: [],
     reduced: false,
+    // ضوء المؤشر على الكوبون: موضع الفأرة/اللمس (إحداثيات الشاشة)، on = نشط، touch = مصدره لمس
+    glow: { x: 0, y: 0, on: false, touch: false },
   };
 }
 
@@ -248,6 +250,7 @@ export default function LandingHero({ companies, loading, voteStats, categories,
   // ===== ميلان مع الماوس (الحاسوب) =====
   const onHeroPointerMove = (e) => {
     if (e.pointerType !== "mouse") return;
+    Object.assign(store.glow, { x: e.clientX, y: e.clientY, on: true, touch: false });
     const s = stageRef.current?.getBoundingClientRect();
     const h = heroRef.current?.getBoundingClientRect();
     if (!s || !h) return;
@@ -259,6 +262,7 @@ export default function LandingHero({ companies, loading, voteStats, categories,
     store.parallaxTarget.y = clamp((e.clientY - (h.top + h.height / 2)) / (h.height / 2));
   };
   const onHeroPointerLeave = () => {
+    store.glow.on = false;
     store.tiltTarget.x = 0;
     store.tiltTarget.y = 0;
     store.parallaxTarget.x = 0;
@@ -269,9 +273,12 @@ export default function LandingHero({ companies, loading, voteStats, categories,
   const drag = useRef(null);
   const onStageDown = (e) => {
     markInteracted();
+    // الهاتف: الضوء يظهر في موضع اللمس
+    if (e.pointerType !== "mouse") Object.assign(store.glow, { x: e.clientX, y: e.clientY, on: true, touch: true });
     drag.current = { x: e.clientX, y: e.clientY, w: stageRef.current?.offsetWidth || 300, axis: null, moved: false };
   };
   const onStageMove = (e) => {
+    if (e.pointerType !== "mouse" && store.glow.touch && store.glow.on) Object.assign(store.glow, { x: e.clientX, y: e.clientY });
     const d = drag.current;
     if (!d) return;
     const dx = e.clientX - d.x;
@@ -293,7 +300,9 @@ export default function LandingHero({ companies, loading, voteStats, categories,
       setAngleDeg(store.flipIndex * 180 + (store.drag * 180) / Math.PI);
     }
   };
-  const onStageUp = () => {
+  const onStageUp = (e) => {
+    // رفع الإصبع: الضوء ينطفئ بالتدريج (في المشهد)
+    if (e?.pointerType !== "mouse") store.glow.on = false;
     const d = drag.current;
     drag.current = null;
     setDragging(false);

@@ -253,6 +253,14 @@ input::placeholder {
   animation: var(--animate-shimmer);
 }
 
+/* ضوء الفأرة الليموني (CursorGlow — الحاسوب فقط): يجلس تحت المحتوى بـ z-index سالب،
+   فـ body و#root وغلاف الصفحة (السوداء) تصير شفافة ما دام مفعّلاً — يبقى لون html الأسود نفسه تحتها، فلا يتغيّر المظهر. */
+html.cursor-glow body,
+html.cursor-glow #root,
+html.cursor-glow #root > .min-h-screen {
+  background-color: transparent;
+}
+
 /* ======================================================================
    تذكرة الكوبون (بطاقة العرض): نصفا دائرة مقصوصان في الجنبين + خط مثقّب.
    البطاقة جزءان متلاصقان: .ticket-top (المعلومات) و .ticket-stub (الكعب).

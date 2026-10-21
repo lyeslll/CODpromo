@@ -10,6 +10,7 @@ import { useLocale } from "./lib/locale.jsx";
 import { dirOf } from "./i18n/index.js";
 import Home from "./pages/Home.jsx";
 import RequireAuth from "./components/auth/RequireAuth.jsx";
+import CursorGlow from "./components/CursorGlow.jsx";
 
 // باقي الصفحات تُحمَّل عند زيارتها فقط (حزمة الصفحة الرئيسية أخفّ)
 const StorePage = lazy(() => import("./pages/StorePage.jsx"));
@@ -179,6 +180,7 @@ export default function App() {
           </Routes>
           </Suspense>
           <MobileBottomNav />
+          <CursorGlow />
           </ScrollVisibilityProvider>
           </VoteStatsProvider>
           </CategoriesProvider>

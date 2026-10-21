@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { parseVal, withNum } from "../../../lib/values.js";
 import { getTypeMeta, TYPE_META } from "../../../lib/types.js";
 import { isImageUrl } from "../../CompanyLogo.jsx";
+import { GlowSpot, useCardGlow } from "../../CardGlow.jsx";
 
 const GOLD_SOFT = "#ffe486";
 const GOLD = "#f0c63c";
@@ -62,12 +63,15 @@ function Face({ f, premium, labels, valueNode }) {
     ? { background: `linear-gradient(135deg, ${GOLD} , ${GOLD_DEEP})` }
     : { background: `linear-gradient(180deg, #151519, #111114)` };
   const edge = premium ? "rgba(255,228,134,0.9)" : `${f.color}66`;
+  // ضوء المؤشر بلون النوع (أو ذهبي في Premium) — نفس ضوء بطاقات العروض
+  const glow = premium ? "rgba(240,198,60,0.4)" : (TYPE_META[TYPE_DB[f.typeKey]] || getTypeMeta()).glow;
   return (
     <div className="ticket absolute inset-0 flex flex-col" style={{ "--r": "4.2cqw", "--edge-base": edge, "--perf": premium ? "rgba(29,20,3,0.45)" : `${f.color}99` }}>
       <div className="ticket-top relative flex flex-1 flex-col justify-between p-[5.5cqw] pb-[3.5cqw]" style={top}>
+        <GlowSpot color={glow} />
         <span aria-hidden className="ticket-ring ticket-ring-l" />
         <span aria-hidden className="ticket-ring ticket-ring-r" />
-        <div className="flex items-start justify-between gap-[3cqw]">
+        <div className="relative flex items-start justify-between gap-[3cqw]">
           <div className="flex min-w-0 items-center gap-[3cqw]">
             {premium ? (
               <span className="flex items-center gap-[1.4cqw] rounded-full px-[3cqw] py-[1.2cqw] text-[3.1cqw] font-black" style={{ background: INK, color: GOLD_SOFT }}>
@@ -97,7 +101,7 @@ function Face({ f, premium, labels, valueNode }) {
             )}
           </div>
         </div>
-        <div>
+        <div className="relative">
           <div className="text-[3cqw] font-semibold" style={{ color: premium ? "rgba(29,20,3,0.72)" : "#8d8d97" }}>
             {premium ? labels.premiumDiscount : labels.offerValue}
           </div>
@@ -112,9 +116,10 @@ function Face({ f, premium, labels, valueNode }) {
       <div className="ticket-stub relative px-[5.5cqw] pb-[4.5cqw] pt-[4.2cqw]" style={stub}>
         <span aria-hidden className="ticket-ring ticket-ring-l" />
         <span aria-hidden className="ticket-ring ticket-ring-r" />
+        <GlowSpot color={glow} />
         <span aria-hidden className="ticket-perf" />
         <div
-          className="flex items-center justify-between rounded-[2.6cqw] border border-dashed px-[3.4cqw] py-[2.2cqw]"
+          className="relative flex items-center justify-between rounded-[2.6cqw] border border-dashed px-[3.4cqw] py-[2.2cqw]"
           style={{ borderColor: premium ? "rgba(29,20,3,0.4)" : `${f.color}73`, background: premium ? "rgba(29,20,3,0.08)" : `${f.color}0f` }}
         >
           <span className="text-[2.8cqw] font-bold" style={{ color: premium ? "rgba(29,20,3,0.75)" : "#8d8d97" }}>
@@ -144,6 +149,7 @@ function Face({ f, premium, labels, valueNode }) {
 export default function MagicCoupon2D({ faces, labels, mode, angleDeg, dragging, reduced, hidden }) {
   const { i18n } = useTranslation();
   const premium = mode === "premium";
+  const glow = useCardGlow();
 
   if (!faces) {
     return (
@@ -155,8 +161,10 @@ export default function MagicCoupon2D({ faces, labels, mode, angleDeg, dragging,
 
   return (
     <div
+      ref={glow.ref}
+      {...glow.handlers}
       aria-hidden
-      className="absolute inset-0 transition-opacity duration-500"
+      className="group absolute inset-0 transition-opacity duration-500"
       style={{ opacity: hidden ? 0 : 1, perspective: "1400px" }}
     >
       {reduced ? (

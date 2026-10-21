@@ -115,7 +115,8 @@
     "copied": "Copied",
     "visit": "Visit store",
     "scratchReveal": "Scratch to reveal",
-    "unlockPremium": "Unlock Premium deals"
+    "unlockPremium": "Unlock Premium deals",
+    "premiumBadge": "PREMIUM"
   },
   "vote": {
     "question": "Did this code work for you?",

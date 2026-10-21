@@ -115,7 +115,8 @@
     "copied": "تم النسخ",
     "visit": "زيارة الموقع",
     "scratchReveal": "امسح للكشف",
-    "unlockPremium": "افتح خصومات Premium"
+    "unlockPremium": "افتح خصومات Premium",
+    "premiumBadge": "PREMIUM"
   },
   "vote": {
     "question": "هل نجح هذا الكود معك؟",

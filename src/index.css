@@ -225,6 +225,103 @@ input::placeholder {
   animation: var(--animate-shimmer);
 }
 
+/* ======================================================================
+   تذكرة الكوبون (بطاقة العرض): نصفا دائرة مقصوصان في الجنبين + خط مثقّب.
+   البطاقة جزءان متلاصقان: .ticket-top (المعلومات) و .ticket-stub (الكعب).
+   كل جزء يقصّ ربع دائرة في زاويتيه الملاصقتين عبر CSS mask (شفافية حقيقية)،
+   فيتكوّن نصف الدائرة من الربعين. .ticket-ring يرسم قوس الحافة حول القصّ.
+   الألوان من متغيّرات على .ticket: --edge-base / --edge-strong / --perf / --stub.
+   ====================================================================== */
+.ticket {
+  --r: 12px;
+  --edge-base: rgba(255, 255, 255, 0.08);
+  --edge-strong: var(--edge-base);
+  --perf: var(--edge-base);
+  --edge: var(--edge-base);
+}
+.ticket-top,
+.ticket-stub {
+  overflow: hidden;
+  border: 1px solid var(--edge);
+  transition: border-color 0.25s ease;
+}
+.ticket-top {
+  border-bottom: 0;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  -webkit-mask:
+    radial-gradient(circle at 0 100%, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 0 / 51% 100% no-repeat,
+    radial-gradient(circle at 100% 100%, transparent var(--r), #000 calc(var(--r) + 0.5px)) 100% 0 / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle at 0 100%, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 0 / 51% 100% no-repeat,
+    radial-gradient(circle at 100% 100%, transparent var(--r), #000 calc(var(--r) + 0.5px)) 100% 0 / 51% 100% no-repeat;
+}
+.ticket-stub {
+  border-top: 0;
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
+  -webkit-mask:
+    radial-gradient(circle at 0 0, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 0 / 51% 100% no-repeat,
+    radial-gradient(circle at 100% 0, transparent var(--r), #000 calc(var(--r) + 0.5px)) 100% 0 / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle at 0 0, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 0 / 51% 100% no-repeat,
+    radial-gradient(circle at 100% 0, transparent var(--r), #000 calc(var(--r) + 0.5px)) 100% 0 / 51% 100% no-repeat;
+}
+.ticket-ring {
+  position: absolute;
+  width: calc(var(--r) * 2 + 2px);
+  height: calc(var(--r) * 2 + 2px);
+  border: 1px solid var(--edge);
+  border-radius: 50%;
+  pointer-events: none;
+  transition: border-color 0.25s ease;
+}
+/* مركز القوس على زاوية الجزء (border-box) مع تعويض سمك الحافة الجانبية */
+.ticket-ring-l {
+  left: calc(-1 * var(--r) - 2px);
+}
+.ticket-ring-r {
+  right: calc(-1 * var(--r) - 2px);
+}
+.ticket-top .ticket-ring {
+  bottom: calc(-1 * var(--r) - 1px);
+}
+.ticket-stub .ticket-ring {
+  top: calc(-1 * var(--r) - 1px);
+}
+.ticket-perf {
+  position: absolute;
+  top: 0;
+  left: calc(var(--r) + 10px);
+  right: calc(var(--r) + 10px);
+  height: 2px;
+  pointer-events: none;
+  background-image: linear-gradient(90deg, var(--perf) 55%, transparent 0);
+  background-size: 10px 2px;
+  background-repeat: repeat-x;
+}
+.ticket-premium {
+  filter: drop-shadow(0 18px 34px rgba(240, 198, 60, 0.14));
+}
+@media (hover: hover) {
+  .ticket:hover {
+    --edge: var(--edge-strong);
+  }
+}
+@media (hover: none) {
+  .ticket:active {
+    --edge: var(--edge-strong);
+  }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .ticket:hover .ticket-perf {
+    animation: perf-march 0.7s linear infinite;
+  }
+}
+@keyframes perf-march {
+  to {
+    background-position: 10px 0;
+  }
+}
+
 /* مسافة سفلية للمحتوى على الهاتف حتى لا يغطّيه شريط التنقّل السفلي (BottomNav).
    تُضاف فقط عند وجود الشريط (الصنف يضبطه App) وعلى الهاتف فقط، مع احترام safe-area. */
 @media (max-width: 767px) {

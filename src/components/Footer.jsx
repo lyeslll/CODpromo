@@ -21,7 +21,7 @@ function FacebookIcon({ size = 18 }) {
   );
 }
 
-const SOCIALS = [
+export const SOCIALS = [
   { Icon: InstagramIcon, href: "https://www.instagram.com/codpromo.app", label: "Instagram" },
   { Icon: FacebookIcon, href: "https://www.facebook.com/profile.php?id=61590289486342", label: "Facebook" },
   { Icon: Mail, href: "mailto:contact@codpromo.com", label: "Email" },

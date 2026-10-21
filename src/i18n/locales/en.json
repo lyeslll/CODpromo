@@ -28,28 +28,37 @@
     "tagline": "Discounts · Coupons · Cashback"
   },
   "hero": {
-    "badge": "Fresh deals every day across the Arab world and beyond",
-    "titleStart": "Save on every order with",
-    "titleHighlight": "promo codes",
-    "titleEnd": " that actually work",
-    "desc": "<0>CODpromo</0> brings you the best discount coupons and cashback from your favorite stores — verified, up to date, and just one click away.",
-    "ctaExplore": "Explore deals now",
-    "ctaHow": "How it works",
-    "statCodes": "Active codes",
-    "statStores": "Partner stores",
-    "statRating": "User rating",
-    "statRatingShort": "Rating",
-    "trust": "Every code is reviewed by hand before it goes live"
+    "ctaExplore": "Explore offers",
+    "titleLine1": "Your customers pay on delivery.",
+    "titleLine2": "You pay less.",
+    "subtitle": "Promo codes, coupons and cashback on what a cash-on-delivery seller pays for every month: shipping, store platforms, ads, payment cards and ERP. Free, and every code is checked before it goes live.",
+    "ctaPremium": "Unlock Premium",
+    "ctaMember": "Your Premium offers are open",
+    "magic": {
+      "switchLabel": "Coupon side: Regular or Premium",
+      "dragHint": "Drag or tap the coupon",
+      "example": "Example",
+      "exampleName": "Sample offer",
+      "exampleNormal": "20%",
+      "examplePremium": "30%"
+    }
   },
   "how": {
-    "kicker": "In three steps",
-    "title": "How does CODpromo work?",
-    "step1Title": "Discover the deals",
-    "step1Desc": "Browse dozens of companies and services every online seller needs — from shipping and tools to payment cards — and find the right deal in seconds.",
-    "step2Title": "Copy the code",
-    "step2Desc": "One click copies the working code, ready to paste, and takes you straight to the store.",
-    "step3Title": "Save at checkout",
-    "step3Desc": "Paste the code at checkout and enjoy the discount or cashback instantly."
+    "title": "Free, in three steps",
+    "sub": "Regular offers are completely free and need no account.",
+    "s1": {
+      "title": "Pick the offer",
+      "desc": "Search by company name or browse categories until you find the service you pay for."
+    },
+    "s2": {
+      "title": "Copy the code",
+      "desc": "One tap on “Copy code” and it's ready to paste."
+    },
+    "s3": {
+      "title": "Save and earn",
+      "desc": "Paste it at checkout on the company's site: an instant discount or cashback back to you."
+    },
+    "cta": "Pick your first offer"
   },
   "search": {
     "placeholder": "Search for a store, category, or promo code…",
@@ -518,6 +527,123 @@
     "offers": {
       "title": "All offers: promo codes, coupons and cashback | CODpromo",
       "description": "Browse every promo code, coupon and cashback offer for cash-on-delivery sellers in Algeria and the Arab world: shipping, store platforms, ads, payment cards and ERP. Search and filter by type and category."
+    },
+    "home": {
+      "title": "CODpromo | Promo codes for cash-on-delivery sellers",
+      "description": "Promo codes, coupons and cashback on shipping, store platforms, ads, payment cards and ERP for cash-on-delivery sellers in Algeria and the Arab world. Free, and every code is checked by hand."
     }
+  },
+  "stats": {
+    "label": "CODpromo in numbers",
+    "free": "Free",
+    "freeSub": "Regular offers, no subscription and no account",
+    "savings": "Total discount value",
+    "codes": "active codes",
+    "partners": "partner companies",
+    "multiplier": "Premium value vs. its price",
+    "dzd": "DZD"
+  },
+  "story": {
+    "label": "The story behind the name",
+    "intro": "The name tells the whole idea",
+    "codMeaning": "",
+    "readAs": "Read it fast: Code promo",
+    "conclusion": "Promo codes for cash-on-delivery sellers."
+  },
+  "pillars": {
+    "title": "Three ways to pay less",
+    "sub": "Every offer on CODpromo is one of three types, each with a colour you spot at a glance.",
+    "liveFrom": "Live example from {{name}}",
+    "discount": {
+      "def": "A percentage taken straight off the price at checkout. Enter the code and the price drops.",
+      "cta": "Browse discounts"
+    },
+    "coupon": {
+      "def": "A fixed amount or a gift you claim with a code: credit, free messages, or money off your bill.",
+      "cta": "Browse coupons",
+      "applied": "Applied"
+    },
+    "cashback": {
+      "def": "You pay the full price, then part of it comes back to your account or wallet.",
+      "cta": "Browse cashback"
+    }
+  },
+  "anatomy": {
+    "title": "Read a coupon in one second",
+    "sub": "Every card on CODpromo follows the same layout, so you always know where to look.",
+    "cta": "Try it on a real offer",
+    "showPremium": "See it in Premium",
+    "showNormal": "Back to Regular",
+    "parts": {
+      "fav": {
+        "title": "Favourite",
+        "desc": "Save the offer in one tap and find it in your account."
+      },
+      "value": {
+        "title": "The value and its colour",
+        "desc": "Green for discounts, blue for coupons, orange for cashback."
+      },
+      "vote": {
+        "title": "Votes and success rate",
+        "desc": "Other sellers tell you whether the code worked for them."
+      },
+      "premium-badge": {
+        "title": "Premium badge",
+        "desc": "Marks the stronger offers reserved for members."
+      },
+      "code": {
+        "title": "The code and copy button",
+        "desc": "One button copies the code, ready to paste at checkout."
+      },
+      "visit": {
+        "title": "Visit site",
+        "desc": "Opens the company's website so you can apply the code."
+      }
+    }
+  },
+  "compare": {
+    "title": "One offer, two levels",
+    "sub": "Regular is free for everyone. Premium unlocks a stronger code from the same company.",
+    "free": "Free",
+    "priceFrom": "From",
+    "perMonth": "a month",
+    "orDzd": "or {{price}} DZD with an Algerian card",
+    "yearly": "or {{price}} for a full year",
+    "unlockLabel": "Discount value Premium unlocks",
+    "multiplierLabel": "what Premium is worth vs. its monthly price",
+    "seePremium": "See Premium offers"
+  },
+  "catGrid": {
+    "title": "What does your store need today?",
+    "sub": "Pick a category and open its offers directly."
+  },
+  "trust": {
+    "title": "Why trust the code?",
+    "sub": "A code that doesn't work wastes your time, so we treat every code like it's your money.",
+    "review": {
+      "title": "Checked by hand",
+      "desc": "Every code is tested and reviewed by hand before it appears on the platform."
+    },
+    "votes": {
+      "title": "Seller votes",
+      "desc": "After each use, sellers vote whether the code worked. The rate shows on every card."
+    },
+    "fresh": {
+      "title": "Always up to date",
+      "desc": "We keep watching the codes: expired ones go, new ones come in."
+    },
+    "votesCount": "{{formatted}} votes from sellers so far",
+    "partners": "Partners on CODpromo",
+    "cta": "Top-rated codes"
+  },
+  "samples": {
+    "title": "Try them now, for free",
+    "sub": "The best of each type by seller votes, ready to copy.",
+    "cta": "See all offers ({{count}})"
+  },
+  "finalCta": {
+    "title": "Before you pay for any tool, open CODpromo.",
+    "sub": "A few seconds could take a chunk off the bill.",
+    "cta": "Open the offers"
   }
 }

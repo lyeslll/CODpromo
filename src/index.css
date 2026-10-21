@@ -75,6 +75,34 @@
   }
 }
 
+/* في RTL يبدأ الشريط من اليمين، فيتحرك المحتوى يميناً ليبقى التكرار بلا فراغ */
+@keyframes marquee-rtl {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(50%);
+  }
+}
+
+/* شريط متحرك بلا نهاية: المحتوى مكرّر مرتين داخل .marquee-track */
+@media (prefers-reduced-motion: no-preference) {
+  .marquee-track {
+    animation: marquee var(--marquee-duration, 36s) linear infinite;
+  }
+  [dir="rtl"] .marquee-track {
+    animation-name: marquee-rtl;
+  }
+  .marquee-pause:hover .marquee-track {
+    animation-play-state: paused;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-wrap {
+    overflow-x: auto;
+  }
+}
+
 /* ======================================================================
    Base
    ====================================================================== */

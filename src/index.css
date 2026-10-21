@@ -358,6 +358,149 @@ html.cursor-glow #root > .min-h-screen {
   }
 }
 
+/* ======================================================================
+   تذكرة مزدوجة (الـ CTA فوق الفوتر): جزءان (a عادي / b ذهبي) يفرقهما خط مثقّب
+   بين نصفي دائرة. الهاتف: فوق/تحت (مثل .ticket). الحاسوب (lg): جنباً إلى جنب.
+   الألوان: --edge-a / --edge-b (حافة كل جزء) و --perf (الخط المثقّب على الجزء b).
+   ====================================================================== */
+.duo {
+  --r: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.duo-a,
+.duo-b {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--edge);
+}
+.duo-a {
+  --edge: var(--edge-a);
+  border-bottom: 0;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  -webkit-mask:
+    radial-gradient(circle at 0 100%, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 0 / 51% 100% no-repeat,
+    radial-gradient(circle at 100% 100%, transparent var(--r), #000 calc(var(--r) + 0.5px)) 100% 0 / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle at 0 100%, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 0 / 51% 100% no-repeat,
+    radial-gradient(circle at 100% 100%, transparent var(--r), #000 calc(var(--r) + 0.5px)) 100% 0 / 51% 100% no-repeat;
+}
+.duo-b {
+  --edge: var(--edge-b);
+  border-top: 0;
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
+  -webkit-mask:
+    radial-gradient(circle at 0 0, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 0 / 51% 100% no-repeat,
+    radial-gradient(circle at 100% 0, transparent var(--r), #000 calc(var(--r) + 0.5px)) 100% 0 / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle at 0 0, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 0 / 51% 100% no-repeat,
+    radial-gradient(circle at 100% 0, transparent var(--r), #000 calc(var(--r) + 0.5px)) 100% 0 / 51% 100% no-repeat;
+}
+.duo-ring {
+  position: absolute;
+  width: calc(var(--r) * 2 + 2px);
+  height: calc(var(--r) * 2 + 2px);
+  border: 1px solid var(--edge);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.duo-a .duo-ring-1,
+.duo-a .duo-ring-2 {
+  bottom: calc(-1 * var(--r) - 1px);
+}
+.duo-b .duo-ring-1,
+.duo-b .duo-ring-2 {
+  top: calc(-1 * var(--r) - 1px);
+}
+.duo-ring-1 {
+  left: calc(-1 * var(--r) - 2px);
+}
+.duo-ring-2 {
+  right: calc(-1 * var(--r) - 2px);
+}
+.duo-perf {
+  position: absolute;
+  top: 0;
+  left: calc(var(--r) + 10px);
+  right: calc(var(--r) + 10px);
+  height: 2px;
+  pointer-events: none;
+  background-image: linear-gradient(90deg, var(--perf) 55%, transparent 0);
+  background-size: 10px 2px;
+  background-repeat: repeat-x;
+}
+@media (min-width: 1024px) {
+  .duo {
+    flex-direction: row;
+  }
+  .duo-a {
+    border: 1px solid var(--edge);
+    border-inline-end: 0;
+    border-radius: 0;
+    border-start-start-radius: var(--radius-card);
+    border-end-start-radius: var(--radius-card);
+  }
+  .duo-b {
+    border: 1px solid var(--edge);
+    border-inline-start: 0;
+    border-radius: 0;
+    border-start-end-radius: var(--radius-card);
+    border-end-end-radius: var(--radius-card);
+  }
+  /* LTR: a يسار (القصّ في زاويتيه اليمنيين) و b يمين (في زاويتيه اليسريين) — RTL بالعكس */
+  .duo-a,
+  [dir="rtl"] .duo-b {
+    -webkit-mask:
+      radial-gradient(circle at 100% 0, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 0 / 100% 51% no-repeat,
+      radial-gradient(circle at 100% 100%, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 100% / 100% 51% no-repeat;
+    mask:
+      radial-gradient(circle at 100% 0, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 0 / 100% 51% no-repeat,
+      radial-gradient(circle at 100% 100%, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 100% / 100% 51% no-repeat;
+  }
+  .duo-b,
+  [dir="rtl"] .duo-a {
+    -webkit-mask:
+      radial-gradient(circle at 0 0, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 0 / 100% 51% no-repeat,
+      radial-gradient(circle at 0 100%, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 100% / 100% 51% no-repeat;
+    mask:
+      radial-gradient(circle at 0 0, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 0 / 100% 51% no-repeat,
+      radial-gradient(circle at 0 100%, transparent var(--r), #000 calc(var(--r) + 0.5px)) 0 100% / 100% 51% no-repeat;
+  }
+  .duo .duo-ring-1,
+  .duo .duo-ring-2 {
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+  }
+  .duo .duo-ring-1 {
+    top: calc(-1 * var(--r) - 2px);
+  }
+  .duo .duo-ring-2 {
+    bottom: calc(-1 * var(--r) - 2px);
+  }
+  .duo-a .duo-ring-1,
+  .duo-a .duo-ring-2 {
+    inset-inline-end: calc(-1 * var(--r) - 1px);
+  }
+  .duo-b .duo-ring-1,
+  .duo-b .duo-ring-2 {
+    inset-inline-start: calc(-1 * var(--r) - 1px);
+  }
+  .duo-perf {
+    top: calc(var(--r) + 10px);
+    bottom: calc(var(--r) + 10px);
+    left: auto;
+    right: auto;
+    inset-inline-start: 0;
+    width: 2px;
+    height: auto;
+    background-image: linear-gradient(180deg, var(--perf) 55%, transparent 0);
+    background-size: 2px 10px;
+    background-repeat: repeat-y;
+  }
+}
+
 /* ===== قسم "حمّل التطبيق" ===== */
 /* الهاتف يطفو بخفة */
 @keyframes app-float {

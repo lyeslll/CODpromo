@@ -1,0 +1,98 @@
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
+
+const EASE = [0.16, 1, 0.3, 1];
+
+/** الكلمة نفسها: C ثابتة، و "OD" ⇄ "ode" تنزلق، و "promo" تتحرك بسلاسة مع تغيّر العرض. */
+function Word({ code, className = "", style }) {
+  const { t } = useTranslation();
+  const from = t("footer.word.cod");
+  const to = t("footer.word.code");
+  return (
+    <div
+      className={`flex items-baseline justify-center whitespace-nowrap font-black leading-[0.86] tracking-[-0.05em] [font-family:Inter,sans-serif] ${className}`}
+      style={{ fontSize: "clamp(58px, 18.5vw, 290px)", ...style }}
+    >
+      <motion.span layout="position">{from.charAt(0)}</motion.span>
+      {/* مع "Code" تنفتح مسافة صغيرة قبل promo: "Code promo" */}
+      <motion.span layout className="relative inline-flex overflow-hidden py-[0.08em]" style={{ marginInlineEnd: code ? "0.2em" : 0 }}>
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.span
+            key={code ? "to" : "from"}
+            initial={{ y: "75%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: "-75%", opacity: 0 }}
+            transition={{ duration: 0.5, ease: EASE }}
+          >
+            {(code ? to : from).slice(1)}
+          </motion.span>
+        </AnimatePresence>
+      </motion.span>
+      <motion.span layout="position">{t("footer.word.promo")}</motion.span>
+    </div>
+  );
+}
+
+/**
+ * "CODpromo" ضخمة بعرض الصفحة (نص فقط، ليس ملف الشعار): حدود باهتة، وتحت الفأرة
+ * تتعمّر بالليموني في موضعها (قناع دائري يتبع المؤشر عبر متغيّرات CSS، بلا re-render)،
+ * ومع المرور تتحوّل "COD" إلى "Code" (قصة الاسم). اللمس: نقرة تُبدّل وتضيء موضعها.
+ */
+export default function Wordmark() {
+  const ref = useRef(null);
+  const timer = useRef(null);
+  const [code, setCode] = useState(false);
+  const [lit, setLit] = useState(false);
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  const place = (e) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    el.style.setProperty("--my", `${e.clientY - r.top}px`);
+  };
+
+  return (
+    <div
+      ref={ref}
+      aria-hidden
+      dir="ltr"
+      onPointerEnter={(e) => {
+        if (e.pointerType !== "mouse") return;
+        place(e);
+        setCode(true);
+        setLit(true);
+      }}
+      onPointerMove={(e) => e.pointerType === "mouse" && place(e)}
+      onPointerLeave={(e) => {
+        if (e.pointerType !== "mouse") return;
+        setCode(false);
+        setLit(false);
+      }}
+      onPointerDown={(e) => {
+        if (e.pointerType === "mouse") return;
+        place(e);
+        setCode((v) => !v);
+        setLit(true);
+        clearTimeout(timer.current);
+        timer.current = setTimeout(() => setLit(false), 1600);
+      }}
+      className="relative mx-auto mt-14 max-w-[1600px] cursor-default select-none overflow-hidden px-2 pb-5 sm:pb-8"
+    >
+      {/* الحدّ خلف التعبئة (paint-order) بلون الخلفية: يختفي تداخل خطوط الحروف من الداخل */}
+      <Word code={code} className="text-[var(--color-ink)] [-webkit-text-stroke:3px_rgba(255,255,255,0.14)] [paint-order:stroke_fill]" />
+      <Word
+        code={code}
+        className="pointer-events-none absolute inset-0 px-2 text-[var(--color-lime)] transition-opacity duration-500"
+        style={{
+          opacity: lit ? 1 : 0,
+          textShadow: "0 0 40px rgba(166,240,0,0.35)",
+          WebkitMaskImage: "radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), #000 22%, transparent 72%)",
+          maskImage: "radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), #000 22%, transparent 72%)",
+        }}
+      />
+    </div>
+  );
+}

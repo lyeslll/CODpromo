@@ -50,7 +50,16 @@ git add -A && git commit -m "وصف التعديل" && git push
 
 ### الصفحة الرئيسية (landing) — `src/pages/Home.jsx` + `src/components/landing/`
 الجمهور: تجّار الدفع عند الاستلام (يشريو خدمات: توصيل، منصات، ERP، بطاقات دفع، إعلانات…). الأقسام بالترتيب:
-`LandingHero` (العنوان + "الكوبون السحري") → `StatsStrip` (أرقام `site_stats`) → `NameStory` (COD → Cash On Delivery → Code promo مع التمرير) → `Pillars` (الأنواع الثلاثة بعروض حيّة من عروض حقيقية) → `CardAnatomy` (بطاقة حقيقية + خطوط شرح) → `PremiumCompare` (عادي مقابل Premium، السعر من `plans.js`، المضاعف = القيمة ÷ سعر الشهر) → `CategoryGrid` (`#categories`) → `HowSteps` (`#how`) → `TrustSection` (تصويت حقيقي + شريط الشركاء) → `SampleOffers` (الأنجح من كل نوع) → `FinalCta` → `Footer` (كما هو). كل زر نحو العروض يفتح `/offers` بالفلتر المناسب (`offersLink()` في `src/lib/seo.js`).
+`LandingHero` (العنوان + "الكوبون السحري") → `StatsStrip` (أرقام `site_stats`) → `NameStory` (COD → Cash On Delivery → Code promo مع التمرير) → `Pillars` (الأنواع الثلاثة بعروض حيّة من عروض حقيقية) → `CardAnatomy` (بطاقة حقيقية + خطوط شرح) → `PremiumCompare` (عادي مقابل Premium، السعر من `plans.js`، المضاعف = القيمة ÷ سعر الشهر) → `CategoryGrid` (`#categories`) → `HowSteps` (`#how`) → `TrustSection` (تصويت حقيقي + شريط الشركاء) → `SampleOffers` (الأنجح من كل نوع) → `AppDownload` (حمّل التطبيق: هاتف حيّ + Google Play + QR) → `Footer`. كل زر نحو العروض يفتح `/offers` بالفلتر المناسب (`offersLink()` في `src/lib/seo.js`).
+
+### الفوتر — `src/components/Footer.jsx` + `src/components/footer/`
+- فوقه `FooterCta`: كوبون واحد بجهتين (افتح العروض | Premium ذهبي بالسعر و×N من `site_stats`) يفرقهما خط مثقّب (CSS `.duo*` في `index.css`). ثم: البراند + النشرة (`email_subscribers`، source = `footer`)، أعمدة الروابط (accordion على الهاتف)، التطبيق، تابعنا، كلمة CODpromo الضخمة (`Wordmark`)، زر الرجوع للأعلى (`BackToTop`).
+
+### توقيع Ilyes Derradji — `src/components/IlyesSignature.jsx`
+مكوّن مستقل (React فقط، التنسيق داخل الملف، بلا Tailwind ولا i18n) لنسخه لأي موقع:
+1. انسخ `src/components/IlyesSignature.jsx` و `public/brand/ilyes-derradji.png` (نفس المسار في `public/`).
+2. استعمله: `<IlyesSignature lang="ar" />` (خلفية داكنة) أو `tone="dark"` لخلفية فاتحة، و `label` لنص مخصّص، و `glow` للون الضوء.
+3. الرابط `https://ilyesderradji.com` يتحل في تاب جديد.
 
 ### "الكوبون السحري" (الـ 3D) — `src/components/landing/magic/`
 - الـ 3D **محصور في الكوبون السحري فقط** (الـ Hero). `MagicScene3D.jsx` (R3F) يتحمّل lazy عند ظهور الـ Hero، وفقط إذا `canUse3D()`؛ مع prefers-reduced-motion / هاتف ضعيف / توفير البيانات / بلا WebGL → `MagicCoupon2D.jsx` (CSS) وحدو. أي خطأ WebGL → يرجع 2D.

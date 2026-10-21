@@ -145,14 +145,32 @@
     "sortSuccess": "Taux de réussite"
   },
   "footer": {
-    "tagline": "Votre plateforme de codes de réduction, coupons et cashback — pour économiser sur chaque achat en ligne.",
-    "ctaTitle": "Premium — des codes plus forts, plus d'économies",
-    "ctaDesc": "Activez Premium pour débloquer les codes les plus forts et les offres exclusives, et économisez davantage sur chaque commande.",
-    "ctaBtn": "Activer Premium",
     "follow": "Suivez-nous",
     "poweredBy": "Développé par",
     "privacy": "Politique de confidentialité",
-    "accountDeletion": "Suppression du compte"
+    "accountDeletion": "Suppression du compte",
+    "desc": "Toutes les réductions dont votre activité a besoin, au même endroit : livraison, plateformes, publicité, cartes de paiement et ERP.",
+    "discover": "Découvrir",
+    "types": "Types",
+    "topCats": "Catégories phares",
+    "business": "Entreprises",
+    "typeDiscount": "Réductions",
+    "typeCoupon": "Coupons",
+    "typeCashback": "Cashback",
+    "addOffers": "Ajoutez les offres de votre entreprise",
+    "contact": "Contactez-nous",
+    "newsTitle": "Ne manquez aucun nouveau code",
+    "newsPlaceholder": "Votre e-mail",
+    "newsCta": "Recevoir les nouveaux codes",
+    "newsConsent": "En vous abonnant, vous acceptez de recevoir les codes par e-mail et pouvez vous désabonner à tout moment. Consultez notre",
+    "newsDone": "C’est fait ! Les nouveaux codes arriveront dans votre boîte.",
+    "newsDup": "Cet e-mail est déjà inscrit, inutile de recommencer.",
+    "backToTop": "Retour en haut",
+    "word": {
+      "cod": "COD",
+      "code": "Code",
+      "promo": "promo"
+    }
   },
   "accountDeletion": {
     "title": "Suppression du compte CODpromo",

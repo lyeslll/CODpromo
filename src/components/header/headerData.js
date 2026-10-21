@@ -54,6 +54,20 @@ export function useOffersCount() {
   return count;
 }
 
+/** أرقام site_stats كاملة (نفس الطلب المشترك المخزّن)، أو null. */
+export function useSharedStats() {
+  const [stats, setStats] = useState(null);
+  useEffect(() => {
+    let active = true;
+    if (!statsPromise) statsPromise = fetchSiteStats().catch(() => null);
+    statsPromise.then((s) => active && setStats(s));
+    return () => {
+      active = false;
+    };
+  }, []);
+  return stats;
+}
+
 /** فتح/إغلاق بالمرور (مع تأخير صغير يمنع الوميض) وبالنقر. */
 export function useHoverMenu() {
   const [open, setOpen] = useState(false);

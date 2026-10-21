@@ -29,7 +29,6 @@ import HowSteps from "../components/landing/HowSteps.jsx";
 import TrustSection from "../components/landing/TrustSection.jsx";
 import SampleOffers from "../components/landing/SampleOffers.jsx";
 import AppDownload from "../components/landing/AppDownload.jsx";
-import FinalCta from "../components/landing/FinalCta.jsx";
 
 // ============================================================
 //  الصفحة الرئيسية = صفحة تعريف (landing) لتجّار الدفع عند الاستلام.
@@ -166,7 +165,6 @@ export default function Home() {
           onUnlock={openPremium}
         />
         <AppDownload />
-        <FinalCta />
       </main>
 
       <Footer onPremium={openPremium} />

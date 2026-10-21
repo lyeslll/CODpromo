@@ -5,7 +5,7 @@ import { fetchSiteStats } from "../../lib/siteStats.js";
 // ============================================================
 //  بيانات الهيدر المشتركة — تُجلب مرّة واحدة في الجلسة (ذاكرة على مستوى الوحدة):
 //   - العروض (للبحث السريع وعدد العروض في كل فئة) — فقط عند فتح القائمة/البحث.
-//   - عدد الأكواد لشارة "العروض" — من نفس مصدر شريط الأرقام (site_stats).
+//   - عدد الشركات لشارة "العروض" (= عدد البطاقات في /offers) — من نفس مصدر شريط الأرقام (site_stats).
 // ============================================================
 
 let offersCache = null;
@@ -40,13 +40,13 @@ export function useHeaderOffers(enabled) {
 
 let statsPromise = null;
 
-/** عدد الأكواد (site_stats.total_codes — يدوي أو عدّ تلقائي)، أو null. */
+/** عدد العروض = عدد الشركات (site_stats.partners_count — يدوي أو عدّ تلقائي)، أو null. */
 export function useOffersCount() {
   const [count, setCount] = useState(null);
   useEffect(() => {
     let active = true;
     if (!statsPromise) statsPromise = fetchSiteStats().catch(() => null);
-    statsPromise.then((s) => active && setCount(s?.totalCodes ?? null));
+    statsPromise.then((s) => active && setCount(s?.partnersCount ?? null));
     return () => {
       active = false;
     };

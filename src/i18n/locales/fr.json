@@ -663,7 +663,7 @@
     "keyEsc": "Échap",
     "keyCtrl": "Ctrl",
     "member": "Membre Premium",
-    "offersBadge": "{{count}} codes actifs",
+    "offersBadge": "{{count}} offres",
     "menuClose": "Fermer le menu"
   }
 }

@@ -17,7 +17,8 @@ function localizedPath(pathname, code) {
     !rest.startsWith("/store/") &&
     !rest.startsWith("/category/") &&
     !rest.startsWith("/categories") &&
-    !rest.startsWith("/favorites")
+    !rest.startsWith("/favorites") &&
+    !rest.startsWith("/offers")
   )
     return null;
   return code === "ar" ? rest : `/${code}${rest}`;
@@ -41,7 +42,8 @@ export function useLangPick() {
   const navigate = useNavigate();
   return (code) => {
     const target = localizedPath(location.pathname, code);
-    if (target) navigate(target);
+    // نحافظ على الفلاتر في الرابط (?type=…&category=…) عند تبديل اللغة
+    if (target) navigate(`${target}${location.search}${location.hash}`);
     else setLang(code);
   };
 }

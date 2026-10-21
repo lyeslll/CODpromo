@@ -1,26 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Sun, Moon, LogOut, Home } from "lucide-react";
+import { LogOut, Home } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../LanguageSwitcher.jsx";
-import { useTheme } from "../../lib/theme.jsx";
 import { useAuth } from "../../lib/auth.jsx";
 import { useScrollDirection } from "../../lib/useScrollDirection.js";
-
-function ThemeToggle() {
-  const { theme, toggle } = useTheme();
-  const { t } = useTranslation();
-  const isDark = theme === "dark";
-  return (
-    <button
-      onClick={toggle}
-      aria-label={t("dashboard.toggleTheme")}
-      className="grid h-9 w-9 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)]"
-    >
-      {isDark ? <Sun size={17} className="text-[var(--color-lime)]" /> : <Moon size={17} className="text-[var(--accent-text)]" />}
-    </button>
-  );
-}
 
 /** إطار موحّد لصفحات الداشبورد (شريط علوي + حاوية محتوى) بنفس الهوية. */
 export default function DashboardShell({ badge, children }) {
@@ -67,7 +51,6 @@ export default function DashboardShell({ badge, children }) {
           </div>
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
-            <ThemeToggle />
             <Link
               to="/"
               className="hidden items-center gap-1.5 rounded-xl border border-[var(--color-ink-line)] px-3 py-2 text-[13.5px] font-bold text-[var(--text)] transition-colors hover:bg-[var(--fill)] sm:flex"

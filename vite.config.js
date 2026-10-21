@@ -8,8 +8,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      // تحديث تلقائي: عند نشر نسخة جديدة، يتفعّل الـSW الجديد فوراً (skipWaiting)
-      // فلا يعلق المستخدم على نسخة قديمة. لا يحتاج أي كود في التطبيق (حقن تلقائي).
+      // تحديث تلقائي: عند نشر نسخة جديدة، يتفعّل الـSW الجديد فوراً (skipWaiting)،
+      // و src/lib/swAutoReload.js يعيد تحميل الصفحة المفتوحة في لحظة آمنة فلا تبقى النسخة القديمة.
       registerType: "autoUpdate",
       injectRegister: "auto",
       manifestFilename: "manifest.json",
@@ -39,6 +39,8 @@ export default defineConfig({
       workbox: {
         // precache لقشرة التطبيق فقط (JS/CSS/HTML) — لا نخزّن أعلام/صور ضخمة مسبقاً.
         globPatterns: ["**/*.{js,css,html}"],
+        // مشهد الـ 3D يُحمَّل عند الحاجة فقط (الأجهزة القادرة) — لا نفرضه على كل الزوار مسبقاً.
+        globIgnores: ["**/MagicScene3D-*.js"],
         // SPA: أي تنقّل يُخدَم من index.html (يشمل /store, /category, /admin, العودة من الدفع…)
         navigateFallback: "/index.html",
         cleanupOutdatedCaches: true,

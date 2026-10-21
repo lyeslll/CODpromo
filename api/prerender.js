@@ -9,7 +9,11 @@
 //  مرتبط عبر vercel.json:
 //    /store/:slug        → /api/prerender?type=store&lang=ar&slug=:slug
 //    /en/store/:slug     → ...lang=en...   (وكذلك fr، والفئات)
+//    /offers             → /api/prerender?type=offers&lang=ar   (وكذلك /en و/fr)
 // ============================================================
+
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const SITE_URL = "https://codpromo.com";
 const SITE_NAME = "CODpromo";
@@ -91,6 +95,29 @@ function categoryDescription(label, count, lang) {
 const prefix = (l) => (l === "ar" ? "" : `/${l}`);
 const storeUrl = (slug, l) => `${SITE_URL}${prefix(l)}/store/${slug}`;
 const categoryUrl = (slug, l) => `${SITE_URL}${prefix(l)}/category/${slug}`;
+const offersUrl = (l) => `${SITE_URL}${prefix(l)}/offers`;
+
+// نصوص الصفحات العامة من ملفات الترجمة نفسها (src/i18n/locales — مضمّنة عبر
+// functions.includeFiles في vercel.json) حتى لا تتكرّر النصوص هنا.
+const localeCache = {};
+function locale(lang) {
+  if (lang in localeCache) return localeCache[lang];
+  const file = `${lang}.json`;
+  const candidates = [
+    () => new URL(`../src/i18n/locales/${file}`, import.meta.url),
+    () => join(process.cwd(), "src", "i18n", "locales", file),
+  ];
+  localeCache[lang] = null;
+  for (const at of candidates) {
+    try {
+      localeCache[lang] = JSON.parse(readFileSync(at(), "utf8"));
+      break;
+    } catch {
+      /* نجرّب المسار التالي */
+    }
+  }
+  return localeCache[lang];
+}
 
 async function getTemplate(host) {
   if (templateCache[host]) return templateCache[host];
@@ -226,6 +253,43 @@ export default async function handler(req, res) {
         breadcrumbOf([
           { name: SITE_NAME, url: `${SITE_URL}${prefix(lang)}/` },
           { name: label, url: canonical },
+        ]),
+      ];
+      const headExtra = buildHead({ lang, title, description, canonical, image: DEFAULT_OG_IMAGE, alternates, jsonLd });
+      return serveTemplate(res, inject(template, { lang, title, description, headExtra }));
+    }
+
+    if (type === "offers") {
+      const L = locale(lang) || locale("ar");
+      if (!L?.seo?.offers) return serveTemplate(res, template);
+      const title = L.seo.offers.title;
+      const description = L.seo.offers.description;
+      const canonical = offersUrl(lang);
+      const alternates = ["ar", "en", "fr"].map((l) => ({ lang: l, url: offersUrl(l) }));
+      const list = await fetchJson(
+        `${SUPABASE_URL}/rest/v1/companies?select=slug,name&order=created_at.desc&limit=30`
+      );
+      const items = (Array.isArray(list) ? list : []).filter((c) => c.slug);
+      const jsonLd = [
+        {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: title,
+          description,
+          url: canonical,
+          inLanguage: lang,
+          ...(items.length
+            ? {
+                mainEntity: {
+                  "@type": "ItemList",
+                  itemListElement: items.map((c, i) => ({ "@type": "ListItem", position: i + 1, name: c.name, url: storeUrl(c.slug, lang) })),
+                },
+              }
+            : {}),
+        },
+        breadcrumbOf([
+          { name: L.store?.breadcrumbHome || SITE_NAME, url: `${SITE_URL}${prefix(lang)}/` },
+          { name: L.offers?.title || title, url: canonical },
         ]),
       ];
       const headExtra = buildHead({ lang, title, description, canonical, image: DEFAULT_OG_IMAGE, alternates, jsonLd });

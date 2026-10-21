@@ -1,10 +1,10 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import AuthShell, { GoogleButton, AuthAlert, authInputCls } from "../components/auth/AuthShell.jsx";
-import Captcha from "../components/auth/Captcha.jsx";
+import { useBotGuard } from "../components/auth/botGuard.jsx";
 import { useAuth } from "../lib/auth.jsx";
 
 /** يحوّل رسالة خطأ Supabase إلى مفتاح ترجمة. */
@@ -25,25 +25,19 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
-  const [captchaToken, setCaptchaToken] = useState("");
-  const captchaRef = useRef(null);
-
-  const resetCaptcha = () => {
-    captchaRef.current?.resetCaptcha();
-    setCaptchaToken("");
-  };
+  // حماية مخفية (بدل hCaptcha): حقل honeypot + فحص الوقت
+  const guard = useBotGuard();
 
   const submit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!captchaToken) return setError(t("auth.login.errCaptcha"));
+    const verdict = guard.check();
+    if (verdict === "bot") return;
+    if (verdict === "fast") return setError(t("auth.tooFast"));
     setLoading(true);
-    const { error } = await signIn(email.trim(), password, captchaToken);
+    const { error } = await signIn(email.trim(), password);
     setLoading(false);
-    if (error) {
-      resetCaptcha();
-      return setError(t(`auth.login.${loginErrorKey(error.message)}`));
-    }
+    if (error) return setError(t(`auth.login.${loginErrorKey(error.message)}`));
     navigate("/dashboard");
   };
 
@@ -120,7 +114,7 @@ export default function Login() {
           </Field>
         </div>
 
-        <Captcha ref={captchaRef} onVerify={setCaptchaToken} onExpire={() => setCaptchaToken("")} />
+        {guard.trap}
 
         <motion.button
           type="submit"

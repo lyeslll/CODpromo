@@ -10,53 +10,59 @@
     "offers": "Offers",
     "categories": "Categories",
     "how": "How it works",
-    "popular": "Most popular",
     "login": "Log in",
     "logout": "Log out",
     "logoutLong": "Log out",
-    "signup": "Join free",
+    "signup": "Create account",
     "account": "My account",
     "menu": "Menu",
-    "themeToLight": "Light mode",
-    "themeToDark": "Dark mode",
-    "enableLight": "Switch to light mode",
-    "enableDark": "Switch to dark mode",
     "backToSite": "Back to site",
-    "browse": "Browse",
     "premium": "Unlock Premium",
     "premiumSub": "Stronger discounts & exclusive codes",
-    "settings": "Settings",
-    "language": "Language",
-    "theme": "Theme",
-    "light": "Light",
-    "dark": "Dark"
+    "language": "Language"
   },
   "logo": {
     "tagline": "Discounts · Coupons · Cashback"
   },
   "hero": {
-    "badge": "Fresh deals every day across the Arab world and beyond",
-    "titleStart": "Save on every order with",
-    "titleHighlight": "promo codes",
-    "titleEnd": " that actually work",
-    "desc": "<0>CODpromo</0> brings you the best discount coupons and cashback from your favorite stores — verified, up to date, and just one click away.",
-    "ctaExplore": "Explore deals now",
-    "ctaHow": "How it works",
-    "statCodes": "Active codes",
-    "statStores": "Partner stores",
-    "statRating": "User rating",
-    "statRatingShort": "Rating",
-    "trust": "Every code is reviewed by hand before it goes live"
+    "ctaExplore": "Explore offers",
+    "subtitle": "Exclusive promo codes, coupons and cashback on shipping, store platforms, ads, payment cards and ERP. Free.",
+    "ctaPremium": "Unlock Premium",
+    "ctaMember": "Your Premium offers are open",
+    "magic": {
+      "switchLabel": "Coupon side: Regular or Premium",
+      "dragHint": "Drag or tap the coupon",
+      "example": "Example",
+      "exampleName": "Sample offer",
+      "exampleNormal": "20%",
+      "examplePremium": "30%"
+    },
+    "tagline": "Cut your costs. Multiply your profits.",
+    "value": {
+      "free": "Free for everyone",
+      "unlock": "Just ${{price}} unlocks +${{value}} in Premium discounts",
+      "unlockShort": "Unlock Premium for just ${{price}}",
+      "multiplierAria": "Premium is worth {{x}} times its price"
+    },
+    "titleLine1": "One platform…",
+    "titleLine2": "every discount your business needs."
   },
   "how": {
-    "kicker": "In three steps",
-    "title": "How does CODpromo work?",
-    "step1Title": "Discover the deals",
-    "step1Desc": "Browse dozens of companies and services every online seller needs — from shipping and tools to payment cards — and find the right deal in seconds.",
-    "step2Title": "Copy the code",
-    "step2Desc": "One click copies the working code, ready to paste, and takes you straight to the store.",
-    "step3Title": "Save at checkout",
-    "step3Desc": "Paste the code at checkout and enjoy the discount or cashback instantly."
+    "title": "Free, in three steps",
+    "sub": "Regular offers are completely free and need no account.",
+    "s1": {
+      "title": "Pick the offer",
+      "desc": "Search by company name or browse categories until you find the service you pay for."
+    },
+    "s2": {
+      "title": "Copy the code",
+      "desc": "One tap on “Copy code” and it's ready to paste."
+    },
+    "s3": {
+      "title": "Save and earn",
+      "desc": "Paste it at checkout on the company's site: an instant discount or cashback back to you."
+    },
+    "cta": "Pick your first offer"
   },
   "search": {
     "placeholder": "Search for a store, category, or promo code…",
@@ -91,11 +97,11 @@
   "bottomNav": {
     "label": "Quick navigation",
     "home": "Home",
-    "categories": "Categories",
     "premium": "Premium",
     "favorites": "Favorites",
     "account": "Account",
-    "login": "Log in"
+    "login": "Log in",
+    "offers": "Offers"
   },
   "favorites": {
     "title": "Favorites",
@@ -122,7 +128,8 @@
     "copied": "Copied",
     "visit": "Visit store",
     "scratchReveal": "Scratch to reveal",
-    "unlockPremium": "Unlock Premium deals"
+    "unlockPremium": "Unlock Premium deals",
+    "premiumBadge": "PREMIUM"
   },
   "vote": {
     "question": "Did this code work for you?",
@@ -138,14 +145,32 @@
     "sortSuccess": "Top success rate"
   },
   "footer": {
-    "tagline": "Your platform for discount codes, coupons and cashback — saving you money on every online purchase.",
-    "ctaTitle": "Premium — stronger codes, bigger savings",
-    "ctaDesc": "Activate Premium to unlock the strongest codes and exclusive deals, and save more on every order.",
-    "ctaBtn": "Activate Premium",
     "follow": "Follow us",
     "poweredBy": "Powered by",
     "privacy": "Privacy Policy",
-    "accountDeletion": "Account Deletion"
+    "accountDeletion": "Account Deletion",
+    "desc": "Every discount your business needs in one place: shipping, store platforms, ads, payment cards and ERP.",
+    "discover": "Explore",
+    "types": "Types",
+    "topCats": "Top categories",
+    "business": "For businesses",
+    "typeDiscount": "Discounts",
+    "typeCoupon": "Coupons",
+    "typeCashback": "Cashback",
+    "addOffers": "List your company’s offers",
+    "contact": "Contact us",
+    "newsTitle": "Never miss a new code",
+    "newsPlaceholder": "Your email",
+    "newsCta": "Get new codes",
+    "newsConsent": "By subscribing you agree to receive codes by email, and you can unsubscribe anytime. Read our",
+    "newsDone": "Done! New codes will reach your inbox.",
+    "newsDup": "This email is already subscribed, no need to sign up again.",
+    "backToTop": "Back to top",
+    "word": {
+      "cod": "COD",
+      "code": "Code",
+      "promo": "promo"
+    }
   },
   "accountDeletion": {
     "title": "CODpromo Account Deletion",
@@ -283,7 +308,6 @@
   "auth": {
     "or": "or",
     "backToSite": "Back to site",
-    "toggleTheme": "Toggle theme",
     "login": {
       "title": "Log in",
       "subtitle": "Welcome back to CODpromo",
@@ -294,7 +318,6 @@
       "password": "Password",
       "forgot": "Forgot password?",
       "submit": "Log in",
-      "errCaptcha": "Please complete the captcha",
       "errCredentials": "Invalid login details",
       "errNotConfirmed": "Email not confirmed yet — check your inbox",
       "errRateLimit": "Too many attempts, please try again shortly",
@@ -326,13 +349,13 @@
       "doneDesc": "Open the activation email we sent to <0>{{email}}</0>, then log in.",
       "errCompanyRequired": "Company name is required",
       "errPasswordShort": "Password must be at least 6 characters",
-      "errCaptcha": "Please complete the captcha",
       "errExists": "This email is already registered",
       "errShort": "Password is too short",
       "errInvalidEmail": "Invalid email format",
       "errCaptchaFail": "Captcha failed, please try again",
       "errRateLimit": "Too many attempts, please try again shortly",
-      "errGeneric": "Couldn't create the account"
+      "errGeneric": "Couldn't create the account",
+      "typeLabel": "Account type"
     },
     "forgot": {
       "title": "Reset your password",
@@ -363,12 +386,12 @@
       "errShort": "Password must be at least 6 characters",
       "errMismatch": "Passwords don't match",
       "errFail": "Couldn't update the password"
-    }
+    },
+    "tooFast": "One moment, then try again."
   },
   "dashboard": {
     "site": "Site",
     "logout": "Log out",
-    "toggleTheme": "Toggle theme",
     "loading": "Loading…",
     "customer": {
       "badge": "Shopper account",
@@ -480,5 +503,205 @@
     "count": "{{count}} stores in this category",
     "notFoundTitle": "Category not found",
     "notFoundDesc": "There are no stores in this category yet."
+  },
+  "admin": {
+    "siteStats": {
+      "tab": "Home numbers",
+      "title": "Home page numbers",
+      "desc": "These numbers appear in the stats strip and the Premium section of the home page. Leave a field empty to let the site count it from the database, or to hide it when it has no automatic count.",
+      "fields": {
+        "total_savings_dzd": {
+          "label": "Total discount value (DZD)",
+          "hint": "Not counted automatically: if empty, it is hidden on the page."
+        },
+        "total_codes": {
+          "label": "Number of codes"
+        },
+        "partners_count": {
+          "label": "Number of partners"
+        },
+        "premium_unlock_value_usd": {
+          "label": "Discount value unlocked by Premium ($)",
+          "hint": "Not counted automatically: if empty, the multiplier (×) is hidden."
+        }
+      },
+      "autoHint": "Empty = counted from the database (currently {{value}}).",
+      "multiplierPreview": "Multiplier on the page: ×{{x}} (value ÷ monthly price ${{price}})",
+      "multiplierHidden": "Multiplier hidden: enter the value to show it.",
+      "clear": "Clear field (automatic)",
+      "save": "Save numbers",
+      "saved": "Numbers saved",
+      "invalid": "Enter positive numbers only, or leave the field empty.",
+      "notAllowed": "You can't edit these: your account must be an admin (is_admin).",
+      "loadError": "Couldn't load the numbers. Make sure supabase-phase21-site-stats.sql has been run.",
+      "loading": "Loading…",
+      "updatedAt": "Last updated: {{date}}"
+    }
+  },
+  "offers": {
+    "title": "All offers",
+    "subtitle": "Promo codes, coupons and cashback on what cash-on-delivery sellers pay for: shipping, store platforms, ads, payment cards and ERP.",
+    "typeLabel": "Offer type",
+    "categoryLabel": "Category",
+    "swipeHint": "Swipe the list sideways to switch"
+  },
+  "seo": {
+    "offers": {
+      "title": "All offers: promo codes, coupons and cashback | CODpromo",
+      "description": "Browse every promo code, coupon and cashback offer for cash-on-delivery sellers in Algeria and the Arab world: shipping, store platforms, ads, payment cards and ERP. Search and filter by type and category."
+    },
+    "home": {
+      "title": "CODpromo | Promo codes for cash-on-delivery sellers",
+      "description": "Promo codes, coupons and cashback on shipping, store platforms, ads, payment cards and ERP for cash-on-delivery sellers in Algeria and the Arab world. Free, and every code is checked by hand."
+    }
+  },
+  "stats": {
+    "label": "CODpromo in numbers",
+    "free": "Free",
+    "freeSub": "Regular offers, no subscription and no account",
+    "savings": "Total discount value",
+    "codes": "active codes",
+    "partners": "partner companies",
+    "multiplier": "Premium value vs. its price",
+    "dzd": "DZD"
+  },
+  "story": {
+    "label": "The story behind the name",
+    "intro": "The name tells the whole idea",
+    "codMeaning": "",
+    "readAs": "Read it fast: Code promo",
+    "conclusion": "Promo codes for cash-on-delivery sellers.",
+    "codExpanded": "Cash On Delivery"
+  },
+  "pillars": {
+    "title": "Three ways to pay less",
+    "sub": "Every offer on CODpromo is one of three types, each with a colour you spot at a glance.",
+    "liveFrom": "Live example from {{name}}",
+    "discount": {
+      "def": "A percentage taken straight off the price at checkout. Enter the code and the price drops.",
+      "cta": "Browse discounts"
+    },
+    "coupon": {
+      "def": "A fixed amount or a gift you claim with a code: credit, free messages, or money off your bill.",
+      "cta": "Browse coupons",
+      "applied": "Applied"
+    },
+    "cashback": {
+      "def": "You pay the full price, then part of it comes back to your account or wallet.",
+      "cta": "Browse cashback"
+    }
+  },
+  "anatomy": {
+    "title": "Read a coupon in one second",
+    "sub": "Every card on CODpromo follows the same layout, so you always know where to look.",
+    "cta": "Try it on a real offer",
+    "showPremium": "See it in Premium",
+    "showNormal": "Back to Regular",
+    "parts": {
+      "fav": {
+        "title": "Favourite",
+        "desc": "Save the offer in one tap and find it in your account."
+      },
+      "value": {
+        "title": "The value and its colour",
+        "desc": "Green for discounts, blue for coupons, orange for cashback."
+      },
+      "vote": {
+        "title": "Votes and success rate",
+        "desc": "Other sellers tell you whether the code worked for them."
+      },
+      "premium-badge": {
+        "title": "Premium badge",
+        "desc": "Marks the stronger offers reserved for members."
+      },
+      "code": {
+        "title": "The code and copy button",
+        "desc": "One button copies the code, ready to paste at checkout."
+      },
+      "visit": {
+        "title": "Visit site",
+        "desc": "Opens the company's website so you can apply the code."
+      }
+    }
+  },
+  "compare": {
+    "title": "One offer, two levels",
+    "sub": "Regular is free for everyone. Premium unlocks a stronger code from the same company.",
+    "free": "Free",
+    "priceFrom": "From",
+    "perMonth": "a month",
+    "orDzd": "or {{price}} DZD with an Algerian card",
+    "yearly": "or {{price}} for a full year",
+    "unlockLabel": "Discount value Premium unlocks",
+    "multiplierLabel": "what Premium is worth vs. its monthly price",
+    "seePremium": "See Premium offers"
+  },
+  "catGrid": {
+    "title": "What does your store need today?",
+    "sub": "Pick a category and open its offers directly."
+  },
+  "trust": {
+    "title": "Why trust the code?",
+    "sub": "A code that doesn't work wastes your time, so we treat every code like it's your money.",
+    "review": {
+      "title": "Checked by hand",
+      "desc": "Every code is tested and reviewed by hand before it appears on the platform."
+    },
+    "votes": {
+      "title": "Seller votes",
+      "desc": "After each use, sellers vote whether the code worked. The rate shows on every card."
+    },
+    "fresh": {
+      "title": "Always up to date",
+      "desc": "We keep watching the codes: expired ones go, new ones come in."
+    },
+    "votesCount": "{{formatted}} votes from sellers so far",
+    "partners": "Partners on CODpromo",
+    "cta": "Top-rated codes"
+  },
+  "samples": {
+    "title": "Try them now, for free",
+    "sub": "The best of each type by seller votes, ready to copy.",
+    "cta": "See all offers ({{count}})"
+  },
+  "finalCta": {
+    "title": "Before you pay for any tool, open CODpromo.",
+    "sub": "A few seconds could take a chunk off the bill.",
+    "cta": "Open the offers"
+  },
+  "header": {
+    "search": "Quick search",
+    "searchHint": "Type a company, category or code — results show as you type.",
+    "suggestions": "Categories with the most offers",
+    "searchEmpty": "No results for “{{q}}”. Try another word.",
+    "searchAll": "Search “{{q}}” in all offers",
+    "kbdOpen": "Open",
+    "kbdMove": "Move",
+    "close": "Close",
+    "keyEsc": "Esc",
+    "keyCtrl": "Ctrl",
+    "member": "Premium member",
+    "offersBadge": "{{count}} offers",
+    "menuClose": "Close menu"
+  },
+  "app": {
+    "title": "Every discount, in your pocket.",
+    "sub": "The CODpromo app for Android: the same offers and codes, one tap away on your home screen.",
+    "f1Title": "Every offer in one place",
+    "f1Desc": "Discounts, coupons and cashback on the services your business pays for. Copy any code in one tap before you pay.",
+    "f2Title": "Premium through Google Play",
+    "f2Desc": "Subscribe to Premium right from your Google Play account, inside the app.",
+    "f3Title": "Always up to date, full screen",
+    "f3Desc": "New offers show up as soon as they’re published, with no app update and no browser bar.",
+    "badgeAlt": "Get it on Google Play",
+    "qrCaption": "Or scan it with your phone’s camera",
+    "qrLabel": "QR code that opens the CODpromo app page on Google Play",
+    "iosSoon": "Coming soon to iPhone",
+    "phoneLabel": "Preview of the CODpromo app: the offers page as it looks on a phone",
+    "live": "Live preview: scroll inside the phone with your mouse wheel",
+    "bannerTitle": "Get the CODpromo app",
+    "bannerSub": "On Google Play",
+    "bannerCta": "Install",
+    "getApp": "Get the app"
   }
 }

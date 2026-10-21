@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart,
@@ -22,6 +23,7 @@ import { useAuth } from "../../lib/auth.jsx";
 import { usePremium } from "../../lib/premium.jsx";
 import { fetchFavoritesWithCompany, removeFavorite } from "../../lib/favorites.js";
 import { getPremiumCode } from "../../lib/supabase.js";
+import { offersPath } from "../../lib/seo.js";
 
 export default function CustomerDashboard() {
   const { user, profile } = useAuth();
@@ -216,7 +218,7 @@ function FavoriteItem({ company, unlocked, onRemove }) {
 }
 
 function EmptyFavorites() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   return (
     <div className="flex flex-col items-center rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] px-6 py-14 text-center">
       <div className="grid h-16 w-16 place-items-center rounded-2xl bg-[var(--fill)] text-[var(--color-mute)]">
@@ -226,13 +228,13 @@ function EmptyFavorites() {
       <p className="mt-1.5 text-[14px] text-[var(--text-soft)]">
         {t("dashboard.customer.emptyDesc")}
       </p>
-      <a
-        href="/#stores"
+      <Link
+        to={offersPath(i18n.language)}
         className="mt-6 rounded-xl px-5 py-2.5 text-[14px] font-extrabold text-[#0a0a0a]"
         style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
       >
         {t("dashboard.customer.browse")}
-      </a>
+      </Link>
     </div>
   );
 }

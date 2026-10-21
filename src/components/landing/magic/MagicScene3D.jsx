@@ -1,0 +1,618 @@
+import { useEffect, useMemo, useRef } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import * as THREE from "three";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { COUPON, TEX_W, TEX_H, drawFront, drawBack, ensureFonts, loadLogoBitmap } from "./couponFaces.js";
+import { parseVal, withNum } from "../../../lib/values.js";
+
+// ============================================================
+//  مشهد الـ 3D للكوبون السحري (يُحمَّل بكسل فقط على الأجهزة القادرة).
+//  طبقتان تغطّيان الـ Hero: خلفية فيها كوبونات صغيرة تطفو (blur خفيف) حول الكوبون
+//  الكبير، ثم الكوبون الرئيسي في موضع "مسرح" DOM (store.anchor) + جزيئات ذهبية.
+//  كل التفاعل (سحب/نقر/ميلان) يحدث في DOM ويُكتب في store؛ المشهد يقرأه فقط.
+// ============================================================
+
+const TYPE_COLORS = ["#a6f000", "#38bdf8", "#fbbf24"];
+const EDGE_NORMAL = new THREE.Color("#8bd000");
+const EDGE_GOLD = new THREE.Color("#cf9a1e");
+// منظور مسطّح نسبياً: الكوبون على جانب الشاشة لا يتشوّه
+const FOV = 22;
+const CAM_Z = 16;
+
+/** شكل التذكرة: زوايا دائرية + نصفا دائرة مقصوصان في الجنبين عند الخط المثقّب. */
+function couponShape({ W, H, R, NOTCH, STUB }) {
+  const s = new THREE.Shape();
+  const x0 = -W / 2;
+  const x1 = W / 2;
+  const y0 = -H / 2;
+  const y1 = H / 2;
+  const yp = y0 + STUB;
+  s.moveTo(x0 + R, y0);
+  s.lineTo(x1 - R, y0);
+  s.absarc(x1 - R, y0 + R, R, -Math.PI / 2, 0, false);
+  s.lineTo(x1, yp - NOTCH);
+  s.absarc(x1, yp, NOTCH, -Math.PI / 2, Math.PI / 2, true);
+  s.lineTo(x1, y1 - R);
+  s.absarc(x1 - R, y1 - R, R, 0, Math.PI / 2, false);
+  s.lineTo(x0 + R, y1);
+  s.absarc(x0 + R, y1 - R, R, Math.PI / 2, Math.PI, false);
+  s.lineTo(x0, yp + NOTCH);
+  s.absarc(x0, yp, NOTCH, Math.PI / 2, -Math.PI / 2, true);
+  s.lineTo(x0, y0 + R);
+  s.absarc(x0 + R, y0 + R, R, Math.PI, Math.PI * 1.5, false);
+  return s;
+}
+
+const DEPTH = 0.07;
+const BEVEL_T = 0.022;
+const FACE_Z = DEPTH / 2 + BEVEL_T + 0.002;
+
+function buildCouponGeometry(curve = 28, bevel = true) {
+  const shape = couponShape(COUPON);
+  const body = new THREE.ExtrudeGeometry(shape, {
+    depth: DEPTH,
+    bevelEnabled: bevel,
+    bevelThickness: BEVEL_T,
+    bevelSize: 0.02,
+    bevelSegments: 3,
+    curveSegments: curve,
+  });
+  body.translate(0, 0, -DEPTH / 2);
+  const face = new THREE.ShapeGeometry(shape, curve);
+  const pos = face.attributes.position;
+  const uv = face.attributes.uv;
+  for (let i = 0; i < pos.count; i++) {
+    uv.setXY(i, (pos.getX(i) + COUPON.W / 2) / COUPON.W, (pos.getY(i) + COUPON.H / 2) / COUPON.H);
+  }
+  uv.needsUpdate = true;
+  return { body, face };
+}
+
+// ===== ضوء المؤشر على وجه الكوبون — نفس ضوء بطاقات العروض =====
+// بقعة دائرية بقطر 280px بلون النوع (0.35) أو ذهبي على الوجه Premium (0.4)، تتلاشى خطياً
+// حتى 65% من القطر (= radial-gradient في CSS). طبقة بشكل الوجه نفسه فوقه مباشرةً، فتُقصّ مع الكوبون.
+const GLOW_PX = 280;
+const GLOW_ALPHA = { front: 0.35, back: 0.4 };
+const GOLD_RGB = [240 / 255, 198 / 255, 60 / 255];
+
+const hexRgb = (hex) => {
+  const n = parseInt(String(hex || "#a6f000").slice(1), 16);
+  return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+};
+
+function makeGlowMaterial(rgb) {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      uPoint: { value: new THREE.Vector2() },
+      uRadius: { value: 1 },
+      uColor: { value: new THREE.Vector3(...rgb) },
+      uAlpha: { value: 0 },
+    },
+    vertexShader: `varying vec2 vPos;
+void main() { vPos = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+    // ألوان sRGB كما هي (بلا تحويل) — يطابق مزج CSS فوق الوجه
+    fragmentShader: `uniform vec2 uPoint; uniform float uRadius; uniform vec3 uColor; uniform float uAlpha; varying vec2 vPos;
+void main() { float d = distance(vPos, uPoint) / (uRadius * 0.65); gl_FragColor = vec4(uColor, uAlpha * clamp(1.0 - d, 0.0, 1.0)); }`,
+    transparent: true,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: -1,
+    polygonOffsetUnits: -1,
+  });
+}
+
+/** إضاءة بيئية بلا ملفات خارجية (RoomEnvironment) — تعطي الذهب انعكاساً حقيقياً. */
+function Environment() {
+  const { gl, scene } = useThree();
+  useEffect(() => {
+    const pmrem = new THREE.PMREMGenerator(gl);
+    const env = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environment = env;
+    scene.environmentIntensity = 0.9;
+    return () => {
+      scene.environment = null;
+      env.dispose();
+      pmrem.dispose();
+    };
+  }, [gl, scene]);
+  return null;
+}
+
+/** حجم المنظور (وحدات العالم) عند عمق z. */
+function viewAt(z, aspect) {
+  const h = 2 * Math.tan(THREE.MathUtils.degToRad(FOV / 2)) * (CAM_Z - z);
+  return { h, w: h * aspect };
+}
+
+function MainCoupon({ store, faces, labels, lang, onReady }) {
+  const group = useRef(null);
+  const { gl } = useThree();
+  if (!store.couponWorld) store.couponWorld = new THREE.Vector3();
+  const geo = useMemo(() => buildCouponGeometry(), []);
+  const canvases = useMemo(() => {
+    const mk = () => {
+      const c = document.createElement("canvas");
+      c.width = TEX_W;
+      c.height = TEX_H;
+      return c;
+    };
+    return { front: mk(), back: mk() };
+  }, []);
+  const tex = useMemo(() => {
+    const mk = (c) => {
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      t.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy());
+      return t;
+    };
+    return { front: mk(canvases.front), back: mk(canvases.back) };
+  }, [canvases, gl]);
+  const mats = useMemo(
+    () => ({
+      edge: new THREE.MeshStandardMaterial({ color: EDGE_NORMAL.clone(), metalness: 0.85, roughness: 0.32 }),
+      // الوجه الداكن: انعكاس بيئي خفيف حتى يبقى أسود عميقاً لا رمادياً
+      front: new THREE.MeshPhysicalMaterial({
+        map: tex.front,
+        roughness: 0.62,
+        metalness: 0,
+        clearcoat: 0.25,
+        clearcoatRoughness: 0.4,
+        envMapIntensity: 0.25,
+      }),
+      back: new THREE.MeshPhysicalMaterial({ map: tex.back, roughness: 0.26, metalness: 0.55, clearcoat: 1, clearcoatRoughness: 0.12 }),
+    }),
+    [tex]
+  );
+
+  // ضوء المؤشر: طبقة لكل وجه + raycast من موضع المؤشر (store.glow) إلى الوجه الظاهر
+  const glow = useMemo(() => ({ front: makeGlowMaterial(hexRgb()), back: makeGlowMaterial(GOLD_RGB) }), []);
+  const glowFront = useRef(null);
+  const glowBack = useRef(null);
+  const ray = useMemo(() => ({ caster: new THREE.Raycaster(), ndc: new THREE.Vector2(), local: new THREE.Vector3(), level: { front: 0, back: 0 } }), []);
+  useEffect(() => {
+    glow.front.uniforms.uColor.value.set(...hexRgb(faces.color));
+  }, [faces.color, glow]);
+
+  const live = useRef({ parity: 0, counterStart: -1, lastDrawn: null, pendingReset: false, ready: false, frame: 0 });
+  const normalParsed = useMemo(() => parseVal(faces.normal), [faces.normal]);
+  const premiumParsed = useMemo(() => parseVal(faces.premium), [faces.premium]);
+
+  // رسم الوجهين (بعد تحميل الخطوط + الشعار)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      await ensureFonts(lang);
+      const logo = await loadLogoBitmap(faces.logo);
+      if (cancelled) return;
+      drawFront(canvases.front.getContext("2d"), faces, { lang, labels, logo });
+      drawBack(canvases.back.getContext("2d"), faces, { lang, labels, value: faces.normal });
+      live.current.lastDrawn = faces.normal;
+      tex.front.needsUpdate = true;
+      tex.back.needsUpdate = true;
+      live.current.ready = true;
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [faces, labels, lang, canvases, tex]);
+
+  useEffect(
+    () => () => {
+      geo.body.dispose();
+      geo.face.dispose();
+      tex.front.dispose();
+      tex.back.dispose();
+      Object.values(mats).forEach((m) => m.dispose());
+      Object.values(glow).forEach((m) => m.dispose());
+    },
+    [geo, tex, mats, glow]
+  );
+
+  useFrame((state, delta) => {
+    const g = group.current;
+    const L = live.current;
+    if (!g) return;
+    const dt = Math.min(delta, 1 / 30);
+    L.frame += 1;
+    if (L.frame % 12 === 1) store.measure?.();
+    const a = store.anchor;
+    if (!a.ready) {
+      g.visible = false;
+      return;
+    }
+    g.visible = L.ready;
+
+    // موضع/مقاس الكوبون = موضع/مقاس "المسرح" في DOM
+    const { width: cw, height: ch } = state.size;
+    const view = viewAt(0, cw / ch);
+    const unit = view.h / ch;
+    const t = state.clock.elapsedTime;
+    const bob = store.reduced ? 0 : Math.sin(t * 1.1) * 0.05;
+    g.position.set((a.cx - cw / 2) * unit, (ch / 2 - a.cy) * unit + bob, 0);
+    g.scale.setScalar((a.w * unit) / COUPON.W);
+
+    // نابض حرج للانقلاب (يتبع السحب حيّاً) + ميلان ناعم نحو المؤشر/ميلان الهاتف
+    const target = store.flipIndex * Math.PI + store.drag;
+    const k = 70;
+    const c = 13;
+    store.vel += (k * (target - store.angle) - c * store.vel) * dt;
+    store.angle += store.vel * dt;
+    const e = 1 - Math.exp(-dt * 6);
+    store.tilt.x += (store.tiltTarget.x - store.tilt.x) * e;
+    store.tilt.y += (store.tiltTarget.y - store.tilt.y) * e;
+    // تعويض المنظور: الكوبون يلتفت قليلاً نحو الكاميرا حسب موضعه الجانبي
+    const face = -Math.atan2(g.position.x, CAM_Z) * 0.7;
+    const faceX = Math.atan2(g.position.y, CAM_Z) * 0.7;
+    g.rotation.set(store.tilt.x + faceX + (store.reduced ? 0 : Math.sin(t * 0.7) * 0.03), store.angle + store.tilt.y + face, 0);
+
+    // ضوء المؤشر: أين يقع المؤشر/اللمس على الوجه الظاهر؟ (الفأرة: يظهر ويختفي في ~0.3 ثانية
+    // كالبطاقات؛ اللمس: يظهر فوراً في موضع الإصبع ثم ينطفئ بالتدريج بعد رفعه)
+    const p = store.glow;
+    let lit = null;
+    if (p.on && glowFront.current && glowBack.current) {
+      const rect = gl.domElement.getBoundingClientRect();
+      ray.ndc.set(((p.x - rect.left) / rect.width) * 2 - 1, -((p.y - rect.top) / rect.height) * 2 + 1);
+      g.updateMatrixWorld(true);
+      ray.caster.setFromCamera(ray.ndc, state.camera);
+      const hit = ray.caster.intersectObjects([glowFront.current, glowBack.current], false)[0];
+      if (hit) {
+        lit = hit.object === glowFront.current ? "front" : "back";
+        ray.local.copy(hit.point);
+        hit.object.worldToLocal(ray.local);
+        glow[lit].uniforms.uPoint.value.set(ray.local.x, ray.local.y);
+      }
+    }
+    const radius = (GLOW_PX * COUPON.W) / Math.max(a.w, 1);
+    for (const k of ["front", "back"]) {
+      const on = lit === k;
+      const rate = on ? (p.touch ? 20 : 10) : p.touch ? 2.6 : 10;
+      ray.level[k] += ((on ? 1 : 0) - ray.level[k]) * (1 - Math.exp(-dt * rate));
+      glow[k].uniforms.uRadius.value = radius;
+      glow[k].uniforms.uAlpha.value = GLOW_ALPHA[k] * ray.level[k];
+    }
+
+    // لون الحافة يتبع الوجه الظاهر (أخضر ↔ ذهبي)
+    const frontness = (Math.cos(store.angle) + 1) / 2;
+    mats.edge.color.copy(EDGE_GOLD).lerp(EDGE_NORMAL, frontness);
+
+    // تحوّل للوجه الذهبي → عدّاد + جزيئات
+    const parity = ((store.flipIndex % 2) + 2) % 2;
+    if (parity !== L.parity) {
+      L.parity = parity;
+      if (parity === 1) {
+        L.counterStart = t + 0.22;
+        L.pendingReset = false;
+        store.burst += 1;
+      } else {
+        L.counterStart = -1;
+        L.pendingReset = true;
+      }
+    }
+    if (L.ready && L.counterStart >= 0 && normalParsed && premiumParsed) {
+      const p = Math.min(Math.max((t - L.counterStart) / 0.9, 0), 1);
+      const eased = 1 - Math.pow(1 - p, 4);
+      const value = withNum(premiumParsed, normalParsed.num + (premiumParsed.num - normalParsed.num) * eased);
+      if (value !== L.lastDrawn) {
+        drawBack(canvases.back.getContext("2d"), faces, { lang, labels, value });
+        tex.back.needsUpdate = true;
+        L.lastDrawn = value;
+      }
+      if (p >= 1) L.counterStart = -1;
+    } else if (L.ready && L.counterStart >= 0 && !normalParsed) {
+      drawBack(canvases.back.getContext("2d"), faces, { lang, labels, value: faces.premium });
+      tex.back.needsUpdate = true;
+      L.lastDrawn = faces.premium;
+      L.counterStart = -1;
+    }
+    // نعيد الوجه الذهبي للقيمة العادية بعد اختفائه، ليعدّ من جديد في المرّة القادمة
+    if (L.pendingReset && frontness > 0.85) {
+      drawBack(canvases.back.getContext("2d"), faces, { lang, labels, value: faces.normal });
+      tex.back.needsUpdate = true;
+      L.lastDrawn = faces.normal;
+      L.pendingReset = false;
+    }
+
+    store.couponWorld.copy(g.position);
+    store.couponScale = g.scale.x;
+
+    if (L.ready && !L.announced) {
+      L.announced = true;
+      onReady?.();
+    }
+  });
+
+  return (
+    <group ref={group} visible={false}>
+      <mesh geometry={geo.body} material={mats.edge} />
+      <mesh geometry={geo.face} material={mats.front} position={[0, 0, FACE_Z]} />
+      <mesh geometry={geo.face} material={mats.back} position={[0, 0, -FACE_Z]} rotation={[0, Math.PI, 0]} />
+      <mesh ref={glowFront} geometry={geo.face} material={glow.front} position={[0, 0, FACE_Z + 0.001]} renderOrder={2} />
+      <mesh ref={glowBack} geometry={geo.face} material={glow.back} position={[0, 0, -FACE_Z - 0.001]} rotation={[0, Math.PI, 0]} renderOrder={2} />
+    </group>
+  );
+}
+
+// مواضع الكوبونات الطافية بالبكسل نسبةً لمركز الكوبون الكبير (المسرح):
+// out = نحو الحافة الخارجية للصفحة (بعيداً عن عمود النص)، y موجب = للأسفل، px = العرض.
+// depth: 1 = قريب (يتحرك أكثر مع الماوس/الميلان)، 0 = بعيد.
+const SLOTS_DESKTOP = [
+  { out: (w) => w / 2 + 96, y: (h) => -h * 0.3, px: 96, z: -7, depth: 0.9 },
+  { out: (w) => w / 2 + 120, y: (h) => h * 0.12, px: 76, z: -11, depth: 0.45 },
+  { out: (w) => w / 2 + 70, y: (h) => h / 2 + 18, px: 86, z: -8, depth: 0.75 },
+  { out: (w) => w * 0.36, y: (h) => h / 2 + 170, px: 80, z: -9, depth: 0.6 },
+  { out: (w) => -w * 0.3, y: (h) => h / 2 + 175, px: 68, z: -12, depth: 0.3 },
+  { out: (w) => w * 0.18, y: (h) => -h / 2 - 40, px: 62, z: -13, depth: 0.2 },
+];
+// الهاتف: الكوبون بعرض الشاشة → ثلاثة تطلّ من خلف زواياه (في الفراغ بين مربع القيمة والكوبون)
+const SLOTS_MOBILE = [
+  { out: (w) => w / 2 - 30, y: (h) => -h / 2 - 6, px: 54, z: -8, depth: 0.85 },
+  { out: (w) => -(w / 2 - 46), y: (h) => -h / 2 - 4, px: 48, z: -11, depth: 0.4 },
+  { out: (w) => w / 2 + 2, y: (h) => h * 0.08, px: 50, z: -9, depth: 0.65 },
+];
+
+/** يدفع دائرة (cx, cy, r) خارج كل منطقة ممنوعة (النص/الأزرار/مربع القيمة/المقبض) بأقصر مسافة. */
+function pushOut(p, rad, zones, gap) {
+  for (let k = 0; k < zones.length; k++) {
+    const z = zones[k];
+    const l = z.l - rad - gap;
+    const r = z.r + rad + gap;
+    const t = z.t - rad - gap;
+    const b = z.b + rad + gap;
+    if (p.x <= l || p.x >= r || p.y <= t || p.y >= b) continue;
+    const dl = p.x - l;
+    const dr = r - p.x;
+    const dt = p.y - t;
+    const db = b - p.y;
+    const m = Math.min(dl, dr, dt, db);
+    if (m === dl) p.x = l;
+    else if (m === dr) p.x = r;
+    else if (m === dt) p.y = t;
+    else p.y = b;
+  }
+}
+
+/**
+ * كوبونات صغيرة تطفو خلف الكوبون الكبير بألوان الأنواع الثلاثة، في طبقة خلفية خاصة
+ * (شفافية + blur خفيف = عمق). تطفو وحدها بلا توقف (صعود/هبوط + دوران بطيء في 3D)،
+ * وتتبع الماوس (الحاسوب) أو ميلان الهاتف بعمق: الأقرب أسرع. مواضعها محسوبة من موضع
+ * الكوبون الكبير، وأي حركة تقترب من النص/الأزرار/مربع القيمة/المقبض تُدفع خارجها (store.avoid).
+ * مع prefers-reduced-motion تتوقف كلياً.
+ * couponOnLeft: الكوبون يسار الشاشة (العربية RTL) · stacked: تخطيط الهاتف (النص فوق الكوبون).
+ */
+function FloatingCoupons({ store, couponOnLeft, stacked }) {
+  const geo = useMemo(() => buildCouponGeometry(10, false).body, []);
+  const mats = useMemo(
+    () =>
+      TYPE_COLORS.map(
+        (c) =>
+          new THREE.MeshStandardMaterial({
+            color: c,
+            emissive: c,
+            emissiveIntensity: 0.14,
+            metalness: 0.32,
+            roughness: 0.46,
+            transparent: true,
+            opacity: 0.72,
+            depthWrite: false,
+          })
+      ),
+    []
+  );
+  const items = useMemo(() => {
+    // دوران/طور ثابت (بذرة) حتى لا يتغيّر الشكل بين التحميلات
+    let seed = 7;
+    const rnd = () => {
+      seed = (seed * 16807) % 2147483647;
+      return (seed - 1) / 2147483646;
+    };
+    return (stacked ? SLOTS_MOBILE : SLOTS_DESKTOP).map((slot, i) => ({
+      ...slot,
+      color: i % 3,
+      rx: rnd() * Math.PI,
+      ry: rnd() * Math.PI,
+      rz: rnd() * Math.PI,
+      spinX: (rnd() < 0.5 ? -1 : 1) * (0.06 + rnd() * 0.08),
+      spinY: (rnd() < 0.5 ? -1 : 1) * (0.09 + rnd() * 0.1),
+      speed: 0.35 + rnd() * 0.4,
+      drift: 0.2 + rnd() * 0.25,
+      phase: rnd() * Math.PI * 2,
+    }));
+  }, [stacked]);
+  const refs = useRef([]);
+  const p = useMemo(() => ({ x: 0, y: 0 }), []);
+
+  useEffect(
+    () => () => {
+      geo.dispose();
+      mats.forEach((m) => m.dispose());
+    },
+    [geo, mats]
+  );
+
+  useFrame((state, delta) => {
+    const a = store.anchor;
+    if (!a.ready) return;
+    const still = store.reduced;
+    const dt = Math.min(delta, 1 / 30);
+    const e = 1 - Math.exp(-dt * 3);
+    store.parallax.x += ((still ? 0 : store.parallaxTarget.x) - store.parallax.x) * e;
+    store.parallax.y += ((still ? 0 : store.parallaxTarget.y) - store.parallax.y) * e;
+    const { width: cw, height: ch } = state.size;
+    const aspect = cw / ch;
+    const t = state.clock.elapsedTime;
+    const outSign = couponOnLeft ? -1 : 1;
+    const zones = store.avoid || [];
+    const amp = stacked ? 7 : 16; // ارتفاع الطفو (px)
+    const par = stacked ? 18 : 44; // أقصى إزاحة parallax للأقرب (px)
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i];
+      const m = refs.current[i];
+      if (!m) continue;
+      const depthPar = par * (0.3 + it.depth * 0.7);
+      p.x =
+        a.cx +
+        outSign * it.out(a.w) +
+        store.parallax.x * depthPar +
+        (still ? 0 : Math.sin(t * it.drift + it.phase) * amp * 0.5);
+      p.y =
+        a.cy +
+        it.y(a.h) +
+        store.parallax.y * depthPar * 0.7 +
+        (still ? 0 : Math.sin(t * it.speed + it.phase) * amp);
+      pushOut(p, it.px * 0.55, zones, 8);
+      const unit = viewAt(it.z, aspect).h / ch; // وحدات العالم لكل بكسل عند هذا العمق
+      m.position.set((p.x - cw / 2) * unit, (ch / 2 - p.y) * unit, it.z);
+      m.scale.setScalar((it.px * unit) / COUPON.W);
+      m.rotation.set(
+        it.rx + (still ? 0 : t * it.spinX),
+        it.ry + (still ? 0 : t * it.spinY),
+        it.rz + (still ? 0 : Math.sin(t * 0.3 + it.phase) * 0.2)
+      );
+    }
+  });
+
+  return items.map((it, i) => (
+    <mesh key={i} ref={(el) => (refs.current[i] = el)} geometry={geo} material={mats[it.color]} />
+  ));
+}
+
+/** جزيئات ذهبية خفيفة تنطلق من حواف الكوبون عند التحوّل إلى Premium. */
+function GoldParticles({ store, count = 110 }) {
+  const ref = useRef(null);
+  const data = useMemo(() => {
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const vel = new Float32Array(count * 3);
+    const life = new Float32Array(count);
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    const dot = document.createElement("canvas");
+    dot.width = dot.height = 64;
+    const g = dot.getContext("2d");
+    const rg = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    rg.addColorStop(0, "rgba(255,255,255,1)");
+    rg.addColorStop(0.35, "rgba(255,255,255,0.65)");
+    rg.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = rg;
+    g.fillRect(0, 0, 64, 64);
+    const map = new THREE.CanvasTexture(dot);
+    const material = new THREE.PointsMaterial({
+      size: 0.11,
+      map,
+      vertexColors: true,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      sizeAttenuation: true,
+    });
+    return { positions, colors, vel, life, geometry, material, map };
+  }, [count]);
+  const lastBurst = useRef(0);
+  const gold = useMemo(() => [new THREE.Color("#ffe486"), new THREE.Color("#f0c63c"), new THREE.Color("#cf9a1e")], []);
+
+  useEffect(
+    () => () => {
+      data.geometry.dispose();
+      data.material.dispose();
+      data.map.dispose();
+    },
+    [data]
+  );
+
+  useFrame((_, delta) => {
+    const dt = Math.min(delta, 1 / 30);
+    const { positions, colors, vel, life } = data;
+    if (store.burst !== lastBurst.current && store.couponWorld) {
+      lastBurst.current = store.burst;
+      const s = store.couponScale || 1;
+      const cx = store.couponWorld.x;
+      const cy = store.couponWorld.y;
+      const hw = (COUPON.W / 2) * s;
+      const hh = (COUPON.H / 2) * s;
+      for (let i = 0; i < count; i++) {
+        // نقطة عشوائية على محيط الكوبون، وسرعة للخارج
+        const side = Math.random();
+        let x;
+        let y;
+        if (side < 0.5) {
+          x = (Math.random() * 2 - 1) * hw;
+          y = side < 0.25 ? hh : -hh;
+        } else {
+          x = side < 0.75 ? hw : -hw;
+          y = (Math.random() * 2 - 1) * hh;
+        }
+        const len = Math.hypot(x, y) || 1;
+        const sp = (0.6 + Math.random() * 1.4) * s;
+        positions[i * 3] = cx + x;
+        positions[i * 3 + 1] = cy + y;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 0.4;
+        vel[i * 3] = (x / len) * sp;
+        vel[i * 3 + 1] = (y / len) * sp + 0.35 * s;
+        vel[i * 3 + 2] = (Math.random() - 0.2) * 0.8;
+        life[i] = 0.7 + Math.random() * 0.7;
+      }
+    }
+    let alive = false;
+    for (let i = 0; i < count; i++) {
+      if (life[i] <= 0) {
+        colors[i * 3] = colors[i * 3 + 1] = colors[i * 3 + 2] = 0;
+        continue;
+      }
+      alive = true;
+      life[i] -= dt;
+      vel[i * 3 + 1] -= 0.9 * dt;
+      positions[i * 3] += vel[i * 3] * dt;
+      positions[i * 3 + 1] += vel[i * 3 + 1] * dt;
+      positions[i * 3 + 2] += vel[i * 3 + 2] * dt;
+      const k = Math.max(life[i], 0) / 1.4;
+      const col = gold[i % 3];
+      colors[i * 3] = col.r * k;
+      colors[i * 3 + 1] = col.g * k;
+      colors[i * 3 + 2] = col.b * k;
+    }
+    if (ref.current) ref.current.visible = alive;
+    data.geometry.attributes.position.needsUpdate = true;
+    data.geometry.attributes.color.needsUpdate = true;
+  });
+
+  return <points ref={ref} geometry={data.geometry} material={data.material} frustumCulled={false} visible={false} />;
+}
+
+export default function MagicScene3D({ store, faces, labels, lang, active, mobile, stacked, onReady }) {
+  return (
+    <>
+      {/* طبقة الخلفية: الكوبونات الطافية (blur خفيف + شفافية = عمق)، خلف الكوبون الكبير والمحتوى */}
+      <Canvas
+        flat
+        dpr={1}
+        gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
+        camera={{ fov: FOV, position: [0, 0, CAM_Z], near: 0.1, far: 60 }}
+        frameloop={active ? "always" : "never"}
+        style={{ position: "absolute", inset: 0, pointerEvents: "none", filter: "blur(0.8px)", opacity: 0.95 }}
+        onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
+      >
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[3, 4, 6]} intensity={1} />
+        <FloatingCoupons store={store} couponOnLeft={lang === "ar"} stacked={stacked} />
+      </Canvas>
+    <Canvas
+      flat
+      dpr={mobile ? [1, 1.5] : [1, 1.75]}
+      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+      camera={{ fov: FOV, position: [0, 0, CAM_Z], near: 0.1, far: 60 }}
+      frameloop={active ? "always" : "never"}
+      style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
+      onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
+    >
+      <fog attach="fog" args={["#0a0a0a", 19, 36]} />
+      <ambientLight intensity={0.55} />
+      <directionalLight position={[3, 4, 6]} intensity={1.25} />
+      <directionalLight position={[-5, -2, -4]} intensity={0.6} color="#a6f000" />
+      <Environment />
+      <MainCoupon store={store} faces={faces} labels={labels} lang={lang} onReady={onReady} />
+      <GoldParticles store={store} />
+    </Canvas>
+    </>
+  );
+}

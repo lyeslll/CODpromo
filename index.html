@@ -14,10 +14,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="CODpromo" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <title>CODpromo · أكواد الخصم والكوبونات والكاش باك</title>
+    <title>CODpromo | أكواد برومو لتجّار الدفع عند الاستلام</title>
     <meta
       name="description"
-      content="CODpromo — أكبر منصة عربية لأكواد الخصم والبرومو والكاش باك لمتاجر التجارة الإلكترونية في الجزائر والعالم العربي."
+      content="أكواد خصم وكوبونات وكاش باك على التوصيل ومنصات المتاجر والإعلانات وبطاقات الدفع وERP، لتجّار الدفع عند الاستلام في الجزائر والعالم العربي. مجاناً، وكل كود يُراجَع يدوياً."
     />
 
     <!-- Tajawal (العربية) + Inter (English / Français) -->
@@ -28,17 +28,13 @@
       rel="stylesheet"
     />
 
-    <!-- Anti-flash: apply saved theme to <html> before first paint -->
+    <!-- Anti-flash: الموقع داكن فقط + اللغة/الاتجاه قبل أول رسم -->
     <script>
       (function () {
+        // تنظيف اختيار الثيم القديم (لم يعد هناك وضع فاتح)
         try {
-          var t = localStorage.getItem("codpromo:theme");
-          if (t !== "light" && t !== "dark") t = "dark";
-          document.documentElement.classList.add(t);
-          document.documentElement.style.colorScheme = t;
-        } catch (e) {
-          document.documentElement.classList.add("dark");
-        }
+          localStorage.removeItem("codpromo:theme");
+        } catch (e) {}
         // اللغة + الاتجاه قبل أول رسم لتفادي وميض RTL/LTR
         try {
           var l = localStorage.getItem("codpromo:lang");
@@ -53,20 +49,21 @@
     </script>
 
     <style>
-      /* Critical theme backgrounds so there is no flash before CSS/React load */
-      html.dark { --boot-bg: #0a0a0a; }
-      html.light { --boot-bg: #f4f6ef; }
+      /* خلفية داكنة حرجة حتى لا يحدث وميض قبل تحميل CSS/React */
+      html {
+        color-scheme: dark;
+      }
       html,
       body,
       #root {
-        background: var(--boot-bg, #0a0a0a);
+        background: #0a0a0a;
       }
       #boot {
         position: fixed;
         inset: 0;
         display: grid;
         place-items: center;
-        background: var(--boot-bg, #0a0a0a);
+        background: #0a0a0a;
         z-index: 9999;
         transition: opacity 0.4s ease;
       }

@@ -1,9 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Home, LayoutGrid, Heart, Crown, User, LogIn } from "lucide-react";
+import { Home, TicketPercent, Heart, Crown, User, LogIn } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../lib/auth.jsx";
 import { useScrollVisibility } from "../lib/scrollVisibility.jsx";
+import { offersPath } from "../lib/seo.js";
 
 // ============================================================
 //  CODpromo — شريط التنقّل السفلي (Bottom Navigation) — للهاتف فقط (md:hidden).
@@ -20,16 +21,16 @@ export default function BottomNav({ onPremium }) {
   const lang = i18n.language;
   const L = lang && lang !== "ar" ? `/${lang}` : "";
 
-  // الروابط (الرئيسية/الفئات تحترم بادئة اللغة؛ لوحة المستخدم وتسجيل الدخول بلا بادئة)
+  // الروابط (الرئيسية/العروض تحترم بادئة اللغة؛ لوحة المستخدم وتسجيل الدخول بلا بادئة)
   const homeTo = `${L}/` || "/";
-  const catsTo = `${L}/categories`;
+  const offersTo = offersPath(lang);
   const favTo = `${L}/favorites`; // صفحة المفضّلة المخصّصة
   const accountTo = user ? "/dashboard" : "/login";
 
-  // الحالة النشطة (نتجاهل بادئة اللغة)
+  // الحالة النشطة (نتجاهل بادئة اللغة). صفحات الفئات جزء من تصفّح العروض.
   const base = pathname.replace(/^\/(en|fr)(?=\/|$)/, "") || "/";
   const isHome = base === "/";
-  const isCats = base.startsWith("/categories");
+  const isOffers = base.startsWith("/offers") || base.startsWith("/categor");
   const isFav = base.startsWith("/favorites");
   const isDash = base.startsWith("/dashboard");
 
@@ -50,7 +51,7 @@ export default function BottomNav({ onPremium }) {
         />
 
         <NavItem to={homeTo} icon={Home} label={t("bottomNav.home")} active={isHome} />
-        <NavItem to={catsTo} icon={LayoutGrid} label={t("bottomNav.categories")} active={isCats} />
+        <NavItem to={offersTo} icon={TicketPercent} label={t("bottomNav.offers")} active={isOffers} />
 
         {/* الزر المركزي البارز — Premium (هوية Lime، ليست الذهبية) */}
         <div className="flex w-[20%] shrink-0 justify-center">

@@ -9,6 +9,7 @@ import { useCategories } from "../lib/categories.jsx";
 import { getPremiumCode } from "../lib/supabase.js";
 import { isImageUrl } from "./CompanyLogo.jsx";
 import CodeVote from "./CodeVote.jsx";
+import { GlowSpot, useCardGlow } from "./CardGlow.jsx";
 
 // هوية Premium الذهبية
 const GOLD = "#f0c63c";
@@ -16,6 +17,14 @@ const GOLD_DEEP = "#cf9a1e";
 const GOLD_SOFT = "#ffe486";
 const GOLD_GLOW = "rgba(240,198,60,0.4)";
 
+/**
+ * بطاقة عرض على شكل تذكرة كوبون حقيقية:
+ *   - الجزء العلوي: معلومات الشركة + الوصف + القيمة.
+ *   - خط مثقّب بين نصفي دائرة مقصوصين في الجنبين.
+ *   - الجزء السفلي (الكعب): الكود + النسخ + زيارة الموقع + التصويت.
+ * لون النوع (تخفيض/كوبون/كاش باك) يظهر في حافة الكوبون والقيمة والأزرار،
+ * وفي وضع Premium يصبح كل شيء ذهبياً. القصّ عبر CSS mask (.ticket-* في index.css).
+ */
 export default function CompanyCard({
   company,
   index,
@@ -47,7 +56,6 @@ export default function CompanyCard({
   // بيانات Premium تُجلب خادمياً عبر RPC (لا تأتي ضمن صف الشركة العام).
   // null = لم تُطلب/لم تصل بعد. { premium_code, premium_url } = وصلت.
   const [premiumData, setPremiumData] = useState(null);
-  const cardRef = useRef(null);
 
   // إعادة ضبط الخدش وبيانات Premium عند تبديل الوضع أو تغيّر حالة الاشتراك
   useEffect(() => {
@@ -71,8 +79,10 @@ export default function CompanyCard({
   }, [premium, unlocked, premiumData, company.id]);
 
   const hot = (company.clicks || 0) >= 50;
+  // ضوء دائري بلون النوع يتبع المؤشر (أو موضع اللمس في الهاتف)
+  const glow = useCardGlow();
 
-  // ألوان حسب الوضع (عادي / Premium ذهبي)
+  // ألوان حسب الوضع (عادي = لون النوع / Premium = ذهبي)
   const accent = premium ? GOLD : meta.color;
   const accentGlow = premium ? GOLD_GLOW : meta.glow;
   // قيمة الخصم عامة (تُعرض دائماً)؛ أما الكود/الرابط Premium فيُكشفان خادمياً.
@@ -89,14 +99,6 @@ export default function CompanyCard({
       ? premiumData.premium_url || company.link
       : null
     : company.link;
-
-  const handleMouseMove = (e) => {
-    const el = cardRef.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    el.style.setProperty("--mx", `${e.clientX - r.left}px`);
-    el.style.setProperty("--my", `${e.clientY - r.top}px`);
-  };
 
   const handleCopy = async () => {
     // كود Premium مقفل: لا نسخ — نوجّه للاشتراك
@@ -115,218 +117,224 @@ export default function CompanyCard({
     setTimeout(() => setCopied(false), 1600);
   };
 
+  // متغيّرات التذكرة: حافة بلون النوع (أقوى عند المرور/اللمس) + تلوين الكعب
+  const ticketVars = {
+    "--edge-base": `${accent}4d`,
+    "--edge-strong": `${accent}b3`,
+    "--perf": `${accent}80`,
+    "--stub": `${accent}0d`,
+  };
+
   return (
     <motion.article
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
+      ref={glow.ref}
+      {...glow.handlers}
       initial={{ opacity: 0, y: 26 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10, scale: 0.97 }}
       transition={{ duration: 0.45, delay: Math.min(index * 0.05, 0.35), ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ y: -6 }}
-      className={`group relative flex flex-col overflow-hidden rounded-[var(--radius-card)] border bg-[var(--color-ink-card)] p-5 transition-colors duration-300 ${
-        premium ? "" : "border-[var(--color-ink-line)] hover:border-[var(--color-lime)]/40"
-      }`}
-      style={
-        premium
-          ? { borderColor: `${GOLD}66`, boxShadow: `0 0 0 1px ${GOLD}1f, 0 22px 55px -28px ${GOLD_GLOW}` }
-          : undefined
-      }
+      whileHover={{ y: -5 }}
+      whileTap={{ y: -2, scale: 0.995 }}
+      className={`ticket group relative flex flex-col ${premium ? "ticket-premium" : ""}`}
+      style={ticketVars}
     >
-      {/* أمبيانس ذهبي في وضع Premium */}
-      {premium && (
-        <span
-          className="pointer-events-none absolute inset-0"
-          style={{ background: `radial-gradient(120% 65% at 50% 0%, ${GOLD}1f, transparent 60%)` }}
-        />
-      )}
+      {/* ===== الجزء العلوي: الشركة + الوصف + القيمة ===== */}
+      <div className="ticket-top relative bg-[var(--color-ink-card)] p-5 pb-4">
+        {/* أمبيانس ذهبي في وضع Premium */}
+        {premium && (
+          <span
+            className="pointer-events-none absolute inset-0"
+            style={{ background: `radial-gradient(120% 70% at 50% 0%, ${GOLD}24, transparent 62%)` }}
+          />
+        )}
+        <GlowSpot color={accentGlow} />
+        <span aria-hidden className="ticket-ring ticket-ring-l" />
+        <span aria-hidden className="ticket-ring ticket-ring-r" />
 
-      {/* توهّج علوي */}
-      <span
-        className="pointer-events-none absolute -top-px left-1/2 h-px w-2/3 -translate-x-1/2 opacity-70"
-        style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
-      />
-      {/* بقعة ضوء تتبع المؤشر */}
-      <span
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background: `radial-gradient(280px circle at var(--mx,50%) var(--my,0%), ${accentGlow}, transparent 65%)`,
-        }}
-      />
+        {/* شارة Premium كـ overlay مطلق في زاوية جهة end أسفل زر القلب مباشرةً:
+            absolute خارج التدفّق → لا تتغيّر أبعاد البطاقة عند التبديل عادي/Premium،
+            ولا تغطّي شعار المتجر ولا الاسم. pointer-events-none حتى يمرّ النقر لما تحتها. */}
+        {premium && (
+          <span
+            data-part="premium-badge"
+            className="pointer-events-none absolute end-5 top-14 z-20 flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-black text-[#0a0a0a]"
+            style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`, boxShadow: `0 4px 14px -5px ${GOLD_GLOW}` }}
+          >
+            <Crown size={11} /> {t("card.premiumBadge")}
+          </span>
+        )}
 
-      {/* شارة Premium كـ overlay مطلق في زاوية جهة end (يسار RTL) أسفل زر القلب مباشرةً بمسافة صغيرة:
-          - absolute خارج التدفّق → لا تتغيّر أبعاد البطاقة عند التبديل عادي/Premium.
-          - على جهة end فلا تغطّي شعار المتجر (الباقي كاملاً في جهة start/اليمين).
-          - ليست في صف الاسم → الاسم يظهر كاملاً غير مقصوص.
-          - pointer-events-none حتى يمرّ النقر لما تحتها. */}
-      {premium && (
-        <span
-          className="pointer-events-none absolute end-5 top-14 z-20 flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-black text-[#0a0a0a]"
-          style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`, boxShadow: `0 4px 14px -5px ${GOLD_GLOW}` }}
-        >
-          <Crown size={11} /> PREMIUM
-        </span>
-      )}
-
-      {/* الرأس — القلب مثبت أعلى البطاقة (items-start + shrink-0) ولا يتأثر بطول النص */}
-      <div className="relative flex items-start justify-between gap-2">
-        {linkToStore ? (
-          <Link to={storeHref} className="group/link flex min-w-0 items-center gap-3">
-            <CardLogo logo={company.logo} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
-            <div className="min-w-0">
-              <h3 className="truncate text-[17px] font-extrabold text-[var(--text)] transition-colors group-hover/link:text-[var(--accent-text)]">{company.name}</h3>
-              <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">
-                {category}
-              </p>
+        {/* الرأس — القلب مثبت أعلى البطاقة (items-start + shrink-0) ولا يتأثر بطول النص */}
+        <div className="relative flex items-start justify-between gap-2">
+          {linkToStore ? (
+            <Link to={storeHref} className="group/link flex min-w-0 items-center gap-3">
+              <CardLogo logo={company.logo} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
+              <div className="min-w-0">
+                <h3 className="truncate text-[17px] font-extrabold text-[var(--text)] transition-colors group-hover/link:text-[var(--accent-text)]">{company.name}</h3>
+                <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">{category}</p>
+              </div>
+            </Link>
+          ) : (
+            <div className="flex min-w-0 items-center gap-3">
+              <CardLogo logo={company.logo} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
+              <div className="min-w-0">
+                <h3 className="truncate text-[17px] font-extrabold text-[var(--text)]">{company.name}</h3>
+                <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">{category}</p>
+              </div>
             </div>
-          </Link>
+          )}
+
+          <div className="flex shrink-0 items-center gap-1.5 self-start">
+            {hot && !premium && (
+              <span className="flex items-center gap-1 rounded-full bg-orange-500/15 px-2 py-1 text-[10.5px] font-bold text-orange-400">
+                <Flame size={11} /> {t("card.hot")}
+              </span>
+            )}
+            <button
+              data-part="fav"
+              onClick={() => onToggleFav(company.id)}
+              aria-label={t("card.addFav")}
+              aria-pressed={!!isFavorite}
+              className="grid h-8 w-8 place-items-center rounded-full border border-[var(--color-ink-line)] bg-[var(--fill)] transition-colors hover:bg-[var(--fill-strong)]"
+            >
+              <Heart size={15} className={isFavorite ? "fill-red-500 text-red-500" : "text-[var(--color-mute)]"} />
+            </button>
+          </div>
+        </div>
+
+        {/* الوصف — ارتفاع ثابت (ثلاثة أسطر) ليتساوى ارتفاع كل البطاقات */}
+        <p className="relative mt-4 line-clamp-3 h-[60px] overflow-hidden text-[13.5px] leading-[1.48] text-[var(--text-soft)]">
+          {desc}
+        </p>
+
+        {/* قيمة الخصم + شارة النوع */}
+        <div className="relative mt-4 flex items-end justify-between">
+          <div data-part="value">
+            <div className="flex items-center gap-1.5 text-[11.5px] font-semibold text-[var(--color-mute)]">
+              {premium && <Crown size={12} style={{ color: GOLD }} />}
+              {premium ? t("card.premiumDiscount") : t("card.offerValue")}
+            </div>
+            <div className="text-[30px] font-black leading-none">
+              <AnimatedDiscount value={shownDiscount} color={accent} glow={accentGlow} />
+            </div>
+          </div>
+          <span
+            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold"
+            style={{ background: `${accent}1a`, color: accent }}
+          >
+            <Icon size={13} />
+            {t(`types.${getTypeKey(company.type)}`)}
+          </span>
+        </div>
+      </div>
+
+      {/* ===== الكعب: الكود + النسخ + الزيارة + التصويت ===== */}
+      <div className="ticket-stub relative bg-[var(--color-ink-card)] px-5 pb-5 pt-4">
+        <span aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "var(--stub)" }} />
+        <GlowSpot color={accentGlow} />
+        <span aria-hidden className="ticket-ring ticket-ring-l" />
+        <span aria-hidden className="ticket-ring ticket-ring-r" />
+        <span aria-hidden className="ticket-perf" />
+
+        {/* الكود + نسخ (في Premium يُغطّى الكود ببطاقة خدش) */}
+        <div className="relative flex items-stretch gap-2">
+          <div data-part="code" className="relative flex-1">
+            <div
+              className="flex h-full items-center justify-between overflow-hidden rounded-xl border border-dashed px-3.5 py-2.5"
+              style={{ borderColor: `${accent}55`, background: `${accent}0d` }}
+            >
+              <span className="text-[10.5px] font-semibold text-[var(--color-mute)]">
+                {premium ? t("card.premiumCode") : t("card.code")}
+              </span>
+              <span className="font-mono text-[15px] font-extrabold tracking-widest text-[var(--text)]">{shownCode}</span>
+            </div>
+            {premium && !revealed && (
+              <ScratchLayer
+                t={t}
+                unlocked={unlocked}
+                accent={accent}
+                onReveal={() => {
+                  setRevealed(true);
+                  ensurePremium();
+                }}
+                onUnlock={() => onUnlock?.()}
+              />
+            )}
+          </div>
+
+          <motion.button
+            data-part="copy"
+            onClick={handleCopy}
+            whileTap={{ scale: 0.94 }}
+            className="relative grid w-[120px] shrink-0 place-items-center overflow-hidden rounded-xl px-4 text-[14px] font-extrabold text-[#0a0a0a]"
+            style={{
+              background: copied
+                ? "linear-gradient(135deg, #34d399, #10b981)"
+                : premium
+                ? `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`
+                : `linear-gradient(135deg, ${accent}, ${accent}cc)`,
+              boxShadow: `0 10px 26px -12px ${accentGlow}`,
+            }}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              {copied ? (
+                <motion.span key="done" initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -14, opacity: 0 }} transition={{ duration: 0.2 }} className="flex items-center gap-1.5">
+                  <Check size={16} /> {t("card.copied")}
+                </motion.span>
+              ) : (
+                <motion.span key="copy" initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -14, opacity: 0 }} transition={{ duration: 0.2 }} className="flex items-center gap-1.5">
+                  <Copy size={15} /> {t("card.copy")}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        </div>
+
+        {/* زر زيارة الموقع — موجود دائماً بنفس الارتفاع (لا قفزة عند الكشف).
+            - عادي / Premium مكشوف وله رابط: زر فعّال بالرابط الحقيقي (shownLink).
+            - Premium قبل الكشف: مقفول مظهراً فقط (أيقونة قفل، بلا href —
+              ولا يوضع premium_url في DOM إطلاقاً قبل الكشف).
+            - لا رابط متاح: نفس الزر معطّلاً (ليبقى الارتفاع ثابتاً). */}
+        {premium && !revealed ? (
+          <div
+            data-part="visit"
+            aria-disabled="true"
+            className="relative mt-2.5 flex cursor-not-allowed select-none items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold text-[var(--color-mute)] opacity-60"
+            style={{ borderColor: `${accent}33`, background: `${accent}08` }}
+          >
+            <Lock size={14} style={{ color: accent }} />
+            {t("card.visit")}
+          </div>
+        ) : shownLink ? (
+          <motion.a
+            data-part="visit"
+            href={shownLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            whileTap={{ scale: 0.98 }}
+            className="group/btn relative mt-2.5 flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold text-[var(--text)] transition-colors"
+            style={{ borderColor: `${accent}44`, background: `${accent}0d` }}
+          >
+            <ExternalLink size={15} style={{ color: accent }} />
+            {t("card.visit")}
+          </motion.a>
         ) : (
-          <div className="flex min-w-0 items-center gap-3">
-            <CardLogo logo={company.logo} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
-            <div className="min-w-0">
-              <h3 className="truncate text-[17px] font-extrabold text-[var(--text)]">{company.name}</h3>
-              <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">
-                {category}
-              </p>
-            </div>
+          <div
+            data-part="visit"
+            aria-disabled="true"
+            className="relative mt-2.5 flex cursor-not-allowed select-none items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold text-[var(--color-mute)] opacity-60"
+            style={{ borderColor: `${accent}33`, background: `${accent}08` }}
+          >
+            <ExternalLink size={15} style={{ color: accent }} />
+            {t("card.visit")}
           </div>
         )}
 
-        <div className="flex shrink-0 items-center gap-1.5 self-start">
-          {hot && !premium && (
-            <span className="flex items-center gap-1 rounded-full bg-orange-500/15 px-2 py-1 text-[10.5px] font-bold text-orange-400">
-              <Flame size={11} /> {t("card.hot")}
-            </span>
-          )}
-          <button
-            onClick={() => onToggleFav(company.id)}
-            aria-label={t("card.addFav")}
-            className="grid h-8 w-8 place-items-center rounded-full border border-[var(--color-ink-line)] bg-[var(--fill)] transition-colors hover:bg-[var(--fill-strong)]"
-          >
-            <Heart size={15} className={isFavorite ? "fill-red-500 text-red-500" : "text-[var(--color-mute)]"} />
-          </button>
+        {/* قسم التصويت على الكود — "هل نجح هذا الكود معك؟" (عادي + Premium) */}
+        <div data-part="vote" className="relative">
+          <CodeVote companyId={company.id} accent={accent} glow={accentGlow} />
         </div>
       </div>
-
-      {/* الوصف — ارتفاع ثابت (ثلاثة أسطر) ليتساوى ارتفاع كل البطاقات */}
-      <p className="relative mt-4 line-clamp-3 h-[60px] overflow-hidden text-[13.5px] leading-[1.48] text-[var(--text-soft)]">
-        {desc}
-      </p>
-
-      {/* قيمة الخصم + شارة النوع */}
-      <div className="relative mt-4 flex items-end justify-between">
-        <div>
-          <div className="flex items-center gap-1.5 text-[11.5px] font-semibold text-[var(--color-mute)]">
-            {premium && <Crown size={12} style={{ color: GOLD }} />}
-            {premium ? t("card.premiumDiscount") : t("card.offerValue")}
-          </div>
-          <div className="text-[30px] font-black leading-none">
-            <AnimatedDiscount value={shownDiscount} color={accent} glow={accentGlow} />
-          </div>
-        </div>
-        <span
-          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold"
-          style={{ background: `${meta.color}1a`, color: meta.color }}
-        >
-          <Icon size={13} />
-          {t(`types.${getTypeKey(company.type)}`)}
-        </span>
-      </div>
-
-      {/* الكود + نسخ (نفس التصميم؛ في Premium يُغطّى الكود ببطاقة خدش) */}
-      <div className="relative mt-5 flex items-stretch gap-2">
-        <div className="relative flex-1">
-          <div
-            className="flex h-full items-center justify-between overflow-hidden rounded-xl border border-dashed px-3.5 py-2.5"
-            style={{ borderColor: `${accent}55`, background: `${accent}0d` }}
-          >
-            <span className="text-[10.5px] font-semibold text-[var(--color-mute)]">
-              {premium ? t("card.premiumCode") : t("card.code")}
-            </span>
-            <span className="font-mono text-[15px] font-extrabold tracking-widest text-[var(--text)]">
-              {shownCode}
-            </span>
-          </div>
-          {premium && !revealed && (
-            <ScratchLayer
-              t={t}
-              unlocked={unlocked}
-              accent={accent}
-              onReveal={() => {
-                setRevealed(true);
-                ensurePremium();
-              }}
-              onUnlock={() => onUnlock?.()}
-            />
-          )}
-        </div>
-
-        <motion.button
-          onClick={handleCopy}
-          whileTap={{ scale: 0.94 }}
-          className="relative grid w-[120px] shrink-0 place-items-center overflow-hidden rounded-xl px-4 text-[14px] font-extrabold text-[#0a0a0a]"
-          style={{
-            background: copied
-              ? "linear-gradient(135deg, #34d399, #10b981)"
-              : premium
-              ? `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`
-              : `linear-gradient(135deg, ${accent}, ${accent}cc)`,
-            boxShadow: `0 10px 26px -12px ${accentGlow}`,
-          }}
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            {copied ? (
-              <motion.span key="done" initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -14, opacity: 0 }} transition={{ duration: 0.2 }} className="flex items-center gap-1.5">
-                <Check size={16} /> {t("card.copied")}
-              </motion.span>
-            ) : (
-              <motion.span key="copy" initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -14, opacity: 0 }} transition={{ duration: 0.2 }} className="flex items-center gap-1.5">
-                <Copy size={15} /> {t("card.copy")}
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </motion.button>
-      </div>
-
-      {/* زر زيارة الموقع — موجود دائماً بنفس الارتفاع (لا قفزة عند الكشف).
-          - عادي / Premium مكشوف وله رابط: زر فعّال بالرابط الحقيقي (shownLink).
-          - Premium قبل الكشف: مقفول مظهراً فقط (أيقونة قفل، disabled، بلا href —
-            ولا يوضع premium_url في DOM إطلاقاً قبل الكشف).
-          - لا رابط متاح: نفس الزر معطّلاً (ليبقى الارتفاع ثابتاً). */}
-      {premium && !revealed ? (
-        <div
-          aria-disabled="true"
-          className="relative mt-2.5 flex cursor-not-allowed select-none items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold text-[var(--color-mute)] opacity-60"
-          style={{ borderColor: `${accent}33`, background: `${accent}08` }}
-        >
-          <Lock size={14} style={{ color: accent }} />
-          {t("card.visit")}
-        </div>
-      ) : shownLink ? (
-        <motion.a
-          href={shownLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          whileTap={{ scale: 0.98 }}
-          className="group/btn relative mt-2.5 flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold text-[var(--text)] transition-colors"
-          style={{ borderColor: `${accent}44`, background: `${accent}0d` }}
-        >
-          <ExternalLink size={15} style={{ color: accent }} />
-          {t("card.visit")}
-        </motion.a>
-      ) : (
-        <div
-          aria-disabled="true"
-          className="relative mt-2.5 flex cursor-not-allowed select-none items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold text-[var(--color-mute)] opacity-60"
-          style={{ borderColor: `${accent}33`, background: `${accent}08` }}
-        >
-          <ExternalLink size={15} style={{ color: accent }} />
-          {t("card.visit")}
-        </div>
-      )}
-
-      {/* قسم التصويت على الكود — "هل نجح هذا الكود معك؟" (عادي + Premium) */}
-      <CodeVote companyId={company.id} accent={accent} glow={accentGlow} />
     </motion.article>
   );
 }

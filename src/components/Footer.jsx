@@ -1,7 +1,25 @@
-import { Mail, Crown, ArrowLeft } from "lucide-react";
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { Building2, ChevronDown, Crown, Mail, Smartphone } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import Logo from "./Logo.jsx";
+import PremiumModal from "./PremiumModal.jsx";
+import IlyesSignature from "./IlyesSignature.jsx";
+import GooglePlayBadge from "./app/GooglePlayBadge.jsx";
+import FooterCta from "./footer/FooterCta.jsx";
+import Newsletter from "./footer/Newsletter.jsx";
+import Wordmark from "./footer/Wordmark.jsx";
+import BackToTop from "./footer/BackToTop.jsx";
+import { useHeaderOffers } from "./header/headerData.js";
+import { useAppTarget } from "../lib/appInstall.js";
+import { useCategories } from "../lib/categories.jsx";
+import { activeCategories, countByCategory } from "../lib/offerFilters.js";
+import { categoryName, categoryRecordSlug } from "../lib/slug.js";
+import { categoriesPath, homePath, offersLink, offersPath } from "../lib/seo.js";
+
+// رمز QR (ومكتبته) يُحمَّل فقط حين يقترب الفوتر وعلى الحاسوب — لا يثقل باقي الصفحات
+const PlayQr = lazy(() => import("./app/PlayQr.jsx"));
 
 /* أيقونات العلامات الحقيقية (Instagram/Facebook) — مكتبة lucide الحالية حذفت أيقونات
    العلامات، فنستعمل مسارات SVG الرسمية (currentColor) كي ترث ألوان الهوية. */
@@ -21,101 +39,275 @@ function FacebookIcon({ size = 18 }) {
   );
 }
 
-const SOCIALS = [
+export const SOCIALS = [
   { Icon: InstagramIcon, href: "https://www.instagram.com/codpromo.app", label: "Instagram" },
   { Icon: FacebookIcon, href: "https://www.facebook.com/profile.php?id=61590289486342", label: "Facebook" },
   { Icon: Mail, href: "mailto:contact@codpromo.com", label: "Email" },
 ];
 
-export default function Footer({ onPremium }) {
-  const { t } = useTranslation();
-  const year = new Date().getFullYear();
-  return (
-    <footer className="relative mt-10 overflow-hidden border-t border-[var(--color-ink-line)]">
-      <div
-        className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[700px] -translate-x-1/2 rounded-full blur-[110px]"
-        style={{ background: "radial-gradient(circle, rgba(166,240,0,0.10), transparent 65%)" }}
-      />
-      <div className="relative mx-auto max-w-6xl px-4 py-12">
-        {/* CTA بارز — فتح Premium (أهم زر: يفتح أكواد برومو أقوى) */}
-        <div
-          className="mb-10 flex flex-col items-center gap-5 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-lime)]/30 bg-[var(--color-lime)]/[0.06] p-6 text-center sm:flex-row sm:justify-between sm:text-start"
-        >
-          <div className="flex items-center gap-3.5">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[var(--color-lime)]/15 text-[var(--color-lime)]">
-              <Crown size={24} />
-            </span>
-            <div>
-              <h3 className="text-[18px] font-black tracking-tight text-[var(--text)]">{t("footer.ctaTitle")}</h3>
-              <p className="mt-0.5 text-[13.5px] leading-relaxed text-[var(--text-soft)]">{t("footer.ctaDesc")}</p>
-            </div>
-          </div>
-          <button
-            onClick={onPremium}
-            className="group flex shrink-0 items-center gap-2 rounded-xl px-6 py-3 text-[15px] font-extrabold text-[#0a0a0a] transition-transform hover:scale-[1.02]"
-            style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
-          >
-            {t("footer.ctaBtn")}
-            <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-1 ltr:rotate-180" />
-          </button>
-        </div>
+const TYPE_LINKS = [
+  { param: "discount", key: "typeDiscount", color: "#a6f000" },
+  { param: "coupon", key: "typeCoupon", color: "#38bdf8" },
+  { param: "cashback", key: "typeCashback", color: "#fbbf24" },
+];
 
-        {/* اللوغو + الوصف + التواصل */}
-        <div className="flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-start">
-          <div className="max-w-sm">
-            <Logo />
-            <p className="mt-4 text-[14px] leading-relaxed text-[var(--text-soft)]">
-              {t("footer.tagline")}
-            </p>
-          </div>
+const linkCls = "inline-flex items-center gap-2.5 py-1.5 text-[14.5px] font-medium text-[var(--text-soft)] transition-colors hover:text-[var(--text)] focus-visible:text-[var(--text)]";
 
-          <div className="flex flex-col items-start gap-2.5 sm:items-end">
-            <span className="text-[12.5px] font-semibold text-[var(--color-mute)]">{t("footer.follow")}</span>
-            <div className="flex items-center gap-2.5">
-              {SOCIALS.map(({ Icon, href, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  title={label}
-                  className="grid h-11 w-11 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--text-softer)] transition-colors hover:border-[var(--color-lime)]/40 hover:text-[var(--accent-text)]"
-                >
-                  <Icon size={18} />
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
+function useIsDesktop() {
+  const [match, setMatch] = useState(() => typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const on = () => setMatch(mq.matches);
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  return match;
+}
 
-        {/* الشريط السفلي */}
-        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-[var(--color-ink-line)] pt-6 text-[12.5px] text-[var(--color-mute)] sm:flex-row">
-          <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:gap-4">
-            <span>© {year} CODpromo</span>
-            <Link
-              to="/privacy"
-              className="font-medium transition-colors hover:text-[var(--accent-text)]"
-            >
-              {t("footer.privacy")}
-            </Link>
-            <Link
-              to="/account-deletion"
-              className="font-medium transition-colors hover:text-[var(--accent-text)]"
-            >
-              {t("footer.accountDeletion")}
-            </Link>
-          </div>
-          <a
-            href="https://ilyesderradji.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium transition-colors hover:text-[var(--accent-text)]"
-          >
-            {t("footer.poweredBy")} <span className="font-bold text-[var(--text-softer)]">Ilyes Derradji</span>
-          </a>
-        </div>
+/** عمود روابط: عنوان + قائمة على الحاسوب، و accordion (ينفتح ويتسكّر) على الهاتف. */
+function FooterCol({ id, title, desktop, children }) {
+  const [open, setOpen] = useState(false);
+  if (desktop) {
+    return (
+      <div>
+        <h3 className="text-[13px] font-extrabold text-[var(--text)]">{title}</h3>
+        <ul className="mt-4 flex flex-col gap-0.5">{children}</ul>
       </div>
-    </footer>
+    );
+  }
+  return (
+    <div className="border-b border-dashed border-[var(--color-ink-line)]">
+      <h3>
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls={id}
+          onClick={() => setOpen((v) => !v)}
+          className="flex w-full items-center justify-between py-4 text-[15.5px] font-extrabold text-[var(--text)]"
+        >
+          {title}
+          <ChevronDown size={18} className={`text-[var(--color-mute)] transition-transform duration-300 ${open ? "rotate-180 text-[var(--accent-text)]" : ""}`} />
+        </button>
+      </h3>
+      <div id={id} className={`grid transition-[grid-template-rows] duration-300 ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`} inert={open ? undefined : ""}>
+        <ul className="flex min-h-0 flex-col overflow-hidden pb-1">{children}</ul>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * الفوتر: الـ CTA الكوبون فوقه، ثم البراند + النشرة، أعمدة الروابط (accordion على الهاتف)،
+ * التطبيق + تابعنا، كلمة CODpromo الضخمة، والسطر الأخير مع توقيع Ilyes Derradji.
+ * onPremium: نافذة Premium الخاصة بالصفحة — وإلا يفتح الفوتر نسخته (نفس النافذة).
+ */
+export default function Footer({ onPremium }) {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
+  const year = new Date().getFullYear();
+  const desktop = useIsDesktop();
+  const [premiumOpen, setPremiumOpen] = useState(false);
+  const openPremium = onPremium || (() => setPremiumOpen(true));
+
+  // أهم الفئات: العروض تُجلب فقط حين يقترب الزائر من الفوتر (نفس ذاكرة الهيدر)
+  // وظهور الـ CTA أو الفوتر (على الهاتف يختفي زر الرجوع العائم حتى لا يغطّي أزرارهما)
+  const ref = useRef(null);
+  const ctaRef = useRef(null);
+  const [near, setNear] = useState(false);
+  const [inView, setInView] = useState({});
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && setNear(true), { rootMargin: "500px 0px" });
+    const seen = new IntersectionObserver((entries) =>
+      setInView((v) => {
+        const next = { ...v };
+        for (const e of entries) next[e.target === el ? "footer" : "cta"] = e.isIntersecting;
+        return next;
+      })
+    );
+    io.observe(el);
+    seen.observe(el);
+    if (ctaRef.current) seen.observe(ctaRef.current);
+    return () => {
+      io.disconnect();
+      seen.disconnect();
+    };
+  }, []);
+  const visible = !!(inView.footer || inView.cta);
+  const offers = useHeaderOffers(near);
+  const { categories } = useCategories();
+  const topCats = useMemo(() => {
+    if (!offers.length) return [];
+    const cats = activeCategories(categories);
+    const counts = countByCategory(offers, cats);
+    return cats
+      .filter((c) => counts[c.id] > 0)
+      .sort((a, b) => counts[b.id] - counts[a.id])
+      .slice(0, 5)
+      .map((c) => ({ cat: c, n: counts[c.id] }));
+  }, [offers, categories]);
+
+  return (
+    <>
+      <FooterCta onPremium={openPremium} innerRef={ctaRef} />
+
+      <footer ref={ref} className="relative mt-14 overflow-hidden border-t border-[var(--color-ink-line)] pb-12 md:pb-0">
+        <div aria-hidden className="pointer-events-none absolute -top-28 left-1/2 h-56 w-[760px] -translate-x-1/2 rounded-full blur-[110px]" style={{ background: "radial-gradient(circle, rgba(166,240,0,0.09), transparent 65%)" }} />
+
+        <div className="relative mx-auto max-w-6xl px-4 pt-14">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-8">
+            {/* ===== البراند + النشرة ===== */}
+            <div className="lg:col-span-4">
+              <Logo />
+              <p className="mt-5 max-w-sm text-[14.5px] leading-[1.75] text-[var(--text-soft)]">{t("footer.desc")}</p>
+              <Newsletter />
+            </div>
+
+            {/* ===== الأعمدة ===== */}
+            <div className="lg:col-span-8 lg:grid lg:grid-cols-4 lg:gap-8 lg:ps-6">
+              <FooterCol id="f-discover" title={t("footer.discover")} desktop={desktop}>
+                <li>
+                  <Link to={offersPath(lang)} className={linkCls}>{t("nav.offers")}</Link>
+                </li>
+                <li>
+                  <Link to={categoriesPath(lang)} className={linkCls}>{t("nav.categories")}</Link>
+                </li>
+                <li>
+                  <Link to={{ pathname: homePath(lang), hash: "#how" }} className={linkCls}>{t("nav.how")}</Link>
+                </li>
+                <li>
+                  <button type="button" onClick={openPremium} className={`${linkCls} text-[#ffe486]/85 hover:text-[#ffe486]`}>
+                    <Crown size={14} aria-hidden /> {t("premiumToggle.premium")}
+                  </button>
+                </li>
+              </FooterCol>
+
+              <FooterCol id="f-types" title={t("footer.types")} desktop={desktop}>
+                {TYPE_LINKS.map((ty) => (
+                  <li key={ty.param}>
+                    <Link to={offersLink(lang, { type: ty.param })} className={`group ${linkCls}`}>
+                      <span aria-hidden className="h-2 w-2 rounded-full transition-transform duration-300 group-hover:scale-150" style={{ background: ty.color, boxShadow: `0 0 10px ${ty.color}88` }} />
+                      {t(`footer.${ty.key}`)}
+                    </Link>
+                  </li>
+                ))}
+              </FooterCol>
+
+              <FooterCol id="f-cats" title={t("footer.topCats")} desktop={desktop}>
+                {topCats.map(({ cat, n }) => (
+                  <li key={cat.id}>
+                    <Link to={offersLink(lang, { category: categoryRecordSlug(cat) })} className={linkCls}>
+                      <span className="truncate">{categoryName(cat, lang)}</span>
+                      <span className="text-[11.5px] font-bold tabular-nums text-[var(--color-mute)] [font-family:Inter,sans-serif]">{n}</span>
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <Link to={categoriesPath(lang)} className={`${linkCls} text-[var(--accent-text)] hover:text-[var(--color-lime-soft)]`}>
+                    {t("home.allCategories")}
+                  </Link>
+                </li>
+              </FooterCol>
+
+              <FooterCol id="f-biz" title={t("footer.business")} desktop={desktop}>
+                <li>
+                  <Link to="/signup?type=company" className={linkCls}>
+                    <Building2 size={15} aria-hidden className="text-[var(--color-mute)]" /> {t("footer.addOffers")}
+                  </Link>
+                </li>
+                <li>
+                  <a href="mailto:contact@codpromo.com" className={linkCls}>
+                    <Mail size={15} aria-hidden className="text-[var(--color-mute)]" /> {t("footer.contact")}
+                  </a>
+                </li>
+              </FooterCol>
+            </div>
+          </div>
+
+          {/* ===== التطبيق + تابعنا ===== */}
+          <div className="mt-9 flex flex-col gap-9 sm:mt-12 sm:flex-row sm:items-end sm:justify-between sm:border-t sm:border-dashed sm:border-[var(--color-ink-line)] sm:pt-9">
+            <FooterApp showQr={near && desktop} />
+            <div>
+              <span className="block text-[13px] font-extrabold text-[var(--text)]">{t("footer.follow")}</span>
+              <div className="mt-3 flex items-center gap-2.5">
+                {SOCIALS.map(({ Icon, href, label }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    title={label}
+                    className="grid h-11 w-11 place-items-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--text-softer)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-lime)]/50 hover:bg-[var(--color-lime)]/10 hover:text-[var(--accent-text)] hover:shadow-[0_0_22px_-6px_rgba(166,240,0,0.6)]"
+                  >
+                    <Icon size={18} />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ===== CODpromo الضخمة ===== */}
+        <Wordmark />
+
+        {/* ===== السطر الأخير ===== */}
+        <div className="relative mx-auto max-w-6xl px-4">
+          <div className="flex flex-col items-center justify-between gap-4 border-t border-[var(--color-ink-line)] py-6 text-[12.5px] text-[var(--color-mute)] sm:flex-row">
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">
+              <span>© {year} CODpromo</span>
+              <Link to="/privacy" className="font-medium transition-colors hover:text-[var(--accent-text)]">{t("footer.privacy")}</Link>
+              <Link to="/account-deletion" className="font-medium transition-colors hover:text-[var(--accent-text)]">{t("footer.accountDeletion")}</Link>
+            </div>
+            <div className="flex items-center gap-5">
+              <IlyesSignature label={t("footer.poweredBy")} glow="rgba(166,240,0,0.55)" />
+              <BackToTop inline />
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      <BackToTop footerVisible={visible} />
+      {!onPremium && createPortal(<PremiumModal open={premiumOpen} onClose={() => setPremiumOpen(false)} />, document.body)}
+    </>
+  );
+}
+
+/** التطبيق: شارة Google Play الرسمية + QR صغير على الحاسوب (أو "قريباً على iPhone") — يختفي داخل التطبيق. */
+function FooterApp({ showQr }) {
+  const { t } = useTranslation();
+  const { inApp, platform } = useAppTarget();
+  const [hot, setHot] = useState(false);
+  if (inApp) return null;
+  return (
+    <div>
+      <span className="block text-[13px] font-extrabold text-[var(--text)]">{t("app.getApp")}</span>
+      {platform === "ios" ? (
+        <p className="mt-3 flex items-center gap-1.5 text-[13.5px] font-semibold text-[var(--text-soft)]">
+          <Smartphone size={15} aria-hidden /> {t("app.iosSoon")}
+        </p>
+      ) : (
+        <div className="mt-3 flex items-center gap-5">
+          <GooglePlayBadge
+            height={62}
+            glow
+            flush
+            onPointerEnter={() => setHot(true)}
+            onPointerLeave={() => setHot(false)}
+            onFocus={() => setHot(true)}
+            onBlur={() => setHot(false)}
+          />
+          {showQr && (
+            <div className="hidden items-center gap-3 lg:flex">
+              <Suspense fallback={<span className="block h-[76px] w-[76px] rounded-2xl bg-[var(--fill)]" />}>
+                <PlayQr size={76} hot={hot} />
+              </Suspense>
+              <span className="max-w-[120px] text-[12px] font-semibold leading-snug text-[var(--color-mute)]">{t("app.qrCaption")}</span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

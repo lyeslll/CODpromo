@@ -23,7 +23,9 @@ import {
   ShieldCheck,
   LogIn,
   Vote,
+  BarChart3,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { useAuth } from "../lib/auth.jsx";
 
@@ -56,6 +58,7 @@ import SeoManager from "../components/admin/SeoManager.jsx";
 import CategoryForm from "../components/admin/CategoryForm.jsx";
 import CategoryTable from "../components/admin/CategoryTable.jsx";
 import VotesTable from "../components/admin/VotesTable.jsx";
+import SiteStatsManager from "../components/admin/SiteStatsManager.jsx";
 
 export default function Admin() {
   const [unlocked, setUnlocked] = useState(
@@ -222,6 +225,8 @@ function PinGate({ onUnlock }) {
 
 /* ===================== اللوحة ===================== */
 function Dashboard({ onLock }) {
+  const { i18n } = useTranslation();
+  const tAr = useMemo(() => i18n.getFixedT("ar"), [i18n]);
   const [tab, setTab] = useState("overview");
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -566,6 +571,9 @@ function Dashboard({ onLock }) {
           <TabButton active={tab === "votes"} onClick={() => setTab("votes")} icon={Vote}>
             التصويت
           </TabButton>
+          <TabButton active={tab === "siteStats"} onClick={() => setTab("siteStats")} icon={BarChart3}>
+            {tAr("admin.siteStats.tab")}
+          </TabButton>
         </div>
 
         {/* نظرة عامة */}
@@ -736,6 +744,9 @@ function Dashboard({ onLock }) {
 
         {/* التصويت على الأكواد */}
         {tab === "votes" && <VotesTable companies={companies} />}
+
+        {/* أرقام الصفحة الرئيسية (site_stats) */}
+        {tab === "siteStats" && <SiteStatsManager notify={notify} />}
       </div>
 
       {/* التوست */}

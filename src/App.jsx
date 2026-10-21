@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { MotionConfig } from "framer-motion";
 import { AuthProvider } from "./lib/auth.jsx";
 import { PremiumProvider } from "./lib/premium.jsx";
 import { CategoriesProvider } from "./lib/categories.jsx";
@@ -8,27 +9,42 @@ import { ScrollVisibilityProvider } from "./lib/scrollVisibility.jsx";
 import { useLocale } from "./lib/locale.jsx";
 import { dirOf } from "./i18n/index.js";
 import Home from "./pages/Home.jsx";
-import StorePage from "./pages/StorePage.jsx";
-import CategoryPage from "./pages/CategoryPage.jsx";
-import CategoriesPage from "./pages/CategoriesPage.jsx";
-import FavoritesPage from "./pages/FavoritesPage.jsx";
-import Admin from "./pages/Admin.jsx";
-import Login from "./pages/Login.jsx";
-import Signup from "./pages/Signup.jsx";
-import ForgotPassword from "./pages/ForgotPassword.jsx";
-import ResetPassword from "./pages/ResetPassword.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
-import PaymentSuccess from "./pages/PaymentSuccess.jsx";
-import PaymentCancel from "./pages/PaymentCancel.jsx";
-import PaymentReturn from "./pages/PaymentReturn.jsx";
-import PaymentReturnPaypal from "./pages/PaymentReturnPaypal.jsx";
-import Privacy from "./pages/Privacy.jsx";
-import AccountDeletion from "./pages/AccountDeletion.jsx";
 import RequireAuth from "./components/auth/RequireAuth.jsx";
+import CursorGlow from "./components/CursorGlow.jsx";
+import { reloadIfUpdatePending } from "./lib/swAutoReload.js";
+import AppBanner from "./components/app/AppBanner.jsx";
+
+// باقي الصفحات تُحمَّل عند زيارتها فقط (حزمة الصفحة الرئيسية أخفّ)
+const StorePage = lazy(() => import("./pages/StorePage.jsx"));
+const CategoryPage = lazy(() => import("./pages/CategoryPage.jsx"));
+const CategoriesPage = lazy(() => import("./pages/CategoriesPage.jsx"));
+const FavoritesPage = lazy(() => import("./pages/FavoritesPage.jsx"));
+const OffersPage = lazy(() => import("./pages/OffersPage.jsx"));
+const Admin = lazy(() => import("./pages/Admin.jsx"));
+const Login = lazy(() => import("./pages/Login.jsx"));
+const Signup = lazy(() => import("./pages/Signup.jsx"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword.jsx"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword.jsx"));
+const Dashboard = lazy(() => import("./pages/Dashboard.jsx"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess.jsx"));
+const PaymentCancel = lazy(() => import("./pages/PaymentCancel.jsx"));
+const PaymentReturn = lazy(() => import("./pages/PaymentReturn.jsx"));
+const PaymentReturnPaypal = lazy(() => import("./pages/PaymentReturnPaypal.jsx"));
+const Privacy = lazy(() => import("./pages/Privacy.jsx"));
+const AccountDeletion = lazy(() => import("./pages/AccountDeletion.jsx"));
+
+/** مؤشّر تحميل الصفحة (نفس حلقة شاشة البداية). */
+function PageFallback() {
+  return (
+    <div className="grid min-h-screen place-items-center bg-[var(--color-ink)]">
+      <div className="h-11 w-11 animate-spin rounded-full border-[3px] border-[var(--color-ink-line)] border-t-[var(--color-lime)]" />
+    </div>
+  );
+}
 import BottomNav from "./components/BottomNav.jsx";
 import PremiumModal from "./components/PremiumModal.jsx";
 
-/** اللغة المقصودة من المسار: بادئة /en أو /fr، صفحات /store و/category بلا بادئة عربية، وإلا تبقى لغة المستخدم. */
+/** اللغة المقصودة من المسار: بادئة /en أو /fr، صفحات /store و/category و/offers بلا بادئة عربية، وإلا تبقى لغة المستخدم. */
 function langFromPath(pathname, current) {
   if (pathname === "/en" || pathname.startsWith("/en/")) return "en";
   if (pathname === "/fr" || pathname.startsWith("/fr/")) return "fr";
@@ -36,7 +52,8 @@ function langFromPath(pathname, current) {
     pathname.startsWith("/store/") ||
     pathname.startsWith("/category/") ||
     pathname.startsWith("/categories") ||
-    pathname.startsWith("/favorites")
+    pathname.startsWith("/favorites") ||
+    pathname.startsWith("/offers")
   )
     return "ar";
   return current;
@@ -49,6 +66,16 @@ function langFromPath(pathname, current) {
 function RouteLangSync() {
   const { pathname } = useLocation();
   const { lang, setLang } = useLocale();
+
+  // نسخة جديدة من الموقع تنتظر؟ نحمّلها عند هذا التنقّل (لحظة آمنة — الصفحة تتبدّل أصلاً)
+  const firstPath = useRef(true);
+  useEffect(() => {
+    if (firstPath.current) {
+      firstPath.current = false;
+      return;
+    }
+    reloadIfUpdatePending();
+  }, [pathname]);
 
   useEffect(() => {
     const desired = langFromPath(pathname, lang);
@@ -97,6 +124,8 @@ export default function App() {
   }, []);
 
   return (
+    // reducedMotion="user": مع prefers-reduced-motion تتوقف حركات التحويل/الإزاحة في كل الموقع
+    <MotionConfig reducedMotion="user">
     <BrowserRouter>
       <AuthProvider>
         <PremiumProvider>
@@ -104,8 +133,15 @@ export default function App() {
           <VoteStatsProvider>
           <ScrollVisibilityProvider>
           <RouteLangSync />
+          <AppBanner />
+          <Suspense fallback={<PageFallback />}>
           <Routes>
           <Route path="/" element={<Home />} />
+
+          {/* كل العروض + الفلاتر (الفلاتر في الرابط: ?type=&category=&mode=&sort=&q=) */}
+          <Route path="/offers" element={<OffersPage lang="ar" />} />
+          <Route path="/en/offers" element={<OffersPage lang="en" />} />
+          <Route path="/fr/offers" element={<OffersPage lang="fr" />} />
 
           {/* صفحات الشركات (SEO) — العربية افتراضية، en/fr ببادئة لغة */}
           <Route path="/store/:slug" element={<StorePage lang="ar" />} />
@@ -144,23 +180,26 @@ export default function App() {
               </RequireAuth>
             }
           />
-          {/* لوحة التحكم تبقى داكنة دائماً بغضّ النظر عن ثيم الموقع */}
+          {/* لوحة التحكم عربية RTL ثابتة (الموقع كله داكن) */}
           <Route
             path="/admin"
             element={
-              <div className="dark" dir="rtl" lang="ar">
+              <div dir="rtl" lang="ar">
                 <Admin />
               </div>
             }
           />
           <Route path="*" element={<Home />} />
           </Routes>
+          </Suspense>
           <MobileBottomNav />
+          <CursorGlow />
           </ScrollVisibilityProvider>
           </VoteStatsProvider>
           </CategoriesProvider>
         </PremiumProvider>
       </AuthProvider>
     </BrowserRouter>
+    </MotionConfig>
   );
 }

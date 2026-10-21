@@ -46,13 +46,13 @@ git add -A && git commit -m "وصف التعديل" && git push
 - **أنواع العروض:** enum عربي ثابت `"تخفيض"` / `"كوبون"` / `"كاش باك"` في `src/lib/types.js`، يتعرض مترجم عبر `getTypeKey`. في الرابط: `type=discount|coupon|cashback` (`TYPE_PARAMS` في `src/lib/offerFilters.js`).
 - **الألوان الثلاثة (من `types.js` بالضبط):** تخفيض `#a6f000` · كوبون `#38bdf8` · كاش باك `#fbbf24`. Premium = ذهبي (`#ffe486` / `#f0c63c` / `#cf9a1e`). اللون يعني النوع (أو Premium) فقط، ماشي زينة.
 - **قاعدة البيانات:** ملفات SQL مرقّمة تتشغّل بالترتيب (كلها idempotent):
-  `supabase-setup` → `supabase-auth-setup` → `supabase-auth-phase2` → `phase3` → `phase4` → `phase5` → `phase6a` → `phase6a-note4` → `phase7-stripe` → `phase8-slickpay` → `phase9-paypal` → `phase10-i18n` → `phase11-i18n-value` → `phase12-premium-code-url` → `phase13-seo` → `phase14-categories` → `phase15-admin` → `phase16-rls-lock` → `phase17a-premium-rpcs` → `phase17b-premium-lock` → `phase18-premium-description` → `phase19-code-votes` → `phase20-google-play` → `phase21-site-stats` → `phase22-admin-premium-copies` → `phase23-admin-v2` → `phase24-lock-is-admin` → `phase25-premium-hardening` → `phase26-partners-portal`.
+  `supabase-setup` → `supabase-auth-setup` → `supabase-auth-phase2` → `phase3` → `phase4` → `phase5` → `phase6a` → `phase6a-note4` → `phase7-stripe` → `phase8-slickpay` → `phase9-paypal` → `phase10-i18n` → `phase11-i18n-value` → `phase12-premium-code-url` → `phase13-seo` → `phase14-categories` → `phase15-admin` → `phase16-rls-lock` → `phase17a-premium-rpcs` → `phase17b-premium-lock` → `phase18-premium-description` → `phase19-code-votes` → `phase20-google-play` → `phase21-site-stats` → `phase22-admin-premium-copies` → `phase23-admin-v2` → `phase24-lock-is-admin` → `phase25-premium-hardening` → `phase26-partners-portal` → `phase27-featured-offers`.
   أي عمود أو جدول جديد = ملف phase جديد، ماشي تعديل ملف قديم.
 - **متغيرات البيئة (الويب):** في `.env` (gitignored) و Vercel، شوف `.env.example`: `VITE_ADMIN_PIN`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. `supabase.js` و `supabaseClient.js` فيهم fallback للـ URL والمفتاح العام.
 
 ### الصفحة الرئيسية (landing) — `src/pages/Home.jsx` + `src/components/landing/`
 الجمهور: تجّار الدفع عند الاستلام (يشريو خدمات: توصيل، منصات، ERP، بطاقات دفع، إعلانات…). الأقسام بالترتيب:
-`LandingHero` (العنوان + "الكوبون السحري") → `StatsStrip` (أرقام `site_stats`) → `NameStory` (COD → Cash On Delivery → Code promo مع التمرير) → `Pillars` (الأنواع الثلاثة بعروض حيّة من عروض حقيقية) → `CardAnatomy` (بطاقة حقيقية + خطوط شرح) → `PremiumCompare` (عادي مقابل Premium، السعر من `plans.js`، المضاعف = القيمة ÷ سعر الشهر) → `CategoryGrid` (`#categories`) → `HowSteps` (`#how`) → `TrustSection` (تصويت حقيقي + شريط الشركاء) → `SampleOffers` (الأنجح من كل نوع) → `AppDownload` (حمّل التطبيق: هاتف حيّ + Google Play + QR) → `Footer`. كل زر نحو العروض يفتح `/offers` بالفلتر المناسب (`offersLink()` في `src/lib/seo.js`).
+`LandingHero` (العنوان + "الكوبون السحري") → `StatsStrip` (أرقام `site_stats`) → `FeaturedSection` (العروض المميّزة، شوف تحت) → `NameStory` (COD → Cash On Delivery → Code promo مع التمرير) → `Pillars` (الأنواع الثلاثة بعروض حيّة من عروض حقيقية) → `CardAnatomy` (بطاقة حقيقية + خطوط شرح) → `PremiumCompare` (عادي مقابل Premium، السعر من `plans.js`، المضاعف = القيمة ÷ سعر الشهر) → `CategoryGrid` (`#categories`) → `HowSteps` (`#how`) → `TrustSection` (تصويت حقيقي + شريط الشركاء) → `SampleOffers` (الأنجح من كل نوع) → `AppDownload` (حمّل التطبيق: هاتف حيّ + Google Play + QR) → `Footer`. كل زر نحو العروض يفتح `/offers` بالفلتر المناسب (`offersLink()` في `src/lib/seo.js`).
 
 ### الفوتر — `src/components/Footer.jsx` + `src/components/footer/`
 - فوقه `FooterCta`: كوبون واحد بجهتين (افتح العروض | Premium ذهبي بالسعر و×N من `site_stats`) يفرقهما خط مثقّب (CSS `.duo*` في `index.css`). ثم: البراند + النشرة (`email_subscribers`، source = `footer`)، أعمدة الروابط (accordion على الهاتف)، التطبيق، تابعنا، كلمة CODpromo الضخمة (`Wordmark`)، زر الرجوع للأعلى (`BackToTop`).
@@ -64,20 +64,31 @@ git add -A && git commit -m "وصف التعديل" && git push
 3. الرابط `https://ilyesderradji.com` يتحل في تاب جديد.
 
 ### "الكوبون السحري" (الـ 3D) — `src/components/landing/magic/`
-- الـ 3D **محصور في الكوبون السحري فقط** (الـ Hero). `MagicScene3D.jsx` (R3F) يتحمّل lazy عند ظهور الـ Hero، وفقط إذا `canUse3D()`؛ مع prefers-reduced-motion / هاتف ضعيف / توفير البيانات / بلا WebGL → `MagicCoupon2D.jsx` (CSS) وحدو. أي خطأ WebGL → يرجع 2D.
+- الـ 3D بـ WebGL (three/R3F) **محصور في الكوبون السحري فقط** (الـ Hero)؛ قسم العروض المميّزة يستعمل CSS 3D برك (بلا WebGL). `MagicScene3D.jsx` (R3F) يتحمّل lazy عند ظهور الـ Hero، وفقط إذا `canUse3D()`؛ مع prefers-reduced-motion / هاتف ضعيف / توفير البيانات / بلا WebGL → `MagicCoupon2D.jsx` (CSS) وحدو. أي خطأ WebGL → يرجع 2D.
 - Canvas واحد يغطّي الـ Hero: الكوبون في موضع "المسرح" DOM (`store.anchor`) + كوبونات صغيرة تطفو بعمق (parallax) بألوان الأنواع + جزيئات ذهبية. التفاعل كلّه في DOM (سحب/نقر/مقبض `HeroModeSwitch`/ميلان الهاتف) ويتكتب في `store`.
 - الوجهين مرسومين بـ Canvas 2D (`couponFaces.js`) بخطوط الصفحة. العرض الحقيقي من `pickHeroOffer` (قيمة عادية + Premium أكبر)، وإلا مثال توضيحي معلَن. كود Premium ما يبانش أبداً (`••••••`).
 - مشهد الـ 3D مستثنى من precache الـ PWA (`globIgnores` في `vite.config.js`).
 - ملاحظة framer-motion: الشفافية المربوطة بالتمرير تشتغل على scroll timeline أصلي — خلّي مدى `useTransform` يبدا بـ 0 ويسالي بـ 1، وإلا ترجع القيمة الأصلية بعد آخر نقطة.
 
 ### صفحة العروض — `src/pages/OffersPage.jsx` + `src/components/offers/`
-- البحث + فلتر النوع بالألوان + شرائح التصنيفات + الترتيب + مبدّل عادي/Premium. **كل الفلاتر في الرابط:** `?type=&category=&mode=premium&sort=success&q=` (تبقى عند تبديل اللغة).
+- البحث + فلتر النوع بالألوان + شرائح التصنيفات (أولها شريحة "مميّز") + الترتيب (الأحدث / الأكثر نجاحاً / الأكثر استخداماً) + مبدّل عادي/Premium. **كل الفلاتر في الرابط:** `?type=&category=&featured=1&mode=premium&sort=success|usage&q=` (تبقى عند تبديل اللغة).
 - الهاتف: `FloatingModeSwitch` عائم فوق شريط التنقّل، وسحب أفقي على القائمة يبدّل عادي ⇄ Premium (`touch-action: pan-y`).
 - `GoldBurst` = جزيئات ذهبية عند التحوّل لـ Premium. SEO: `CollectionPage` + `ItemList` + Breadcrumb (في الواجهة وفي `api/prerender.js`).
 
 ### بطاقات العروض = تذاكر كوبون — `src/components/CompanyCard.jsx`
 - جزءان: `.ticket-top` (الشركة + الوصف 3 أسطر + القيمة) و `.ticket-stub` (الكود + النسخ + الزيارة + التصويت)، بينهما نصفا دائرة مقصوصان (CSS mask) وخط مثقّب. الكلاسات في `src/index.css` (`.ticket*`)، والألوان عبر متغيّرات `--edge-base` / `--edge-strong` / `--perf` / `--stub`.
-- نفس البطاقة في `/offers` والرئيسية وصفحات الشركة/الفئة/المفضّلة. كل الوظائف باقية: المفضّلة، شارة PREMIUM، القفل، الخدش، النسخ، الزيارة، التصويت، شارة النجاح، المواقع الثابتة للأيقونات. أجزاؤها معلّمة بـ `data-part` (يستعملها `CardAnatomy`).
+- نفس البطاقة في `/offers` والرئيسية وصفحات الشركة/الفئة/المفضّلة. الـ prop الاختياري `copySource` (غير مرئي) = مصدر النسخ في `code_copies.source` (القسم المميّز يبعث `featured`، وإلا يتستنتج من المسار في `logCodeCopy`). كل الوظائف باقية: المفضّلة، شارة PREMIUM، القفل، الخدش، النسخ، الزيارة، التصويت، شارة النجاح، المواقع الثابتة للأيقونات. أجزاؤها معلّمة بـ `data-part` (يستعملها `CardAnatomy`).
+
+### العروض المميّزة — `src/components/featured/` + `/admin/featured` (phase27)
+- جدول `featured_offers`: `company_id` (فريد)، `position`، `label` (`featured` = "مميّز" / `sponsored` = "مُموَّل")، `starts_at`، `ends_at` اختياري، `is_active`. RLS: القراءة العامة للعروض النشطة السارية برك، والكتابة للأدمن برك (`is_admin()`). الأدمن يشوف كل السطور، لذا الواجهة تفلتر بـ `isLive()` (`src/lib/featured.js`).
+- `code_copies.source`: `featured` / `offers` / `home` / `store` / `category` / `favorites` / `dashboard` / `other` (CHECK). RPCs: `admin_featured_stats()` (أدمن برك عبر `admin_assert()`: نسخ القسم المميّز لكل عرض في 7 و30 يوم، count دقيق) و `offers_usage_rank()` (عام: ترتيب الشركات حسب عدد المستخدمين المختلفين اللي نسخو — حساب واحد يتحسب مرة وحدة مهما كرّر — **ترتيب برك بلا أرقام**).
+- الرئيسية: `FeaturedSection` تحت `StatsStrip` مباشرة، ويختفي إذا ما كاين حتى عرض منشور. `FeaturedShowcase` (المسرح والمؤثرات + `featured.css`) يتحمّل lazy كي يقرب الزائر من القسم (IntersectionObserver، 400px). عرض ≥ 940px: مسرح CSS 3D (perspective + transform، **بلا WebGL**): البطاقة في الوسط، الجانبين بزاوية في العمق، مصباح ومخروط ضوء وغبار ضوء (Canvas)، ميلان مع الماوس، أسهم ونقاط ولوحة المفاتيح. أقل: شرائح scroll-snap (الجاران يطلّو من الحافتين)، البطاقة في الوسط تكبر وتضوي، وميلان الهاتف (iOS: الإذن يتطلب في touchend).
+- `FeaturedFrame` يلفّ `CompanyCard` كيما هي (بلا أي تعديل عليها): حافة مضيئة بلون البطاقة (النوع، أو الذهبي في Premium) فيها قوس ضوء يدور بـ transform (ماشي `@property` — يعاود الرسم كل إطار)، هالة ثابتة، لمعة هولوغرام تتبع المؤشر، ووسم "مميّز" (ممتلئ) أو "مُموَّل" (محدّد). `variant="soft"` = نسخة أخف لشبكة `/offers` (ضوء خلفي + الوسم، نفس مقاس البطاقة).
+- النسخة الخفيفة: `canUseFx()` (`src/lib/fxCapability.js`) — prefers-reduced-motion / توفير البيانات / 2G / جهاز ضعيف → نفس البطاقات ونفس الوظائف بلا 3D ولا ميلان ولا جزيئات ولا دوران.
+- `/offers`: صف "العروض المميّزة" فوق الشبكة (على القائمة الكاملة بلا فلاتر برك؛ رفّ من 3 في الحاسوب، شرائح في الهاتف)، شريحة "مميّز" (`?featured=1`)، والبطاقات المميّزة داخل الشبكة بنسخة `soft`. "الأكثر استخداماً" (`?sort=usage`) من `offers_usage_rank()`؛ العروض بلا نسخ تبقى بعدها بترتيب الأحدث.
+- عيّنة آخر الرئيسية (`SampleOffers exclude`) ما تعاودش الشركات المميّزة.
+- **ممنوع** تكتب "الأكثر استخداماً" على القسم المميّز: هو اختيار يدوي، اسمو "العروض المميّزة".
+- `/admin/featured` (`src/components/admin/v2/FeaturedPage.jsx`): بحث وإضافة، ترتيب بالسحب (والسهمين بديل لوحة المفاتيح)، الوسم، البداية/النهاية (النهاية بعد البداية — CHECK)، تشغيل/إيقاف، حفظ (`saveFeatured`)، نسخ 7/30 يوم، ومعاينة حيّة للقسم (البطاقات `inert` — ما تسجّلش نسخ).
 
 ### بوابة الشركات — `/partners` + داشبورد الشركة + طلبات الأدمن (phase26)
 - `/partners` (`src/pages/PartnersPage.jsx` + `src/components/partners/`): Hero بكوبون "يُصدَر"، أرقام `site_stats` (المستخدمون، الأكواد، الشركاء، الجمهور)، لماذا CODpromo، 3 خطوات، ماذا نطلب، أسئلة شائعة. في الـ sitemap و `api/prerender.js` (type=partners) و `vercel.json`. رابط "أضف عروض شركتك" في الفوتر وقائمة الموبايل يروح لها. `Footer showCta={false}` يخفي كوبون Premium فوق الفوتر في هذه الصفحة.
@@ -111,7 +122,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 - **iOS:** أي CSS ولا منطق خاص بـ iOS يكون محصور تحت **`body.is-ios-app`** برك (الصنف يتزاد في `src/main.jsx` كي `Capacitor.getPlatform() === "ios"`). ما يأثّرش على الويب ولا Android.
 - **ما كاين حتى نص ظاهر للمستخدم hardcoded:** كلش عبر react-i18next في `src/i18n/locales/{ar,en,fr}.json` بنفس المفاتيح في الثلاثة. الأعلام صور SVG (`flag-icons`) ماشي emoji. أي حقل نصي ديناميكي جديد في قاعدة البيانات يظهر للمستخدم: زيد `<field>_en` / `<field>_fr` في phase جديد، زيدو لـ `I18N_FIELDS` في `src/lib/supabase.js`، واعرض نسخة اللغة النشطة مع fallback للعربية.
 - **ممنوع أرقام وهمية في الكود:** كل رقم ظاهر يجي من `site_stats` ولا يتحسب من قاعدة البيانات (المثال التوضيحي للكوبون السحري معلَن بوسم "مثال توضيحي").
-- **الـ 3D محصور في الكوبون السحري.** اللوغو يبقى صورة كيما راه (ممنوع 3D للوغو)، والألوان الأساسية (الأسود والليموني) ما تتبدّلش.
+- **الـ 3D بـ WebGL محصور في الكوبون السحري.** الاستثناء الوحيد: واجهة العرض في قسم العروض المميّزة بـ CSS 3D (perspective/transform، بلا WebGL)، بطلب من المالك (أكتوبر 2026). اللوغو يبقى صورة كيما راه (ممنوع 3D للوغو)، والألوان الأساسية (الأسود والليموني) ما تتبدّلش.
 - **الموقع داكن فقط** — ما ترجعش وضع فاتح.
 - **ممنوع تحلّ Xcode وحدك.**
 - **ممنوع تكتب أسرار** (مفاتيح، PIN، passwords) في أي ملف داخل الريبو.
@@ -122,12 +133,12 @@ git add -A && git commit -m "وصف التعديل" && git push
 
 **الموقع**
 - الموقع داكن فقط، هيدر بميغا مينيو، Bottom Nav للهاتف (الرئيسية / العروض / Premium / المفضّلة / الحساب)، فوتر.
-- الرئيسية = landing بـ 3D ("الكوبون السحري") + أقسام تشرح CODpromo؛ `/offers` = كل العروض بفلاتر في الرابط.
+- الرئيسية = landing بـ 3D ("الكوبون السحري") + أقسام تشرح CODpromo + قسم العروض المميّزة (واجهة عرض CSS 3D)؛ `/offers` = كل العروض بفلاتر في الرابط + صف المميّزة.
 - البطاقات تذاكر كوبون بالألوان الثلاثة (ذهبي في Premium).
 - صفحات الشركات والفئات (`/store`, `/category`, `/categories`) والمفضّلة (`/favorites`).
 - مصادقة كاملة (Email/Password + Google، reset password) بحماية مخفية ضد الروبوتات (honeypot + فحص الوقت في `src/components/auth/botGuard.jsx`، بلا hCaptcha)، داشبورد زبون / شركة. صفحات الحساب: شاشة مقسومة (`AuthShell`: النموذج + لوحة الهوية)، و `/signup?type=company` يختار حساب الشركة.
 - بوابة الشركات `/partners` + داشبورد شركة بإحصائيات حقيقية + مراجعة/نشر/رفض الطلبات من الأدمن.
-- لوحة `/admin`: الشركات، الفئات، الطلبات، المشتركين، أعضاء Premium، SEO، التصويت، أرقام الرئيسية (`site_stats`)، تصدير CSV.
+- لوحة `/admin`: الشركات، العروض المميّزة، الفئات، الطلبات، المشتركين، أعضاء Premium، SEO، التصويت، أرقام الرئيسية (`site_stats`)، تصدير CSV.
 - نافذة جمع الإيميل، نظام تصويت 👍/👎 على الأكواد (`code_votes` + RPC `cast_vote`).
 - SEO: صفحات بـ 3 لغات، `api/prerender.js` (العروض/الشركات/الفئات)، `api/sitemap.js` (فيه `/offers`)، JSON-LD للرئيسية (Organization + WebSite بـ SearchAction نحو `/offers?q=`)، Google Search Console.
 - PWA (`vite-plugin-pwa`: manifest + service worker + أيقونات). prefers-reduced-motion محترم في كل الموقع.
@@ -149,7 +160,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 - **Stork** — أكواد ترويجية لمرة وحدة تعطي 30 يوم (RPC `redeem_stork_code`). الأدمن يولّد كود عشوائي (`STORK-XXXX-XXXX`، `generateStorkCode` في `src/lib/stork.js`) ويحذف غير المستعمل من `/admin/premium`. صفحة الأعضاء: تبويب "فعّال" (نفس قاعدة `has_premium_access`، بلا الأدمن) وتبويب "منتهي".
 
 **لوحة الأدمن v2** (`src/pages/Admin.jsx` + `src/components/admin/v2/`)
-- قائمة جانبية ثابتة على اليسار (تصغر لأيقونات، ودرج في الهاتف) ولكل صفحة رابط: `/admin`، `/admin/companies` (+ `/new` و `/:id`)، `/admin/categories`، `/admin/requests`، `/admin/votes`، `/admin/users`، `/admin/subscribers`، `/admin/premium`، `/admin/site-stats`، `/admin/seo`. المسار في `App.jsx` هو `/admin/*`.
+- قائمة جانبية ثابتة على اليسار (تصغر لأيقونات، ودرج في الهاتف) ولكل صفحة رابط: `/admin`، `/admin/companies` (+ `/new` و `/:id`)، `/admin/featured`، `/admin/categories`، `/admin/requests`، `/admin/votes`، `/admin/users`، `/admin/subscribers`، `/admin/premium`، `/admin/site-stats`، `/admin/seo`. المسار في `App.jsx` هو `/admin/*`.
 - الأرقام والمستخدمون من دوال خادمية (phase23، `src/lib/adminStats.js`): `admin_overview(range)`، `admin_list_users(...)` (الإيميل وآخر دخول وطريقة الدخول من `auth.users`)، `admin_user_copies(user)` — كلها SECURITY DEFINER وتبدأ بـ `admin_assert()`.
 - فورم الشركة مكوّن مستقل `src/components/offer-form/CompanyOfferForm.jsx` (لإعادة الاستعمال في بوابة الشركات) بمعاينة حية عبر `CompanyCard`. المعلومات الداخلية في جدول `company_private` (RLS للأدمن فقط) — ممنوع تخزين أي كلمة سر فيه. رابط الموقع الرسمي محفوظ فيه (`website_url`) لأن جدول `companies` ما فيهش عمود له.
 - نصوص اللوحة في `admin.v2.*` و `offerForm.*` (ar/en/fr)، وتتعرض بالعربية الثابتة.
@@ -160,6 +171,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 - S3 (phase17a/b): `premium_code` / `premium_url` ممنوعين من القراءة العامة، trigger يحمي حقول الاشتراك في `profiles`، و `stork_codes` مقفول.
 - phase21: `site_stats` قراءة عامة وتعديل للأدمن برك (مجرّب: anon ممنوع، المسجّل غير الأدمن 0 سطر).
 - phase24: trigger `protect_admin_column` يمنع تعديل `profiles.is_admin` من العميل (كان أي حساب يقدر يولّي أدمن). التعيين من SQL Editor / CLI برك.
+- phase27: `featured_offers` قراءة عامة للسطور السارية وكتابة للأدمن برك (مجرّب: anon/زبون ممنوعين، الأدمن كامل). `code_copies`: العميل يدخل 4 أعمدة برك (`user_id`, `company_id`, `premium`, `source`)؛ `created_at` و `id` للقاعدة (ما كاينش نسخ بتاريخ مستقبلي).
 - phase25: `protect_premium_columns` يغطي INSERT و UPDATE، ويحمي `is_premium` / `premium_until` / `subscription_status` / `stripe_customer_id` / `payment_provider` من العميل. `stork_codes` بلا أي صلاحية لـ anon.
 - التفعيل بعد الدفع (SlickPay / PayPal، `_shared/*.ts` → `activatePremium`) يمرّ عبر RPC `activate_paid_premium` (phase25، service_role فقط): حجز الفاتورة/الطلب (`status ≠ completed`) + منح Premium + حساب المدة (`greatest(premium_until, now()) + days`) في معاملة وحدة — لا تفعيل مرّتين، ولا زبون دفع بلا Premium. أي تعديل على هاد الملفات يحتاج `supabase functions deploy slickpay-invoice-status slickpay-webhook paypal-capture-order` (و `slickpay-webhook` مع `--no-verify-jwt`).
 - webhook SlickPay: التوقيع يبقى اختياري (وثائق SlickPay ما تأكّدش أنه يُبعث)؛ الحماية الحقيقية هي إعادة التحقق من الفاتورة عند SlickPay بالمفتاح السري.
@@ -171,7 +183,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 - `/admin`: بوابة PIN في المتصفح (`VITE_ADMIN_PIN`) + تسجيل دخول إجباري؛ الكتابات تمشي بتوكن المستخدم والحماية الحقيقية هي RLS `is_admin()`. حساب مسجّل بـ `profiles.is_admin = true` يدخل مباشرة بلا PIN (زر "افتح لوحة التحكم" في داشبورده، و"خروج" يرجعو للداشبورد).
 
 **i18n**
-- ar (افتراضي، RTL) / en / fr (LTR) عبر react-i18next؛ المفاتيح متطابقة في الثلاثة (978 مفتاح).
+- ar (افتراضي، RTL) / en / fr (LTR) عبر react-i18next؛ المفاتيح متطابقة في الثلاثة (1029 مفتاح).
 - `LocaleProvider` يضبط `lang` + `dir` على `<html>` ويحفظ `codpromo:lang`؛ زر `LanguageSwitcher` (يحافظ على فلاتر `/offers` في الرابط).
 - ترجمة تلقائية لمحتوى الشركات والفئات (`description_*`, `category_*`…) عبر Edge Function `translate-company` (Anthropic API، المفتاح في Supabase secrets برك) + زر "ترجم الكل" في الأدمن.
 - استعمل خصائص Tailwind المنطقية (`ps/pe`, `ms/me`, `start/end`)؛ الأيقونات الاتجاهية تنقلب بـ `ltr:rotate-180`. `/admin` يبقى عربي ثابت.
@@ -196,3 +208,4 @@ git add -A && git commit -m "وصف التعديل" && git push
 - **PayPal — وضع live:** الكود يستعمل sandbox افتراضياً (`_shared/paypal.ts`) إلا إذا تضبط secret `PAYPAL_BASE_URL`. الكود وحدو ما يأكّدش إذا راه live.
 - **أرقام الرئيسية:** `total_savings_dzd` و `premium_unlock_value_usd` فارغين في `site_stats` → خانة "إجمالي قيمة الخصومات" ومضاعف Premium (×) مخفيين حتى يعمّرهم الأدمن من تبويب "أرقام الرئيسية".
 - **`public/logo-light.png`** باقي في الريبو بلا استعمال (الموقع داكن فقط).
+- **إحصائيات النسخ:** `code_copies` يسجّل نسخ المستخدمين المسجّلين برك (الزائر ما يتسجّلش). يعني "الأكثر استخداماً" وأرقام `/admin/featured` تحسب المسجّلين برك؛ في 22 أكتوبر 2026 الجدول كان فارغ (0 نسخة)، فالترتيب يبقى "الأحدث" حتى تجي بيانات حقيقية.

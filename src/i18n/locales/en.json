@@ -142,7 +142,8 @@
     "mostSuccessful": "Top performing",
     "sortLabel": "Sort",
     "sortNewest": "Newest",
-    "sortSuccess": "Top success rate"
+    "sortSuccess": "Top success rate",
+    "sortUsage": "Most used"
   },
   "footer": {
     "follow": "Follow us",
@@ -604,7 +605,8 @@
         "subscribers": "Newsletter subscribers",
         "premium": "Premium / Stork",
         "siteStats": "Homepage numbers",
-        "seo": "SEO"
+        "seo": "SEO",
+        "featured": "Featured offers"
       },
       "range": {
         "label": "Period",
@@ -845,6 +847,47 @@
         "reviewEditSub": "Edit request for company #{{id}}: publishing updates the live company.",
         "publish": "Publish offer",
         "badLink": "The offer link and Premium link must start with https:// or http:// before publishing."
+      },
+      "featured": {
+        "sub": "Offers shown in the \"Featured offers\" section on the home page and in the /offers row. Drag to reorder, then save.",
+        "add": "Add a featured offer",
+        "searchPh": "Search a company by name…",
+        "noResults": "No company with this name, or it is already added.",
+        "listTitle": "Order on the site",
+        "listHint": "The first one sits in the center of the showcase. Drag the handle or use the arrows.",
+        "emptyTitle": "No featured offers",
+        "empty": "The section stays hidden on the home page until you add an active offer.",
+        "label": "Label",
+        "labelFeatured": "Featured",
+        "labelSponsored": "Sponsored",
+        "startsAt": "Starts",
+        "endsAt": "Ends (optional)",
+        "active": "Active",
+        "remove": "Remove from featured",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "drag": "Drag to reorder",
+        "status": {
+          "live": "Live now",
+          "scheduled": "Scheduled",
+          "expired": "Ended",
+          "off": "Off"
+        },
+        "copies7": "Copies, last 7 days",
+        "copies30": "Copies, last 30 days",
+        "statsNote": "Code copies from the featured section only (home page and /offers row), exact counts from the database. A new offer starts counting after saving.",
+        "datesError": "The end date must be after the start date.",
+        "save": "Save changes",
+        "saving": "Saving…",
+        "saved": "Featured offers saved.",
+        "unsaved": "Unsaved changes",
+        "discard": "Discard",
+        "preview": "Home section preview",
+        "previewSub": "Offers live right now, in the current order, even before saving. Cards here never log a copy.",
+        "previewEmpty": "No offer is live right now, so the section is hidden on the home page.",
+        "loadError": "Couldn't load featured offers. Try again.",
+        "modeNormal": "Standard",
+        "modePremium": "Premium"
       }
     }
   },
@@ -1293,5 +1336,20 @@
     "companyOnly": "Sending offers is only available to company accounts.",
     "notYours": "This offer isn't linked to your account.",
     "errorGeneric": "Couldn't send the request. Check the fields and try again."
+  },
+  "featured": {
+    "title": "Featured offers, in the spotlight",
+    "sub": "Picked by the CODpromo team for cash-on-delivery sellers; sponsored ones are clearly labeled. Copy the code or visit the site right from here.",
+    "cta": "See all featured offers",
+    "badge": {
+      "featured": "Featured",
+      "sponsored": "Sponsored"
+    },
+    "prev": "Previous offer",
+    "next": "Next offer",
+    "goTo": "Show {{name}}",
+    "rowTitle": "Featured offers",
+    "showAll": "See all",
+    "chip": "Featured"
   }
 }

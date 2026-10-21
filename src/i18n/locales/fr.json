@@ -142,7 +142,8 @@
     "mostSuccessful": "Le plus efficace",
     "sortLabel": "Trier",
     "sortNewest": "Plus récents",
-    "sortSuccess": "Taux de réussite"
+    "sortSuccess": "Taux de réussite",
+    "sortUsage": "Plus utilisés"
   },
   "footer": {
     "follow": "Suivez-nous",
@@ -604,7 +605,8 @@
         "subscribers": "Abonnés à la newsletter",
         "premium": "Premium / Stork",
         "siteStats": "Chiffres de l'accueil",
-        "seo": "SEO"
+        "seo": "SEO",
+        "featured": "Offres en vedette"
       },
       "range": {
         "label": "Période",
@@ -845,6 +847,47 @@
         "reviewEditSub": "Demande de modification de l'entreprise #{{id}} : publier met à jour l'entreprise en ligne.",
         "publish": "Publier l'offre",
         "badLink": "Le lien de l'offre et le lien Premium doivent commencer par https:// ou http:// avant la publication."
+      },
+      "featured": {
+        "sub": "Les offres affichées dans la section « Offres en vedette » de l'accueil et dans la rangée de /offers. Glissez pour réordonner, puis enregistrez.",
+        "add": "Ajouter une offre en vedette",
+        "searchPh": "Rechercher une entreprise par nom…",
+        "noResults": "Aucune entreprise à ce nom, ou elle est déjà ajoutée.",
+        "listTitle": "Ordre sur le site",
+        "listHint": "La première se place au centre de la vitrine. Glissez la poignée ou utilisez les flèches.",
+        "emptyTitle": "Aucune offre en vedette",
+        "empty": "La section reste masquée sur l'accueil tant qu'aucune offre active n'est ajoutée.",
+        "label": "Libellé",
+        "labelFeatured": "En vedette",
+        "labelSponsored": "Sponsorisé",
+        "startsAt": "Début",
+        "endsAt": "Fin (facultatif)",
+        "active": "Active",
+        "remove": "Retirer des offres en vedette",
+        "moveUp": "Monter",
+        "moveDown": "Descendre",
+        "drag": "Glisser pour réordonner",
+        "status": {
+          "live": "En ligne",
+          "scheduled": "Programmée",
+          "expired": "Terminée",
+          "off": "Désactivée"
+        },
+        "copies7": "Copies, 7 derniers jours",
+        "copies30": "Copies, 30 derniers jours",
+        "statsNote": "Copies de codes depuis la section en vedette uniquement (accueil et rangée /offers), comptage exact depuis la base de données. Une nouvelle offre commence à compter après l'enregistrement.",
+        "datesError": "La date de fin doit être après la date de début.",
+        "save": "Enregistrer",
+        "saving": "Enregistrement…",
+        "saved": "Offres en vedette enregistrées.",
+        "unsaved": "Modifications non enregistrées",
+        "discard": "Annuler",
+        "preview": "Aperçu de la section d'accueil",
+        "previewSub": "Les offres en ligne maintenant, dans l'ordre actuel, même avant l'enregistrement. Les cartes ici n'enregistrent aucune copie.",
+        "previewEmpty": "Aucune offre n'est en ligne, la section est donc masquée sur l'accueil.",
+        "loadError": "Impossible de charger les offres en vedette. Réessayez.",
+        "modeNormal": "Standard",
+        "modePremium": "Premium"
       }
     }
   },
@@ -1293,5 +1336,20 @@
     "companyOnly": "L'envoi d'offres est réservé aux comptes entreprise.",
     "notYours": "Cette offre n'est pas liée à votre compte.",
     "errorGeneric": "Impossible d'envoyer la demande. Vérifiez les champs puis réessayez."
+  },
+  "featured": {
+    "title": "Les offres en vedette, sous les projecteurs",
+    "sub": "Choisies par l'équipe CODpromo pour les vendeurs en paiement à la livraison ; les offres sponsorisées sont clairement signalées. Copiez le code ou visitez le site directement d'ici.",
+    "cta": "Voir toutes les offres en vedette",
+    "badge": {
+      "featured": "En vedette",
+      "sponsored": "Sponsorisé"
+    },
+    "prev": "Offre précédente",
+    "next": "Offre suivante",
+    "goTo": "Afficher {{name}}",
+    "rowTitle": "Offres en vedette",
+    "showAll": "Tout voir",
+    "chip": "En vedette"
   }
 }

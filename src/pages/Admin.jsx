@@ -55,6 +55,7 @@ import CompanyTable from "../components/admin/CompanyTable.jsx";
 import AdminShell from "../components/admin/v2/AdminShell.jsx";
 import OverviewPage from "../components/admin/v2/OverviewPage.jsx";
 import UsersPage from "../components/admin/v2/UsersPage.jsx";
+import FeaturedPage from "../components/admin/v2/FeaturedPage.jsx";
 import { Glass, PageHeader, Skeleton, EmptyState, LIME_BG } from "../components/admin/v2/ui.jsx";
 import { fetchCompanyPrivate, saveCompanyPrivate } from "../lib/adminStats.js";
 import RequestsManager from "../components/admin/RequestsManager.jsx";
@@ -614,6 +615,9 @@ function Dashboard({ onLock }) {
           path="companies/:id"
           element={<CompanyEditorPage companies={companies} loading={loading} categories={categories} submitting={submitting} onSave={handleSave} onCreateCategory={handleQuickCategory} />}
         />
+
+        {/* العروض المميّزة — قسم الرئيسية + صف /offers */}
+        <Route path="featured" element={<FeaturedPage companies={companies} loading={loading} notify={notify} />} />
 
         {/* الفئات — إدارة كاملة (إضافة/تعديل/حذف + ترجمة تلقائية) */}
         <Route

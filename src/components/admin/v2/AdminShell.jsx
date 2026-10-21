@@ -12,6 +12,7 @@ import {
   Crown,
   BarChart3,
   Globe,
+  Sparkles,
   Menu,
   X,
   PanelLeftClose,
@@ -29,6 +30,7 @@ export const NAV = [
     group: "content",
     items: [
       { key: "companies", path: "/admin/companies", icon: Store },
+      { key: "featured", path: "/admin/featured", icon: Sparkles },
       { key: "categories", path: "/admin/categories", icon: FolderTree },
       { key: "requests", path: "/admin/requests", icon: Inbox, badge: "pending" },
       { key: "votes", path: "/admin/votes", icon: Vote },

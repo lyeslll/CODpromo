@@ -10,14 +10,15 @@ import { TYPE_PARAMS, topOfType } from "../../lib/offerFilters.js";
 /**
  * 5.11 — عيّنة من العروض المجانية: الأنجح من كل نوع (تخفيض، كوبون، كاش باك)
  * تُختار تلقائياً حسب التصويت، ببطاقات حقيقية كاملة الوظائف.
+ * exclude: معرّفات لا تُعاد هنا (العروض المميّزة الظاهرة أعلى الصفحة).
  */
-export default function SampleOffers({ companies, voteStats, favorites, onToggleFav, onCopy, unlocked, onUnlock }) {
+export default function SampleOffers({ companies, voteStats, favorites, onToggleFav, onCopy, unlocked, onUnlock, exclude }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
-  const picks = useMemo(
-    () => Object.values(TYPE_PARAMS).map((db) => topOfType(companies, db, voteStats)).filter(Boolean),
-    [companies, voteStats]
-  );
+  const picks = useMemo(() => {
+    const pool = exclude?.size ? companies.filter((c) => !exclude.has(c.id)) : companies;
+    return Object.values(TYPE_PARAMS).map((db) => topOfType(pool, db, voteStats)).filter(Boolean);
+  }, [companies, voteStats, exclude]);
   if (!picks.length) return null;
 
   return (

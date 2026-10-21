@@ -11,6 +11,7 @@ import { useOfferActions } from "../lib/useOfferActions.js";
 import { activeCategories, countByCategory, successRank } from "../lib/offerFilters.js";
 import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE, homeUrl, offersPath, offersUrl, buildAlternates } from "../lib/seo.js";
 import { pickHeroOffer } from "../components/landing/magic/couponData.js";
+import { useFeaturedRows, joinFeatured } from "../lib/featured.js";
 
 import Navbar from "../components/Navbar.jsx";
 import Footer, { SOCIALS } from "../components/Footer.jsx";
@@ -20,6 +21,7 @@ import EmailPopup from "../components/EmailPopup.jsx";
 import CopyToast from "../components/CopyToast.jsx";
 import LandingHero from "../components/landing/LandingHero.jsx";
 import StatsStrip from "../components/landing/StatsStrip.jsx";
+import FeaturedSection from "../components/featured/FeaturedSection.jsx";
 import NameStory from "../components/landing/NameStory.jsx";
 import Pillars from "../components/landing/Pillars.jsx";
 import CardAnatomy from "../components/landing/CardAnatomy.jsx";
@@ -66,6 +68,11 @@ export default function Home() {
       active = false;
     };
   }, []);
+
+  // العروض المميّزة (يختارها الأدمن) — لا تتكرّر في عيّنة آخر الصفحة
+  const featuredRows = useFeaturedRows();
+  const featured = useMemo(() => joinFeatured(featuredRows, companies), [featuredRows, companies]);
+  const featuredIds = useMemo(() => new Set(featured.map((f) => f.company.id)), [featured]);
 
   const cats = useMemo(() => activeCategories(categories), [categories]);
   const counts = useMemo(() => countByCategory(companies, cats), [companies, cats]);
@@ -141,6 +148,14 @@ export default function Home() {
           isPremiumActive={isPremiumActive}
         />
         <StatsStrip stats={siteStats} />
+        <FeaturedSection
+          items={featured}
+          favorites={favorites}
+          onToggleFav={toggleFav}
+          onCopy={handleCopy}
+          unlocked={unlocked}
+          onUnlock={openPremium}
+        />
         <NameStory />
         <Pillars companies={companies} voteStats={voteStats} />
         <CardAnatomy
@@ -157,6 +172,7 @@ export default function Home() {
         <TrustSection companies={companies} voteStats={voteStats} />
         <SampleOffers
           companies={companies}
+          exclude={featuredIds}
           voteStats={voteStats}
           favorites={favorites}
           onToggleFav={toggleFav}

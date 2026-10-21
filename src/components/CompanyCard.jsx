@@ -36,6 +36,7 @@ export default function CompanyCard({
   unlocked = false,
   onUnlock,
   linkToStore = true,
+  copySource,
 }) {
   const { t, i18n } = useTranslation();
   const { byId, categories } = useCategories();
@@ -116,7 +117,7 @@ export default function CompanyCard({
       copiedPremium = !!d?.premium_code;
     }
     onCopy(company, code);
-    logCodeCopy(company.id, copiedPremium);
+    logCodeCopy(company.id, copiedPremium, copySource);
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
   };

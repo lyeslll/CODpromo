@@ -67,8 +67,7 @@ function HeroValueBox({ stats, lang, t }) {
   if (price == null) return null;
   const unlock = stats?.premiumUnlockValueUsd ?? null;
   const multiplier = premiumMultiplier(unlock, price);
-  const numLang = lang === "fr" ? "fr" : "en";
-  const priceText = formatNumber(price, numLang);
+  const priceText = formatNumber(price, lang);
 
   return (
     <div className="mt-7 flex max-w-xl flex-col gap-4 rounded-2xl border border-[#f0c63c]/35 bg-[linear-gradient(120deg,rgba(166,240,0,0.07),rgba(240,198,60,0.1))] p-4 sm:flex-row sm:items-center sm:gap-5 sm:p-5">
@@ -82,7 +81,7 @@ function HeroValueBox({ stats, lang, t }) {
       <div className="flex min-w-0 flex-1 items-center justify-between gap-4">
         <p className="min-w-0 text-[14.5px] font-bold leading-snug text-[var(--text-softer)]">
           {unlock != null
-            ? t("hero.value.unlock", { price: priceText, value: formatNumber(unlock, numLang) })
+            ? t("hero.value.unlock", { price: priceText, value: formatNumber(unlock, lang) })
             : t("hero.value.unlockShort", { price: priceText })}
         </p>
         {multiplier && (
@@ -92,7 +91,7 @@ function HeroValueBox({ stats, lang, t }) {
             className="shrink-0 text-[40px] font-black leading-none tracking-tight text-[#ffe486] [font-family:Inter,sans-serif] sm:text-[46px]"
             style={{ textShadow: "0 0 28px rgba(240,198,60,0.45)" }}
           >
-            ×{formatNumber(multiplier, numLang)}
+            ×{formatNumber(multiplier, lang)}
           </bdi>
         )}
       </div>

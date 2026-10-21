@@ -18,10 +18,13 @@ export function withNum(parsed, n) {
   return `${parsed.prefix}${Math.round(n)}${parsed.suffix}`;
 }
 
+// العربية: أرقام لاتينية بفاصلة للآلاف (300,000) — نفس كتابة الأسعار في كل الموقع.
+const NUMBER_LOCALES = { ar: "en-US", en: "en-US", fr: "fr-FR" };
+
 /** تنسيق رقم كبير حسب لغة العرض (فواصل الآلاف). */
 export function formatNumber(n, lang) {
   try {
-    return new Intl.NumberFormat(lang === "ar" ? "ar-DZ" : lang, { maximumFractionDigits: 0 }).format(n);
+    return new Intl.NumberFormat(NUMBER_LOCALES[lang] || "en-US", { maximumFractionDigits: 0 }).format(n);
   } catch {
     return String(Math.round(n));
   }

@@ -7,8 +7,8 @@ import { parseVal, withNum } from "../../../lib/values.js";
 
 // ============================================================
 //  مشهد الـ 3D للكوبون السحري (يُحمَّل بكسل فقط على الأجهزة القادرة).
-//  Canvas واحد يغطّي الـ Hero: الكوبون الرئيسي في موضع "مسرح" DOM (store.anchor)
-//  + كوبونات صغيرة تطفو بعمق (parallax) بألوان الأنواع الثلاثة + جزيئات ذهبية.
+//  طبقتان تغطّيان الـ Hero: خلفية فيها كوبونات صغيرة تطفو (blur خفيف) حول الكوبون
+//  الكبير، ثم الكوبون الرئيسي في موضع "مسرح" DOM (store.anchor) + جزيئات ذهبية.
 //  كل التفاعل (سحب/نقر/ميلان) يحدث في DOM ويُكتب في store؛ المشهد يقرأه فقط.
 // ============================================================
 
@@ -261,57 +261,68 @@ function MainCoupon({ store, faces, labels, lang, onReady }) {
   );
 }
 
+// مواضع الكوبونات الطافية بالبكسل نسبةً لمركز الكوبون الكبير (المسرح):
+// out = نحو الحافة الخارجية للصفحة (بعيداً عن عمود النص)، y موجب = للأسفل.
+// كلها في الفراغات حول الكوبون: لا فوق النص ولا الأزرار ولا مربع القيمة ولا مقبض عادي/Premium.
+const SLOTS_DESKTOP = [
+  { out: (w) => w / 2 + 96, y: (h) => -h * 0.3, px: 74, z: -7 },
+  { out: (w) => w / 2 + 120, y: (h) => h * 0.12, px: 58, z: -11 },
+  { out: (w) => w / 2 + 70, y: (h) => h / 2 + 18, px: 66, z: -8 },
+  { out: (w) => w * 0.36, y: (h) => h / 2 + 170, px: 62, z: -9 },
+  { out: (w) => -w * 0.3, y: (h) => h / 2 + 175, px: 52, z: -12 },
+  { out: (w) => w * 0.18, y: (h) => -h / 2 - 34, px: 48, z: -13 },
+];
+// الهاتف: الكوبون بعرض الشاشة → ثلاثة فقط تطلّ من خلف زواياه (في الفراغ بين مربع القيمة والكوبون)
+const SLOTS_MOBILE = [
+  { out: (w) => w / 2 - 28, y: (h) => -h / 2 - 12, px: 46, z: -8 },
+  { out: (w) => -(w / 2 - 44), y: (h) => -h / 2 - 8, px: 40, z: -11 },
+  { out: (w) => w / 2 + 2, y: (h) => h * 0.08, px: 42, z: -9 },
+];
+
 /**
- * كوبونات صغيرة تطفو في الخلفية بعمق حقيقي: الأقرب تتحرك أكثر مع المؤشر/الميلان/التمرير.
- * تبقى بعيدة عن عمود النص (جهة الكوبون + الحواف فقط) حتى لا تقلّل وضوح العنوان.
+ * كوبونات صغيرة تطفو خلف الكوبون الكبير بألوان الأنواع الثلاثة، في طبقة خاصة
+ * (Canvas خلف المحتوى، شفافية + blur خفيف = عمق) وبحركة بطيئة.
+ * مواضعها محسوبة من موضع الكوبون الكبير نفسه (store.anchor) فلا تدخل منطقة النص أبداً.
  * couponOnLeft: الكوبون يسار الشاشة (العربية RTL) · stacked: تخطيط الهاتف (النص فوق الكوبون).
  */
-function FloatingCoupons({ store, count, couponOnLeft, stacked }) {
+function FloatingCoupons({ store, couponOnLeft, stacked }) {
   const geo = useMemo(() => buildCouponGeometry(10, false).body, []);
   const mats = useMemo(
     () =>
       TYPE_COLORS.map(
-        (c) => new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 0.12, metalness: 0.35, roughness: 0.45 })
+        (c) =>
+          new THREE.MeshStandardMaterial({
+            color: c,
+            emissive: c,
+            emissiveIntensity: 0.1,
+            metalness: 0.3,
+            roughness: 0.5,
+            transparent: true,
+            opacity: 0.45,
+            depthWrite: false,
+          })
       ),
     []
   );
   const items = useMemo(() => {
-    // توزيع ثابت (بذرة) حتى لا تتغيّر المواقع بين التحميلات
+    // دوران/طور ثابت (بذرة) حتى لا يتغيّر الشكل بين التحميلات
     let seed = 7;
     const rnd = () => {
       seed = (seed * 16807) % 2147483647;
       return (seed - 1) / 2147483646;
     };
-    const place = () => {
-      if (stacked) {
-        // الهاتف: النص فوق والمقبض تحت → الكوبونات الطافية على الحافتين بجانب الكوبون فقط
-        return { nx: (rnd() < 0.5 ? -1 : 1) * (0.74 + rnd() * 0.24), ny: -0.15 - rnd() * 0.6 };
-      }
-      const sign = couponOnLeft ? -1 : 1;
-      if (rnd() < 0.75) return { nx: sign * (0.05 + rnd() * 0.92), ny: (rnd() * 2 - 1) * 0.92 };
-      // جهة النص: الحافة السفلى فقط (بعيداً عن العنوان والشعار)
-      return { nx: -sign * (0.1 + rnd() * 0.85), ny: -(0.78 + rnd() * 0.17) };
-    };
-    return Array.from({ length: count }, (_, i) => {
-      const z = -5 - rnd() * 11;
-      const { nx, ny } = place();
-      return {
-        nx,
-        ny,
-        z,
-        s: 0.2 + rnd() * 0.18,
-        color: i % 3,
-        rx: rnd() * Math.PI,
-        ry: rnd() * Math.PI,
-        rz: rnd() * Math.PI,
-        spinX: (rnd() - 0.5) * 0.25,
-        spinY: (rnd() - 0.5) * 0.35,
-        speed: 0.35 + rnd() * 0.5,
-        phase: rnd() * Math.PI * 2,
-        depth: 1 - (-z - 5) / 11, // 1 = قريب، 0 = بعيد
-      };
-    });
-  }, [count, couponOnLeft, stacked]);
+    return (stacked ? SLOTS_MOBILE : SLOTS_DESKTOP).map((slot, i) => ({
+      ...slot,
+      color: i % 3,
+      rx: rnd() * Math.PI,
+      ry: rnd() * Math.PI,
+      rz: rnd() * Math.PI,
+      spinX: (rnd() - 0.5) * 0.08,
+      spinY: (rnd() - 0.5) * 0.12,
+      speed: 0.12 + rnd() * 0.16,
+      phase: rnd() * Math.PI * 2,
+    }));
+  }, [stacked]);
   const refs = useRef([]);
 
   useEffect(
@@ -323,44 +334,36 @@ function FloatingCoupons({ store, count, couponOnLeft, stacked }) {
   );
 
   useFrame((state, delta) => {
+    const a = store.anchor;
+    if (!a.ready) return;
     const dt = Math.min(delta, 1 / 30);
-    const e = 1 - Math.exp(-dt * 3);
+    const e = 1 - Math.exp(-dt * 2);
     store.parallax.x += (store.parallaxTarget.x - store.parallax.x) * e;
     store.parallax.y += (store.parallaxTarget.y - store.parallax.y) * e;
     const { width: cw, height: ch } = state.size;
     const aspect = cw / ch;
     const t = state.clock.elapsedTime;
     const still = store.reduced;
+    const outSign = couponOnLeft ? -1 : 1;
     for (let i = 0; i < items.length; i++) {
       const it = items[i];
       const m = refs.current[i];
       if (!m) continue;
-      const v = viewAt(it.z, aspect);
-      const unit = v.h / ch;
-      const par = 0.25 + it.depth * 0.9;
-      m.position.x = it.nx * (v.w / 2) + store.parallax.x * par;
-      m.position.y =
-        it.ny * (v.h / 2) +
-        (still ? 0 : Math.sin(t * it.speed + it.phase) * 0.22) -
-        store.parallax.y * par * 0.6 +
-        store.scrollPx * unit * (0.55 - it.depth * 0.45);
-      m.position.z = it.z;
+      const unit = viewAt(it.z, aspect).h / ch; // وحدات العالم لكل بكسل عند هذا العمق
+      const px = a.cx + outSign * it.out(a.w) + store.parallax.x * 6;
+      const py = a.cy + it.y(a.h) + store.parallax.y * 4 + (still ? 0 : Math.sin(t * it.speed + it.phase) * 7);
+      m.position.set((px - cw / 2) * unit, (ch / 2 - py) * unit, it.z);
+      m.scale.setScalar((it.px * unit) / COUPON.W);
       m.rotation.set(
         it.rx + (still ? 0 : t * it.spinX),
         it.ry + (still ? 0 : t * it.spinY),
-        it.rz + (still ? 0 : Math.sin(t * 0.3 + it.phase) * 0.2)
+        it.rz + (still ? 0 : Math.sin(t * 0.18 + it.phase) * 0.12)
       );
     }
   });
 
   return items.map((it, i) => (
-    <mesh
-      key={i}
-      ref={(el) => (refs.current[i] = el)}
-      geometry={geo}
-      material={mats[it.color]}
-      scale={it.s}
-    />
+    <mesh key={i} ref={(el) => (refs.current[i] = el)} geometry={geo} material={mats[it.color]} />
   ));
 }
 
@@ -469,6 +472,21 @@ function GoldParticles({ store, count = 110 }) {
 
 export default function MagicScene3D({ store, faces, labels, lang, active, mobile, stacked, onReady }) {
   return (
+    <>
+      {/* طبقة الخلفية: الكوبونات الطافية (blur خفيف + شفافية = عمق)، خلف الكوبون الكبير والمحتوى */}
+      <Canvas
+        flat
+        dpr={1}
+        gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
+        camera={{ fov: FOV, position: [0, 0, CAM_Z], near: 0.1, far: 60 }}
+        frameloop={active ? "always" : "never"}
+        style={{ position: "absolute", inset: 0, pointerEvents: "none", filter: "blur(1.6px)", opacity: 0.85 }}
+        onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
+      >
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[3, 4, 6]} intensity={1} />
+        <FloatingCoupons store={store} couponOnLeft={lang === "ar"} stacked={stacked} />
+      </Canvas>
     <Canvas
       flat
       dpr={mobile ? [1, 1.5] : [1, 1.75]}
@@ -483,9 +501,9 @@ export default function MagicScene3D({ store, faces, labels, lang, active, mobil
       <directionalLight position={[3, 4, 6]} intensity={1.25} />
       <directionalLight position={[-5, -2, -4]} intensity={0.6} color="#a6f000" />
       <Environment />
-      <FloatingCoupons store={store} count={stacked ? 6 : 13} couponOnLeft={lang === "ar"} stacked={stacked} />
       <MainCoupon store={store} faces={faces} labels={labels} lang={lang} onReady={onReady} />
       <GoldParticles store={store} />
     </Canvas>
+    </>
   );
 }

@@ -40,13 +40,13 @@ git add -A && git commit -m "وصف التعديل" && git push
   - `src/lib/supabase.js` — `fetch` يدوي على PostgREST/Storage بالمفتاح العام: جدول `companies` (قراءة عامة + كتابة الأدمن) ورفع اللوغوهات لـ bucket `logos`. يقدر يبعث توكن المستخدم في كتابات الأدمن.
   - `src/lib/supabaseClient.js` — SDK `@supabase/supabase-js` بجلسة محفوظة. كل شي مرتبط بالمستخدم: `auth.jsx`, `favorites.js`, `requests.js`, `stork.js`, `subscribers.js`, `admin.js`, `billing.js`, `playBilling.js`, `votes.js`, `siteStats.js`.
   - كل ملف في `src/lib/*.js` طبقة بيانات لمجال واحد؛ المكوّنات ما تنادي Supabase مباشرة.
-- **المسارات:** `/` (صفحة تعريف landing)، `/offers` (كل العروض)، `/store/:slug`، `/category/:slug`، `/categories`، `/favorites` (كل وحدة بـ `/en/...` و `/fr/...`)، `/login`، `/signup`، `/forgot-password`، `/reset-password`، `/payment-success|cancel|return|return-paypal`، `/privacy`، `/account-deletion`، `/dashboard` (محمي بـ `RequireAuth`، يتفرّع لـ زبون/شركة حسب `accountType`)، `/admin` (عربي RTL ثابت). أي مسار مجهول → `Home`. كل الصفحات ما عدا `Home` تتحمّل lazy (`React.lazy` في `App.jsx`).
+- **المسارات:** `/` (صفحة تعريف landing)، `/offers` (كل العروض)، `/partners` (بوابة الشركات، عامة)، `/store/:slug`، `/category/:slug`، `/categories`، `/favorites` (كل وحدة بـ `/en/...` و `/fr/...`)، `/login`، `/signup`، `/forgot-password`، `/reset-password`، `/payment-success|cancel|return|return-paypal`، `/privacy`، `/account-deletion`، `/dashboard/*` (محمي بـ `RequireAuth`، يتفرّع لـ زبون/شركة حسب `accountType`؛ الشركة: `/dashboard/offers/new` و `/dashboard/offers/:companyId/edit`)، `/admin` (عربي RTL ثابت). أي مسار مجهول → `Home`. كل الصفحات ما عدا `Home` تتحمّل lazy (`React.lazy` في `App.jsx`).
 - **روابط قديمة:** `/#stores` (قسم العروض القديم) يتحوّل لـ `/offers`؛ `#how` و `#categories` باقين أقسام في الرئيسية.
 - **الثيم:** داكن فقط. الألوان متغيرات CSS في `:root` (`--text`, `--elev`, `--fill`, `--color-ink*`, `--color-lime`…) — استعملها في `className` (مثلاً `bg-[var(--color-ink-card)]`) بلا hex مباشر. ما كاينش `.light` ولا `codpromo:theme` (يتمسح من localStorage في `index.html`). اللوغو دائماً `public/logo-dark.png`.
 - **أنواع العروض:** enum عربي ثابت `"تخفيض"` / `"كوبون"` / `"كاش باك"` في `src/lib/types.js`، يتعرض مترجم عبر `getTypeKey`. في الرابط: `type=discount|coupon|cashback` (`TYPE_PARAMS` في `src/lib/offerFilters.js`).
 - **الألوان الثلاثة (من `types.js` بالضبط):** تخفيض `#a6f000` · كوبون `#38bdf8` · كاش باك `#fbbf24`. Premium = ذهبي (`#ffe486` / `#f0c63c` / `#cf9a1e`). اللون يعني النوع (أو Premium) فقط، ماشي زينة.
 - **قاعدة البيانات:** ملفات SQL مرقّمة تتشغّل بالترتيب (كلها idempotent):
-  `supabase-setup` → `supabase-auth-setup` → `supabase-auth-phase2` → `phase3` → `phase4` → `phase5` → `phase6a` → `phase6a-note4` → `phase7-stripe` → `phase8-slickpay` → `phase9-paypal` → `phase10-i18n` → `phase11-i18n-value` → `phase12-premium-code-url` → `phase13-seo` → `phase14-categories` → `phase15-admin` → `phase16-rls-lock` → `phase17a-premium-rpcs` → `phase17b-premium-lock` → `phase18-premium-description` → `phase19-code-votes` → `phase20-google-play` → `phase21-site-stats` → `phase22-admin-premium-copies` → `phase23-admin-v2` → `phase24-lock-is-admin` → `phase25-premium-hardening`.
+  `supabase-setup` → `supabase-auth-setup` → `supabase-auth-phase2` → `phase3` → `phase4` → `phase5` → `phase6a` → `phase6a-note4` → `phase7-stripe` → `phase8-slickpay` → `phase9-paypal` → `phase10-i18n` → `phase11-i18n-value` → `phase12-premium-code-url` → `phase13-seo` → `phase14-categories` → `phase15-admin` → `phase16-rls-lock` → `phase17a-premium-rpcs` → `phase17b-premium-lock` → `phase18-premium-description` → `phase19-code-votes` → `phase20-google-play` → `phase21-site-stats` → `phase22-admin-premium-copies` → `phase23-admin-v2` → `phase24-lock-is-admin` → `phase25-premium-hardening` → `phase26-partners-portal`.
   أي عمود أو جدول جديد = ملف phase جديد، ماشي تعديل ملف قديم.
 - **متغيرات البيئة (الويب):** في `.env` (gitignored) و Vercel، شوف `.env.example`: `VITE_ADMIN_PIN`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. `supabase.js` و `supabaseClient.js` فيهم fallback للـ URL والمفتاح العام.
 
@@ -78,6 +78,14 @@ git add -A && git commit -m "وصف التعديل" && git push
 ### بطاقات العروض = تذاكر كوبون — `src/components/CompanyCard.jsx`
 - جزءان: `.ticket-top` (الشركة + الوصف 3 أسطر + القيمة) و `.ticket-stub` (الكود + النسخ + الزيارة + التصويت)، بينهما نصفا دائرة مقصوصان (CSS mask) وخط مثقّب. الكلاسات في `src/index.css` (`.ticket*`)، والألوان عبر متغيّرات `--edge-base` / `--edge-strong` / `--perf` / `--stub`.
 - نفس البطاقة في `/offers` والرئيسية وصفحات الشركة/الفئة/المفضّلة. كل الوظائف باقية: المفضّلة، شارة PREMIUM، القفل، الخدش، النسخ، الزيارة، التصويت، شارة النجاح، المواقع الثابتة للأيقونات. أجزاؤها معلّمة بـ `data-part` (يستعملها `CardAnatomy`).
+
+### بوابة الشركات — `/partners` + داشبورد الشركة + طلبات الأدمن (phase26)
+- `/partners` (`src/pages/PartnersPage.jsx` + `src/components/partners/`): Hero بكوبون "يُصدَر"، أرقام `site_stats` (المستخدمون، الأكواد، الشركاء، الجمهور)، لماذا CODpromo، 3 خطوات، ماذا نطلب، أسئلة شائعة. في الـ sitemap و `api/prerender.js` (type=partners) و `vercel.json`. رابط "أضف عروض شركتك" في الفوتر وقائمة الموبايل يروح لها. `Footer showCta={false}` يخفي كوبون Premium فوق الفوتر في هذه الصفحة.
+- فورم الشركة = نفس `CompanyOfferForm` بـ `mode="partner"`: قسم "التواصل والشراكة" (WhatsApp إجباري + تنبيه لا كلمات سر)، لوغو PNG/JPG/WebP ≤ 1MB في bucket `partner-logos` (`uid/…`)، honeypot (`useBotGuard`). الطلب في `company_requests` (`src/lib/requests.js`).
+- حارس `guard_company_request` (trigger): الطلب من العميل = pending دائماً، حساب شركة فقط، 5 طلبات معلّقة كحدّ أقصى، طلب التعديل لشركة يملكها فقط (`company_owners`). العميل ما يعدّلش ولا يحذف طلباته.
+- داشبورد الشركة (`src/pages/dashboard/CompanyDashboard.jsx`): RPC `partner_overview()` (عروضها فقط، count دقيق، منحنى 30 يوم)، "اطلب تعديل" يعمّر الفورم من `partner_offer_detail()` — العرض المنشور ما يتبدّلش حتى يوافق الأدمن.
+- الأدمن `/admin/requests` (تبويبات + معاينة عادي/Premium + واتساب/إيميل) و `/admin/requests/:id` (مراجعة ونشر): النشر = `addCompany`/`updateCompany` + `saveCompanyPrivate` + RPC `admin_publish_request` (يربط الشركة بصاحبها في `company_owners`). الرفض بسبب يظهر للشركة: RPC `admin_reject_request`.
+- `site_stats.users_count` (فارغ = عدّ تلقائي عبر `site_stats_users_auto()`) و `audience_followers` (855000، يتعدّل من "أرقام الصفحة الرئيسية").
 
 ### أرقام الصفحة الرئيسية — جدول `site_stats` (phase21)
 - سطر واحد (`id = 1`): `total_savings_dzd`, `total_codes`, `partners_count`, `premium_unlock_value_usd`. قراءة عامة، تعديل للأدمن برك (RLS `is_admin()`).
@@ -118,6 +126,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 - البطاقات تذاكر كوبون بالألوان الثلاثة (ذهبي في Premium).
 - صفحات الشركات والفئات (`/store`, `/category`, `/categories`) والمفضّلة (`/favorites`).
 - مصادقة كاملة (Email/Password + Google، reset password) بحماية مخفية ضد الروبوتات (honeypot + فحص الوقت في `src/components/auth/botGuard.jsx`، بلا hCaptcha)، داشبورد زبون / شركة. صفحات الحساب: شاشة مقسومة (`AuthShell`: النموذج + لوحة الهوية)، و `/signup?type=company` يختار حساب الشركة.
+- بوابة الشركات `/partners` + داشبورد شركة بإحصائيات حقيقية + مراجعة/نشر/رفض الطلبات من الأدمن.
 - لوحة `/admin`: الشركات، الفئات، الطلبات، المشتركين، أعضاء Premium، SEO، التصويت، أرقام الرئيسية (`site_stats`)، تصدير CSV.
 - نافذة جمع الإيميل، نظام تصويت 👍/👎 على الأكواد (`code_votes` + RPC `cast_vote`).
 - SEO: صفحات بـ 3 لغات، `api/prerender.js` (العروض/الشركات/الفئات)، `api/sitemap.js` (فيه `/offers`)، JSON-LD للرئيسية (Organization + WebSite بـ SearchAction نحو `/offers?q=`)، Google Search Console.
@@ -162,7 +171,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 - `/admin`: بوابة PIN في المتصفح (`VITE_ADMIN_PIN`) + تسجيل دخول إجباري؛ الكتابات تمشي بتوكن المستخدم والحماية الحقيقية هي RLS `is_admin()`. حساب مسجّل بـ `profiles.is_admin = true` يدخل مباشرة بلا PIN (زر "افتح لوحة التحكم" في داشبورده، و"خروج" يرجعو للداشبورد).
 
 **i18n**
-- ar (افتراضي، RTL) / en / fr (LTR) عبر react-i18next؛ المفاتيح متطابقة في الثلاثة (828 مفتاح).
+- ar (افتراضي، RTL) / en / fr (LTR) عبر react-i18next؛ المفاتيح متطابقة في الثلاثة (978 مفتاح).
 - `LocaleProvider` يضبط `lang` + `dir` على `<html>` ويحفظ `codpromo:lang`؛ زر `LanguageSwitcher` (يحافظ على فلاتر `/offers` في الرابط).
 - ترجمة تلقائية لمحتوى الشركات والفئات (`description_*`, `category_*`…) عبر Edge Function `translate-company` (Anthropic API، المفتاح في Supabase secrets برك) + زر "ترجم الكل" في الأدمن.
 - استعمل خصائص Tailwind المنطقية (`ps/pe`, `ms/me`, `start/end`)؛ الأيقونات الاتجاهية تنقلب بـ `ltr:rotate-180`. `/admin` يبقى عربي ثابت.

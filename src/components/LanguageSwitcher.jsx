@@ -18,7 +18,8 @@ function localizedPath(pathname, code) {
     !rest.startsWith("/category/") &&
     !rest.startsWith("/categories") &&
     !rest.startsWith("/favorites") &&
-    !rest.startsWith("/offers")
+    !rest.startsWith("/offers") &&
+    !rest.startsWith("/partners")
   )
     return null;
   return code === "ar" ? rest : `/${code}${rest}`;

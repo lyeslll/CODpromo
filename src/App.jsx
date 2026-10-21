@@ -20,6 +20,7 @@ const CategoryPage = lazy(() => import("./pages/CategoryPage.jsx"));
 const CategoriesPage = lazy(() => import("./pages/CategoriesPage.jsx"));
 const FavoritesPage = lazy(() => import("./pages/FavoritesPage.jsx"));
 const OffersPage = lazy(() => import("./pages/OffersPage.jsx"));
+const PartnersPage = lazy(() => import("./pages/PartnersPage.jsx"));
 const Admin = lazy(() => import("./pages/Admin.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
 const Signup = lazy(() => import("./pages/Signup.jsx"));
@@ -53,7 +54,8 @@ function langFromPath(pathname, current) {
     pathname.startsWith("/category/") ||
     pathname.startsWith("/categories") ||
     pathname.startsWith("/favorites") ||
-    pathname.startsWith("/offers")
+    pathname.startsWith("/offers") ||
+    pathname.startsWith("/partners")
   )
     return "ar";
   return current;
@@ -142,6 +144,10 @@ export default function App() {
           <Route path="/offers" element={<OffersPage lang="ar" />} />
           <Route path="/en/offers" element={<OffersPage lang="en" />} />
           <Route path="/fr/offers" element={<OffersPage lang="fr" />} />
+          {/* بوابة الشركات (صفحة عامة) */}
+          <Route path="/partners" element={<PartnersPage lang="ar" />} />
+          <Route path="/en/partners" element={<PartnersPage lang="en" />} />
+          <Route path="/fr/partners" element={<PartnersPage lang="fr" />} />
 
           {/* صفحات الشركات (SEO) — العربية افتراضية، en/fr ببادئة لغة */}
           <Route path="/store/:slug" element={<StorePage lang="ar" />} />
@@ -173,7 +179,7 @@ export default function App() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/account-deletion" element={<AccountDeletion />} />
           <Route
-            path="/dashboard"
+            path="/dashboard/*"
             element={
               <RequireAuth>
                 <Dashboard />

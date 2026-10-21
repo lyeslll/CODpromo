@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Loader2, Save, Wallet, KeyRound, Handshake, Crown, RotateCcw } from "lucide-react";
+import { Loader2, Save, Wallet, KeyRound, Handshake, Crown, RotateCcw, Users, Megaphone } from "lucide-react";
 import {
   fetchSiteStatsAdmin,
   updateSiteStats,
@@ -9,12 +9,14 @@ import {
   SITE_STAT_FIELDS,
 } from "../../lib/siteStats.js";
 
-// الخانات الأربع: auto = مفتاح قيمة العدّ التلقائي في الـ view (إن وُجد)
+// الخانات: auto = مفتاح قيمة العدّ التلقائي في الـ view (إن وُجد)
 const FIELDS = [
   { key: "total_savings_dzd", icon: Wallet, color: "#a6f000", step: "1", auto: null },
   { key: "total_codes", icon: KeyRound, color: "#38bdf8", step: "1", auto: "total_codes_auto" },
   { key: "partners_count", icon: Handshake, color: "#fbbf24", step: "1", auto: "partners_count_auto" },
   { key: "premium_unlock_value_usd", icon: Crown, color: "#f0c63c", step: "0.01", auto: null },
+  { key: "users_count", icon: Users, color: "#a6f000", step: "1", auto: "users_count_auto" },
+  { key: "audience_followers", icon: Megaphone, color: "#38bdf8", step: "1", auto: null },
 ];
 
 const toInput = (v) => (v === null || v === undefined ? "" : String(v));

@@ -44,7 +44,8 @@ import {
   deleteCategory,
   getPremiumCode,
 } from "../lib/supabase.js";
-import { fetchAllProfiles, fetchAllRequests, acceptRequest, setRequestStatus, fetchPremiumProfiles, isActivePremium } from "../lib/admin.js";
+import { fetchAllProfiles, fetchAllRequests, fetchPremiumProfiles, isActivePremium } from "../lib/admin.js";
+import { publishRequest, rejectRequest } from "../lib/requests.js";
 import { fetchSubscribers } from "../lib/subscribers.js";
 import { fetchStorkCodes, addStorkCode, deleteStorkCode } from "../lib/stork.js";
 import { ADMIN_PIN, ADMIN_SESSION_KEY } from "../lib/config.js";
@@ -268,7 +269,6 @@ function Dashboard({ onLock }) {
   const [loadingRequests, setLoadingRequests] = useState(true);
   const [loadingSubs, setLoadingSubs] = useState(true);
   const [loadingStork, setLoadingStork] = useState(true);
-  const [busyReqId, setBusyReqId] = useState(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -492,33 +492,43 @@ function Dashboard({ onLock }) {
     }
   };
 
-  // قبول طلب شركة → نشره في companies + تحديث الحالة
-  const handleAccept = async (req) => {
-    setBusyReqId(req.id);
+  // مراجعة ونشر طلب شركة: إنشاء الشركة (أو تحديث شركتها في طلب التعديل) + المعلومات الداخلية
+  // + ربط الطلب بالشركة وبحساب صاحبها (RPC admin_publish_request يتحقق من is_admin في القاعدة)
+  // شركة أُنشئت لطلب ثم فشلت خطوة لاحقة: إعادة المحاولة تحدّثها بدل إنشاء نسخة ثانية
+  const publishedFor = useRef({});
+  const handlePublishRequest = async (req, form, priv) => {
+    // روابط البطاقة تظهر للعموم كـ href: http(s) فقط (لا javascript: ولا غيره)
+    const bad = ["link", "premium_url"].find((k) => form[k] && !/^https?:\/\//i.test(String(form[k]).trim()));
+    if (bad) return notify("error", tc("req.badLink"));
+    setSubmitting(true);
     try {
-      const created = await acceptRequest(req);
-      setCompanies((prev) => [created, ...prev]);
-      setRequests((prev) => prev.map((r) => (r.id === req.id ? { ...r, status: "accepted" } : r)));
-      notify("success", "تم قبول الطلب ونشره كشركة");
+      let saved;
+      const targetId = req.request_type === "edit" && req.company_id ? req.company_id : publishedFor.current[req.id];
+      if (targetId) {
+        saved = await updateCompany(targetId, form);
+        setCompanies((prev) => prev.map((c) => (c.id === targetId ? { ...c, ...saved } : c)));
+      } else {
+        saved = await addCompany(form);
+        publishedFor.current[req.id] = saved.id;
+        setCompanies((prev) => [saved, ...prev]);
+      }
+      if (priv) await saveCompanyPrivate(saved.id, priv);
+      await publishRequest(req.id, saved.id);
+      setRequests((prev) => prev.map((r) => (r.id === req.id ? { ...r, status: "accepted", company_id: saved.id, rejection_reason: null } : r)));
+      notify("success", tc("req.published", { name: saved.name }));
+      navigate("/admin/requests");
     } catch (e) {
       notify("error", e.message);
     } finally {
-      setBusyReqId(null);
+      setSubmitting(false);
     }
   };
 
-  // رفض طلب
-  const handleReject = async (req) => {
-    setBusyReqId(req.id);
-    try {
-      await setRequestStatus(req.id, "rejected");
-      setRequests((prev) => prev.map((r) => (r.id === req.id ? { ...r, status: "rejected" } : r)));
-      notify("success", "تم رفض الطلب");
-    } catch (e) {
-      notify("error", e.message);
-    } finally {
-      setBusyReqId(null);
-    }
+  // رفض طلب مع سبب يظهر للشركة
+  const handleReject = async (req, reason) => {
+    await rejectRequest(req.id, reason);
+    setRequests((prev) => prev.map((r) => (r.id === req.id ? { ...r, status: "rejected", rejection_reason: reason } : r)));
+    notify("success", tc("req.rejected"));
   };
 
   const pendingCount = requests.filter((r) => r.status === "pending").length;
@@ -636,9 +646,13 @@ function Dashboard({ onLock }) {
           element={
             <>
               <PageHeader title={tc("nav.requests")} sub={tc("pages.requestsSub", { count: pendingCount })} />
-              <RequestsManager requests={requests} profiles={profiles} loading={loadingRequests} onAccept={handleAccept} onReject={handleReject} busyId={busyReqId} />
+              <RequestsManager requests={requests} profiles={profiles} loading={loadingRequests} onReject={handleReject} />
             </>
           }
+        />
+        <Route
+          path="requests/:id"
+          element={<RequestReviewPage requests={requests} loading={loadingRequests} categories={categories} submitting={submitting} onPublish={handlePublishRequest} onCreateCategory={handleQuickCategory} />}
         />
         <Route
           path="votes"
@@ -814,6 +828,92 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
           }}
         />
       )}
+    </>
+  );
+}
+
+/* ===================== مراجعة طلب شركة ونشره (/admin/requests/:id) ===================== */
+function RequestReviewPage({ requests, loading, categories, submitting, onPublish, onCreateCategory }) {
+  const { id } = useParams();
+  const { i18n } = useTranslation();
+  const tc = useMemo(() => i18n.getFixedT("ar", null, "admin.v2"), [i18n]);
+  const req = requests.find((r) => String(r.id) === id);
+  const [existingPrivate, setExistingPrivate] = useState(undefined);
+
+  // طلب تعديل: نكمّل المعلومات الداخلية المحفوظة (قيم الطلب تتقدّم إن وُجدت)
+  useEffect(() => {
+    if (!req) return;
+    if (!(req.request_type === "edit" && req.company_id)) return setExistingPrivate(null);
+    fetchCompanyPrivate(req.company_id).then(setExistingPrivate, () => setExistingPrivate(null));
+  }, [req?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const back = (
+    <Link to="/admin/requests" className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] px-3.5 py-2 text-[13px] font-bold text-[#c9c9cf] hover:text-white">
+      <ArrowRight size={15} /> {tc("req.back")}
+    </Link>
+  );
+
+  if (!loading && !req) {
+    return (
+      <Glass>
+        <EmptyState icon={SearchX} title={tc("req.notFound")} action={back} />
+      </Glass>
+    );
+  }
+  if (!req || existingPrivate === undefined) {
+    return <Skeleton className="h-[600px] w-full rounded-[20px]" />;
+  }
+
+  const pick = (...v) => v.find((x) => x != null && x !== "") ?? "";
+  const initial = {
+    name: pick(req.company_name, req.title),
+    logo: req.logo || "",
+    category_id: req.category_id || "",
+    type: req.type || "تخفيض",
+    discount: pick(req.discount, req.title),
+    code: req.code || "",
+    link: req.link || "",
+    description: req.description || "",
+    premium_discount: req.premium_discount || "",
+    premium_code: req.premium_code || "",
+    premium_url: req.premium_url || "",
+    premium_description: req.premium_description || "",
+    supports_premium: req.supports_premium !== false,
+  };
+  const ep = existingPrivate || {};
+  // معلومات التواصل: آخر ما أرسلته الشركة. ما اتفق عليه الأدمن (النسبة، الملاحظات) يبقى إن وُجد،
+  // ورسالة الشركة تُضاف للملاحظات بدل أن تمسحها.
+  const notes = [ep.notes, req.message && `${tc("req.f.message")}: ${req.message}`].filter(Boolean).join("\n\n");
+  const privateInitial = {
+    website_url: pick(req.website_url, ep.website_url),
+    contact_name: pick(req.contact_name, ep.contact_name),
+    whatsapp: pick(req.whatsapp, ep.whatsapp),
+    email: pick(req.contact_email, ep.email),
+    commission_pct: pick(ep.commission_pct, req.commission_pct),
+    affiliate_dashboard_url: pick(req.affiliate_dashboard_url, ep.affiliate_dashboard_url),
+    affiliate_url: pick(req.affiliate_url, ep.affiliate_url),
+    notes,
+  };
+
+  return (
+    <>
+      <PageHeader
+        title={tc("req.reviewTitle", { name: initial.name })}
+        sub={req.request_type === "edit" ? tc("req.reviewEditSub", { id: req.company_id }) : tc("req.reviewSub")}
+        actions={back}
+      />
+      <CompanyOfferForm
+        key={`req-${req.id}`}
+        lang="ar"
+        initial={initial}
+        privateInitial={privateInitial}
+        categories={categories}
+        submitting={submitting}
+        showPrivate
+        onCreateCategory={onCreateCategory}
+        submitLabel={tc("req.publish")}
+        onSubmit={(form, priv) => onPublish(req, form, priv)}
+      />
     </>
   );
 }

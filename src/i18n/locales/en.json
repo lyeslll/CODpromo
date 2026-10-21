@@ -408,35 +408,7 @@
     },
     "company": {
       "badge": "Business account",
-      "welcome": "Welcome, {{name}} 🏢",
-      "company": "your company",
-      "subtitle": "Submit your offers for the CODpromo team to review and publish",
-      "email": "Email",
-      "phone": "Phone",
-      "website": "Website",
-      "newRequest": "New offer request",
-      "offerTitle": "Offer title",
-      "offerTitlePh": "e.g. 20% off all orders",
-      "offerType": "Offer type",
-      "description": "Description",
-      "descriptionPh": "Offer details…",
-      "code": "Promo code",
-      "codePh": "SAVE20",
-      "link": "Link",
-      "uploadLogo": "Upload logo",
-      "changeLogo": "Change logo",
-      "uploading": "Uploading…",
-      "removeLogo": "Remove",
-      "submit": "Submit request",
-      "myRequests": "My requests",
-      "empty": "No requests yet — submit your first offer from the form.",
-      "toast": "Request submitted — it will be reviewed soon",
-      "errTitle": "Offer title is required"
-    },
-    "status": {
-      "pending": "Under review",
-      "accepted": "Approved",
-      "rejected": "Rejected"
+      "company": "your company"
     },
     "plan": {
       "yourPlan": "Your plan",
@@ -580,6 +552,13 @@
         "premium_unlock_value_usd": {
           "label": "Discount value unlocked by Premium ($)",
           "hint": "Not counted automatically: if empty, the multiplier (×) is hidden."
+        },
+        "users_count": {
+          "label": "Number of users"
+        },
+        "audience_followers": {
+          "label": "Ilyes Derradji audience (followers)",
+          "hint": "Shown on the business page. Not counted automatically: if empty, it's hidden."
         }
       },
       "autoHint": "Empty = counted from the database (currently {{value}}).",
@@ -801,6 +780,71 @@
         "deleteFailed": "Couldn't delete the code. It may have just been used.",
         "added": "Code {{code}} added",
         "deleted": "Code deleted"
+      },
+      "req": {
+        "tab": {
+          "pending": "Pending",
+          "accepted": "Accepted",
+          "rejected": "Rejected",
+          "all": "All"
+        },
+        "status": {
+          "pending": "Under review",
+          "accepted": "Published",
+          "rejected": "Rejected"
+        },
+        "empty": {
+          "pending": "No pending requests",
+          "accepted": "No accepted requests",
+          "rejected": "No rejected requests",
+          "all": "No requests yet"
+        },
+        "emptyDesc": "Requests from the business page show up here.",
+        "editOf": "Edit of company #{{id}}",
+        "sentOn": "Sent {{date}}",
+        "whatsapp": "WhatsApp",
+        "email": "Email",
+        "waMessage": "Hello, this is the CODpromo team about the offer request from {{name}}. We'd like to go over the details with you before publishing.",
+        "mailSubject": "{{name}} offer request on CODpromo",
+        "preview": "Preview",
+        "face": {
+          "normal": "Regular",
+          "premium": "Premium"
+        },
+        "f": {
+          "value": "Offer value",
+          "code": "Regular code",
+          "premiumValue": "Premium value",
+          "premiumCode": "Premium code",
+          "link": "Offer link",
+          "website": "Official website",
+          "contact": "Contact",
+          "whatsapp": "WhatsApp",
+          "email": "Email",
+          "commission": "Platform share",
+          "affiliate": "Referral link",
+          "affiliateDash": "Referral dashboard",
+          "description": "Description",
+          "message": "Company message"
+        },
+        "review": "Review and publish",
+        "reject": "Reject",
+        "openCompany": "Open company",
+        "reason": "Reason:",
+        "rejectTitle": "Reject {{name}}",
+        "rejectSub": "The company sees this reason in its dashboard, so write it clearly.",
+        "reasonPh": "Example: the code doesn't work, or the offer isn't for e-commerce merchants.",
+        "reasonRequired": "Write a reason",
+        "confirmReject": "Confirm rejection",
+        "rejected": "Request rejected",
+        "published": "{{name}} published",
+        "back": "Back to requests",
+        "notFound": "Request not found",
+        "reviewTitle": "Review {{name}}",
+        "reviewSub": "Edit what you need, then publish: the company is created, internal info saved, and linked to its owner.",
+        "reviewEditSub": "Edit request for company #{{id}}: publishing updates the live company.",
+        "publish": "Publish offer",
+        "badLink": "The offer link and Premium link must start with https:// or http:// before publishing."
       }
     }
   },
@@ -989,7 +1033,8 @@
       "change": "Change logo",
       "remove": "Remove",
       "uploading": "Uploading…",
-      "hint": "A square image with a transparent background works best (PNG or WebP)."
+      "hint": "A square image with a transparent background works best (PNG or WebP).",
+      "hintPartner": "PNG, JPG or WebP, up to 1 MB. A square logo on a transparent background works best."
     },
     "f": {
       "name": "Company name",
@@ -1032,7 +1077,8 @@
       "email": "Example: partners@youcan.shop",
       "commission": "Example: 15",
       "affiliate": "Dashboard link only, no password",
-      "notes": "Anything useful: deal terms, renewal date…"
+      "notes": "Anything useful: deal terms, renewal date…",
+      "websitePartner": "Example: https://youcan.shop"
     },
     "types": {
       "discount": "Discount",
@@ -1046,7 +1092,9 @@
     "errors": {
       "required": "This field is required",
       "image": "The file must be an image",
-      "fixFields": "Fill in the required fields"
+      "fixFields": "Fill in the required fields",
+      "logoType": "Accepted formats: PNG, JPG or WebP only.",
+      "logoSize": "The logo is larger than 1 MB."
     },
     "preview": {
       "title": "Live preview",
@@ -1065,6 +1113,185 @@
     },
     "save": "Save changes",
     "add": "Add company",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "partner": {
+      "sContact": "Contact and partnership",
+      "sContactSub": "This is never shown on the site; we only use it to reach you",
+      "noPasswords": "Never send us passwords, not even your referral dashboard password. We'll contact you to sort out the rest.",
+      "hCode": "A simple code that's easy to remember and type, like ILYES10. Shown to every visitor.",
+      "hPremiumCode": "A hard-to-guess code with a bigger discount, like ILY-X7Q9. Only Premium members see it.",
+      "hDescription": "Explain the offer clearly: what the merchant gets, and any conditions.",
+      "hPremiumDescription": "What a Premium member gets on top of the regular offer.",
+      "hContactName": "Who we talk to about this offer",
+      "hCommission": "Optional: the share you suggest for the platform on each sale through your referral link. Example: 15",
+      "fAffiliateUrl": "Referral / affiliate link",
+      "hAffiliateUrl": "Optional: the link that tracks customers coming from CODpromo",
+      "fMessage": "Message to us",
+      "hMessage": "Anything else you'd like us to know before publishing",
+      "hCategory": "Pick the category closest to your service; we'll adjust it with you during review if needed."
+    }
+  },
+  "partners": {
+    "seo": {
+      "title": "Show your discounts to e-commerce merchants | CODpromo for business",
+      "description": "List your company on CODpromo and show an exclusive discount code to thousands of cash-on-delivery merchants, with promotion in Ilyes Derradji's content and a dashboard with real stats."
+    },
+    "breadcrumb": "For business",
+    "cta": "Register your company",
+    "hero": {
+      "title": "Show your discounts to thousands of e-commerce merchants",
+      "sub": "CODpromo is where cash-on-delivery merchants look for delivery, store platforms and tools to grow. Add your offer and we'll put it in front of them.",
+      "how": "How it works",
+      "free": "Creating a company account and sending an offer are free."
+    },
+    "coupon": {
+      "company": "Your company",
+      "category": "Your category",
+      "value": "Offer value",
+      "exclusive": "Exclusive",
+      "code": "Code",
+      "reach": "In front of {{value}} followers"
+    },
+    "numbers": {
+      "label": "CODpromo in numbers",
+      "users": "registered users",
+      "codes": "active discount codes",
+      "partners": "partner companies",
+      "audience": "followers of Ilyes Derradji's content"
+    },
+    "why": {
+      "title": "Why CODpromo?",
+      "sub": "Every visitor here is a merchant looking for a service they need today.",
+      "audience": {
+        "title": "A targeted merchant audience",
+        "desc": "Our visitors run online stores that sell cash on delivery, and they're looking for delivery, store platforms, payment cards and ads. Your offer reaches people who actually need it."
+      },
+      "ilyes": {
+        "title": "Promotion in Ilyes Derradji's content",
+        "desc": "Partner offers are featured in Ilyes Derradji's content for e-commerce merchants on social networks."
+      },
+      "premium": {
+        "title": "A Premium audience ready to buy",
+        "desc": "Premium members paid to get the strongest discounts, so they're closer to buying than any passing visitor."
+      },
+      "dashboard": {
+        "title": "A dashboard with real stats",
+        "desc": "Track how often your code is copied, clicks, your code's success rate and how many people saved your offer, day by day."
+      }
+    },
+    "how": {
+      "title": "How it works",
+      "sub": "Three steps from sign-up to publication.",
+      "s1": {
+        "title": "Open a company account",
+        "desc": "Sign up with your company name in under a minute."
+      },
+      "s2": {
+        "title": "Enter your offer",
+        "desc": "Regular code, Premium code and description, with a live preview of the card as it will appear."
+      },
+      "s3": {
+        "title": "We contact you and publish it",
+        "desc": "We review the offer, reach you on WhatsApp, then publish it for merchants."
+      }
+    },
+    "ask": {
+      "title": "What we ask from you",
+      "sub": "One clear offer with two sides, plus a referral link if you like.",
+      "optional": "Optional",
+      "example": "Example",
+      "private": "Stays between us, never shown on the site",
+      "normal": {
+        "title": "An exclusive regular code",
+        "desc": "A simple code with a discount just for CODpromo visitors, shown to everyone."
+      },
+      "premium": {
+        "title": "A stronger Premium code",
+        "desc": "A hard-to-guess code with a bigger discount, only for Premium members."
+      },
+      "referral": {
+        "title": "Referral link and platform share",
+        "desc": "If you have a referral program, send the link and the share you suggest."
+      }
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "cost": {
+        "q": "Is joining free?",
+        "a": "Yes, creating a company account and sending your offer are free. You can also suggest a referral link and a platform share; that's optional and agreed with you."
+      },
+      "who": {
+        "q": "Which companies do you accept?",
+        "a": "Companies serving e-commerce merchants: delivery, store platforms, management systems, payment cards, advertising and similar tools."
+      },
+      "time": {
+        "q": "When is my offer published?",
+        "a": "We review every request by hand and reach you on WhatsApp before publishing. Your dashboard shows the status: under review, published, or rejected with the reason."
+      },
+      "codes": {
+        "q": "Why two codes?",
+        "a": "The regular code attracts every visitor, and the stronger Premium code rewards the members most serious about buying."
+      },
+      "edit": {
+        "q": "Can I edit my offer after it's published?",
+        "a": "Yes, with the “Request an edit” button in your dashboard. The published offer stays as it is until we approve the change."
+      },
+      "stats": {
+        "q": "What stats do I see?",
+        "a": "How often your code is copied, clicks, your code's success rate from merchant votes, and how many people saved your offer, with a 30-day chart."
+      }
+    },
+    "final": {
+      "title": "Your next offer deserves to be seen by merchants",
+      "sub": "Open your company account now and send your first offer; we'll contact you before publishing."
+    }
+  },
+  "partnerDash": {
+    "hello": "Hello, {{name}}",
+    "sub": "Track your offers and how they perform, and send a new one any time.",
+    "newOffer": "New offer",
+    "loadError": "Some data couldn't load. Refresh the page to try again.",
+    "kpi": {
+      "offers": "published offers",
+      "copies": "code copies",
+      "success": "code success rate",
+      "favorites": "in favorites"
+    },
+    "votesNote": "from {{count}} votes",
+    "clicks": "clicks",
+    "chart": "Code copies over 30 days",
+    "chartTotal": "{{value}} in this period",
+    "chartEmpty": "No copies in this period yet",
+    "published": "My published offers",
+    "noPublished": "No published offers yet",
+    "noPublishedDesc": "Send your first offer; once we approve it, it shows here with its stats.",
+    "howItWorks": "How it works",
+    "viewOnSite": "View on site",
+    "requestEdit": "Request an edit",
+    "editPending": "Edit under review",
+    "requests": "My requests",
+    "noRequests": "No requests under review.",
+    "editRequest": "Edit request",
+    "reason": "Reason:",
+    "status": {
+      "pending": "Under review",
+      "accepted": "Published",
+      "rejected": "Rejected"
+    },
+    "sentToast": "We received your request and will contact you before publishing."
+  },
+  "partnerForm": {
+    "newTitle": "New offer",
+    "newSub": "Enter your offer the way you want merchants to see it. The preview updates as you type.",
+    "editTitle": "Request an offer edit",
+    "editSub": "Change what you need, then send the request. The published offer stays as it is until we approve.",
+    "back": "Back to my dashboard",
+    "reviewNote": "We review every request by hand and reach you on WhatsApp before publishing.",
+    "send": "Send request",
+    "sendEdit": "Send edit request",
+    "tooMany": "You have {{max}} requests under review, which is the limit. Wait for them to be reviewed before sending a new one.",
+    "companyOnly": "Sending offers is only available to company accounts.",
+    "notYours": "This offer isn't linked to your account.",
+    "errorGeneric": "Couldn't send the request. Check the fields and try again."
   }
 }

@@ -408,35 +408,7 @@
     },
     "company": {
       "badge": "Compte entreprise",
-      "welcome": "Bienvenue, {{name}} 🏢",
-      "company": "votre entreprise",
-      "subtitle": "Soumettez vos offres pour que l'équipe CODpromo les valide et les publie",
-      "email": "E-mail",
-      "phone": "Téléphone",
-      "website": "Site web",
-      "newRequest": "Nouvelle demande d'offre",
-      "offerTitle": "Titre de l'offre",
-      "offerTitlePh": "ex. : -20 % sur toutes les commandes",
-      "offerType": "Type d'offre",
-      "description": "Description",
-      "descriptionPh": "Détails de l'offre…",
-      "code": "Code promo",
-      "codePh": "SAVE20",
-      "link": "Lien",
-      "uploadLogo": "Téléverser un logo",
-      "changeLogo": "Changer le logo",
-      "uploading": "Téléversement…",
-      "removeLogo": "Retirer",
-      "submit": "Envoyer la demande",
-      "myRequests": "Mes demandes",
-      "empty": "Aucune demande pour l'instant — soumettez votre première offre depuis le formulaire.",
-      "toast": "Demande envoyée — elle sera examinée bientôt",
-      "errTitle": "Le titre de l'offre est requis"
-    },
-    "status": {
-      "pending": "En cours d'examen",
-      "accepted": "Acceptée",
-      "rejected": "Refusée"
+      "company": "votre entreprise"
     },
     "plan": {
       "yourPlan": "Votre formule",
@@ -580,6 +552,13 @@
         "premium_unlock_value_usd": {
           "label": "Valeur des réductions débloquées par Premium ($)",
           "hint": "Pas de calcul automatique : vide, le multiplicateur (×) est masqué."
+        },
+        "users_count": {
+          "label": "Nombre d'utilisateurs"
+        },
+        "audience_followers": {
+          "label": "Audience d'Ilyes Derradji (abonnés)",
+          "hint": "Affiché sur la page entreprises. Non calculé automatiquement : vide, il est masqué."
         }
       },
       "autoHint": "Vide = calculé depuis la base de données (actuellement {{value}}).",
@@ -801,6 +780,71 @@
         "deleteFailed": "Impossible de supprimer le code. Il vient peut-être d'être utilisé.",
         "added": "Code {{code}} ajouté",
         "deleted": "Code supprimé"
+      },
+      "req": {
+        "tab": {
+          "pending": "En attente",
+          "accepted": "Acceptées",
+          "rejected": "Refusées",
+          "all": "Toutes"
+        },
+        "status": {
+          "pending": "En cours d'examen",
+          "accepted": "Publiée",
+          "rejected": "Refusée"
+        },
+        "empty": {
+          "pending": "Aucune demande en attente",
+          "accepted": "Aucune demande acceptée",
+          "rejected": "Aucune demande refusée",
+          "all": "Aucune demande"
+        },
+        "emptyDesc": "Les demandes de la page entreprises apparaissent ici.",
+        "editOf": "Modification de l'entreprise #{{id}}",
+        "sentOn": "Envoyée le {{date}}",
+        "whatsapp": "WhatsApp",
+        "email": "E-mail",
+        "waMessage": "Bonjour, l'équipe CODpromo au sujet de la demande d'offre de {{name}}. Nous aimerions revoir les détails avec vous avant publication.",
+        "mailSubject": "Demande d'offre {{name}} sur CODpromo",
+        "preview": "Aperçu",
+        "face": {
+          "normal": "Classique",
+          "premium": "Premium"
+        },
+        "f": {
+          "value": "Valeur de l'offre",
+          "code": "Code classique",
+          "premiumValue": "Valeur Premium",
+          "premiumCode": "Code Premium",
+          "link": "Lien de l'offre",
+          "website": "Site officiel",
+          "contact": "Contact",
+          "whatsapp": "WhatsApp",
+          "email": "E-mail",
+          "commission": "Part plateforme",
+          "affiliate": "Lien d'affiliation",
+          "affiliateDash": "Tableau d'affiliation",
+          "description": "Description",
+          "message": "Message de l'entreprise"
+        },
+        "review": "Examiner et publier",
+        "reject": "Refuser",
+        "openCompany": "Ouvrir l'entreprise",
+        "reason": "Raison :",
+        "rejectTitle": "Refuser {{name}}",
+        "rejectSub": "L'entreprise voit cette raison dans son tableau de bord : écrivez-la clairement.",
+        "reasonPh": "Exemple : le code ne fonctionne pas, ou l'offre ne concerne pas les e-commerçants.",
+        "reasonRequired": "Indiquez une raison",
+        "confirmReject": "Confirmer le refus",
+        "rejected": "Demande refusée",
+        "published": "{{name}} publiée",
+        "back": "Retour aux demandes",
+        "notFound": "Demande introuvable",
+        "reviewTitle": "Examiner {{name}}",
+        "reviewSub": "Modifiez ce qu'il faut puis publiez : l'entreprise est créée, les infos internes enregistrées et liées à son propriétaire.",
+        "reviewEditSub": "Demande de modification de l'entreprise #{{id}} : publier met à jour l'entreprise en ligne.",
+        "publish": "Publier l'offre",
+        "badLink": "Le lien de l'offre et le lien Premium doivent commencer par https:// ou http:// avant la publication."
       }
     }
   },
@@ -989,7 +1033,8 @@
       "change": "Changer le logo",
       "remove": "Retirer",
       "uploading": "Import…",
-      "hint": "Une image carrée sur fond transparent rend mieux (PNG ou WebP)."
+      "hint": "Une image carrée sur fond transparent rend mieux (PNG ou WebP).",
+      "hintPartner": "PNG, JPG ou WebP, 1 Mo maximum. Un logo carré sur fond transparent rend mieux."
     },
     "f": {
       "name": "Nom de l'entreprise",
@@ -1032,7 +1077,8 @@
       "email": "Exemple : partners@youcan.shop",
       "commission": "Exemple : 15",
       "affiliate": "Uniquement le lien, sans mot de passe",
-      "notes": "Toute info utile : conditions, date de renouvellement…"
+      "notes": "Toute info utile : conditions, date de renouvellement…",
+      "websitePartner": "Exemple : https://youcan.shop"
     },
     "types": {
       "discount": "Réduction",
@@ -1046,7 +1092,9 @@
     "errors": {
       "required": "Ce champ est obligatoire",
       "image": "Le fichier doit être une image",
-      "fixFields": "Complétez les champs obligatoires"
+      "fixFields": "Complétez les champs obligatoires",
+      "logoType": "Formats acceptés : PNG, JPG ou WebP uniquement.",
+      "logoSize": "Le logo dépasse 1 Mo."
     },
     "preview": {
       "title": "Aperçu en direct",
@@ -1065,6 +1113,185 @@
     },
     "save": "Enregistrer",
     "add": "Ajouter l'entreprise",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "partner": {
+      "sContact": "Contact et partenariat",
+      "sContactSub": "Ces informations n'apparaissent jamais sur le site ; elles servent uniquement à vous contacter",
+      "noPasswords": "Ne nous envoyez jamais de mot de passe, même celui de votre tableau de bord d'affiliation. Nous vous contacterons pour le reste.",
+      "hCode": "Un code simple, facile à retenir et à saisir, comme ILYES10. Visible par tous les visiteurs.",
+      "hPremiumCode": "Un code difficile à deviner avec une remise plus forte, comme ILY-X7Q9. Réservé aux membres Premium.",
+      "hDescription": "Expliquez clairement l'offre : ce que le commerçant obtient et les éventuelles conditions.",
+      "hPremiumDescription": "Ce qu'un membre Premium obtient en plus de l'offre classique.",
+      "hContactName": "La personne à contacter pour cette offre",
+      "hCommission": "Facultatif : la part que vous proposez à la plateforme sur chaque vente via votre lien d'affiliation. Exemple : 15",
+      "fAffiliateUrl": "Lien d'affiliation",
+      "hAffiliateUrl": "Facultatif : le lien qui suit les clients venant de CODpromo",
+      "fMessage": "Message pour nous",
+      "hMessage": "Toute information utile avant la publication",
+      "hCategory": "Choisissez la catégorie la plus proche de votre service ; nous l'ajusterons avec vous si besoin."
+    }
+  },
+  "partners": {
+    "seo": {
+      "title": "Montrez vos remises aux e-commerçants | CODpromo pour les entreprises",
+      "description": "Inscrivez votre entreprise sur CODpromo et montrez un code promo exclusif à des milliers de commerçants en paiement à la livraison, avec une mise en avant dans le contenu d'Ilyes Derradji et un tableau de bord aux vraies statistiques."
+    },
+    "breadcrumb": "Entreprises",
+    "cta": "Inscrire mon entreprise",
+    "hero": {
+      "title": "Montrez vos remises à des milliers d'e-commerçants",
+      "sub": "Sur CODpromo, les commerçants en paiement à la livraison cherchent livraison, plateformes et outils pour grandir. Ajoutez votre offre, nous la mettons sous leurs yeux.",
+      "how": "Comment ça marche",
+      "free": "La création du compte entreprise et l'envoi de l'offre sont gratuits."
+    },
+    "coupon": {
+      "company": "Votre entreprise",
+      "category": "Votre catégorie",
+      "value": "Valeur de l'offre",
+      "exclusive": "Exclusif",
+      "code": "Code",
+      "reach": "Devant {{value}} abonnés"
+    },
+    "numbers": {
+      "label": "CODpromo en chiffres",
+      "users": "utilisateurs inscrits",
+      "codes": "codes promo actifs",
+      "partners": "entreprises partenaires",
+      "audience": "abonnés au contenu d'Ilyes Derradji"
+    },
+    "why": {
+      "title": "Pourquoi CODpromo ?",
+      "sub": "Chaque visiteur ici est un commerçant qui cherche un service dont il a besoin aujourd'hui.",
+      "audience": {
+        "title": "Une audience de commerçants ciblée",
+        "desc": "Nos visiteurs tiennent des boutiques en ligne en paiement à la livraison et cherchent livraison, plateformes, cartes de paiement et publicité. Votre offre touche ceux qui en ont vraiment besoin."
+      },
+      "ilyes": {
+        "title": "Mise en avant dans le contenu d'Ilyes Derradji",
+        "desc": "Les offres partenaires sont citées dans le contenu d'Ilyes Derradji destiné aux e-commerçants sur les réseaux."
+      },
+      "premium": {
+        "title": "Une audience Premium prête à acheter",
+        "desc": "Les membres Premium ont payé pour les meilleures remises : ils sont plus proches de l'achat qu'un simple visiteur."
+      },
+      "dashboard": {
+        "title": "Un tableau de bord aux vraies statistiques",
+        "desc": "Suivez les copies de votre code, les clics, le taux de réussite du code et le nombre de favoris, jour après jour."
+      }
+    },
+    "how": {
+      "title": "Comment ça marche",
+      "sub": "Trois étapes de l'inscription à la publication.",
+      "s1": {
+        "title": "Ouvrez un compte entreprise",
+        "desc": "Inscrivez-vous avec le nom de votre entreprise en moins d'une minute."
+      },
+      "s2": {
+        "title": "Saisissez votre offre",
+        "desc": "Code classique, code Premium et description, avec un aperçu en direct de la carte."
+      },
+      "s3": {
+        "title": "Nous vous contactons et la publions",
+        "desc": "Nous vérifions l'offre, vous contactons sur WhatsApp, puis la publions pour les commerçants."
+      }
+    },
+    "ask": {
+      "title": "Ce que nous vous demandons",
+      "sub": "Une offre claire à deux faces, et un lien d'affiliation si vous le souhaitez.",
+      "optional": "Facultatif",
+      "example": "Exemple",
+      "private": "Reste entre nous, jamais affiché sur le site",
+      "normal": {
+        "title": "Un code classique exclusif",
+        "desc": "Un code simple avec une remise réservée aux visiteurs de CODpromo, visible par tous."
+      },
+      "premium": {
+        "title": "Un code Premium plus fort",
+        "desc": "Un code difficile à deviner avec une remise plus forte, réservé aux membres Premium."
+      },
+      "referral": {
+        "title": "Lien d'affiliation et part de la plateforme",
+        "desc": "Si vous avez un programme d'affiliation, envoyez le lien et la part que vous proposez."
+      }
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "cost": {
+        "q": "L'inscription est-elle gratuite ?",
+        "a": "Oui, la création du compte entreprise et l'envoi de l'offre sont gratuits. Vous pouvez aussi proposer un lien d'affiliation et une part pour la plateforme ; c'est facultatif et convenu avec vous."
+      },
+      "who": {
+        "q": "Quelles entreprises acceptez-vous ?",
+        "a": "Les entreprises qui servent les e-commerçants : livraison, plateformes de boutique, logiciels de gestion, cartes de paiement, publicité et outils similaires."
+      },
+      "time": {
+        "q": "Quand mon offre est-elle publiée ?",
+        "a": "Nous vérifions chaque demande à la main et vous contactons sur WhatsApp avant publication. Votre tableau de bord indique le statut : en cours d'examen, publiée, ou refusée avec la raison."
+      },
+      "codes": {
+        "q": "Pourquoi deux codes ?",
+        "a": "Le code classique attire tous les visiteurs, et le code Premium plus fort récompense les membres les plus décidés à acheter."
+      },
+      "edit": {
+        "q": "Puis-je modifier mon offre après publication ?",
+        "a": "Oui, avec le bouton « Demander une modification » dans votre tableau de bord. L'offre publiée reste inchangée jusqu'à notre validation."
+      },
+      "stats": {
+        "q": "Quelles statistiques vois-je ?",
+        "a": "Les copies de votre code, les clics, le taux de réussite selon les votes des commerçants et le nombre de favoris, avec une courbe sur 30 jours."
+      }
+    },
+    "final": {
+      "title": "Votre prochaine offre mérite d'être vue par les commerçants",
+      "sub": "Ouvrez votre compte entreprise et envoyez votre première offre ; nous vous contactons avant la publication."
+    }
+  },
+  "partnerDash": {
+    "hello": "Bonjour, {{name}}",
+    "sub": "Suivez vos offres et leurs résultats, et envoyez-en une nouvelle quand vous voulez.",
+    "newOffer": "Nouvelle offre",
+    "loadError": "Certaines données n'ont pas pu être chargées. Actualisez la page pour réessayer.",
+    "kpi": {
+      "offers": "offres publiées",
+      "copies": "copies du code",
+      "success": "taux de réussite du code",
+      "favorites": "en favoris"
+    },
+    "votesNote": "sur {{count}} votes",
+    "clicks": "clics",
+    "chart": "Copies du code sur 30 jours",
+    "chartTotal": "{{value}} sur la période",
+    "chartEmpty": "Aucune copie sur cette période pour l'instant",
+    "published": "Mes offres publiées",
+    "noPublished": "Aucune offre publiée pour l'instant",
+    "noPublishedDesc": "Envoyez votre première offre ; une fois validée, elle apparaît ici avec ses statistiques.",
+    "howItWorks": "Comment ça marche",
+    "viewOnSite": "Voir sur le site",
+    "requestEdit": "Demander une modification",
+    "editPending": "Modification en cours d'examen",
+    "requests": "Mes demandes",
+    "noRequests": "Aucune demande en cours d'examen.",
+    "editRequest": "Demande de modification",
+    "reason": "Raison :",
+    "status": {
+      "pending": "En cours d'examen",
+      "accepted": "Publiée",
+      "rejected": "Refusée"
+    },
+    "sentToast": "Nous avons reçu votre demande et vous contacterons avant la publication."
+  },
+  "partnerForm": {
+    "newTitle": "Nouvelle offre",
+    "newSub": "Saisissez votre offre telle que vous voulez que les commerçants la voient. L'aperçu se met à jour pendant la saisie.",
+    "editTitle": "Demander une modification",
+    "editSub": "Modifiez ce dont vous avez besoin puis envoyez la demande. L'offre publiée reste inchangée jusqu'à notre validation.",
+    "back": "Retour à mon tableau de bord",
+    "reviewNote": "Nous vérifions chaque demande à la main et vous contactons sur WhatsApp avant publication.",
+    "send": "Envoyer la demande",
+    "sendEdit": "Envoyer la modification",
+    "tooMany": "Vous avez {{max}} demandes en cours d'examen, c'est le maximum. Attendez leur examen avant d'en envoyer une nouvelle.",
+    "companyOnly": "L'envoi d'offres est réservé aux comptes entreprise.",
+    "notYours": "Cette offre n'est pas liée à votre compte.",
+    "errorGeneric": "Impossible d'envoyer la demande. Vérifiez les champs puis réessayez."
   }
 }

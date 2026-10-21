@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-import { ImagePlus, Loader2, X, Tag, Ticket, Wallet, Plus, Save, Crown, Sparkles, AlertTriangle, Lock, Building2, Gift, Wand2, Check } from "lucide-react";
+import { ImagePlus, Loader2, X, Tag, Ticket, Wallet, Plus, Save, Crown, Sparkles, AlertTriangle, Lock, Building2, Gift, Wand2, Check, Handshake, ShieldAlert } from "lucide-react";
 import CompanyLogo from "../CompanyLogo.jsx";
 import CompanyCard from "../CompanyCard.jsx";
 import { uploadLogo } from "../../lib/supabase.js";
@@ -18,6 +18,11 @@ import { parseVal } from "../../lib/values.js";
 //   onCancel, submitting
 //   onCreateCategory(name_ar) → الفئة المُنشأة (يُظهر زر "فئة جديدة" إن مُرّر)
 //   showPrivate      قسم المعلومات الداخلية (الأدمن فقط) + privateInitial
+//   mode             "admin" (افتراضي) أو "partner": قسم "التواصل والشراكة" للشركة
+//                    (WhatsApp إجباري + تنبيه "لا كلمات سر") بدل المعلومات الداخلية
+//   uploadLogo       رفع مخصّص للوغو (الشركة: bucket partner-logos)، وlogoAccept لأنواع الملف
+//   trap             عنصر honeypot (useBotGuard) يُوضع داخل الفورم
+//   submitLabel      نص زر الإرسال (الشركة: "أرسل الطلب")
 //   lang             لغة نصوص الفورم (الأدمن: "ar" ثابتة)
 // ============================================================
 
@@ -44,7 +49,9 @@ const EMPTY = {
   premium_description: "",
   supports_premium: true,
 };
-const EMPTY_PRIVATE = { website_url: "", contact_name: "", whatsapp: "", email: "", commission_pct: "", affiliate_dashboard_url: "", notes: "" };
+const EMPTY_PRIVATE = { website_url: "", contact_name: "", whatsapp: "", email: "", commission_pct: "", affiliate_dashboard_url: "", affiliate_url: "", notes: "" };
+// قسم الشركة: نفس المفاتيح تقريباً + رسالة لنا (contact_email بدل email)
+const EMPTY_CONTACT = { website_url: "", contact_name: "", whatsapp: "", contact_email: "", affiliate_url: "", affiliate_dashboard_url: "", commission_pct: "", message: "" };
 const URL_FIELDS = ["link", "premium_url", "website_url", "affiliate_dashboard_url"];
 
 /** كود Premium صعب التخمين: 3 حروف من اسم الشركة + 4 رموز عشوائية (بلا 0/O/1/I). */
@@ -75,15 +82,21 @@ export default function CompanyOfferForm({
   onCreateCategory,
   showPrivate = false,
   privateInitial = null,
+  mode = "admin",
+  uploadLogo: uploadLogoProp,
+  logoAccept = "image/*",
+  trap = null,
+  submitLabel,
   lang,
 }) {
+  const partner = mode === "partner";
   const { i18n } = useTranslation();
   const formLang = lang || i18n.language;
   const t = useMemo(() => i18n.getFixedT(formLang, null, "offerForm"), [i18n, formLang]);
   const editing = Boolean(initial?.id);
 
   const [form, setForm] = useState(() => initForm(initial, categories));
-  const [priv, setPriv] = useState(() => ({ ...EMPTY_PRIVATE, ...clean(privateInitial) }));
+  const [priv, setPriv] = useState(() => (partner ? { ...EMPTY_CONTACT, ...cleanTo(privateInitial, EMPTY_CONTACT) } : { ...EMPTY_PRIVATE, ...clean(privateInitial) }));
   const [uploading, setUploading] = useState(false);
   const [uploadErr, setUploadErr] = useState("");
   const [touched, setTouched] = useState(false);
@@ -105,13 +118,15 @@ export default function CompanyOfferForm({
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) return setUploadErr(t("errors.image"));
+    if (partner && !["image/png", "image/jpeg", "image/webp"].includes(file.type)) return setUploadErr(t("errors.logoType"));
+    if (partner && file.size > 1024 * 1024) return setUploadErr(t("errors.logoSize"));
     setUploadErr("");
     setUploading(true);
     try {
-      const url = await uploadLogo(file);
+      const url = await (uploadLogoProp || uploadLogo)(file);
       setForm((f) => ({ ...f, logo: url }));
     } catch (err) {
-      setUploadErr(err.message);
+      setUploadErr(err.message === "logo_type" ? t("errors.logoType") : err.message === "logo_size" ? t("errors.logoSize") : err.message);
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -128,7 +143,8 @@ export default function CompanyOfferForm({
     discount: !form.discount.trim(),
     code: !form.code.trim(),
   };
-  const valid = !missing.name && !missing.discount && !missing.code;
+  if (partner) missing.whatsapp = !priv.whatsapp.trim();
+  const valid = !missing.name && !missing.discount && !missing.code && !missing.whatsapp;
 
   const submit = (e) => {
     e.preventDefault();
@@ -144,7 +160,7 @@ export default function CompanyOfferForm({
       // النص category يطابق اسم الفئة العربي (توافق مع الكود القديم)
       category: selected ? selected.name_ar || "" : "",
     };
-    onSubmit(company, showPrivate ? priv : null);
+    onSubmit(company, showPrivate || partner ? priv : null);
   };
 
   // بطاقة المعاينة = نفس CompanyCard اللي في /offers
@@ -176,7 +192,7 @@ export default function CompanyOfferForm({
           <div className="flex flex-wrap items-center gap-4">
             <CompanyLogo logo={form.logo} name={form.name} size={72} accent={meta.color} />
             <div className="min-w-0 flex-1">
-              <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" id="cof-logo" />
+              <input ref={fileRef} type="file" accept={logoAccept} onChange={handleFile} className="hidden" id="cof-logo" />
               <div className="flex flex-wrap items-center gap-2">
                 <label htmlFor="cof-logo" className="flex cursor-pointer items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-[13.5px] font-bold text-white transition-colors hover:bg-white/[0.08]">
                   {uploading ? <Loader2 size={16} className="animate-spin text-[var(--color-lime)]" /> : <ImagePlus size={16} className="text-[var(--color-lime)]" />}
@@ -188,7 +204,7 @@ export default function CompanyOfferForm({
                   </button>
                 )}
               </div>
-              <Hint>{t("logo.hint")}</Hint>
+              <Hint>{partner ? t("logo.hintPartner") : t("logo.hint")}</Hint>
               {uploadErr && <p className="mt-1 text-[12px] font-semibold text-red-400">{uploadErr}</p>}
             </div>
           </div>
@@ -197,7 +213,7 @@ export default function CompanyOfferForm({
             <Field label={t("f.name")} required hint={t("h.name")} error={touched && missing.name ? t("errors.required") : null}>
               {(p) => <input {...p} value={form.name} onChange={set("name")} className={inputCls} dir="auto" />}
             </Field>
-            <Field label={t("f.category")} hint={t("h.category")}>
+            <Field label={t("f.category")} hint={partner ? t("partner.hCategory") : t("h.category")}>
               {(p) => (
                 <div className="flex gap-2">
                   <select {...p} value={form.category_id || ""} onChange={set("category_id")} className={`${inputCls} cursor-pointer`}>
@@ -218,8 +234,8 @@ export default function CompanyOfferForm({
                 </div>
               )}
             </Field>
-            {showPrivate && (
-              <Field label={t("f.website")} hint={t("h.website")} warn={urlWarn("website_url")} className="sm:col-span-2">
+            {(showPrivate || partner) && (
+              <Field label={t("f.website")} hint={partner ? t("h.websitePartner") : t("h.website")} warn={urlWarn("website_url")} className="sm:col-span-2">
                 {(p) => <input {...p} value={priv.website_url} onChange={setP("website_url")} placeholder="https://" className={inputCls} dir="ltr" inputMode="url" />}
               </Field>
             )}
@@ -262,13 +278,13 @@ export default function CompanyOfferForm({
             <Field label={t("f.discount")} required hint={t("h.discount")} error={touched && missing.discount ? t("errors.required") : null}>
               {(p) => <input {...p} value={form.discount} onChange={set("discount")} className={inputCls} dir="auto" />}
             </Field>
-            <Field label={t("f.code")} required hint={t("h.code")} error={touched && missing.code ? t("errors.required") : null}>
+            <Field label={t("f.code")} required hint={partner ? t("partner.hCode") : t("h.code")} error={touched && missing.code ? t("errors.required") : null}>
               {(p) => <input {...p} value={form.code} onChange={(e) => setForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))} className={`${inputCls} font-mono tracking-wider`} dir="ltr" autoCapitalize="characters" spellCheck={false} />}
             </Field>
             <Field label={t("f.link")} hint={t("h.link")} warn={urlWarn("link")} className="sm:col-span-2">
               {(p) => <input {...p} value={form.link} onChange={set("link")} placeholder="https://" className={inputCls} dir="ltr" inputMode="url" />}
             </Field>
-            <Field label={t("f.description")} hint={t("h.description")} className="sm:col-span-2">
+            <Field label={t("f.description")} hint={partner ? t("partner.hDescription") : t("h.description")} className="sm:col-span-2">
               {(p) => <textarea {...p} value={form.description} onChange={set("description")} rows={3} className={`${inputCls} resize-y`} dir="auto" />}
             </Field>
           </div>
@@ -284,7 +300,7 @@ export default function CompanyOfferForm({
             <Field label={t("f.premiumDiscount")} hint={t("h.premiumDiscount")} warn={strength === false ? t("warn.weaker") : null}>
               {(p) => <input {...p} value={form.premium_discount} onChange={set("premium_discount")} placeholder={form.discount || ""} className={inputCls} dir="auto" />}
             </Field>
-            <Field label={t("f.premiumCode")} hint={t("h.premiumCode")}>
+            <Field label={t("f.premiumCode")} hint={partner ? t("partner.hPremiumCode") : t("h.premiumCode")}>
               {(p) => (
                 <div className="flex gap-2">
                   <input {...p} value={form.premium_code} onChange={(e) => setForm((f) => ({ ...f, premium_code: e.target.value.toUpperCase() }))} placeholder={form.code || ""} className={`${inputCls} font-mono tracking-wider`} dir="ltr" spellCheck={false} />
@@ -302,7 +318,7 @@ export default function CompanyOfferForm({
             <Field label={t("f.premiumUrl")} hint={t("h.premiumUrl")} warn={urlWarn("premium_url")} className="sm:col-span-2">
               {(p) => <input {...p} value={form.premium_url} onChange={set("premium_url")} placeholder={form.link || "https://"} className={inputCls} dir="ltr" inputMode="url" />}
             </Field>
-            <Field label={t("f.premiumDescription")} hint={t("h.premiumDescription")} className="sm:col-span-2">
+            <Field label={t("f.premiumDescription")} hint={partner ? t("partner.hPremiumDescription") : t("h.premiumDescription")} className="sm:col-span-2">
               {(p) => <textarea {...p} value={form.premium_description} onChange={set("premium_description")} rows={3} placeholder={form.description || ""} className={`${inputCls} resize-y`} dir="auto" />}
             </Field>
           </div>
@@ -327,6 +343,9 @@ export default function CompanyOfferForm({
               <Field label={t("f.commission")} hint={t("h.commission")}>
                 {(p) => <input {...p} type="number" min="0" max="100" step="0.5" value={priv.commission_pct} onChange={setP("commission_pct")} className={inputCls} dir="ltr" />}
               </Field>
+              <Field label={t("partner.fAffiliateUrl")} hint={t("partner.hAffiliateUrl")} warn={urlWarn("affiliate_url")} className="sm:col-span-2">
+                {(p) => <input {...p} value={priv.affiliate_url} onChange={setP("affiliate_url")} placeholder="https://" className={inputCls} dir="ltr" inputMode="url" autoComplete="off" />}
+              </Field>
               <Field label={t("f.affiliate")} hint={t("h.affiliate")} warn={urlWarn("affiliate_dashboard_url")} className="sm:col-span-2">
                 {(p) => <input {...p} value={priv.affiliate_dashboard_url} onChange={setP("affiliate_dashboard_url")} placeholder="https://" className={inputCls} dir="ltr" inputMode="url" autoComplete="off" />}
               </Field>
@@ -337,6 +356,40 @@ export default function CompanyOfferForm({
           </Section>
         )}
 
+        {/* 5ب) التواصل والشراكة (الشركة) */}
+        {partner && (
+          <Section icon={Handshake} title={t("partner.sContact")} sub={t("partner.sContactSub")}>
+            <p role="note" className="mb-4 flex items-start gap-2.5 rounded-xl border border-[#fbbf24]/40 bg-[#fbbf24]/[0.08] px-3.5 py-3 text-[13px] font-bold leading-relaxed text-[#fde68a]">
+              <ShieldAlert size={17} className="mt-0.5 shrink-0" /> {t("partner.noPasswords")}
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("f.contactName")} hint={t("partner.hContactName")}>
+                {(p) => <input {...p} value={priv.contact_name} onChange={setP("contact_name")} className={inputCls} dir="auto" autoComplete="name" />}
+              </Field>
+              <Field label={t("f.whatsapp")} required hint={t("h.whatsapp")} error={touched && missing.whatsapp ? t("errors.required") : null}>
+                {(p) => <input {...p} value={priv.whatsapp} onChange={setP("whatsapp")} className={inputCls} dir="ltr" inputMode="tel" autoComplete="tel" />}
+              </Field>
+              <Field label={t("f.email")} hint={t("h.email")}>
+                {(p) => <input {...p} type="email" value={priv.contact_email} onChange={setP("contact_email")} className={inputCls} dir="ltr" autoComplete="email" />}
+              </Field>
+              <Field label={t("f.commission")} hint={t("partner.hCommission")}>
+                {(p) => <input {...p} type="number" min="0" max="100" step="0.5" value={priv.commission_pct} onChange={setP("commission_pct")} className={inputCls} dir="ltr" />}
+              </Field>
+              <Field label={t("partner.fAffiliateUrl")} hint={t("partner.hAffiliateUrl")} warn={urlWarn("affiliate_url")} className="sm:col-span-2">
+                {(p) => <input {...p} value={priv.affiliate_url} onChange={setP("affiliate_url")} placeholder="https://" className={inputCls} dir="ltr" inputMode="url" autoComplete="off" />}
+              </Field>
+              <Field label={t("f.affiliate")} hint={t("h.affiliate")} warn={urlWarn("affiliate_dashboard_url")} className="sm:col-span-2">
+                {(p) => <input {...p} value={priv.affiliate_dashboard_url} onChange={setP("affiliate_dashboard_url")} placeholder="https://" className={inputCls} dir="ltr" inputMode="url" autoComplete="off" />}
+              </Field>
+              <Field label={t("partner.fMessage")} hint={t("partner.hMessage")} className="sm:col-span-2">
+                {(p) => <textarea {...p} value={priv.message} onChange={setP("message")} rows={3} maxLength={2000} className={`${inputCls} resize-y`} dir="auto" />}
+              </Field>
+            </div>
+          </Section>
+        )}
+        {/* honeypot داخل حاوية بلا حجم: موضعه البعيد ما يوسّعش الصفحة (RTL) */}
+        {trap && <div className="relative h-0 overflow-hidden">{trap}</div>}
+
         {/* الحفظ */}
         <div className="sticky bottom-3 z-10 flex flex-wrap items-center gap-2 rounded-2xl border border-white/[0.08] bg-[#0b0b0d]/90 p-3 backdrop-blur-xl">
           <button
@@ -346,7 +399,7 @@ export default function CompanyOfferForm({
             style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
           >
             {submitting ? <Loader2 size={17} className="animate-spin" /> : editing ? <Save size={17} /> : <Plus size={17} />}
-            {editing ? t("save") : t("add")}
+            {submitLabel || (editing ? t("save") : t("add"))}
           </button>
           {onCancel && (
             <button type="button" onClick={onCancel} className="rounded-xl border border-white/[0.08] px-4 py-3 text-[14px] font-bold text-[#c9c9cf] transition-colors hover:bg-white/[0.05]">
@@ -424,6 +477,7 @@ function initForm(initial, categories) {
   }
   return base;
 }
+const cleanTo = (o, shape) => Object.fromEntries(Object.entries(o || {}).filter(([k, v]) => k in shape && v != null).map(([k, v]) => [k, String(v)]));
 const clean = (o) => Object.fromEntries(Object.entries(o || {}).filter(([k, v]) => k in EMPTY_PRIVATE && v != null).map(([k, v]) => [k, String(v)]));
 
 const inputCls =
@@ -588,5 +642,34 @@ function NewCategoryDialog({ t, onClose, onCreate }) {
         </div>
       </motion.div>
     </motion.div>
+  );
+}
+
+/**
+ * معاينة بطاقة عرض (نفس CompanyCard اللي في /offers) — غير تفاعلية.
+ * offer: سطر شركة أو طلب (company_name / name، discount / title…). premium: وجه Premium.
+ */
+export function OfferPreview({ offer, premium = false }) {
+  const company = {
+    ...offer,
+    // رقم الطلب ماشي رقم شركة: نستعمل الشركة المرتبطة فقط (وإلا لا إحصائيات تصويت دخيلة)
+    id: offer?.company_id || -1,
+    clicks: 0,
+    name: offer?.name || offer?.company_name || "—",
+    discount: offer?.discount || offer?.title || "—",
+    code: offer?.code || "—",
+    description_en: null,
+    description_fr: null,
+    discount_en: null,
+    discount_fr: null,
+    premium_discount_en: null,
+    premium_discount_fr: null,
+    premium_description_en: null,
+    premium_description_fr: null,
+  };
+  return (
+    <Inert>
+      <CompanyCard company={company} index={0} isFavorite={false} onToggleFav={() => {}} onCopy={() => {}} premium={premium} unlocked={false} linkToStore={false} />
+    </Inert>
   );
 }

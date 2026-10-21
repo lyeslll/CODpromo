@@ -11,7 +11,7 @@ import { usePremium } from "../../lib/premium.jsx";
 import { useCategories } from "../../lib/categories.jsx";
 import { activeCategories, countByCategory } from "../../lib/offerFilters.js";
 import { categoryName, categoryRecordSlug } from "../../lib/slug.js";
-import { categoriesPath, homePath, offersLink, offersPath } from "../../lib/seo.js";
+import { categoriesPath, homePath, offersLink, offersPath, partnersPath } from "../../lib/seo.js";
 import { DZ_PLANS, fmtUSD } from "../../lib/plans.js";
 import { monthlyUsdPrice } from "../../lib/siteStats.js";
 import { formatNumber } from "../../lib/values.js";
@@ -148,6 +148,7 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
               />
               <BigLink to={categoriesPath(lang)} label={t("nav.categories")} value={chips.length ? formatNumber(chips.length, lang) : null} onClick={onClose} />
               <BigLink to={{ pathname: homePath(lang), hash: "#how" }} label={t("nav.how")} onClick={onClose} />
+              <BigLink to={partnersPath(lang)} label={t("footer.addOffers")} onClick={onClose} />
             </nav>
 
             {/* شرائح الفئات → /offers?category=… — سطران يُسحبان أفقياً حتى يبقى كارت Premium في الشاشة الأولى */}

@@ -6,6 +6,7 @@ import { useTranslation, Trans } from "react-i18next";
 import AuthShell, { AuthAlert, authInputCls } from "../components/auth/AuthShell.jsx";
 import { Field } from "./Login.jsx";
 import { useAuth } from "../lib/auth.jsx";
+import { useBotGuard } from "../components/auth/botGuard.jsx";
 
 export default function ForgotPassword() {
   const { resetPassword } = useAuth();
@@ -14,10 +15,15 @@ export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  // حماية مخفية (honeypot + فحص الوقت)
+  const guard = useBotGuard();
 
   const submit = async (e) => {
     e.preventDefault();
     setError("");
+    const verdict = guard.check();
+    if (verdict === "bot") return;
+    if (verdict === "fast") return setError(t("auth.tooFast"));
     setLoading(true);
     const { error } = await resetPassword(email.trim());
     setLoading(false);
@@ -50,6 +56,7 @@ export default function ForgotPassword() {
       ) : (
         <form onSubmit={submit} className="flex flex-col gap-4">
           {error && <AuthAlert>{error}</AuthAlert>}
+          {guard.trap}
           <Field label={t("auth.forgot.email")} icon={Mail}>
             <input
               type="email"

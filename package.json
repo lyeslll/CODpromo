@@ -13,7 +13,6 @@
     "@capacitor/core": "^8.4.1",
     "@capacitor/ios": "^8.4.1",
     "@capacitor/splash-screen": "^8.0.1",
-    "@hcaptcha/react-hcaptcha": "^2.0.2",
     "@react-three/fiber": "^8.18.0",
     "@supabase/supabase-js": "^2.107.0",
     "@tailwindcss/vite": "^4.3.0",

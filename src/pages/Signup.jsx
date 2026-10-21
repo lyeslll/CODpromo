@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Mail,
   Lock,
@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useTranslation, Trans } from "react-i18next";
 import AuthShell, { GoogleButton, AuthAlert, authInputCls } from "../components/auth/AuthShell.jsx";
-import Captcha from "../components/auth/Captcha.jsx";
+import { useBotGuard } from "../components/auth/botGuard.jsx";
 import { Field, Divider } from "./Login.jsx";
 import { useAuth } from "../lib/auth.jsx";
 
@@ -54,22 +54,19 @@ export default function Signup() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState("");
-  const captchaRef = useRef(null);
+  // حماية مخفية (بدل hCaptcha): حقل honeypot + فحص الوقت
+  const guard = useBotGuard();
 
   const isCompany = accountType === "company";
-
-  const resetCaptcha = () => {
-    captchaRef.current?.resetCaptcha();
-    setCaptchaToken("");
-  };
 
   const submit = async (e) => {
     e.preventDefault();
     setError("");
     if (isCompany && !companyName.trim()) return setError(t("auth.signup.errCompanyRequired"));
     if (password.length < 6) return setError(t("auth.signup.errPasswordShort"));
-    if (!captchaToken) return setError(t("auth.signup.errCaptcha"));
+    const verdict = guard.check();
+    if (verdict === "bot") return;
+    if (verdict === "fast") return setError(t("auth.tooFast"));
 
     const metadata = isCompany
       ? {
@@ -82,12 +79,9 @@ export default function Signup() {
       : { account_type: "customer", full_name: fullName.trim() };
 
     setLoading(true);
-    const { data, error } = await signUp(email.trim(), password, metadata, captchaToken);
+    const { data, error } = await signUp(email.trim(), password, metadata);
     setLoading(false);
-    if (error) {
-      resetCaptcha();
-      return setError(t(`auth.signup.${signupErrorKey(error.message)}`));
-    }
+    if (error) return setError(t(`auth.signup.${signupErrorKey(error.message)}`));
     if (data.session) navigate("/");
     else setDone(true);
   };
@@ -145,22 +139,28 @@ export default function Signup() {
       {error && <AuthAlert>{error}</AuthAlert>}
 
       {/* اختيار نوع الحساب */}
-      <div className="mb-5 grid grid-cols-2 gap-2.5">
+      <div role="radiogroup" aria-label={t("auth.signup.typeLabel")} className="mb-5 grid grid-cols-2 gap-1.5 rounded-[18px] border border-[var(--color-ink-line)] bg-[var(--fill)] p-1.5">
         {TYPES.map((ty) => {
           const active = accountType === ty.key;
           return (
             <button
               key={ty.key}
               type="button"
+              role="radio"
+              aria-checked={active}
               onClick={() => setAccountType(ty.key)}
-              className="relative flex flex-col items-center gap-1.5 rounded-2xl border p-3.5 text-center transition-all"
-              style={{
-                borderColor: active ? "var(--color-lime)" : "var(--color-ink-line)",
-                background: active ? "rgba(166,240,0,0.08)" : "var(--fill)",
-              }}
+              className="relative flex flex-col items-center gap-1.5 rounded-xl p-3 text-center outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-lime)]/60"
             >
+              {active && (
+                <motion.span
+                  layoutId="signup-type"
+                  aria-hidden
+                  className="absolute inset-0 rounded-xl border border-[var(--color-lime)]/70 bg-[rgba(166,240,0,0.09)] shadow-[0_0_24px_-10px_rgba(166,240,0,0.7)]"
+                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                />
+              )}
               <span
-                className="grid h-9 w-9 place-items-center rounded-xl"
+                className="relative grid h-9 w-9 place-items-center rounded-xl transition-colors duration-300"
                 style={{
                   background: active ? "var(--color-lime)" : "var(--fill-strong)",
                   color: active ? "#0a0a0a" : "var(--text-soft)",
@@ -168,8 +168,8 @@ export default function Signup() {
               >
                 <ty.icon size={18} />
               </span>
-              <span className="text-[13.5px] font-extrabold text-[var(--text)]">{t(`auth.signup.${ty.key}Label`)}</span>
-              <span className="text-[11px] leading-tight text-[var(--color-mute)]">{t(`auth.signup.${ty.key}Desc`)}</span>
+              <span className="relative text-[13.5px] font-extrabold text-[var(--text)]">{t(`auth.signup.${ty.key}Label`)}</span>
+              <span className="relative text-[11px] leading-tight text-[var(--color-mute)]">{t(`auth.signup.${ty.key}Desc`)}</span>
             </button>
           );
         })}
@@ -180,6 +180,16 @@ export default function Signup() {
       <Divider />
 
       <form onSubmit={submit} className="flex flex-col gap-4">
+        {guard.trap}
+        <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={accountType}
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          className="-m-1 flex flex-col gap-4 overflow-hidden p-1"
+        >
         {isCompany ? (
           <>
             <Field label={t("auth.signup.companyName")} icon={Building2}>
@@ -224,6 +234,8 @@ export default function Signup() {
             />
           </Field>
         )}
+        </motion.div>
+        </AnimatePresence>
 
         <Field label={t("auth.signup.email")} icon={Mail}>
           <input
@@ -256,8 +268,6 @@ export default function Signup() {
             {show ? <EyeOff size={17} /> : <Eye size={17} />}
           </button>
         </Field>
-
-        <Captcha ref={captchaRef} onVerify={setCaptchaToken} onExpire={() => setCaptchaToken("")} />
 
         <motion.button
           type="submit"

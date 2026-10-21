@@ -318,7 +318,6 @@
       "password": "Password",
       "forgot": "Forgot password?",
       "submit": "Log in",
-      "errCaptcha": "Please complete the captcha",
       "errCredentials": "Invalid login details",
       "errNotConfirmed": "Email not confirmed yet — check your inbox",
       "errRateLimit": "Too many attempts, please try again shortly",
@@ -350,13 +349,13 @@
       "doneDesc": "Open the activation email we sent to <0>{{email}}</0>, then log in.",
       "errCompanyRequired": "Company name is required",
       "errPasswordShort": "Password must be at least 6 characters",
-      "errCaptcha": "Please complete the captcha",
       "errExists": "This email is already registered",
       "errShort": "Password is too short",
       "errInvalidEmail": "Invalid email format",
       "errCaptchaFail": "Captcha failed, please try again",
       "errRateLimit": "Too many attempts, please try again shortly",
-      "errGeneric": "Couldn't create the account"
+      "errGeneric": "Couldn't create the account",
+      "typeLabel": "Account type"
     },
     "forgot": {
       "title": "Reset your password",
@@ -387,7 +386,8 @@
       "errShort": "Password must be at least 6 characters",
       "errMismatch": "Passwords don't match",
       "errFail": "Couldn't update the password"
-    }
+    },
+    "tooFast": "One moment, then try again."
   },
   "dashboard": {
     "site": "Site",

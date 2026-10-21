@@ -318,7 +318,6 @@
       "password": "Mot de passe",
       "forgot": "Mot de passe oublié ?",
       "submit": "Se connecter",
-      "errCaptcha": "Veuillez compléter le captcha",
       "errCredentials": "Identifiants incorrects",
       "errNotConfirmed": "E-mail non confirmé — vérifiez votre boîte mail",
       "errRateLimit": "Trop de tentatives, réessayez bientôt",
@@ -350,13 +349,13 @@
       "doneDesc": "Ouvrez l'e-mail d'activation envoyé à <0>{{email}}</0>, puis connectez-vous.",
       "errCompanyRequired": "Le nom de l'entreprise est requis",
       "errPasswordShort": "Le mot de passe doit comporter au moins 6 caractères",
-      "errCaptcha": "Veuillez compléter le captcha",
       "errExists": "Cet e-mail est déjà enregistré",
       "errShort": "Mot de passe trop court",
       "errInvalidEmail": "Format d'e-mail invalide",
       "errCaptchaFail": "Échec du captcha, réessayez",
       "errRateLimit": "Trop de tentatives, réessayez bientôt",
-      "errGeneric": "Impossible de créer le compte"
+      "errGeneric": "Impossible de créer le compte",
+      "typeLabel": "Type de compte"
     },
     "forgot": {
       "title": "Réinitialiser le mot de passe",
@@ -387,7 +386,8 @@
       "errShort": "Le mot de passe doit comporter au moins 6 caractères",
       "errMismatch": "Les mots de passe ne correspondent pas",
       "errFail": "Impossible de mettre à jour le mot de passe"
-    }
+    },
+    "tooFast": "Un instant, puis réessayez."
   },
   "dashboard": {
     "site": "Site",

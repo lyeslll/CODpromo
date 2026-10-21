@@ -46,7 +46,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 - **قاعدة البيانات:** ملفات SQL مرقّمة تتشغّل بالترتيب (كلها idempotent):
   `supabase-setup` → `supabase-auth-setup` → `supabase-auth-phase2` → `phase3` → `phase4` → `phase5` → `phase6a` → `phase6a-note4` → `phase7-stripe` → `phase8-slickpay` → `phase9-paypal` → `phase10-i18n` → `phase11-i18n-value` → `phase12-premium-code-url` → `phase13-seo` → `phase14-categories` → `phase15-admin` → `phase16-rls-lock` → `phase17a-premium-rpcs` → `phase17b-premium-lock` → `phase18-premium-description` → `phase19-code-votes` → `phase20-google-play` → `phase21-site-stats`.
   أي عمود أو جدول جديد = ملف phase جديد، ماشي تعديل ملف قديم.
-- **متغيرات البيئة (الويب):** في `.env` (gitignored) و Vercel، شوف `.env.example`: `VITE_ADMIN_PIN`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_HCAPTCHA_SITE_KEY`. `supabase.js` و `supabaseClient.js` فيهم fallback للـ URL والمفتاح العام.
+- **متغيرات البيئة (الويب):** في `.env` (gitignored) و Vercel، شوف `.env.example`: `VITE_ADMIN_PIN`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. `supabase.js` و `supabaseClient.js` فيهم fallback للـ URL والمفتاح العام.
 
 ### الصفحة الرئيسية (landing) — `src/pages/Home.jsx` + `src/components/landing/`
 الجمهور: تجّار الدفع عند الاستلام (يشريو خدمات: توصيل، منصات، ERP، بطاقات دفع، إعلانات…). الأقسام بالترتيب:
@@ -115,7 +115,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 - الرئيسية = landing بـ 3D ("الكوبون السحري") + أقسام تشرح CODpromo؛ `/offers` = كل العروض بفلاتر في الرابط.
 - البطاقات تذاكر كوبون بالألوان الثلاثة (ذهبي في Premium).
 - صفحات الشركات والفئات (`/store`, `/category`, `/categories`) والمفضّلة (`/favorites`).
-- مصادقة كاملة (Email/Password + Google + hCaptcha، reset password)، داشبورد زبون / شركة.
+- مصادقة كاملة (Email/Password + Google، reset password) بحماية مخفية ضد الروبوتات (honeypot + فحص الوقت في `src/components/auth/botGuard.jsx`، بلا hCaptcha)، داشبورد زبون / شركة. صفحات الحساب: شاشة مقسومة (`AuthShell`: النموذج + لوحة الهوية)، و `/signup?type=company` يختار حساب الشركة.
 - لوحة `/admin`: الشركات، الفئات، الطلبات، المشتركين، أعضاء Premium، SEO، التصويت، أرقام الرئيسية (`site_stats`)، تصدير CSV.
 - نافذة جمع الإيميل، نظام تصويت 👍/👎 على الأكواد (`code_votes` + RPC `cast_vote`).
 - SEO: صفحات بـ 3 لغات، `api/prerender.js` (العروض/الشركات/الفئات)، `api/sitemap.js` (فيه `/offers`)، JSON-LD للرئيسية (Organization + WebSite بـ SearchAction نحو `/offers?q=`)، Google Search Console.

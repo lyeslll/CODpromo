@@ -72,20 +72,19 @@ export function AuthProvider({ children }) {
       return p;
     },
 
-    // إنشاء حساب بالإيميل وكلمة المرور (metadata = نوع الحساب وبياناته) + captcha
-    signUp: (email, password, metadata = {}, captchaToken) =>
+    // إنشاء حساب بالإيميل وكلمة المرور (metadata = نوع الحساب وبياناته)
+    signUp: (email, password, metadata = {}) =>
       supabase.auth.signUp({
         email,
         password,
-        options: { data: metadata, captchaToken },
+        options: { data: metadata },
       }),
 
-    // تسجيل الدخول بالإيميل وكلمة المرور + captcha
-    signIn: (email, password, captchaToken) =>
+    // تسجيل الدخول بالإيميل وكلمة المرور
+    signIn: (email, password) =>
       supabase.auth.signInWithPassword({
         email,
         password,
-        options: { captchaToken },
       }),
 
     // تسجيل الدخول/التسجيل عبر Google
@@ -96,10 +95,9 @@ export function AuthProvider({ children }) {
       }),
 
     // إرسال رابط استعادة كلمة المرور (يفتح صفحة /reset-password)
-    resetPassword: (email, captchaToken) =>
+    resetPassword: (email) =>
       supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
-        captchaToken,
       }),
 
     // تعيين كلمة مرور جديدة (بعد فتح رابط الاستعادة)

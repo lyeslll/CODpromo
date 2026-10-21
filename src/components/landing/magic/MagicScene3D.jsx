@@ -262,27 +262,50 @@ function MainCoupon({ store, faces, labels, lang, onReady }) {
 }
 
 // مواضع الكوبونات الطافية بالبكسل نسبةً لمركز الكوبون الكبير (المسرح):
-// out = نحو الحافة الخارجية للصفحة (بعيداً عن عمود النص)، y موجب = للأسفل.
-// كلها في الفراغات حول الكوبون: لا فوق النص ولا الأزرار ولا مربع القيمة ولا مقبض عادي/Premium.
+// out = نحو الحافة الخارجية للصفحة (بعيداً عن عمود النص)، y موجب = للأسفل، px = العرض.
+// depth: 1 = قريب (يتحرك أكثر مع الماوس/الميلان)، 0 = بعيد.
 const SLOTS_DESKTOP = [
-  { out: (w) => w / 2 + 96, y: (h) => -h * 0.3, px: 74, z: -7 },
-  { out: (w) => w / 2 + 120, y: (h) => h * 0.12, px: 58, z: -11 },
-  { out: (w) => w / 2 + 70, y: (h) => h / 2 + 18, px: 66, z: -8 },
-  { out: (w) => w * 0.36, y: (h) => h / 2 + 170, px: 62, z: -9 },
-  { out: (w) => -w * 0.3, y: (h) => h / 2 + 175, px: 52, z: -12 },
-  { out: (w) => w * 0.18, y: (h) => -h / 2 - 34, px: 48, z: -13 },
+  { out: (w) => w / 2 + 96, y: (h) => -h * 0.3, px: 96, z: -7, depth: 0.9 },
+  { out: (w) => w / 2 + 120, y: (h) => h * 0.12, px: 76, z: -11, depth: 0.45 },
+  { out: (w) => w / 2 + 70, y: (h) => h / 2 + 18, px: 86, z: -8, depth: 0.75 },
+  { out: (w) => w * 0.36, y: (h) => h / 2 + 170, px: 80, z: -9, depth: 0.6 },
+  { out: (w) => -w * 0.3, y: (h) => h / 2 + 175, px: 68, z: -12, depth: 0.3 },
+  { out: (w) => w * 0.18, y: (h) => -h / 2 - 40, px: 62, z: -13, depth: 0.2 },
 ];
-// الهاتف: الكوبون بعرض الشاشة → ثلاثة فقط تطلّ من خلف زواياه (في الفراغ بين مربع القيمة والكوبون)
+// الهاتف: الكوبون بعرض الشاشة → ثلاثة تطلّ من خلف زواياه (في الفراغ بين مربع القيمة والكوبون)
 const SLOTS_MOBILE = [
-  { out: (w) => w / 2 - 28, y: (h) => -h / 2 - 12, px: 46, z: -8 },
-  { out: (w) => -(w / 2 - 44), y: (h) => -h / 2 - 8, px: 40, z: -11 },
-  { out: (w) => w / 2 + 2, y: (h) => h * 0.08, px: 42, z: -9 },
+  { out: (w) => w / 2 - 30, y: (h) => -h / 2 - 6, px: 54, z: -8, depth: 0.85 },
+  { out: (w) => -(w / 2 - 46), y: (h) => -h / 2 - 4, px: 48, z: -11, depth: 0.4 },
+  { out: (w) => w / 2 + 2, y: (h) => h * 0.08, px: 50, z: -9, depth: 0.65 },
 ];
 
+/** يدفع دائرة (cx, cy, r) خارج كل منطقة ممنوعة (النص/الأزرار/مربع القيمة/المقبض) بأقصر مسافة. */
+function pushOut(p, rad, zones, gap) {
+  for (let k = 0; k < zones.length; k++) {
+    const z = zones[k];
+    const l = z.l - rad - gap;
+    const r = z.r + rad + gap;
+    const t = z.t - rad - gap;
+    const b = z.b + rad + gap;
+    if (p.x <= l || p.x >= r || p.y <= t || p.y >= b) continue;
+    const dl = p.x - l;
+    const dr = r - p.x;
+    const dt = p.y - t;
+    const db = b - p.y;
+    const m = Math.min(dl, dr, dt, db);
+    if (m === dl) p.x = l;
+    else if (m === dr) p.x = r;
+    else if (m === dt) p.y = t;
+    else p.y = b;
+  }
+}
+
 /**
- * كوبونات صغيرة تطفو خلف الكوبون الكبير بألوان الأنواع الثلاثة، في طبقة خاصة
- * (Canvas خلف المحتوى، شفافية + blur خفيف = عمق) وبحركة بطيئة.
- * مواضعها محسوبة من موضع الكوبون الكبير نفسه (store.anchor) فلا تدخل منطقة النص أبداً.
+ * كوبونات صغيرة تطفو خلف الكوبون الكبير بألوان الأنواع الثلاثة، في طبقة خلفية خاصة
+ * (شفافية + blur خفيف = عمق). تطفو وحدها بلا توقف (صعود/هبوط + دوران بطيء في 3D)،
+ * وتتبع الماوس (الحاسوب) أو ميلان الهاتف بعمق: الأقرب أسرع. مواضعها محسوبة من موضع
+ * الكوبون الكبير، وأي حركة تقترب من النص/الأزرار/مربع القيمة/المقبض تُدفع خارجها (store.avoid).
+ * مع prefers-reduced-motion تتوقف كلياً.
  * couponOnLeft: الكوبون يسار الشاشة (العربية RTL) · stacked: تخطيط الهاتف (النص فوق الكوبون).
  */
 function FloatingCoupons({ store, couponOnLeft, stacked }) {
@@ -294,11 +317,11 @@ function FloatingCoupons({ store, couponOnLeft, stacked }) {
           new THREE.MeshStandardMaterial({
             color: c,
             emissive: c,
-            emissiveIntensity: 0.1,
-            metalness: 0.3,
-            roughness: 0.5,
+            emissiveIntensity: 0.14,
+            metalness: 0.32,
+            roughness: 0.46,
             transparent: true,
-            opacity: 0.45,
+            opacity: 0.72,
             depthWrite: false,
           })
       ),
@@ -317,13 +340,15 @@ function FloatingCoupons({ store, couponOnLeft, stacked }) {
       rx: rnd() * Math.PI,
       ry: rnd() * Math.PI,
       rz: rnd() * Math.PI,
-      spinX: (rnd() - 0.5) * 0.08,
-      spinY: (rnd() - 0.5) * 0.12,
-      speed: 0.12 + rnd() * 0.16,
+      spinX: (rnd() < 0.5 ? -1 : 1) * (0.06 + rnd() * 0.08),
+      spinY: (rnd() < 0.5 ? -1 : 1) * (0.09 + rnd() * 0.1),
+      speed: 0.35 + rnd() * 0.4,
+      drift: 0.2 + rnd() * 0.25,
       phase: rnd() * Math.PI * 2,
     }));
   }, [stacked]);
   const refs = useRef([]);
+  const p = useMemo(() => ({ x: 0, y: 0 }), []);
 
   useEffect(
     () => () => {
@@ -336,28 +361,41 @@ function FloatingCoupons({ store, couponOnLeft, stacked }) {
   useFrame((state, delta) => {
     const a = store.anchor;
     if (!a.ready) return;
+    const still = store.reduced;
     const dt = Math.min(delta, 1 / 30);
-    const e = 1 - Math.exp(-dt * 2);
-    store.parallax.x += (store.parallaxTarget.x - store.parallax.x) * e;
-    store.parallax.y += (store.parallaxTarget.y - store.parallax.y) * e;
+    const e = 1 - Math.exp(-dt * 3);
+    store.parallax.x += ((still ? 0 : store.parallaxTarget.x) - store.parallax.x) * e;
+    store.parallax.y += ((still ? 0 : store.parallaxTarget.y) - store.parallax.y) * e;
     const { width: cw, height: ch } = state.size;
     const aspect = cw / ch;
     const t = state.clock.elapsedTime;
-    const still = store.reduced;
     const outSign = couponOnLeft ? -1 : 1;
+    const zones = store.avoid || [];
+    const amp = stacked ? 7 : 16; // ارتفاع الطفو (px)
+    const par = stacked ? 18 : 44; // أقصى إزاحة parallax للأقرب (px)
     for (let i = 0; i < items.length; i++) {
       const it = items[i];
       const m = refs.current[i];
       if (!m) continue;
+      const depthPar = par * (0.3 + it.depth * 0.7);
+      p.x =
+        a.cx +
+        outSign * it.out(a.w) +
+        store.parallax.x * depthPar +
+        (still ? 0 : Math.sin(t * it.drift + it.phase) * amp * 0.5);
+      p.y =
+        a.cy +
+        it.y(a.h) +
+        store.parallax.y * depthPar * 0.7 +
+        (still ? 0 : Math.sin(t * it.speed + it.phase) * amp);
+      pushOut(p, it.px * 0.55, zones, 8);
       const unit = viewAt(it.z, aspect).h / ch; // وحدات العالم لكل بكسل عند هذا العمق
-      const px = a.cx + outSign * it.out(a.w) + store.parallax.x * 6;
-      const py = a.cy + it.y(a.h) + store.parallax.y * 4 + (still ? 0 : Math.sin(t * it.speed + it.phase) * 7);
-      m.position.set((px - cw / 2) * unit, (ch / 2 - py) * unit, it.z);
+      m.position.set((p.x - cw / 2) * unit, (ch / 2 - p.y) * unit, it.z);
       m.scale.setScalar((it.px * unit) / COUPON.W);
       m.rotation.set(
         it.rx + (still ? 0 : t * it.spinX),
         it.ry + (still ? 0 : t * it.spinY),
-        it.rz + (still ? 0 : Math.sin(t * 0.18 + it.phase) * 0.12)
+        it.rz + (still ? 0 : Math.sin(t * 0.3 + it.phase) * 0.2)
       );
     }
   });
@@ -480,7 +518,7 @@ export default function MagicScene3D({ store, faces, labels, lang, active, mobil
         gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
         camera={{ fov: FOV, position: [0, 0, CAM_Z], near: 0.1, far: 60 }}
         frameloop={active ? "always" : "never"}
-        style={{ position: "absolute", inset: 0, pointerEvents: "none", filter: "blur(1.6px)", opacity: 0.85 }}
+        style={{ position: "absolute", inset: 0, pointerEvents: "none", filter: "blur(0.8px)", opacity: 0.95 }}
         onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
       >
         <ambientLight intensity={0.6} />

@@ -44,6 +44,7 @@ function createStore() {
     couponScale: 1,
     couponWorld: null,
     measure: null,
+    avoid: [],
     reduced: false,
   };
 }
@@ -106,6 +107,8 @@ export default function LandingHero({ companies, loading, voteStats, categories,
   const heroRef = useRef(null);
   const canvasWrapRef = useRef(null);
   const stageRef = useRef(null);
+  const textColRef = useRef(null); // العنوان + الأزرار + مربع القيمة (منطقة ممنوعة على الكوبونات الطافية)
+  const controlsRef = useRef(null); // مقبض عادي/Premium + التلميح
   const store = useMemo(() => createStore(), []);
   store.reduced = !!reduced;
 
@@ -203,6 +206,11 @@ export default function LandingHero({ companies, loading, voteStats, categories,
       store.anchor.w = s.width;
       store.anchor.h = s.height;
       store.anchor.ready = true;
+      // مناطق لا تدخلها الكوبونات الطافية أبداً (بالبكسل نسبةً للـ canvas)
+      store.avoid = [textColRef.current, controlsRef.current]
+        .map((el) => el?.getBoundingClientRect())
+        .filter((r) => r && r.width)
+        .map((r) => ({ l: r.left - c.left, r: r.right - c.left, t: r.top - c.top, b: r.bottom - c.top }));
     };
     store.measure();
     const ro = new ResizeObserver(() => store.measure());
@@ -375,7 +383,7 @@ export default function LandingHero({ companies, loading, voteStats, categories,
 
       <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] lg:gap-14">
         {/* ===== النص ===== */}
-        <div>
+        <div ref={textColRef}>
           <h1 className="text-balance text-[34px] font-black leading-[1.12] tracking-tight text-[var(--text)] sm:text-[48px] lg:text-[56px]">
             <span className="block">{t("hero.titleLine1")}</span>
             <span className="block">{t("hero.titleLine2")}</span>
@@ -482,7 +490,7 @@ export default function LandingHero({ companies, loading, voteStats, categories,
             </span>
           </div>
 
-          <div className="mt-7 flex flex-col items-center gap-3">
+          <div ref={controlsRef} className="mt-7 flex flex-col items-center gap-3">
             <HeroModeSwitch
               mode={mode}
               onChange={setModeFromSwitch}

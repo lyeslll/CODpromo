@@ -29,6 +29,8 @@ npm run pwa-icons  # توليد أيقونات PWA من public/favicon-1024.png
 git add -A && git commit -m "وصف التعديل" && git push
 ```
 - **الويب:** Vercel ينشر وحدو بعد الـ push. `vercel.json`: كل المسارات → `index.html` (SPA)، ما عدا `/sitemap.xml` → `api/sitemap.js`، و `/offers` و `/store/:slug` و `/category/:slug` (بـ ar/en/fr) → `api/prerender.js` (meta + JSON-LD للـ bots). `api/prerender.js` يقرا نصوص `/offers` من `src/i18n/locales` (مضمّنة عبر `functions.includeFiles`). `/.well-known/assetlinks.json` مستثنى (لتطبيق Android).
+- **التصميم الجديد راه على `main`** (merge `redesign-home` في `54d5ce0`، أكتوبر 2026). الفرع `redesign-home` والـ tag باقين — ممنوع تحذفهم.
+- **نقطة الرجوع:** الـ tag **`pre-redesign`** (`dc53f2e`) = آخر `main` قبل التصميم الجديد. للرجوع: `git revert -m 1 54d5ce0` ثم `git push` (عادي، بلا force) — ماشي `reset --hard`.
 - **Edge Functions:** ما تنشرش مع Vercel. `supabase functions deploy <name> --project-ref uulcgvdsqivgkiulurhk` (و `translate-company` مع `--no-verify-jwt`).
 - **SQL على production:** `npx supabase db query --linked -f <file.sql>` (الـ CLI مربوط بالمشروع).
 
@@ -143,7 +145,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 - `/admin`: بوابة PIN في المتصفح (`VITE_ADMIN_PIN`) + تسجيل دخول إجباري؛ الكتابات تمشي بتوكن المستخدم والحماية الحقيقية هي RLS `is_admin()`.
 
 **i18n**
-- ar (افتراضي، RTL) / en / fr (LTR) عبر react-i18next؛ المفاتيح متطابقة في الثلاثة (488 مفتاح).
+- ar (افتراضي، RTL) / en / fr (LTR) عبر react-i18next؛ المفاتيح متطابقة في الثلاثة (537 مفتاح).
 - `LocaleProvider` يضبط `lang` + `dir` على `<html>` ويحفظ `codpromo:lang`؛ زر `LanguageSwitcher` (يحافظ على فلاتر `/offers` في الرابط).
 - ترجمة تلقائية لمحتوى الشركات والفئات (`description_*`, `category_*`…) عبر Edge Function `translate-company` (Anthropic API، المفتاح في Supabase secrets برك) + زر "ترجم الكل" في الأدمن.
 - استعمل خصائص Tailwind المنطقية (`ps/pe`, `ms/me`, `start/end`)؛ الأيقونات الاتجاهية تنقلب بـ `ltr:rotate-180`. `/admin` يبقى عربي ثابت.

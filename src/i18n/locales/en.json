@@ -471,5 +471,39 @@
     "count": "{{count}} stores in this category",
     "notFoundTitle": "Category not found",
     "notFoundDesc": "There are no stores in this category yet."
+  },
+  "admin": {
+    "siteStats": {
+      "tab": "Home numbers",
+      "title": "Home page numbers",
+      "desc": "These numbers appear in the stats strip and the Premium section of the home page. Leave a field empty to let the site count it from the database, or to hide it when it has no automatic count.",
+      "fields": {
+        "total_savings_dzd": {
+          "label": "Total discount value (DZD)",
+          "hint": "Not counted automatically: if empty, it is hidden on the page."
+        },
+        "total_codes": {
+          "label": "Number of codes"
+        },
+        "partners_count": {
+          "label": "Number of partners"
+        },
+        "premium_unlock_value_usd": {
+          "label": "Discount value unlocked by Premium ($)",
+          "hint": "Not counted automatically: if empty, the multiplier (×) is hidden."
+        }
+      },
+      "autoHint": "Empty = counted from the database (currently {{value}}).",
+      "multiplierPreview": "Multiplier on the page: ×{{x}} (value ÷ monthly price ${{price}})",
+      "multiplierHidden": "Multiplier hidden: enter the value to show it.",
+      "clear": "Clear field (automatic)",
+      "save": "Save numbers",
+      "saved": "Numbers saved",
+      "invalid": "Enter positive numbers only, or leave the field empty.",
+      "notAllowed": "You can't edit these: your account must be an admin (is_admin).",
+      "loadError": "Couldn't load the numbers. Make sure supabase-phase21-site-stats.sql has been run.",
+      "loading": "Loading…",
+      "updatedAt": "Last updated: {{date}}"
+    }
   }
 }

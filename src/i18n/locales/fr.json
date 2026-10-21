@@ -471,5 +471,39 @@
     "count": "{{count}} boutiques dans cette catégorie",
     "notFoundTitle": "Catégorie introuvable",
     "notFoundDesc": "Il n'y a pas encore de boutiques dans cette catégorie."
+  },
+  "admin": {
+    "siteStats": {
+      "tab": "Chiffres accueil",
+      "title": "Chiffres de la page d'accueil",
+      "desc": "Ces chiffres apparaissent dans la bande de statistiques et la section Premium de l'accueil. Laissez un champ vide pour que le site le calcule depuis la base de données, ou pour le masquer s'il n'a pas de calcul automatique.",
+      "fields": {
+        "total_savings_dzd": {
+          "label": "Valeur totale des réductions (DZD)",
+          "hint": "Pas de calcul automatique : vide, il est masqué sur la page."
+        },
+        "total_codes": {
+          "label": "Nombre de codes"
+        },
+        "partners_count": {
+          "label": "Nombre de partenaires"
+        },
+        "premium_unlock_value_usd": {
+          "label": "Valeur des réductions débloquées par Premium ($)",
+          "hint": "Pas de calcul automatique : vide, le multiplicateur (×) est masqué."
+        }
+      },
+      "autoHint": "Vide = calculé depuis la base de données (actuellement {{value}}).",
+      "multiplierPreview": "Multiplicateur affiché : ×{{x}} (valeur ÷ prix mensuel {{price}} $)",
+      "multiplierHidden": "Multiplicateur masqué : saisissez la valeur pour l'afficher.",
+      "clear": "Vider le champ (automatique)",
+      "save": "Enregistrer les chiffres",
+      "saved": "Chiffres enregistrés",
+      "invalid": "Saisissez uniquement des nombres positifs, ou laissez le champ vide.",
+      "notAllowed": "Modification refusée : votre compte doit être admin (is_admin).",
+      "loadError": "Impossible de charger les chiffres. Vérifiez que supabase-phase21-site-stats.sql a été exécuté.",
+      "loading": "Chargement…",
+      "updatedAt": "Dernière mise à jour : {{date}}"
+    }
   }
 }

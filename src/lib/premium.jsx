@@ -24,9 +24,13 @@ const write = (v) => {
 export const isPremiumProfile = (p) =>
   !!(p?.is_premium && (!p.premium_until || new Date(p.premium_until) > new Date()));
 
+// حساب الأدمن = Premium مدى الحياة (نفس قاعدة الخادم has_premium_access). لا اشتراك يُكتب في profiles.
+export const isLifetimeProfile = (p) => p?.is_admin === true;
+
 const PremiumContext = createContext({
   unlocked: false,
   isPremiumActive: false,
+  isLifetime: false,
   redeem: async () => ({ ok: false }),
 });
 
@@ -34,8 +38,9 @@ export function PremiumProvider({ children }) {
   const { user, profile, refreshProfile } = useAuth();
   const [localUnlock, setLocalUnlock] = useState(read);
 
-  // مفتوح إن كان الحساب Premium ساري المفعول، أو فُعّل كود في هذا المتصفّح
-  const profileUnlock = isPremiumProfile(profile);
+  // مفتوح إن كان الحساب Premium ساري المفعول (أو أدمن)، أو فُعّل كود في هذا المتصفّح
+  const isLifetime = isLifetimeProfile(profile);
+  const profileUnlock = isLifetime || isPremiumProfile(profile);
   const unlocked = profileUnlock || localUnlock;
 
   const redeem = useCallback(
@@ -52,7 +57,7 @@ export function PremiumProvider({ children }) {
   );
 
   return (
-    <PremiumContext.Provider value={{ unlocked, isPremiumActive: profileUnlock, redeem }}>
+    <PremiumContext.Provider value={{ unlocked, isPremiumActive: profileUnlock, isLifetime, redeem }}>
       {children}
     </PremiumContext.Provider>
   );

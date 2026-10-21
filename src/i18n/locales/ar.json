@@ -303,7 +303,8 @@
       "year": "سنة",
       "badgePopular": "الأكثر شيوعاً",
       "badgeBest": "الأكثر توفيراً"
-    }
+    },
+    "lifetime": "Premium مدى الحياة"
   },
   "auth": {
     "or": "أو",
@@ -395,23 +396,15 @@
     "loading": "جارٍ التحميل…",
     "customer": {
       "badge": "حساب زبون",
-      "welcome": "أهلاً، {{name}} 👋",
-      "subtitle": "هذه لوحتك الشخصية في CODpromo",
       "friend": "صديقنا",
-      "email": "البريد",
-      "accountType": "نوع الحساب",
-      "accountTypeVal": "زبون عادي",
+      "accountTypeVal": "حساب زبون",
       "memberSince": "عضو منذ",
-      "upgradeTitle": "ترقية إلى Premium",
       "upgradeDesc": "خصومات أقوى وأكواد حصرية وكاش باك أعلى.",
-      "upgradeBtn": "ترقية الآن",
       "favorites": "المفضّلة",
       "items": "{{count}} عنصر",
       "emptyTitle": "لا توجد مفضّلة بعد",
       "emptyDesc": "تصفّح المتاجر واضغط القلب ♡ لحفظ عروضك المفضّلة هنا.",
-      "browse": "تصفّح العروض",
-      "copy": "نسخ الكود",
-      "remove": "إزالة"
+      "browse": "تصفّح العروض"
     },
     "company": {
       "badge": "حساب شركة",
@@ -444,6 +437,66 @@
       "pending": "قيد المراجعة",
       "accepted": "مقبول",
       "rejected": "مرفوض"
+    },
+    "plan": {
+      "yourPlan": "خطتك",
+      "yourPlanFree": "خطتك الآن: عادي",
+      "free": "عادي",
+      "plan_month": "Premium شهري",
+      "plan_quarter": "Premium لـ 3 أشهر",
+      "plan_year": "Premium سنوي",
+      "endsOn": "ينتهي في",
+      "noEnd": "بلا تاريخ انتهاء",
+      "paidWith": "طريقة الدفع",
+      "forever": "كل الأكواد Premium مفتوحة لك دائماً",
+      "daysLeft": "الأيام المتبقية في اشتراكك",
+      "perMonth": "في الشهر",
+      "openPremium": "افتح Premium",
+      "storkQ": "عضو في مجتمع Stork؟",
+      "storkCta": "فعّل Premium مجاناً بكودك"
+    },
+    "stats": {
+      "copied": "كود نسخته",
+      "favorites": "في المفضّلة",
+      "votes": "تصويت"
+    },
+    "copies": {
+      "title": "آخر الأكواد اللي نسختها",
+      "last": "آخر {{count}}",
+      "emptyTitle": "لم تنسخ أي كود بعد",
+      "emptyDesc": "كل كود تنسخه من العروض يظهر هنا لتنسخه مرة أخرى بسرعة.",
+      "again": "انسخ مرة أخرى",
+      "done": "تم النسخ",
+      "unlock": "افتح Premium"
+    },
+    "newOffers": {
+      "title": "عروض جديدة تهمك",
+      "fromFavs": "الأحدث في فئات مفضّلتك",
+      "latest": "آخر العروض في CODpromo",
+      "all": "كل العروض"
+    },
+    "grow": {
+      "title": "طوّر تجارتك",
+      "ilyesDesc": "محتوى لتعلّم التجارة الإلكترونية",
+      "storkTitle": "مجتمع Stork",
+      "storkDesc": "مجتمع التجارة الإلكترونية والمسار المدفوع.",
+      "storkPerk": "أعضاؤه يستفيدون من Premium مجاناً"
+    },
+    "settings": {
+      "title": "الإعدادات",
+      "name": "الاسم",
+      "password": "كلمة السر",
+      "language": "اللغة",
+      "googleOnly": "تدخل بحساب Google، فكلمة السر تُدار من حسابك في Google.",
+      "saved": "تم الحفظ",
+      "nameRequired": "اكتب اسمك",
+      "failed": "تعذّر الحفظ، أعد المحاولة.",
+      "saveName": "احفظ الاسم",
+      "savePassword": "غيّر كلمة السر",
+      "show": "أظهر كلمة السر",
+      "hide": "أخفِ كلمة السر",
+      "logout": "تسجيل الخروج",
+      "deleteAccount": "حذف الحساب"
     }
   },
   "payment": {

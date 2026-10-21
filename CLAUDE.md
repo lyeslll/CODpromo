@@ -46,7 +46,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 - **أنواع العروض:** enum عربي ثابت `"تخفيض"` / `"كوبون"` / `"كاش باك"` في `src/lib/types.js`، يتعرض مترجم عبر `getTypeKey`. في الرابط: `type=discount|coupon|cashback` (`TYPE_PARAMS` في `src/lib/offerFilters.js`).
 - **الألوان الثلاثة (من `types.js` بالضبط):** تخفيض `#a6f000` · كوبون `#38bdf8` · كاش باك `#fbbf24`. Premium = ذهبي (`#ffe486` / `#f0c63c` / `#cf9a1e`). اللون يعني النوع (أو Premium) فقط، ماشي زينة.
 - **قاعدة البيانات:** ملفات SQL مرقّمة تتشغّل بالترتيب (كلها idempotent):
-  `supabase-setup` → `supabase-auth-setup` → `supabase-auth-phase2` → `phase3` → `phase4` → `phase5` → `phase6a` → `phase6a-note4` → `phase7-stripe` → `phase8-slickpay` → `phase9-paypal` → `phase10-i18n` → `phase11-i18n-value` → `phase12-premium-code-url` → `phase13-seo` → `phase14-categories` → `phase15-admin` → `phase16-rls-lock` → `phase17a-premium-rpcs` → `phase17b-premium-lock` → `phase18-premium-description` → `phase19-code-votes` → `phase20-google-play` → `phase21-site-stats`.
+  `supabase-setup` → `supabase-auth-setup` → `supabase-auth-phase2` → `phase3` → `phase4` → `phase5` → `phase6a` → `phase6a-note4` → `phase7-stripe` → `phase8-slickpay` → `phase9-paypal` → `phase10-i18n` → `phase11-i18n-value` → `phase12-premium-code-url` → `phase13-seo` → `phase14-categories` → `phase15-admin` → `phase16-rls-lock` → `phase17a-premium-rpcs` → `phase17b-premium-lock` → `phase18-premium-description` → `phase19-code-votes` → `phase20-google-play` → `phase21-site-stats` → `phase22-admin-premium-copies`.
   أي عمود أو جدول جديد = ملف phase جديد، ماشي تعديل ملف قديم.
 - **متغيرات البيئة (الويب):** في `.env` (gitignored) و Vercel، شوف `.env.example`: `VITE_ADMIN_PIN`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. `supabase.js` و `supabaseClient.js` فيهم fallback للـ URL والمفتاح العام.
 
@@ -126,6 +126,8 @@ git add -A && git commit -m "وصف التعديل" && git push
 
 **Premium**
 - `PremiumProvider` (`src/lib/premium.jsx`): `unlocked` = بروفايل Premium ساري (`is_premium` + `premium_until`) أو علم محلي `codpromo:premium-unlock`.
+- **الأدمن = Premium مدى الحياة** (phase22): القاعدة الخادمية `has_premium_access(uid)` (Premium ساري أو `is_admin`) يستعملها `get_premium_code`، وفي الواجهة `isLifetime` في `PremiumProvider`. ما يتكتبش حتى اشتراك في `profiles`، والـ trigger `protect_premium_columns` كيما راه. ممنوع Premium لأي حساب آخر بلا دفع/Stork.
+- **داشبورد الزبون** (`src/pages/dashboard/CustomerDashboard.jsx` + `src/components/dashboard/customer/`): الترحيب + أرقام حقيقية، بطاقة الخطة (تذكرة ذهبية: أيام باقية / كوبون ترقية + تفعيل Stork عبر `PremiumModal initialStep="stork"`)، آخر الأكواد المنسوخة (جدول `code_copies`، يتسجّل من `CompanyCard` عبر `logCodeCopy`)، المفضّلة، عروض جديدة تهمك، طوّر تجارتك (Ilyes Derradji + مجتمع Stork — دايماً "مجتمع"، ماشي "أكاديمية")، الإعدادات.
 - كود ورابط Premium مستقلين لكل شركة، `supports_premium` لكل شركة (مع زر في جدول الأدمن)، وصف Premium منفصل ومترجم.
 - كشف الكود بخدش حقيقي (`ScratchCanvas` في `src/components/CompanyCard.jsx`: Canvas + Pointer Events، كشف عند ~50٪). الكود الحقيقي يتجاب خادمياً عبر RPC `get_premium_code`.
 - حماية من الاشتراك المزدوج: الدفع يتخبّى إذا المستخدم راه Premium (ويب + Play).
@@ -145,7 +147,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 - `/admin`: بوابة PIN في المتصفح (`VITE_ADMIN_PIN`) + تسجيل دخول إجباري؛ الكتابات تمشي بتوكن المستخدم والحماية الحقيقية هي RLS `is_admin()`.
 
 **i18n**
-- ar (افتراضي، RTL) / en / fr (LTR) عبر react-i18next؛ المفاتيح متطابقة في الثلاثة (537 مفتاح).
+- ar (افتراضي، RTL) / en / fr (LTR) عبر react-i18next؛ المفاتيح متطابقة في الثلاثة (578 مفتاح).
 - `LocaleProvider` يضبط `lang` + `dir` على `<html>` ويحفظ `codpromo:lang`؛ زر `LanguageSwitcher` (يحافظ على فلاتر `/offers` في الرابط).
 - ترجمة تلقائية لمحتوى الشركات والفئات (`description_*`, `category_*`…) عبر Edge Function `translate-company` (Anthropic API، المفتاح في Supabase secrets برك) + زر "ترجم الكل" في الأدمن.
 - استعمل خصائص Tailwind المنطقية (`ps/pe`, `ms/me`, `start/end`)؛ الأيقونات الاتجاهية تنقلب بـ `ltr:rotate-180`. `/admin` يبقى عربي ثابت.

@@ -303,7 +303,8 @@
       "year": "An",
       "badgePopular": "Le plus populaire",
       "badgeBest": "Meilleure offre"
-    }
+    },
+    "lifetime": "Premium à vie"
   },
   "auth": {
     "or": "ou",
@@ -395,23 +396,15 @@
     "loading": "Chargement…",
     "customer": {
       "badge": "Compte acheteur",
-      "welcome": "Bonjour, {{name}} 👋",
-      "subtitle": "Voici votre tableau de bord personnel sur CODpromo",
       "friend": "cher ami",
-      "email": "E-mail",
-      "accountType": "Type de compte",
-      "accountTypeVal": "Acheteur",
+      "accountTypeVal": "Compte client",
       "memberSince": "Membre depuis",
-      "upgradeTitle": "Passer à Premium",
       "upgradeDesc": "Des réductions plus fortes, des codes exclusifs et un cashback plus élevé.",
-      "upgradeBtn": "Passer à Premium",
       "favorites": "Favoris",
       "items": "{{count}} éléments",
       "emptyTitle": "Aucun favori pour l'instant",
       "emptyDesc": "Parcourez les boutiques et appuyez sur le cœur ♡ pour enregistrer vos offres préférées ici.",
-      "browse": "Parcourir les offres",
-      "copy": "Copier le code",
-      "remove": "Retirer"
+      "browse": "Parcourir les offres"
     },
     "company": {
       "badge": "Compte entreprise",
@@ -444,6 +437,66 @@
       "pending": "En cours d'examen",
       "accepted": "Acceptée",
       "rejected": "Refusée"
+    },
+    "plan": {
+      "yourPlan": "Votre formule",
+      "yourPlanFree": "Votre formule : classique",
+      "free": "Classique",
+      "plan_month": "Premium mensuel",
+      "plan_quarter": "Premium 3 mois",
+      "plan_year": "Premium annuel",
+      "endsOn": "Se termine le",
+      "noEnd": "Sans date de fin",
+      "paidWith": "Moyen de paiement",
+      "forever": "Tous les codes Premium restent ouverts pour vous",
+      "daysLeft": "Jours restants dans votre formule",
+      "perMonth": "par mois",
+      "openPremium": "Ouvrir Premium",
+      "storkQ": "Membre de la communauté Stork ?",
+      "storkCta": "Activez Premium gratuitement avec votre code"
+    },
+    "stats": {
+      "copied": "codes copiés",
+      "favorites": "en favoris",
+      "votes": "votes"
+    },
+    "copies": {
+      "title": "Vos derniers codes copiés",
+      "last": "{{count}} derniers",
+      "emptyTitle": "Aucun code copié pour l'instant",
+      "emptyDesc": "Chaque code copié depuis les offres apparaît ici, prêt à être recopié.",
+      "again": "Copier à nouveau",
+      "done": "Copié",
+      "unlock": "Ouvrir Premium"
+    },
+    "newOffers": {
+      "title": "Nouvelles offres pour vous",
+      "fromFavs": "Les plus récentes dans vos catégories favorites",
+      "latest": "Les dernières offres sur CODpromo",
+      "all": "Toutes les offres"
+    },
+    "grow": {
+      "title": "Développez votre commerce",
+      "ilyesDesc": "Du contenu pour apprendre l'e-commerce",
+      "storkTitle": "Communauté Stork",
+      "storkDesc": "La communauté e-commerce et son parcours payant.",
+      "storkPerk": "Ses membres profitent de Premium gratuitement"
+    },
+    "settings": {
+      "title": "Paramètres",
+      "name": "Nom",
+      "password": "Mot de passe",
+      "language": "Langue",
+      "googleOnly": "Vous vous connectez avec Google : votre mot de passe se gère dans votre compte Google.",
+      "saved": "Enregistré",
+      "nameRequired": "Saisissez votre nom",
+      "failed": "Échec de l'enregistrement. Réessayez.",
+      "saveName": "Enregistrer le nom",
+      "savePassword": "Changer le mot de passe",
+      "show": "Afficher le mot de passe",
+      "hide": "Masquer le mot de passe",
+      "logout": "Se déconnecter",
+      "deleteAccount": "Supprimer le compte"
     }
   },
   "payment": {

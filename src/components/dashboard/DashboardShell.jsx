@@ -7,7 +7,7 @@ import { useAuth } from "../../lib/auth.jsx";
 import { useScrollDirection } from "../../lib/useScrollDirection.js";
 
 /** إطار موحّد لصفحات الداشبورد (شريط علوي + حاوية محتوى) بنفس الهوية. */
-export default function DashboardShell({ badge, children }) {
+export default function DashboardShell({ badge, wide = false, children }) {
   const { user, signOut } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ export default function DashboardShell({ badge, children }) {
           hidden ? "-translate-y-full" : "translate-y-0"
         }`}
       >
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+        <div className={`mx-auto flex ${wide ? "max-w-6xl" : "max-w-5xl"} items-center justify-between px-4 py-3`}>
           <div className="flex items-center gap-3">
             <Link to="/" className="flex items-center" aria-label="CODpromo">
               {/* اللوجو الصغير (الأيقونة فقط) — توفيراً للمساحة. fallback مؤقّت للّوجو الحالي. */}
@@ -78,7 +78,7 @@ export default function DashboardShell({ badge, children }) {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="mx-auto max-w-5xl px-4 py-7"
+        className={`mx-auto ${wide ? "max-w-6xl" : "max-w-5xl"} px-4 py-7`}
       >
         {children}
       </motion.main>

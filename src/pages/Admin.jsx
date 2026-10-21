@@ -44,9 +44,9 @@ import {
   deleteCategory,
   getPremiumCode,
 } from "../lib/supabase.js";
-import { fetchAllProfiles, fetchAllRequests, acceptRequest, setRequestStatus } from "../lib/admin.js";
+import { fetchAllProfiles, fetchAllRequests, acceptRequest, setRequestStatus, fetchPremiumProfiles, isActivePremium } from "../lib/admin.js";
 import { fetchSubscribers } from "../lib/subscribers.js";
-import { fetchStorkCodes, addStorkCode } from "../lib/stork.js";
+import { fetchStorkCodes, addStorkCode, deleteStorkCode } from "../lib/stork.js";
 import { ADMIN_PIN, ADMIN_SESSION_KEY } from "../lib/config.js";
 import Logo from "../components/Logo.jsx";
 import CompanyOfferForm from "../components/offer-form/CompanyOfferForm.jsx";
@@ -262,6 +262,8 @@ function Dashboard({ onLock }) {
   const [requests, setRequests] = useState([]);
   const [subscribers, setSubscribers] = useState([]);
   const [storkCodes, setStorkCodes] = useState([]);
+  const [premiumMembers, setPremiumMembers] = useState([]);
+  const [loadingPremium, setLoadingPremium] = useState(true);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingRequests, setLoadingRequests] = useState(true);
   const [loadingSubs, setLoadingSubs] = useState(true);
@@ -294,6 +296,10 @@ function Dashboard({ onLock }) {
       .then(setStorkCodes)
       .catch(() => setStorkCodes([]))
       .finally(() => setLoadingStork(false));
+    fetchPremiumProfiles()
+      .then(setPremiumMembers)
+      .catch(() => setPremiumMembers([]))
+      .finally(() => setLoadingPremium(false));
     fetchCategories()
       .then((d) => setCategories(Array.isArray(d) ? d : []))
       .catch(() => setCategories([]))
@@ -303,10 +309,17 @@ function Dashboard({ onLock }) {
   const handleAddStork = async (code) => {
     const created = await addStorkCode(code);
     setStorkCodes((prev) => [created, ...prev]);
-    notify("success", "تمت إضافة الكود");
+    notify("success", tc("stork.added", { code: created.code }));
   };
 
-  const premiumCount = profiles.filter((p) => p.is_premium).length;
+  const handleDeleteStork = async (id) => {
+    await deleteStorkCode(id);
+    setStorkCodes((prev) => prev.filter((c) => c.id !== id));
+    notify("success", tc("stork.deleted"));
+  };
+
+  // Premium فعّال (نفس قاعدة has_premium_access)، بلا الأدمن
+  const premiumCount = premiumMembers.filter(isActivePremium).length;
 
   const notify = (type, msg) => {
     setToast({ type, msg });
@@ -652,8 +665,8 @@ function Dashboard({ onLock }) {
             <>
               <PageHeader title={tc("nav.premium")} sub={tc("pages.premiumSub")} />
               <div className="flex flex-col gap-6">
-                <PremiumMembers profiles={profiles} codes={storkCodes} />
-                <StorkManager codes={storkCodes} loading={loadingStork} onAdd={handleAddStork} premiumCount={premiumCount} />
+                <PremiumMembers members={premiumMembers} loading={loadingPremium} codes={storkCodes} />
+                <StorkManager codes={storkCodes} loading={loadingStork} onAdd={handleAddStork} onDelete={handleDeleteStork} premiumCount={premiumCount} />
               </div>
             </>
           }

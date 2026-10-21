@@ -753,6 +753,54 @@
         "premiumSub": "Membres Premium et codes Stork",
         "siteStatsSub": "Chiffres affichés sur l'accueil",
         "seoSub": "Titres et descriptions des pages entreprises pour les moteurs"
+      },
+      "premium": {
+        "members": "Membres Premium",
+        "tabActive": "Actifs",
+        "tabExpired": "Expirés",
+        "emptyActive": "Aucun membre Premium actif pour l'instant.",
+        "emptyExpired": "Aucun abonnement expiré.",
+        "col": {
+          "member": "Membre",
+          "method": "Moyen de paiement",
+          "plan": "Formule",
+          "amount": "Montant",
+          "ends": "Se termine le",
+          "ended": "Terminé le"
+        },
+        "method": {
+          "stripe": "Carte internationale (Stripe)",
+          "paypal": "PayPal",
+          "slickpay": "Carte algérienne (SlickPay)",
+          "google_play": "Google Play",
+          "none": "Code Stork ou inconnu"
+        },
+        "noEnd": "Sans date de fin",
+        "viaStork": "Membres via code Stork",
+        "noStorkUsed": "Aucun code Stork utilisé pour l'instant."
+      },
+      "stork": {
+        "activePremium": "Premium actifs",
+        "total": "Total des codes",
+        "available": "Disponibles",
+        "used": "Utilisés",
+        "addTitle": "Nouveau code Stork",
+        "addHint": "Chaque code donne 30 jours de Premium, une seule fois. Générez un code difficile à deviner, ou saisissez-le.",
+        "generate": "Générer un code",
+        "manual": "Code manuel",
+        "add": "Ajouter",
+        "listTitle": "Codes Stork",
+        "count": "{{count}} codes",
+        "empty": "Aucun code. Générez-en un dans le panneau latéral.",
+        "usedOne": "Utilisé",
+        "availableOne": "Disponible",
+        "delete": "Supprimer le code",
+        "confirm": "Supprimer ce code ?",
+        "yesDelete": "Oui, supprimer",
+        "cancel": "Annuler",
+        "deleteFailed": "Impossible de supprimer le code. Il vient peut-être d'être utilisé.",
+        "added": "Code {{code}} ajouté",
+        "deleted": "Code supprimé"
       }
     }
   },

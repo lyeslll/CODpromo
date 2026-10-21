@@ -57,41 +57,23 @@ export async function getAccessToken(): Promise<string> {
 }
 
 /**
- * يفعّل Premium بناءً على طلب PayPal مدفوع (idempotent).
- * يمدّد من تاريخ الانتهاء الحالي إن كان سارياً، ويتجاهل الطلبات المكتملة مسبقاً.
+ * يفعّل Premium بعد تأكيد الدفع عند المزوّد (idempotent).
+ * كلّش في معاملة وحدة عبر RPC activate_paid_premium (phase25، service_role فقط):
+ * حجز الطلب (status ≠ completed) + منح Premium + حساب المدة في القاعدة.
+ * طلبان متزامنان ما يمنحوش مرّتين، وإن فشل المنح ما يبقاش الطلب "completed" بلا Premium.
  */
 export async function activatePremium(
   admin: SupabaseClient,
   order: { order_id: string; user_id: string; plan_type: string; status: string },
 ) {
-  if (order.status === "completed") return;
+  if (order.status === "completed") return; // سبق تفعيلها
   const plan = PLANS[order.plan_type];
   if (!plan) return;
 
-  const { data: prof } = await admin
-    .from("profiles")
-    .select("premium_until")
-    .eq("id", order.user_id)
-    .maybeSingle();
-
-  const now = Date.now();
-  const current = prof?.premium_until ? new Date(prof.premium_until).getTime() : 0;
-  const base = current > now ? current : now;
-  const until = new Date(base + plan.days * 86400000).toISOString();
-
-  await admin
-    .from("profiles")
-    .update({
-      is_premium: true,
-      premium_until: until,
-      plan_type: order.plan_type,
-      payment_provider: "paypal",
-      subscription_status: "active",
-    })
-    .eq("id", order.user_id);
-
-  await admin
-    .from("paypal_orders")
-    .update({ status: "completed", completed_at: new Date().toISOString() })
-    .eq("order_id", order.order_id);
+  const { error } = await admin.rpc("activate_paid_premium", {
+    p_provider: "paypal",
+    p_ref: order.order_id,
+    p_days: plan.days,
+  });
+  if (error) throw new Error(error.message);
 }

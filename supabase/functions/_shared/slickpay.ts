@@ -44,9 +44,10 @@ export function adminClient(): SupabaseClient {
 }
 
 /**
- * يفعّل Premium لمستخدم بناءً على فاتورة مدفوعة (idempotent).
- * يمدّد من تاريخ الانتهاء الحالي إن كان لا يزال سارياً (تجديد لطيف).
- * يتجاهل الفواتير المكتملة مسبقاً لمنع التمديد المزدوج.
+ * يفعّل Premium بعد تأكيد الدفع عند المزوّد (idempotent).
+ * كلّش في معاملة وحدة عبر RPC activate_paid_premium (phase25، service_role فقط):
+ * حجز الفاتورة (status ≠ completed) + منح Premium + حساب المدة في القاعدة.
+ * طلبان متزامنان ما يمنحوش مرّتين، وإن فشل المنح ما يبقاش الفاتورة "completed" بلا Premium.
  */
 export async function activatePremium(
   admin: SupabaseClient,
@@ -56,31 +57,10 @@ export async function activatePremium(
   const plan = PLANS[invoice.plan_type];
   if (!plan) return;
 
-  const { data: prof } = await admin
-    .from("profiles")
-    .select("premium_until")
-    .eq("id", invoice.user_id)
-    .maybeSingle();
-
-  const now = Date.now();
-  const current = prof?.premium_until ? new Date(prof.premium_until).getTime() : 0;
-  const base = current > now ? current : now;
-  const until = new Date(base + plan.days * 86400000).toISOString();
-
-  await admin
-    .from("profiles")
-    .update({
-      is_premium: true,
-      premium_until: until,
-      plan_type: invoice.plan_type,
-      payment_provider: "slickpay",
-      slickpay_invoice_id: invoice.invoice_id,
-      subscription_status: "active",
-    })
-    .eq("id", invoice.user_id);
-
-  await admin
-    .from("slickpay_invoices")
-    .update({ status: "completed", completed_at: new Date().toISOString() })
-    .eq("invoice_id", invoice.invoice_id);
+  const { error } = await admin.rpc("activate_paid_premium", {
+    p_provider: "slickpay",
+    p_ref: invoice.invoice_id,
+    p_days: plan.days,
+  });
+  if (error) throw new Error(error.message);
 }

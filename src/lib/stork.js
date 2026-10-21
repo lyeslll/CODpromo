@@ -31,6 +31,22 @@ export async function fetchStorkCodes() {
   return data || [];
 }
 
+/** كود Stork عشوائي صعب التخمين: STORK-XXXX-XXXX (بلا 0/O/1/I/L). */
+export function generateStorkCode() {
+  const ABC = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  const buf = new Uint32Array(8);
+  crypto.getRandomValues(buf);
+  const s = Array.from(buf, (n) => ABC[n % ABC.length]).join("");
+  return `STORK-${s.slice(0, 4)}-${s.slice(4)}`;
+}
+
+/** يحذف كود Stork غير مستعمل (الأدمن فقط عبر RLS). */
+export async function deleteStorkCode(id) {
+  const { data, error } = await supabase.from("stork_codes").delete().eq("id", id).eq("is_used", false).select("id");
+  if (error) throw new Error(error.message);
+  if (!data?.length) throw new Error("not-deleted");
+}
+
 export async function addStorkCode(code) {
   const { data, error } = await supabase
     .from("stork_codes")

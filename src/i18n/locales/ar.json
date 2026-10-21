@@ -753,6 +753,54 @@
         "premiumSub": "أعضاء Premium وأكواد Stork",
         "siteStatsSub": "الأرقام اللي تظهر في الصفحة الرئيسية",
         "seoSub": "عناوين ووصف صفحات الشركات في محركات البحث"
+      },
+      "premium": {
+        "members": "أعضاء Premium",
+        "tabActive": "فعّال",
+        "tabExpired": "منتهي",
+        "emptyActive": "لا أعضاء Premium فعّالين الآن.",
+        "emptyExpired": "لا اشتراكات منتهية.",
+        "col": {
+          "member": "العضو",
+          "method": "طريقة الدفع",
+          "plan": "الباقة",
+          "amount": "المبلغ",
+          "ends": "ينتهي في",
+          "ended": "انتهى في"
+        },
+        "method": {
+          "stripe": "بطاقة دولية (⁦Stripe⁩)",
+          "paypal": "PayPal",
+          "slickpay": "البطاقة الجزائرية (⁦SlickPay⁩)",
+          "google_play": "Google Play",
+          "none": "كود Stork أو غير محدّد"
+        },
+        "noEnd": "بلا تاريخ انتهاء",
+        "viaStork": "أعضاء عبر كود Stork",
+        "noStorkUsed": "لم يُستعمل أي كود Stork بعد."
+      },
+      "stork": {
+        "activePremium": "Premium فعّال",
+        "total": "إجمالي الأكواد",
+        "available": "متاحة",
+        "used": "مستعملة",
+        "addTitle": "كود Stork جديد",
+        "addHint": "كل كود يعطي 30 يوم Premium مرة وحدة. ولّد كود صعيب يتخمّن، ولا اكتبو بيدك.",
+        "generate": "ولّد كود",
+        "manual": "كود يدوي",
+        "add": "أضف",
+        "listTitle": "أكواد Stork",
+        "count": "{{count}} كود",
+        "empty": "لا أكواد بعد. ولّد واحد من القسم الجانبي.",
+        "usedOne": "مستعمل",
+        "availableOne": "متاح",
+        "delete": "احذف الكود",
+        "confirm": "تحذف هاد الكود؟",
+        "yesDelete": "نعم، احذف",
+        "cancel": "إلغاء",
+        "deleteFailed": "تعذّر حذف الكود. ربما استُعمل للتو.",
+        "added": "تمت إضافة الكود {{code}}",
+        "deleted": "تم حذف الكود"
       }
     }
   },

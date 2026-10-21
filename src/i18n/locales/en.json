@@ -753,6 +753,54 @@
         "premiumSub": "Premium members and Stork codes",
         "siteStatsSub": "Numbers shown on the homepage",
         "seoSub": "Search titles and descriptions for company pages"
+      },
+      "premium": {
+        "members": "Premium members",
+        "tabActive": "Active",
+        "tabExpired": "Expired",
+        "emptyActive": "No active Premium members right now.",
+        "emptyExpired": "No expired subscriptions.",
+        "col": {
+          "member": "Member",
+          "method": "Payment method",
+          "plan": "Plan",
+          "amount": "Amount",
+          "ends": "Ends on",
+          "ended": "Ended on"
+        },
+        "method": {
+          "stripe": "International card (Stripe)",
+          "paypal": "PayPal",
+          "slickpay": "Algerian card (SlickPay)",
+          "google_play": "Google Play",
+          "none": "Stork code or unknown"
+        },
+        "noEnd": "No end date",
+        "viaStork": "Members via Stork code",
+        "noStorkUsed": "No Stork code used yet."
+      },
+      "stork": {
+        "activePremium": "Active Premium",
+        "total": "Total codes",
+        "available": "Available",
+        "used": "Used",
+        "addTitle": "New Stork code",
+        "addHint": "Each code gives 30 days of Premium, once. Generate a hard-to-guess code, or type one.",
+        "generate": "Generate code",
+        "manual": "Manual code",
+        "add": "Add",
+        "listTitle": "Stork codes",
+        "count": "{{count}} codes",
+        "empty": "No codes yet. Generate one from the side panel.",
+        "usedOne": "Used",
+        "availableOne": "Available",
+        "delete": "Delete code",
+        "confirm": "Delete this code?",
+        "yesDelete": "Yes, delete",
+        "cancel": "Cancel",
+        "deleteFailed": "Couldn't delete the code. It may have just been used.",
+        "added": "Code {{code}} added",
+        "deleted": "Code deleted"
       }
     }
   },

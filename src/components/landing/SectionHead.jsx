@@ -5,7 +5,7 @@ export default function SectionHead({ title, sub, center = false, id }) {
       <h2 id={id} className="text-balance text-[30px] font-black leading-[1.12] tracking-tight sm:text-[40px] lg:text-[46px]">
         {title}
       </h2>
-      {sub && <p className="mt-4 text-[16px] leading-[1.75] text-[var(--text-soft)] sm:text-[17px]">{sub}</p>}
+      {sub && <p className={`mt-4 text-[16px] leading-[1.75] text-[var(--text-soft)] sm:text-[17px] ${center ? "text-balance" : ""}`}>{sub}</p>}
     </header>
   );
 }

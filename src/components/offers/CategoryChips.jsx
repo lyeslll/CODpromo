@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { categoryName, categoryRecordSlug } from "../../lib/slug.js";
 
@@ -6,8 +7,9 @@ import { categoryName, categoryRecordSlug } from "../../lib/slug.js";
  * شرائح التصنيفات (من جدول categories) مع عدد العروض في كل واحدة.
  * value: slug الفئة المختارة أو null = كل الفئات. الفئات الفارغة لا تظهر
  * (إلا إن كانت هي المختارة عبر الرابط). صف قابل للتمرير الأفقي على الهاتف.
+ * featured (اختياري): { active, count, onToggle } → شريحة "مميّز" (?featured=1) في أول الصف.
  */
-export default function CategoryChips({ categories, counts, value, onChange }) {
+export default function CategoryChips({ categories, counts, value, onChange, featured }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const railRef = useRef(null);
@@ -26,13 +28,13 @@ export default function CategoryChips({ categories, counts, value, onChange }) {
     }
   }, [value, shown.length]);
 
-  if (!shown.length) return null;
+  if (!shown.length && !featured) return null;
 
-  const chip = (key, label, count, active) => (
+  const chip = (key, label, count, active, onClick = () => onChange(key === "all" ? null : key)) => (
     <button
       key={key}
       type="button"
-      onClick={() => onChange(key === "all" ? null : key)}
+      onClick={onClick}
       aria-pressed={active}
       className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12.5px] font-bold transition-colors ${
         active
@@ -53,6 +55,17 @@ export default function CategoryChips({ categories, counts, value, onChange }) {
         aria-label={t("offers.categoryLabel")}
         className="no-scrollbar flex gap-2 overflow-x-auto px-4 pb-1 sm:flex-wrap sm:overflow-visible sm:px-0"
       >
+        {featured &&
+          chip(
+            "featured",
+            <>
+              <Sparkles size={13} aria-hidden />
+              {t("featured.chip")}
+            </>,
+            featured.count,
+            featured.active,
+            featured.onToggle
+          )}
         {chip("all", t("home.allCategories"), null, !value)}
         {shown.map((c) => {
           const slug = categoryRecordSlug(c);

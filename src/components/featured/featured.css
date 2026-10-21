@@ -1,0 +1,295 @@
+/* ======================================================================
+   العروض المميّزة — "واجهة عرض" تحت الضوء.
+   يُحمَّل فقط مع مكوّنات القسم (الرئيسية: lazy عند الوصول للقسم).
+   الحركة الدائمة الوحيدة = دوران ضوء الحافة: عنصر داخلي يدور بـ transform
+   (على الـ compositor) داخل حلقة مقصوصة بـ mask. لا تحريك لزاوية التدرّج
+   (@property) لأنه يعيد الرسم كل إطار. الألوان من متغيّرات يضعها FeaturedFrame:
+   --fx (لون النوع أو الذهبي)، --fx-glow، --fx-soft، --fx-h1..3 (لمعة هولوغرام).
+   ====================================================================== */
+
+.fx-frame {
+  --fx: #a6f000;
+  --fx-glow: rgba(166, 240, 0, 0.35);
+  --fx-soft: rgba(166, 240, 0, 0.22);
+  --fx-pad: 8px;
+  --fx-r: calc(var(--radius-card) + var(--fx-pad));
+  position: relative;
+  padding: var(--fx-pad);
+  border-radius: var(--fx-r);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.014) 34%, rgba(255, 255, 255, 0.03));
+  isolation: isolate;
+}
+@media (max-width: 400px) {
+  .fx-frame {
+    --fx-pad: 6px;
+  }
+}
+.fx-frame.fx-soft {
+  --fx-pad: 0px;
+  display: grid;
+  background: none;
+}
+
+/* البطاقة نفسها تملأ الإطار (نفس ارتفاع جيرانها في الشبكة)، وعرضها مقيّد بعرضه
+   مثل أعمدة شبكة /offers (minmax(0, 1fr)) حتى لا يمدّها نص طويل */
+.fx-body {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  z-index: 1;
+}
+
+/* ===== الحلقة: حافة رفيعة ثابتة + قوس ضوء يدور ===== */
+.fx-ring,
+.fx-bloom {
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+.fx-ring {
+  inset: 0;
+  padding: 1.5px;
+  background: var(--fx-soft);
+  z-index: 2;
+}
+/* داخل حدود الإطار (لا يزيد عرض الشرائط القابلة للتمرير)؛ الضبابية وحدها تمدّ الضوء للخارج */
+.fx-bloom {
+  inset: 0;
+  padding: 6px;
+  filter: blur(7px);
+  opacity: 0;
+  z-index: 0;
+  transition: opacity 0.5s ease;
+}
+.fx-spin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 230%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(from 0deg, transparent 0 56%, var(--fx) 70%, #fff 75%, var(--fx) 80%, transparent 93%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.fx-frame.is-lit .fx-spin {
+  opacity: 1;
+}
+.fx-frame.is-lit .fx-bloom {
+  opacity: 0.8;
+}
+.fx-frame.is-fx .fx-spin {
+  animation: fx-orbit 5.6s linear infinite;
+}
+/* بلا مؤثرات: قوس ثابت (نفس الشكل بلا دوران) */
+.fx-frame:not(.is-fx) .fx-spin {
+  transform: translate(-50%, -50%) rotate(-30deg);
+}
+@keyframes fx-orbit {
+  to {
+    transform: translate(-50%, -50%) rotate(1turn);
+  }
+}
+
+/* ===== هالة ثابتة خلف البطاقة (لا تتحرّك — تتغيّر شفافيتها فقط عند التنشيط) ===== */
+.fx-halo {
+  position: absolute;
+  inset: 8% 6% -2%;
+  border-radius: inherit;
+  background: var(--fx-glow);
+  filter: blur(36px);
+  opacity: 0.22;
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+.fx-frame.is-lit .fx-halo {
+  opacity: 0.62;
+}
+
+/* ===== النسخة الخفيفة لشبكة /offers: ضوء خلفي يتسرّب من حواف البطاقة ===== */
+.fx-backlight {
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--radius-card) + 2px);
+  overflow: hidden;
+  filter: blur(5px);
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 0;
+}
+.fx-backlight .fx-spin {
+  opacity: 1;
+}
+
+/* ===== لمعة هولوغرام تتبع المؤشر / ميلان الهاتف ===== */
+/* أسفلها 5px أقصر: البطاقة ترتفع 5px عند المرور فتبقى اللمعة داخلها */
+.fx-gloss {
+  position: absolute;
+  inset: 0 0 5px;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 3;
+}
+.fx-sheen {
+  position: absolute;
+  inset: -45%;
+  background: linear-gradient(
+    115deg,
+    transparent 34%,
+    var(--fx-h1) 42%,
+    var(--fx-h2) 48%,
+    var(--fx-h3) 54%,
+    transparent 62%
+  );
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.fx-spec {
+  position: absolute;
+  left: 15%;
+  top: 8%;
+  width: 70%;
+  aspect-ratio: 1;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.13), transparent);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.fx-frame.is-lit.is-fx .fx-sheen {
+  opacity: 0.55;
+}
+.fx-frame.is-lit.is-fx .fx-spec {
+  opacity: 1;
+}
+
+/* ===== الوسم: مميّز (ممتلئ بلون البطاقة) / مُموَّل (محدّد) ===== */
+.fx-badge {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.fx-badge-featured {
+  background: var(--fx);
+  color: #0a0a0a;
+  box-shadow: 0 6px 18px -6px var(--fx-glow);
+}
+.fx-badge-sponsored {
+  background: var(--color-ink-card);
+  color: var(--text-softer);
+  border: 1px solid var(--fx-soft);
+}
+
+/* ===== المسرح (الحاسوب): مصباح + مخروط ضوء + أرضية ===== */
+.fx-stage {
+  perspective: 1500px;
+  perspective-origin: 50% 40%;
+}
+.fx-lamp {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 220px;
+  height: 3px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255, 250, 235, 0.95) 35%, #fff 50%, rgba(255, 250, 235, 0.95) 65%, transparent);
+  box-shadow: 0 0 18px 2px rgba(255, 250, 235, 0.28), 0 6px 60px 14px var(--fx-glow);
+  pointer-events: none;
+}
+/* الضبابية على الغلاف والقصّ على الداخل: الحواف تبقى ناعمة */
+.fx-cone {
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  width: min(820px, 96%);
+  height: calc(100% - 2px);
+  transform: translateX(-50%);
+  filter: blur(18px);
+  pointer-events: none;
+}
+.fx-cone::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%);
+  background: linear-gradient(180deg, rgba(255, 250, 235, 0.13), rgba(255, 250, 235, 0.045) 50%, transparent 92%);
+}
+.fx-floor {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: min(760px, 92%);
+  height: 90px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, var(--fx-glow), transparent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* ===== الشرائح (الهاتف + صف /offers) =====
+   الشريحة نفسها بلا transform (مواضع الالتقاط ثابتة)؛ التصغير والإزاحة نحو الوسط
+   على العنصر الداخلي، فيطلّ الجاران من الحافتين ويُفهم أن القائمة تُسحب. */
+.fx-track {
+  --fx-peek: 22px;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.fx-slide {
+  scroll-snap-align: center;
+}
+.fx-slide-in {
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease;
+}
+.fx-track.is-emph .fx-slide-in.is-before {
+  transform: translateX(var(--fx-peek)) scale(0.9);
+  opacity: 0.62;
+}
+.fx-track.is-emph .fx-slide-in.is-after {
+  transform: translateX(calc(-1 * var(--fx-peek))) scale(0.9);
+  opacity: 0.62;
+}
+[dir="rtl"] .fx-track.is-emph .fx-slide-in.is-before {
+  transform: translateX(calc(-1 * var(--fx-peek))) scale(0.9);
+}
+[dir="rtl"] .fx-track.is-emph .fx-slide-in.is-after {
+  transform: translateX(var(--fx-peek)) scale(0.9);
+}
+.fx-shelf .fx-slide {
+  scroll-snap-align: start;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-frame .fx-spin {
+    animation: none !important;
+  }
+  .fx-slide-in,
+  .fx-spin,
+  .fx-bloom,
+  .fx-halo,
+  .fx-sheen,
+  .fx-spec {
+    transition: none;
+  }
+}

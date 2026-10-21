@@ -19,6 +19,8 @@ import {
   successRank,
 } from "../lib/offerFilters.js";
 import { offersUrl, homeUrl, storeUrl, buildAlternates, breadcrumbLd } from "../lib/seo.js";
+import { useFeaturedRows, joinFeatured, loadUsageRank } from "../lib/featured.js";
+import { canUseFx } from "../lib/fxCapability.js";
 
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
@@ -34,14 +36,17 @@ import OfferModeNote from "../components/offers/OfferModeNote.jsx";
 import TypeFilter from "../components/offers/TypeFilter.jsx";
 import CategoryChips from "../components/offers/CategoryChips.jsx";
 import FloatingModeSwitch from "../components/offers/FloatingModeSwitch.jsx";
+import FeaturedRow from "../components/featured/FeaturedRow.jsx";
+import FeaturedFrame, { frameTone } from "../components/featured/FeaturedFrame.jsx";
 import { SkeletonGrid, EmptyState, ErrorState } from "../components/States.jsx";
 
 const SWIPE_HINT_KEY = "codpromo:swipe-hint";
 
 // ============================================================
 //  صفحة /offers — كل العروض مع البحث والفلاتر والترتيب ومبدّل عادي/Premium.
-//  كل فلتر محفوظ في الرابط (type / category / mode / sort / q) لمشاركة روابط جاهزة:
+//  كل فلتر محفوظ في الرابط (type / category / featured / mode / sort / q) لمشاركة روابط جاهزة:
 //    /offers?type=cashback&category=payment-cards&mode=premium
+//    /offers?featured=1 (العروض المميّزة فقط) · ?sort=usage (الأكثر استخداماً)
 //  الهاتف: مبدّل عائم فوق شريط التنقّل + سحب أفقي على القائمة للتبديل كأنها تبويبات.
 // ============================================================
 export default function OffersPage({ lang = "ar" }) {
@@ -63,7 +68,8 @@ export default function OffersPage({ lang = "ar" }) {
   const typeParam = TYPE_PARAMS[params.get("type")] ? params.get("type") : null;
   const categoryParam = params.get("category") || null;
   const premiumView = params.get("mode") === "premium" ? "premium" : "normal";
-  const sortMode = params.get("sort") === "success" ? "success" : "newest";
+  const featuredParam = params.get("featured") === "1";
+  const sortMode = ["success", "usage"].includes(params.get("sort")) ? params.get("sort") : "newest";
   const qParam = params.get("q") || "";
 
   const updateParams = useCallback(
@@ -126,6 +132,21 @@ export default function OffersPage({ lang = "ar" }) {
     load();
   }, [load]);
 
+  // ===== العروض المميّزة (يختارها الأدمن) + ترتيب "الأكثر استخداماً" =====
+  const featuredRows = useFeaturedRows();
+  const featured = useMemo(() => joinFeatured(featuredRows, companies), [featuredRows, companies]);
+  const featuredLabel = useMemo(() => new Map(featured.map((f) => [f.company.id, f.label])), [featured]);
+  const gridFx = useMemo(() => canUseFx(), []);
+  const [usageRank, setUsageRank] = useState(null);
+  useEffect(() => {
+    if (sortMode !== "usage" || usageRank) return;
+    let active = true;
+    loadUsageRank().then((r) => active && setUsageRank(r));
+    return () => {
+      active = false;
+    };
+  }, [sortMode, usageRank]);
+
   // ===== الفلترة + الترتيب =====
   const cats = useMemo(() => activeCategories(categories), [categories]);
   const counts = useMemo(() => countByCategory(companies, cats), [companies, cats]);
@@ -133,22 +154,38 @@ export default function OffersPage({ lang = "ar" }) {
   const filtered = useMemo(
     () =>
       companies.filter((c) => {
+        if (featuredParam && !featuredLabel.has(c.id)) return false;
         if (typeParam && c.type !== TYPE_PARAMS[typeParam]) return false;
         if (categoryParam && companyCategorySlug(c, byId, categories) !== categoryParam) return false;
         return matchesSearch(c, search, lang, byId, categories);
       }),
-    [companies, typeParam, categoryParam, search, lang, byId, categories]
+    [companies, featuredParam, featuredLabel, typeParam, categoryParam, search, lang, byId, categories]
   );
 
   const ordered = useMemo(() => {
-    if (sortMode !== "success") return filtered;
-    return [...filtered].sort((a, b) => successRank(voteStats, b.id) - successRank(voteStats, a.id));
-  }, [filtered, sortMode, voteStats]);
+    if (sortMode === "success") {
+      return [...filtered].sort((a, b) => successRank(voteStats, b.id) - successRank(voteStats, a.id));
+    }
+    // الأكثر استخداماً: ترتيب النسخ الحقيقي؛ العروض بلا نسخ بعدُ تبقى بعدها بترتيب الأحدث
+    if (sortMode === "usage" && usageRank) {
+      const rank = (id) => usageRank.get(id) ?? Infinity;
+      return [...filtered].sort((a, b) => {
+        const ra = rank(a.id);
+        const rb = rank(b.id);
+        return ra === rb ? 0 : ra - rb;
+      });
+    }
+    return filtered;
+  }, [filtered, sortMode, voteStats, usageRank]);
+
+  // ?featured=1 قبل وصول قائمة المميّزة: هيكل تحميل بدل "لا نتائج"
+  const featuredPending = featuredParam && featuredRows === null;
+  const showFeaturedRow = featured.length > 0 && !featuredParam && !typeParam && !categoryParam && !search.trim();
 
   const resetFilters = () => {
     setSearch("");
     lastWrittenQ.current = "";
-    updateParams({ q: null, type: null, category: null });
+    updateParams({ q: null, type: null, category: null, featured: null });
   };
 
   // ===== المبدّل العائم (هاتف): يظهر ما دامت القائمة في الشاشة =====
@@ -328,14 +365,28 @@ export default function OffersPage({ lang = "ar" }) {
         {/* فلتر النوع + شرائح التصنيفات */}
         <div className="flex flex-col gap-3">
           <TypeFilter value={typeParam} onChange={(v) => updateParams({ type: v })} />
-          <CategoryChips categories={cats} counts={counts} value={categoryParam} onChange={(v) => updateParams({ category: v })} />
+          <CategoryChips
+            categories={cats}
+            counts={counts}
+            value={categoryParam}
+            onChange={(v) => updateParams({ category: v })}
+            featured={
+              featured.length || featuredParam
+                ? {
+                    active: featuredParam,
+                    count: featured.length,
+                    onToggle: () => updateParams({ featured: featuredParam ? null : "1" }),
+                  }
+                : null
+            }
+          />
         </div>
 
         {/* شريط الأدوات: الترتيب + مبدّل Premium (الحاسوب؛ الهاتف يستعمل المبدّل العائم) */}
         {!loading && !error && (
           <>
             <div className="mb-5 mt-6 flex flex-wrap items-center justify-between gap-3">
-              <SortToggle value={sortMode} onChange={(v) => updateParams({ sort: v === "success" ? "success" : null })} />
+              <SortToggle value={sortMode} onChange={(v) => updateParams({ sort: v === "newest" ? null : v })} />
               <div className="relative hidden md:block">
                 <PremiumToggle value={premiumView} onChange={setMode} />
                 <GoldBurst fire={burst} />
@@ -350,10 +401,24 @@ export default function OffersPage({ lang = "ar" }) {
           </>
         )}
 
+        {/* صف العروض المميّزة (على القائمة الكاملة بلا فلاتر) */}
+        {!loading && !error && showFeaturedRow && (
+          <FeaturedRow
+            items={featured}
+            premiumMode={isPremium}
+            favorites={favorites}
+            onToggleFav={toggleFav}
+            onCopy={handleCopy}
+            unlocked={unlocked}
+            onUnlock={() => setPremiumModal(true)}
+            onShowAll={() => updateParams({ featured: "1" })}
+          />
+        )}
+
         {/* الحالات */}
-        {loading && <SkeletonGrid />}
+        {(loading || featuredPending) && <SkeletonGrid />}
         {error && <ErrorState message={error} onRetry={load} />}
-        {!loading && !error && filtered.length === 0 && <EmptyState onReset={resetFilters} />}
+        {!loading && !featuredPending && !error && filtered.length === 0 && <EmptyState onReset={resetFilters} />}
 
         {/* الشبكة — السحب الأفقي (لمس) يبدّل بين عادي و Premium */}
         <div
@@ -394,19 +459,31 @@ export default function OffersPage({ lang = "ar" }) {
           {!loading && !error && filtered.length > 0 && (
             <motion.div style={{ x: dragX }} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <AnimatePresence>
-                {ordered.map((c, i) => (
-                  <CompanyCard
-                    key={c.id}
-                    company={c}
-                    index={i}
-                    isFavorite={favorites.includes(c.id)}
-                    onToggleFav={toggleFav}
-                    onCopy={handleCopy}
-                    premium={isPremium && c.supports_premium !== false}
-                    unlocked={unlocked}
-                    onUnlock={() => setPremiumModal(true)}
-                  />
-                ))}
+                {ordered.map((c, i) => {
+                  const premium = isPremium && c.supports_premium !== false;
+                  const label = featuredLabel.get(c.id);
+                  const card = (
+                    <CompanyCard
+                      key={label ? undefined : c.id}
+                      company={c}
+                      index={i}
+                      isFavorite={favorites.includes(c.id)}
+                      onToggleFav={toggleFav}
+                      onCopy={handleCopy}
+                      premium={premium}
+                      unlocked={unlocked}
+                      onUnlock={() => setPremiumModal(true)}
+                    />
+                  );
+                  // العرض المميّز داخل الشبكة: نفس الحافة المضيئة بنسخة أخف (ضوء خلفي + الوسم)
+                  return label ? (
+                    <FeaturedFrame key={c.id} variant="soft" tone={frameTone(c, premium)} label={label} fx={gridFx}>
+                      {card}
+                    </FeaturedFrame>
+                  ) : (
+                    card
+                  );
+                })}
               </AnimatePresence>
             </motion.div>
           )}

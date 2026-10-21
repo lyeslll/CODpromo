@@ -10,7 +10,6 @@
     "offers": "Offers",
     "categories": "Categories",
     "how": "How it works",
-    "popular": "Most popular",
     "login": "Log in",
     "logout": "Log out",
     "logoutLong": "Log out",
@@ -18,10 +17,8 @@
     "account": "My account",
     "menu": "Menu",
     "backToSite": "Back to site",
-    "browse": "Browse",
     "premium": "Unlock Premium",
     "premiumSub": "Stronger discounts & exclusive codes",
-    "settings": "Settings",
     "language": "Language"
   },
   "logo": {
@@ -653,5 +650,20 @@
     "title": "Before you pay for any tool, open CODpromo.",
     "sub": "A few seconds could take a chunk off the bill.",
     "cta": "Open the offers"
+  },
+  "header": {
+    "search": "Quick search",
+    "searchHint": "Type a company, category or code — results show as you type.",
+    "suggestions": "Categories with the most offers",
+    "searchEmpty": "No results for “{{q}}”. Try another word.",
+    "searchAll": "Search “{{q}}” in all offers",
+    "kbdOpen": "Open",
+    "kbdMove": "Move",
+    "close": "Close",
+    "keyEsc": "Esc",
+    "keyCtrl": "Ctrl",
+    "member": "Premium member",
+    "offersBadge": "{{count}} active codes",
+    "menuClose": "Close menu"
   }
 }

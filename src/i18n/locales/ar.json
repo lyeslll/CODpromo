@@ -10,7 +10,6 @@
     "offers": "العروض",
     "categories": "الفئات",
     "how": "كيف يعمل",
-    "popular": "الأكثر استخداماً",
     "login": "دخول",
     "logout": "خروج",
     "logoutLong": "تسجيل الخروج",
@@ -18,10 +17,8 @@
     "account": "حسابي",
     "menu": "القائمة",
     "backToSite": "العودة للموقع",
-    "browse": "تصفّح",
     "premium": "افتح Premium",
     "premiumSub": "خصومات أقوى وأكواد حصرية",
-    "settings": "الإعدادات",
     "language": "اللغة"
   },
   "logo": {
@@ -653,5 +650,20 @@
     "title": "قبل أن تدفع لأي خدمة، افتح CODpromo.",
     "sub": "ثوانٍ قليلة قد توفّر عليك جزءاً من الفاتورة.",
     "cta": "افتح العروض الآن"
+  },
+  "header": {
+    "search": "بحث سريع",
+    "searchHint": "اكتب اسم شركة أو فئة أو كود — النتائج تظهر مباشرة.",
+    "suggestions": "الفئات الأكثر عروضاً",
+    "searchEmpty": "لا توجد نتيجة لـ «{{q}}». جرّب كلمة أخرى.",
+    "searchAll": "ابحث عن «{{q}}» في كل العروض",
+    "kbdOpen": "فتح",
+    "kbdMove": "تنقّل",
+    "close": "إغلاق",
+    "keyEsc": "Esc",
+    "keyCtrl": "Ctrl",
+    "member": "عضو Premium",
+    "offersBadge": "{{count}} كود فعّال",
+    "menuClose": "إغلاق القائمة"
   }
 }

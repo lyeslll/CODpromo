@@ -10,7 +10,6 @@
     "offers": "Offres",
     "categories": "Catégories",
     "how": "Comment ça marche",
-    "popular": "Les plus utilisés",
     "login": "Connexion",
     "logout": "Déconnexion",
     "logoutLong": "Se déconnecter",
@@ -18,10 +17,8 @@
     "account": "Mon compte",
     "menu": "Menu",
     "backToSite": "Retour au site",
-    "browse": "Naviguer",
     "premium": "Débloquer Premium",
     "premiumSub": "Réductions plus fortes & codes exclusifs",
-    "settings": "Paramètres",
     "language": "Langue"
   },
   "logo": {
@@ -653,5 +650,20 @@
     "title": "Avant de payer un outil, ouvrez CODpromo.",
     "sub": "Quelques secondes peuvent alléger la facture.",
     "cta": "Ouvrir les offres"
+  },
+  "header": {
+    "search": "Recherche rapide",
+    "searchHint": "Tapez une entreprise, une catégorie ou un code — les résultats s’affichent aussitôt.",
+    "suggestions": "Catégories les plus fournies",
+    "searchEmpty": "Aucun résultat pour « {{q}} ». Essayez un autre mot.",
+    "searchAll": "Chercher « {{q}} » dans toutes les offres",
+    "kbdOpen": "Ouvrir",
+    "kbdMove": "Naviguer",
+    "close": "Fermer",
+    "keyEsc": "Échap",
+    "keyCtrl": "Ctrl",
+    "member": "Membre Premium",
+    "offersBadge": "{{count}} codes actifs",
+    "menuClose": "Fermer le menu"
   }
 }

@@ -358,6 +358,56 @@ html.cursor-glow #root > .min-h-screen {
   }
 }
 
+/* ===== قسم "حمّل التطبيق" ===== */
+/* الهاتف يطفو بخفة */
+@keyframes app-float {
+  0%,
+  100% {
+    transform: translateY(-7px);
+  }
+  50% {
+    transform: translateY(7px);
+  }
+}
+/* الكوبونات الصغيرة حول الهاتف */
+@keyframes app-coupon {
+  0%,
+  100% {
+    transform: translateY(-9px) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(9px) rotate(4deg);
+  }
+}
+/* خط المسح فوق رمز QR (من الأعلى للأسفل) */
+@keyframes qr-scan {
+  from {
+    transform: translateY(-15%);
+  }
+  to {
+    transform: translateY(355%);
+  }
+}
+/* نبض الضوء خلف شارة Google Play (الشارة نفسها لا تتغيّر) */
+@keyframes play-breathe {
+  0%,
+  100% {
+    transform: scale(0.94);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+/* شريط "حمّل التطبيق" في متصفح Android (AppBanner): يأخذ مكانه أعلى الصفحة ويُزيح المحتوى،
+   والهيدر الثابت ينزل تحته ثم يصعد مع التمرير حتى يختفي الشريط. بلا الشريط: 0px (لا تغيير). */
+body {
+  padding-top: var(--app-banner-h, 0px);
+}
+#top {
+  top: var(--app-banner-top, 0px);
+}
+
 /* prefers-reduced-motion: نوقف الحركات المستمرة (CSS) ونقصّر الانتقالات في كل الموقع */
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -665,5 +665,25 @@
     "member": "Membre Premium",
     "offersBadge": "{{count}} offres",
     "menuClose": "Fermer le menu"
+  },
+  "app": {
+    "title": "Toutes les réductions, dans votre poche.",
+    "sub": "L’application CODpromo pour Android : les mêmes offres et codes, à portée d’un geste depuis votre écran d’accueil.",
+    "f1Title": "Toutes les offres au même endroit",
+    "f1Desc": "Réductions, coupons et cashback sur les services que paie votre activité. Copiez un code d’un geste avant de payer.",
+    "f2Title": "Premium via Google Play",
+    "f2Desc": "Abonnez-vous à Premium directement depuis votre compte Google Play, dans l’application.",
+    "f3Title": "Toujours à jour, en plein écran",
+    "f3Desc": "Les nouvelles offres apparaissent dès leur publication, sans mise à jour de l’app ni barre de navigateur.",
+    "badgeAlt": "Disponible sur Google Play",
+    "qrCaption": "Ou scannez-le avec l’appareil photo de votre téléphone",
+    "qrLabel": "Code QR qui ouvre la page de l’application CODpromo sur Google Play",
+    "iosSoon": "Bientôt sur iPhone",
+    "phoneLabel": "Aperçu de l’application CODpromo : la page des offres telle qu’elle s’affiche sur un téléphone",
+    "live": "Aperçu en direct : faites défiler dans le téléphone avec la molette",
+    "bannerTitle": "Téléchargez l’app CODpromo",
+    "bannerSub": "Sur Google Play",
+    "bannerCta": "Installer",
+    "getApp": "Télécharger l’app"
   }
 }

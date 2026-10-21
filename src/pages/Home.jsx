@@ -28,6 +28,7 @@ import CategoryGrid from "../components/landing/CategoryGrid.jsx";
 import HowSteps from "../components/landing/HowSteps.jsx";
 import TrustSection from "../components/landing/TrustSection.jsx";
 import SampleOffers from "../components/landing/SampleOffers.jsx";
+import AppDownload from "../components/landing/AppDownload.jsx";
 import FinalCta from "../components/landing/FinalCta.jsx";
 
 // ============================================================
@@ -164,6 +165,7 @@ export default function Home() {
           unlocked={unlocked}
           onUnlock={openPremium}
         />
+        <AppDownload />
         <FinalCta />
       </main>
 

@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ArrowLeft, Crown, LogIn, LogOut, Tag, UserPlus } from "lucide-react";
+import { ArrowLeft, Crown, LogIn, LogOut, Smartphone, Tag, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LANGS, Flag, useLangPick } from "../LanguageSwitcher.jsx";
 import { useLocale } from "../../lib/locale.jsx";
@@ -16,6 +16,8 @@ import { DZ_PLANS, fmtUSD } from "../../lib/plans.js";
 import { monthlyUsdPrice } from "../../lib/siteStats.js";
 import { formatNumber } from "../../lib/values.js";
 import { useHeaderOffers, userDisplay } from "./headerData.js";
+import GooglePlayBadge from "../app/GooglePlayBadge.jsx";
+import { useAppTarget } from "../../lib/appInstall.js";
 
 const GOLD_BG = "linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e)";
 // ألوان تذكرة Premium (نفس متغيّرات .ticket في البطاقات)
@@ -58,6 +60,7 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
   const { isPremiumActive } = usePremium();
   const { categories } = useCategories();
   const offers = useHeaderOffers(open);
+  const app = useAppTarget();
   const [geo, setGeo] = useState(null);
 
   // القياس قبل الرسم (حتى تبدأ الدائرة من الزر بالضبط)، ومع تدوير الشاشة،
@@ -272,6 +275,20 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
               <span className="text-[13.5px] font-bold text-[var(--text-softer)]">{t("nav.language")}</span>
               <LanguageSegment />
             </motion.div>
+
+            {/* تطبيق Android: شارة Google Play صغيرة (أو "قريباً على iPhone") — تختفي داخل التطبيق */}
+            {!app.inApp && (
+              <motion.div variants={itemVariants} className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-3 py-2">
+                <span className="text-[13.5px] font-bold text-[var(--text-softer)]">{t("app.getApp")}</span>
+                {app.platform === "ios" ? (
+                  <span className="flex items-center gap-1.5 py-1.5 text-[13px] font-semibold text-[var(--color-mute)]">
+                    <Smartphone size={14} aria-hidden /> {t("app.iosSoon")}
+                  </span>
+                ) : (
+                  <GooglePlayBadge height={50} style={{ margin: "-8px -8px" }} />
+                )}
+              </motion.div>
+            )}
           </motion.div>
         </motion.div>
       )}

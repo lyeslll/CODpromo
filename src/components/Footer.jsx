@@ -1,7 +1,9 @@
-import { Mail, Crown, ArrowLeft } from "lucide-react";
+import { Mail, Crown, ArrowLeft, Smartphone } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import Logo from "./Logo.jsx";
+import GooglePlayBadge from "./app/GooglePlayBadge.jsx";
+import { useAppTarget } from "../lib/appInstall.js";
 
 /* أيقونات العلامات الحقيقية (Instagram/Facebook) — مكتبة lucide الحالية حذفت أيقونات
    العلامات، فنستعمل مسارات SVG الرسمية (currentColor) كي ترث ألوان الهوية. */
@@ -86,6 +88,7 @@ export default function Footer({ onPremium }) {
                 </a>
               ))}
             </div>
+            <FooterApp />
           </div>
         </div>
 
@@ -117,5 +120,24 @@ export default function Footer({ onPremium }) {
         </div>
       </div>
     </footer>
+  );
+}
+
+/** شارة Google Play صغيرة (أو "قريباً على iPhone" على iPhone) — تختفي داخل التطبيق. */
+function FooterApp() {
+  const { t } = useTranslation();
+  const { inApp, platform } = useAppTarget();
+  if (inApp) return null;
+  return (
+    <div className="mt-4 flex flex-col items-start gap-2.5 sm:items-end">
+      <span className="text-[12.5px] font-semibold text-[var(--color-mute)]">{t("app.getApp")}</span>
+      {platform === "ios" ? (
+        <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[var(--text-soft)]">
+          <Smartphone size={14} aria-hidden /> {t("app.iosSoon")}
+        </span>
+      ) : (
+        <GooglePlayBadge height={52} style={{ margin: "-9px -9px" }} />
+      )}
+    </div>
   );
 }

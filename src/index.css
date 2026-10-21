@@ -350,6 +350,18 @@ input::placeholder {
   }
 }
 
+/* prefers-reduced-motion: نوقف الحركات المستمرة (CSS) ونقصّر الانتقالات في كل الموقع */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* مسافة سفلية للمحتوى على الهاتف حتى لا يغطّيه شريط التنقّل السفلي (BottomNav).
    تُضاف فقط عند وجود الشريط (الصنف يضبطه App) وعلى الهاتف فقط، مع احترام safe-area. */
 @media (max-width: 767px) {
@@ -365,7 +377,7 @@ input::placeholder {
    أسفل الهيدر كفاصل طبيعي بدل ما يقطع اللوجو.
    نطاق صارم: body.is-twa-app + (max-width: 767px) + داخل #top فقط.
    → المتصفح العادي وسطح المكتب: صفر تغيير.
-   → لا نلمس الشعرة الليمونية العلوية (span في Navbar.jsx 238-243).
+   → لا نلمس الشعرة الليمونية العلوية (span "شعرة ضوء ليموني علوية" في Navbar.jsx).
    ====================================================================== */
 @media (max-width: 767px) {
   /* (1) نرفع الهيدر للأعلى: نلغي الفراغ العلوي، ونترك فقط مساحة شريط النظام

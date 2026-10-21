@@ -34,7 +34,7 @@ function StaticStory({ t }) {
         COD<span className="text-[var(--color-lime)]">promo</span>
       </p>
       <p dir="ltr" className="mt-6 text-[22px] font-extrabold [font-family:Inter,sans-serif] sm:text-[30px]">
-        Cash On Delivery
+        {t("story.codExpanded")}
       </p>
       {t("story.codMeaning") && <p className="mt-1 text-[17px] font-bold text-[var(--text-soft)]">{t("story.codMeaning")}</p>}
       <p className="mt-3 text-[18px] font-bold text-[var(--text-soft)]">{t("story.readAs")}</p>
@@ -127,7 +127,7 @@ function ScrollStory({ t }) {
           </motion.div>
         </div>
         {/* نسخة مقروءة لقارئات الشاشة */}
-        <span className="sr-only">{`CODpromo — Cash On Delivery — Code promo. ${t("story.conclusion")}`}</span>
+        <span className="sr-only">{`CODpromo: ${t("story.codExpanded")}. ${t("story.readAs")}. ${t("story.conclusion")}`}</span>
 
         <div className="relative mt-6 h-[64px] w-full max-w-3xl sm:h-[72px]">
           {codMeaning && (

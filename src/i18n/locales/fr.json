@@ -548,7 +548,8 @@
     "intro": "Le nom raconte toute l'idée",
     "codMeaning": "paiement à la livraison",
     "readAs": "Lisez vite : Code promo",
-    "conclusion": "Des codes promo pour les vendeurs en paiement à la livraison."
+    "conclusion": "Des codes promo pour les vendeurs en paiement à la livraison.",
+    "codExpanded": "Cash On Delivery"
   },
   "pillars": {
     "title": "Trois façons de payer moins",

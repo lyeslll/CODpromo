@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogIn, LogOut, Sparkles, Menu, X, Search, ChevronDown } from "lucide-react";
+import { LogIn, LogOut, UserPlus, Menu, X, Search, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Logo from "./Logo.jsx";
 import LanguageSwitcher from "./LanguageSwitcher.jsx";
@@ -282,17 +282,13 @@ export default function Navbar({ onPremium }) {
                 >
                   <LogIn size={16} /> <span className="hidden xl:inline">{t("nav.login")}</span>
                 </Link>
-                <Link to="/signup">
-                  <motion.span
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.96 }}
-                    className="group relative flex items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-xl px-3.5 py-2 text-[13.5px] font-extrabold text-[#0a0a0a] xl:px-4 xl:text-[14px]"
-                    style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
-                  >
-                    <span className="absolute inset-0 -translate-x-full bg-white/30 transition-transform duration-500 group-hover:translate-x-full" />
-                    <Sparkles size={15} className="relative hidden xl:block" />
-                    <span className="relative">{t("nav.signup")}</span>
-                  </motion.span>
+                {/* إنشاء حساب: إطار رقيق هادئ — زر Premium الذهبي يبقى الوحيد البارز */}
+                <Link
+                  to="/signup"
+                  className="flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-[var(--color-ink-line)] px-3 py-2 text-[13.5px] font-semibold text-[var(--text-softer)] transition-colors hover:border-[var(--color-lime)]/35 hover:text-[var(--text)] xl:px-3.5 xl:text-[14px]"
+                >
+                  <UserPlus size={16} className="hidden xl:block" />
+                  {t("nav.signup")}
                 </Link>
               </>
             )}

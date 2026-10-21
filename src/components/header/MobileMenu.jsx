@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ArrowLeft, Crown, LogIn, LogOut, Sparkles, Tag } from "lucide-react";
+import { ArrowLeft, Crown, LogIn, LogOut, Tag, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LANGS, Flag, useLangPick } from "../LanguageSwitcher.jsx";
 import { useLocale } from "../../lib/locale.jsx";
@@ -256,15 +256,13 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
                 >
                   <LogIn size={16} /> {t("nav.login")}
                 </Link>
+                {/* إنشاء حساب: إطار رقيق مثل "دخول" — كارت Premium الذهبي يبقى الوحيد البارز */}
                 <Link
                   to="/signup"
                   onClick={onClose}
-                  className="group relative flex items-center justify-center gap-1.5 overflow-hidden rounded-xl px-3 py-3 text-[14px] font-extrabold text-[#0a0a0a]"
-                  style={{ background: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" }}
+                  className="flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-[var(--color-ink-line)] px-3 py-3 text-[14px] font-semibold text-[var(--text)] transition-colors hover:bg-[var(--fill)]"
                 >
-                  <span aria-hidden className="absolute inset-0 -translate-x-full bg-white/30 transition-transform duration-500 group-hover:translate-x-full" />
-                  <Sparkles size={15} className="relative" />
-                  <span className="relative">{t("nav.signup")}</span>
+                  <UserPlus size={16} /> {t("nav.signup")}
                 </Link>
               </motion.div>
             )}

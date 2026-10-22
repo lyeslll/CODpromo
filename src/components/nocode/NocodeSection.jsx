@@ -8,7 +8,6 @@ import GoldBurst from "../GoldBurst.jsx";
 import NocodeCard from "./NocodeCard.jsx";
 import NocodeGrid from "./NocodeGrid.jsx";
 import { useNocodeDeals } from "../../lib/nocode.js";
-import { dealHasPremium, premiumFirst } from "../../lib/premiumOffer.js";
 import { offersLink } from "../../lib/seo.js";
 import { ModeWaveContext, useWaveSwitch, useFloatingSwitch } from "../../lib/modeWave.jsx";
 import DesktopModeSwitch from "../DesktopModeSwitch.jsx";
@@ -29,7 +28,7 @@ export default function NocodeSection({ unlocked, onUnlock }) {
   const toggleRef = useRef(null);
   const areaRef = useRef(null);
   const floating = useFloatingSwitch(toggleRef, areaRef, !!deals?.length);
-  const { wave, beforeChange } = useWaveSwitch(mode === "premium", areaRef, areaRef, (id) => !dealHasPremium(deals?.find((d) => `d${d.id}` === id)));
+  const { wave, beforeChange } = useWaveSwitch(mode === "premium", areaRef, areaRef);
 
   if (!deals?.length) return null;
 
@@ -40,7 +39,8 @@ export default function NocodeSection({ unlocked, onUnlock }) {
     if (m === "premium") setBurst((b) => b + 1);
     setMode(m);
   };
-  const shown = (premium ? premiumFirst(deals, dealHasPremium) : deals).slice(0, MAX_HOME);
+  // نفس الترتيب في العادي و Premium (المجمّدة تتجمّد في بلاصتها)
+  const shown = deals.slice(0, MAX_HOME);
 
   return (
     <section aria-labelledby="nocode-title" className="mx-auto max-w-6xl px-4 py-24 sm:py-28">

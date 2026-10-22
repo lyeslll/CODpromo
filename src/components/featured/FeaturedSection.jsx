@@ -8,7 +8,6 @@ import GoldBurst from "../GoldBurst.jsx";
 import { offersLink } from "../../lib/seo.js";
 import FeaturedMobileCarousel from "./FeaturedMobileCarousel.jsx";
 import { useMobileFx } from "./mobile.js";
-import { premiumFirst } from "../../lib/premiumOffer.js";
 import { ModeWaveContext, useWaveSwitch, useFloatingSwitch } from "../../lib/modeWave.jsx";
 import DesktopModeSwitch from "../DesktopModeSwitch.jsx";
 
@@ -63,8 +62,8 @@ export default function FeaturedSection({ items, favorites, onToggleFav, onCopy,
     setMode(m);
   };
   const placeholder = <div className="min-h-[640px]" />;
-  // في وضع Premium: عروض Premium الحقيقية أولاً، والمجمّدة بعدها
-  const shown = mode === "premium" ? premiumFirst(items, undefined, (it) => it.company) : items;
+  // نفس الترتيب في العادي و Premium (المجمّدة تتجمّد في بلاصتها)
+  const shown = items;
   const showNormal = () => changeMode("normal");
 
   return (

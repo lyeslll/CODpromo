@@ -5,8 +5,8 @@ import { animate, useReducedMotion } from "framer-motion";
 //  التبديل عادي ⇄ Premium "يبان بالعين" وبلا ما يضيع الزائر بلاصتو:
 //  - موجة: البطاقات الظاهرة تتبدّل وحدة بعد وحدة (من فوق لتحت، ومن بداية السطر)،
 //    والبرا من الشاشة تتبدّل في الحين. القيمة تعدّ (~0.6 ثانية) في الظاهرة برك.
-//  - تثبيت: البطاقة اللي في وسط الشاشة تبقى في نفس البلاصة رغم تبدّل الترتيب
-//    (المجمّدة تهبط لآخر القائمة) — وإذا تجمّدت هي، نثبّت على أقرب بطاقة ما تجمّدتش.
+//  - تثبيت: البطاقة اللي في وسط الشاشة تبقى في نفس البلاصة (الترتيب ثابت بين الوضعين،
+//    بصح طول البطاقة يقدر يتبدّل — مثلاً المجمّدة).
 //  - المبدّل العائم (الكمبيوتر): يبان كي يخرج المبدّل الأصلي من الشاشة والقائمة قدامك.
 //  البطاقات معلّمة بـ data-wave-id. prefers-reduced-motion → بلا موجة وبلا عدّاد.
 // ============================================================
@@ -74,21 +74,19 @@ export function useWaveValue(value, id) {
 
 /**
  * للقسم/الصفحة اللي فيها المبدّل. value = الوضع الجديد (true = Premium).
- * rootRef: البطاقات اللي تمشي فيها الموجة. listRef + isFrozen: القائمة اللي نثبّتو فيها البطاقة.
+ * rootRef: البطاقات اللي تمشي فيها الموجة. listRef: القائمة اللي نثبّتو فيها البطاقة.
  * يرجّع { wave (للـ Provider), beforeChange () — نناديوها قبل تبديل الوضع }.
  * كل تبديل (حتى من الرابط) يحسب موجة جديدة، فما تبقى حتى بطاقة على الوضع القديم.
  */
-export function useWaveSwitch(value, rootRef, listRef = null, isFrozen = () => false) {
+export function useWaveSwitch(value, rootRef, listRef = null) {
   const reduce = useReducedMotion();
   const [wave, setWave] = useState(null);
   const anchor = useRef(null);
   // البطاقة اللي الزائر يشوف فيها: تبقى هي المرساة من تبديل لتبديل ما دام ما حرّكش الصفحة
-  // (ما تزلقش لجارتها في نفس السطر، وكي ترجع من Premium نرجعو للبطاقة الأصلية إذا تجمّدت)
+  // (ما تزلقش لجارتها في نفس السطر)
   const intended = useRef(null);
   const placed = useRef(null);
   const first = useRef(true);
-  const frozenRef = useRef(isFrozen);
-  frozenRef.current = isFrozen;
   useLayoutEffect(() => {
     if (first.current) {
       first.current = false;
@@ -97,9 +95,9 @@ export function useWaveSwitch(value, rootRef, listRef = null, isFrozen = () => f
     const a = anchor.current;
     anchor.current = null;
     let stop = () => {};
-    // 1) نفس البطاقة في نفس البلاصة (الترتيب الجديد راه في الـ DOM، البطاقات مازال بالشكل القديم)
+    // 1) نفس البطاقة في نفس البلاصة (البطاقات مازال بالشكل القديم؛ طولها يتبدّل مع الموجة)
     if (a && listRef?.current) {
-      const r = restoreAnchor(listRef.current, a, (id) => value && frozenRef.current(id), reduce ? 160 : WAVE_SPAN + 650);
+      const r = restoreAnchor(listRef.current, a, reduce ? 160 : WAVE_SPAN + 650);
       stop = r.stop;
       placed.current = r.placed;
     }
@@ -114,7 +112,7 @@ export function useWaveSwitch(value, rootRef, listRef = null, isFrozen = () => f
     let cands = captureAnchor(list);
     const p = placed.current;
     const pEl = p && list.querySelector(`[${WAVE_ATTR}="${p.id}"]`);
-    const still = pEl && Math.abs(pEl.getBoundingClientRect().top - p.top) < 3; // ما حرّكش الصفحة
+    const still = pEl && Math.abs(layoutTop(pEl) - p.top) < 3; // ما حرّكش الصفحة
     const it = still ? intended.current : null;
     if (it && list.querySelector(`[${WAVE_ATTR}="${it.id}"]`)) cands = [it, ...cands.filter((c) => c.id !== it.id)];
     intended.current = cands[0] || null;
@@ -160,38 +158,32 @@ export function useCountText(value, ref, duration = 0.6) {
 
 /* ===== تثبيت البطاقة اللي قدّام الزائر ===== */
 
-/**
- * قبل التبديل: المرشّحين للتثبيت بالترتيب — الظاهرة حسب قربها من وسط الشاشة (الأولى = المرساة)،
- * ثم الباقي حسب بعدهم عن المرساة في الترتيب القديم (يتحطّو في بلاصة المرساة).
- */
+// موضع البطاقة في الصفحة بلا transform (البطاقة اللي تتجمّد/ترجع تعاود حركة دخولها y:26 → 0؛
+// getBoundingClientRect يحسبها، فنغلطو في التثبيت). offsetTop = الـ layout الحقيقي.
+function layoutTop(el) {
+  let y = 0;
+  for (let e = el; e; e = e.offsetParent) y += e.offsetTop;
+  return y - window.scrollY;
+}
+
+/** قبل التبديل: البطاقات الظاهرة حسب قربها من وسط الشاشة (الأولى = المرساة). */
 export function captureAnchor(root) {
   const mid = window.innerHeight / 2;
-  const all = cards(root);
-  const shown = all.filter((c) => inView(c.r));
-  if (!shown.length) return [];
   const midX = window.innerWidth / 2;
+  const shown = cards(root).filter((c) => inView(c.r));
   const dist = (r) => Math.round(Math.abs((r.top + r.bottom) / 2 - mid) / ROW_PX) * 1e4 + Math.abs((r.left + r.right) / 2 - midX);
   shown.sort((a, b) => dist(a.r) - dist(b.r));
-  const head = shown[0];
-  const at = all.indexOf(head);
-  const rest = all
-    .map((c, i) => ({ c, d: Math.abs(i - at) }))
-    .filter(({ c }) => !shown.includes(c))
-    .sort((a, b) => a.d - b.d)
-    .map(({ c }) => ({ id: c.id, top: head.r.top }));
-  return [...shown.map((c) => ({ id: c.id, top: c.r.top })), ...rest];
+  return shown.map((c) => ({ id: c.id, top: layoutTop(c.el) }));
 }
 
 /**
  * بعد التبديل: نرجّع الـ scroll باش المرساة تبقى في نفس البلاصة، ونثبّتها حتى تكمل الموجة
- * (holdMs) — نوقف كي يحرّك الزائر الصفحة بنفسو. isFrozen(id): البطاقة تجمّدت في الوضع الجديد.
+ * (holdMs) — نوقف كي يحرّك الزائر الصفحة بنفسو.
  */
-export function restoreAnchor(root, candidates, isFrozen, holdMs = 0) {
+export function restoreAnchor(root, candidates, holdMs = 0) {
   const none = { stop: () => {}, placed: null };
   if (!root || !candidates?.length) return none;
-  const exists = (c) => root.querySelector(`[${WAVE_ATTR}="${c.id}"]`);
-  // أقرب بطاقة ما تجمّدتش؛ وإذا تجمّدو كامل، المرساة نفسها تبقى في بلاصتها
-  const pick = candidates.find((c) => !isFrozen(c.id) && exists(c)) || candidates.find(exists);
+  const pick = candidates.find((c) => root.querySelector(`[${WAVE_ATTR}="${c.id}"]`));
   if (!pick) return none;
   const find = () => root.querySelector(`[${WAVE_ATTR}="${pick.id}"]`);
   // الـ scroll اللي حطّيناه. الزائر (عجلة/لمس/لوحة مفاتيح/ضغطة) يوقّف التثبيت عبر USER_SCROLL؛
@@ -200,7 +192,7 @@ export function restoreAnchor(root, candidates, isFrozen, holdMs = 0) {
   const align = () => {
     const el = find();
     if (!el) return;
-    const dy = el.getBoundingClientRect().top - pick.top;
+    const dy = layoutTop(el) - pick.top;
     const ds = expected == null ? 0 : window.scrollY - expected;
     if (Math.abs(ds) > JUMP_PX) return stop();
     if (Math.abs(dy) > 0.5) window.scrollBy(0, dy);

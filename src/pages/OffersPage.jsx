@@ -44,7 +44,6 @@ import FeaturedRow from "../components/featured/FeaturedRow.jsx";
 import { FeaturedMark } from "../components/featured/FeaturedMobileCarousel.jsx";
 import { frameTone } from "../components/featured/tone.js";
 import { useMobileFx, useDesktopFx } from "../components/featured/mobile.js";
-import { premiumFirst, dealHasPremium, hasPremiumOffer } from "../lib/premiumOffer.js";
 import { ModeWaveContext, useWaveSwitch, useFloatingSwitch } from "../lib/modeWave.jsx";
 import { useNocodeDeals, dealMatches } from "../lib/nocode.js";
 import { SkeletonGrid, EmptyState, ErrorState } from "../components/States.jsx";
@@ -125,8 +124,7 @@ export default function OffersPage({ lang = "ar" }) {
   // التبديل (من أي مبدّل أو بالسحب): موجة على البطاقات الظاهرة + تثبيت البطاقة اللي في وسط الشاشة
   const mainRef = useRef(null);
   const listRef = useRef(null);
-  const frozenCheck = useRef(() => false);
-  const { wave, beforeChange } = useWaveSwitch(premiumView === "premium", mainRef, listRef, (id) => frozenCheck.current(id));
+  const { wave, beforeChange } = useWaveSwitch(premiumView === "premium", mainRef, listRef);
   const setMode = useCallback(
     (m) => {
       if (m === premiumView) return;
@@ -189,17 +187,12 @@ export default function OffersPage({ lang = "ar" }) {
     [companies, featuredParam, featuredLabel, typeParam, categoryParam, search, lang, byId, categories]
   );
 
-  const isPremiumView = premiumView === "premium";
   const filteredDeals = useMemo(
     () =>
       (deals || []).filter(
         (d) => (!categoryParam || companyCategorySlug(d, byId, categories) === categoryParam) && dealMatches(d, search)
       ),
     [deals, categoryParam, byId, categories, search]
-  );
-  const orderedDeals = useMemo(
-    () => (isPremiumView ? premiumFirst(filteredDeals, dealHasPremium) : filteredDeals),
-    [filteredDeals, isPremiumView]
   );
   const ordered = useMemo(() => {
     let list = filtered;
@@ -214,9 +207,9 @@ export default function OffersPage({ lang = "ar" }) {
         return ra === rb ? 0 : ra - rb;
       });
     }
-    // وضع Premium: عروض Premium الحقيقية أولاً، والبطاقات المجمّدة (بلا عرض Premium) في الآخر
-    return isPremiumView ? premiumFirst(list) : list;
-  }, [filtered, sortMode, voteStats, usageRank, isPremiumView]);
+    // نفس الترتيب في العادي و Premium: المجمّدة تتجمّد في بلاصتها، ما تهبطش
+    return list;
+  }, [filtered, sortMode, voteStats, usageRank]);
 
   // ?featured=1 قبل وصول قائمة المميّزة: هيكل تحميل بدل "لا نتائج"
   const featuredPending = featuredParam && featuredRows === null;
@@ -249,16 +242,6 @@ export default function OffersPage({ lang = "ar" }) {
   const deskToggleRef = useRef(null);
   const deskFloat = useFloatingSwitch(deskToggleRef, listRef, switchable);
 
-  // بطاقة تتجمّد في Premium (تهبط لآخر القائمة) → نثبّتو على أقرب وحدة ما تجمّدتش
-  frozenCheck.current = (id) => {
-    const key = id.slice(1);
-    if (id[0] === "d") {
-      const d = deals?.find((x) => String(x.id) === key);
-      return d ? !dealHasPremium(d) : false;
-    }
-    const c = companies.find((x) => String(x.id) === key);
-    return c ? !hasPremiumOffer(c) : false;
-  };
 
   const [pastTop, setPastTop] = useState(false);
   useEffect(() => {
@@ -533,10 +516,10 @@ export default function OffersPage({ lang = "ar" }) {
               />
             </motion.div>
           )}
-          {nocode && !gridLoading && orderedDeals.length > 0 && (
+          {nocode && !gridLoading && filteredDeals.length > 0 && (
             <motion.div style={{ x: dragX }}>
               <NocodeGrid>
-                {orderedDeals.map((d) => (
+                {filteredDeals.map((d) => (
                   <NocodeCard
                     key={d.id}
                     deal={d}

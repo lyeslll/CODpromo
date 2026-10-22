@@ -12,16 +12,17 @@ import { clamp, useElementWidth } from "./hooks.js";
 // المسرح ثلاثي الأبعاد يحتاج هذا العرض على الأقل؛ أقل منه = شرائح بالسحب
 const STAGE_MIN = 940;
 const SLOT_W = 360;
+const SIDE_GAP = 14;
 const POSE_SPRING = { type: "spring", stiffness: 210, damping: 30, mass: 0.9 };
 const EASE = [0.16, 1, 0.3, 1];
 
 /** وضعية كل بطاقة حسب بعدها عن النشطة (s = الجهة المرئية: +1 يمين، -1 يسار). */
-function poseFor(off, rtl, step) {
+function poseFor(off, rtl, step, sideScale) {
   const a = Math.abs(off);
   const s = Math.sign(off) * (rtl ? -1 : 1);
   if (a === 0) return { x: 0, z: 0, rotateY: 0, scale: 1, opacity: 1 };
   // الجانبان: إلى الخلف وحافتهما الخارجية نحو الزائر (واجهة عرض مقعّرة)
-  if (a === 1) return { x: s * step, z: -170, rotateY: -s * 26, scale: 0.86, opacity: 1 };
+  if (a === 1) return { x: s * step, z: -170, rotateY: -s * 26, scale: sideScale, opacity: 1 };
   return { x: s * step * 1.5, z: -320, rotateY: -s * 34, scale: 0.72, opacity: 0 };
 }
 
@@ -103,7 +104,10 @@ function Stage({ items, tones, renderCard, rtl, width }) {
   const inView = useInView(stageRef, { once: true, amount: 0.35 });
   const nx = useMotionValue(0);
   const ny = useMotionValue(0);
-  const step = Math.round(Math.max(270, Math.min(345, width * 0.29)));
+  // الجانبان ما يركبوش على البطاقة في الوسط (وإلا تتغطّى أزرارهم): الحافة الداخلية للجانب تبعد
+  // SIDE_GAP عن حافة الوسط، والحافة الخارجية تبقى داخل المسرح — في العرض الضيّق يصغرو شوية.
+  const sideScale = Math.min(0.86, Math.max(0.7, (width / 2 - SLOT_W / 2 - SIDE_GAP) / SLOT_W));
+  const step = Math.round(SLOT_W / 2 + SIDE_GAP + (SLOT_W * sideScale) / 2);
 
   // بعد مشهد الافتتاح: الانتقالات تصير نوابض سريعة
   useEffect(() => {
@@ -175,7 +179,7 @@ function Stage({ items, tones, renderCard, rtl, width }) {
           if (off > n / 2) off -= n;
           if (off < -n / 2) off += n;
           const a = Math.abs(off);
-          const pose = poseFor(off, rtl, step);
+          const pose = poseFor(off, rtl, step, sideScale);
           const delay = 0.25 + a * 0.14;
           return (
             <motion.div

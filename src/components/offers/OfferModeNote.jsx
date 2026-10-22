@@ -1,5 +1,6 @@
 import { Crown, Tag } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { usePremium } from "../../lib/premium.jsx";
 
 /**
  * بوكس معلومات الوضع (عادي / Premium).
@@ -8,6 +9,9 @@ import { useTranslation } from "react-i18next";
  */
 export default function OfferModeNote({ mode, unlocked, onSwitchPremium, onOpenPremium }) {
   const { t } = useTranslation();
+  // الأدمين = Premium مدى الحياة (is_admin، بلا اشتراك): نفس نص المشترك "Premium مفعّل…"
+  const { isLifetime } = usePremium();
+  const open = unlocked || isLifetime;
 
   const GOLD_BOX = {
     borderColor: "rgba(207,154,30,0.45)",
@@ -33,7 +37,7 @@ export default function OfferModeNote({ mode, unlocked, onSwitchPremium, onOpenP
     },
     {
       key: "premium-locked",
-      active: mode === "premium" && !unlocked,
+      active: mode === "premium" && !open,
       box: GOLD_BOX,
       icon: GOLD_ICON,
       Icon: Crown,
@@ -43,7 +47,7 @@ export default function OfferModeNote({ mode, unlocked, onSwitchPremium, onOpenP
     },
     {
       key: "premium-unlocked",
-      active: mode === "premium" && unlocked,
+      active: mode === "premium" && open,
       box: GOLD_BOX,
       icon: GOLD_ICON,
       Icon: Crown,
@@ -52,6 +56,9 @@ export default function OfferModeNote({ mode, unlocked, onSwitchPremium, onOpenP
       onClick: onOpenPremium,
     },
   ];
+
+  // ما يبانش أبداً بوكس فارغ: بلا حالة نشطة بنص → لا شيء
+  if (!variants.some((v) => v.active && String(v.text || "").trim())) return null;
 
   return (
     <div className="mb-6 grid">
@@ -62,8 +69,8 @@ export default function OfferModeNote({ mode, unlocked, onSwitchPremium, onOpenP
           onClick={v.onClick}
           aria-hidden={!v.active}
           tabIndex={v.active ? 0 : -1}
-          className={`col-start-1 row-start-1 flex w-full items-center justify-between gap-3 rounded-2xl border px-5 py-3.5 text-start transition-opacity duration-300 ${
-            v.active ? "opacity-100" : "pointer-events-none opacity-0"
+          className={`col-start-1 row-start-1 flex w-full items-center justify-between gap-3 rounded-2xl border px-5 py-3.5 text-start transition-[opacity,visibility] duration-300 ${
+            v.active ? "visible opacity-100" : "pointer-events-none invisible opacity-0"
           }`}
           style={v.box}
         >

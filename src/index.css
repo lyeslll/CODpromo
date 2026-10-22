@@ -352,6 +352,10 @@ html.cursor-glow #root > .min-h-screen {
     animation: perf-march 0.7s linear infinite;
   }
 }
+/* البطاقة المجمّدة (وضع Premium بلا عرض Premium): لا حركة في الخط المثقّب */
+.ticket-frozen:hover .ticket-perf {
+  animation: none;
+}
 @keyframes perf-march {
   to {
     background-position: 10px 0;

@@ -129,7 +129,9 @@
     "visit": "Visiter la boutique",
     "scratchReveal": "Grattez pour révéler",
     "unlockPremium": "Débloquer les offres Premium",
-    "premiumBadge": "PREMIUM"
+    "premiumBadge": "PREMIUM",
+    "frozen": "Aucune offre Premium pour cette entreprise",
+    "showNormal": "Voir l'offre normale"
   },
   "vote": {
     "question": "Ce code a-t-il fonctionné pour vous ?",
@@ -171,7 +173,8 @@
       "cod": "COD",
       "code": "Code",
       "promo": "promo"
-    }
+    },
+    "commission": "Certains liens peuvent nous rapporter une commission, sans aucun coût supplémentaire pour vous."
   },
   "accountDeletion": {
     "title": "Suppression du compte CODpromo",
@@ -606,7 +609,8 @@
         "premium": "Premium / Stork",
         "siteStats": "Chiffres de l'accueil",
         "seo": "SEO",
-        "featured": "Offres en vedette"
+        "featured": "Offres en vedette",
+        "nocode": "Offres sans code"
       },
       "range": {
         "label": "Période",
@@ -888,6 +892,88 @@
         "loadError": "Impossible de charger les offres en vedette. Réessayez.",
         "modeNormal": "Standard",
         "modePremium": "Premium"
+      },
+      "nocode": {
+        "sub": "Des offres activées en touchant un lien spécial au lieu de copier un code. Glissez pour réordonner.",
+        "add": "Ajouter une offre",
+        "saveOrder": "Enregistrer l'ordre",
+        "orderSaved": "Ordre enregistré.",
+        "listTitle": "Ordre sur le site",
+        "listHint": "La première s'affiche en premier sur l'accueil et /offers. Glissez la poignée ou utilisez les flèches.",
+        "emptyTitle": "Aucune offre sans code",
+        "empty": "La section reste masquée sur l'accueil tant qu'aucune offre active n'est ajoutée.",
+        "loadError": "Impossible de charger les offres sans code. Réessayez.",
+        "drag": "Glisser pour réordonner",
+        "active": "Active",
+        "edit": "Modifier",
+        "delete": "Supprimer",
+        "confirmDelete": "Supprimer définitivement « {{name}} » et ses statistiques ?",
+        "deleted": "Offre supprimée.",
+        "clicks7": "Clics, 7 jours",
+        "clicks30": "Clics, 30 jours",
+        "normalClicks": "Normal",
+        "premiumClicks": "Premium",
+        "statsNote": "Chaque visiteur compte une fois par jour et par offre (comptage exact depuis la base de données) : les membres connectés par compte, les visiteurs par une empreinte anonyme.",
+        "newTitle": "Nouvelle offre sans code",
+        "editTitle": "Modifier l'offre sans code",
+        "formSub": "Écrivez en arabe ; l'anglais et le français sont traduits automatiquement à l'enregistrement.",
+        "back": "Retour à la liste",
+        "s": {
+          "identity": "Entreprise",
+          "identitySub": "Liez l'offre à une entreprise existante (remplit le nom, le logo et la catégorie), ou saisissez un nouveau nom et un logo sans ajouter d'entreprise à la liste des codes.",
+          "offer": "Offre",
+          "offerSub": "L'avantage s'affiche en grand, avec la condition dessous.",
+          "premium": "Offre Premium (facultatif)",
+          "premiumSub": "Un avantage plus fort pour les membres Premium, avec leur propre lien.",
+          "publish": "Lien et dates",
+          "publishSub": "Le lien court et la période d'affichage."
+        },
+        "fromCompany": "Entreprise existante",
+        "custom": "Nouveau nom et logo",
+        "searchCompany": "Rechercher une entreprise par nom…",
+        "noCompany": "Aucune entreprise à ce nom.",
+        "unlink": "Délier",
+        "f": {
+          "name": "Nom",
+          "category": "Catégorie",
+          "logo": "Logo",
+          "reward": "Avantage",
+          "condition": "Condition",
+          "description": "Description (facultatif)",
+          "url": "Lien de l'offre",
+          "premiumReward": "Avantage Premium",
+          "premiumCondition": "Condition Premium",
+          "premiumUrl": "Lien Premium",
+          "slug": "Lien court (slug)"
+        },
+        "h": {
+          "logo": "Un lien d'image (https) ou téléversez une image.",
+          "reward": "Exemple : 8 $ de crédit offert",
+          "condition": "Exemple : en rechargeant 2 $",
+          "url": "Le lien spécial de l'entreprise. Jamais affiché aux visiteurs : le bouton passe par codpromo.com/go/…",
+          "premiumFallback": "Vide = reprend la valeur de l'offre normale.",
+          "premiumUrl": "Stocké dans une table réservée à l'admin, et n'atteint que les membres Premium via /go.",
+          "slug": "S'affiche ainsi : {{path}}. Lettres latines minuscules, chiffres et tirets uniquement."
+        },
+        "noCategory": "Sans catégorie",
+        "upload": "Téléverser",
+        "imageOnly": "Le fichier doit être une image.",
+        "frozenWarn": "Sans lien Premium, la carte apparaît figée en mode Premium.",
+        "slugInvalid": "Lettres latines minuscules, chiffres et tirets uniquement (exemple : youcan-credit).",
+        "slugTaken": "Une autre offre utilise déjà ce lien court. Changez-le.",
+        "required": "Ce champ est obligatoire",
+        "httpsOnly": "Le lien doit commencer par https://",
+        "fixFields": "Complétez les champs obligatoires",
+        "save": "Enregistrer l'offre",
+        "saving": "Enregistrement…",
+        "saved": "Offre enregistrée avec les traductions.",
+        "savedNoTranslation": "Enregistré en arabe uniquement : la traduction automatique a échoué pour l'instant, réenregistrez plus tard.",
+        "cancel": "Annuler",
+        "preview": "Aperçu en direct",
+        "previewNote": "Voici la carte telle que la voient les visiteurs. L'aperçu n'enregistre aucun clic.",
+        "previewFrozen": "Sans lien Premium : voici la carte figée en mode Premium.",
+        "namePh": "Nom de l'entreprise",
+        "rewardPh": "Avantage"
       }
     }
   },
@@ -896,7 +982,10 @@
     "subtitle": "Codes promo, coupons et cashback sur ce que paient les vendeurs en paiement à la livraison : livraison, plateformes e-commerce, publicité, cartes de paiement et ERP.",
     "typeLabel": "Type d'offre",
     "categoryLabel": "Catégorie",
-    "swipeHint": "Glissez la liste sur le côté pour changer"
+    "swipeHint": "Glissez la liste sur le côté pour changer",
+    "kindCode": "Avec code",
+    "kindNocode": "Sans code",
+    "kindLabel": "Type d'offres"
   },
   "seo": {
     "offers": {
@@ -1114,7 +1203,7 @@
       "premiumCode": "Difficile à deviner. Exemple : ILY-X7Q9",
       "premiumUrl": "Un lien réservé aux membres Premium, s'il existe",
       "premiumDescription": "Ce que gagne un membre Premium en plus de l'offre classique",
-      "fallback": "Tout champ Premium vide reprend l'offre classique : valeur, code, lien et description.",
+      "fallback": "Tout champ Premium vide (valeur, lien, description) reprend l'offre classique. Sans code Premium, la carte apparaît figée en mode Premium.",
       "contactName": "La personne à contacter dans l'entreprise",
       "whatsapp": "Exemple : +213 555 12 34 56",
       "email": "Exemple : partners@youcan.shop",
@@ -1130,7 +1219,8 @@
     },
     "warn": {
       "https": "Le lien doit commencer par https://",
-      "weaker": "La valeur Premium n'est pas plus forte que la classique"
+      "weaker": "La valeur Premium n'est pas plus forte que la classique",
+      "frozen": "Sans code Premium, la carte apparaît figée en mode Premium."
     },
     "errors": {
       "required": "Ce champ est obligatoire",
@@ -1146,7 +1236,8 @@
       "namePh": "Nom de l'entreprise",
       "normalNote": "C'est la carte que voit chaque visiteur sur /offers.",
       "premiumNote": "C'est ce que voit un visiteur. Un membre Premium révèle le code : {{code}}",
-      "premiumOff": "L'identité Premium est désactivée : la carte n'apparaît pas en mode Premium."
+      "premiumOff": "Premium est désactivé pour cette entreprise : la carte apparaît figée en mode Premium.",
+      "premiumFrozen": "Sans code Premium : voici la carte figée en mode Premium."
     },
     "cat": {
       "title": "Nouvelle catégorie",
@@ -1282,6 +1373,10 @@
       "stats": {
         "q": "Quelles statistiques vois-je ?",
         "a": "Les copies de votre code, les clics, le taux de réussite selon les votes des commerçants et le nombre de favoris, avec une courbe sur 30 jours."
+      },
+      "commission": {
+        "q": "CODpromo perçoit-il une commission sur les offres ?",
+        "a": "Certains liens peuvent nous rapporter une commission, sans aucun coût supplémentaire pour vous."
       }
     },
     "final": {
@@ -1351,5 +1446,33 @@
     "rowTitle": "Offres en vedette",
     "showAll": "Tout voir",
     "chip": "En vedette"
+  },
+  "nocode": {
+    "title": "Offres sans code",
+    "sub": "Touchez « Obtenir l'offre » pour rejoindre l'entreprise via un lien spécial qui active l'avantage pour vous, sans code à copier.",
+    "seeAll": "Voir toutes les offres sans code",
+    "tag": "Sans code",
+    "premiumTag": "Premium",
+    "cta": "Obtenir l'offre",
+    "ctaAria": "Obtenir l'offre {{name}} (s'ouvre dans un nouvel onglet)",
+    "ctaLocked": "L'offre {{name}} est réservée aux membres Premium : débloquez Premium",
+    "frozen": "Pas de version Premium pour cette offre"
+  },
+  "go": {
+    "title": "Redirection",
+    "redirecting": "Redirection en cours…",
+    "redirectTo": "Redirection vers {{name}}…",
+    "sub": "L'avantage s'applique via le lien spécial CODpromo.",
+    "fallback": "Pas redirigé ? Touchez ici",
+    "premiumTitle": "Cette offre est réservée aux membres Premium",
+    "premiumSub": "Débloquez Premium pour l'avantage le plus fort, ou prenez l'offre normale maintenant.",
+    "openPremium": "Débloquer Premium",
+    "takeNormal": "Prendre l'offre normale",
+    "noPremiumTitle": "Il n'y a pas de version Premium de cette offre",
+    "notFound": "Cette offre n'est pas disponible pour le moment",
+    "notFoundSub": "Elle a peut-être expiré ou été suspendue. Parcourez les offres sans code disponibles.",
+    "browse": "Parcourir les offres sans code",
+    "error": "Connexion impossible. Vérifiez votre connexion puis réessayez.",
+    "retry": "Réessayer"
   }
 }

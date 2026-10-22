@@ -1,0 +1,195 @@
+/* ======================================================================
+   بطاقة "بلا كود" = بطاقة هدية (gift card) بنسبة بطاقة بنكية تقريباً (1.586).
+   تتفرّق من أول نظرة عن تذكرة الكوبون: مستطيل عريض بحواف بطاقة، شريط هدية عمودي
+   يتدلّى منه وسم "بلا كود"، ونقش أمان ناعم (guilloche) في الزاوية.
+   اللون الرابع = البنفسجي (#b794ff) — بعيد عن الليموني والأزرق والبرتقالي والذهبي.
+   في Premium: ذهبية بالميزة الأقوى. بلا رابط Premium: رمادية "مجمّدة".
+   كل شيء ثابت (لا حركة متواصلة، لا filter) — خفيفة في الموبايل.
+   الألوان من متغيّرات يضعها NocodeCard: --gc, --gc-deep, --gc-soft, --gc-line,
+   --gc-surface, --gc-btn.
+   ====================================================================== */
+.gift {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  /* النسبة حدّ أدنى: المحتوى الطويل يكبّر البطاقة بدل أن يُقصّ (لهذا لا overflow هنا) */
+  aspect-ratio: 1.586;
+  /* في الشبكة: نفس ارتفاع الجيران (العنصر ذو النسبة لا يتمدّد افتراضياً) */
+  align-self: stretch;
+  min-width: 0;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid var(--gc-line);
+  background:
+    radial-gradient(130% 95% at 100% 0%, var(--gc-soft), transparent 58%),
+    linear-gradient(160deg, var(--gc-surface), #0d0d10 78%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 18px 40px -26px var(--gc-deep);
+}
+
+/* طبقة الزينة المقصوصة على شكل البطاقة: الضوء + النقش + الشريط */
+.gift-decor {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* نقش أمان دائري ناعم في الزاوية السفلى (طباعة بطاقات الهدايا) */
+.gift-guilloche {
+  position: absolute;
+  bottom: -46%;
+  inset-inline-start: -22%;
+  width: 78%;
+  aspect-ratio: 1;
+  pointer-events: none;
+  opacity: 0.5;
+  background: repeating-radial-gradient(circle at center, transparent 0 9px, var(--gc-line) 9px 10px);
+  -webkit-mask: radial-gradient(closest-side, #000 40%, transparent);
+  mask: radial-gradient(closest-side, #000 40%, transparent);
+}
+
+/* شريط الهدية العمودي */
+.gift-ribbon {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-end: 58px;
+  width: 12px;
+  pointer-events: none;
+  opacity: 0.55;
+  background: linear-gradient(90deg, var(--gc-deep), var(--gc) 42%, var(--gc-deep));
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+/* الوسم يتدلّى من الشريط (مركزه على مركز الشريط في الجهتين) */
+.gift-tag {
+  position: absolute;
+  top: 14px;
+  inset-inline-end: 64px;
+  translate: 50% 0;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 7px;
+  background: var(--gc);
+  color: #0a0a0a;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px -8px var(--gc);
+}
+[dir="rtl"] .gift-tag {
+  translate: -50% 0;
+}
+
+.gift-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding-inline-end: 118px;
+}
+
+.gift-reward {
+  margin-top: 16px;
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--gc);
+  text-shadow: 0 0 26px var(--gc-soft);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+.gift-reward.is-long {
+  font-size: 23px;
+  line-height: 1.2;
+}
+.gift-condition {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-softer);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.gift-desc {
+  margin-top: 6px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--color-mute);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.gift-cta {
+  position: relative;
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  border-radius: 12px;
+  background: var(--gc-btn);
+  color: #0a0a0a;
+  font-size: 15px;
+  font-weight: 900;
+  box-shadow: 0 12px 26px -14px var(--gc);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.gift-cta:hover {
+  box-shadow: 0 14px 30px -12px var(--gc);
+}
+.gift-cta:active {
+  transform: scale(0.985);
+}
+.gift-cta:focus-visible {
+  outline: 2px solid var(--gc);
+  outline-offset: 3px;
+}
+.gift-spacer {
+  flex: 1 1 auto;
+  min-height: 14px;
+}
+
+/* المجمّدة: لوحة رمادية بدل الزر */
+.gift-frozen-panel {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--text-soft);
+  font-size: 12.5px;
+  font-weight: 800;
+  text-align: center;
+}
+.gift[data-tone="frozen"] .gift-logo {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gift-cta {
+    transition: none;
+  }
+}

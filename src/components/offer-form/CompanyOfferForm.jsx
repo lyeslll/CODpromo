@@ -173,6 +173,8 @@ export default function CompanyOfferForm({
     discount: form.discount || "20%",
     code: form.code || "ILYES10",
     category: categories.find((c) => c.id === form.category_id)?.name_ar || "",
+    // بلا كود Premium → البطاقة مجمّدة في وضع Premium (نفس قاعدة الموقع)
+    has_premium_code: !!String(form.premium_code || "").trim(),
     // نعرض النص العربي المكتوب (لا الترجمة القديمة) حتى تتبدّل المعاينة وأنت تكتب
     description_en: null,
     description_fr: null,
@@ -300,7 +302,11 @@ export default function CompanyOfferForm({
             <Field label={t("f.premiumDiscount")} hint={t("h.premiumDiscount")} warn={strength === false ? t("warn.weaker") : null}>
               {(p) => <input {...p} value={form.premium_discount} onChange={set("premium_discount")} placeholder={form.discount || ""} className={inputCls} dir="auto" />}
             </Field>
-            <Field label={t("f.premiumCode")} hint={partner ? t("partner.hPremiumCode") : t("h.premiumCode")}>
+            <Field
+              label={t("f.premiumCode")}
+              hint={partner ? t("partner.hPremiumCode") : t("h.premiumCode")}
+              warn={form.supports_premium !== false && !String(form.premium_code || "").trim() ? t("warn.frozen") : null}
+            >
               {(p) => (
                 <div className="flex gap-2">
                   <input {...p} value={form.premium_code} onChange={(e) => setForm((f) => ({ ...f, premium_code: e.target.value.toUpperCase() }))} placeholder={form.code || ""} className={`${inputCls} font-mono tracking-wider`} dir="ltr" spellCheck={false} />
@@ -446,7 +452,9 @@ export default function CompanyOfferForm({
           {previewMode === "premium"
             ? form.supports_premium === false
               ? t("preview.premiumOff")
-              : t("preview.premiumNote", { code: form.premium_code || form.code || "—" })
+              : !String(form.premium_code || "").trim()
+              ? t("preview.premiumFrozen")
+              : t("preview.premiumNote", { code: form.premium_code })
             : t("preview.normalNote")}
         </p>
       </aside>
@@ -658,6 +666,7 @@ export function OfferPreview({ offer, premium = false }) {
     name: offer?.name || offer?.company_name || "—",
     discount: offer?.discount || offer?.title || "—",
     code: offer?.code || "—",
+    has_premium_code: offer?.has_premium_code ?? !!String(offer?.premium_code || "").trim(),
     description_en: null,
     description_fr: null,
     discount_en: null,

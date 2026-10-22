@@ -56,6 +56,8 @@ import AdminShell from "../components/admin/v2/AdminShell.jsx";
 import OverviewPage from "../components/admin/v2/OverviewPage.jsx";
 import UsersPage from "../components/admin/v2/UsersPage.jsx";
 import FeaturedPage from "../components/admin/v2/FeaturedPage.jsx";
+import NocodePage from "../components/admin/v2/NocodePage.jsx";
+import NocodeEditor from "../components/admin/v2/NocodeEditor.jsx";
 import { Glass, PageHeader, Skeleton, EmptyState, LIME_BG } from "../components/admin/v2/ui.jsx";
 import { fetchCompanyPrivate, saveCompanyPrivate } from "../lib/adminStats.js";
 import RequestsManager from "../components/admin/RequestsManager.jsx";
@@ -618,6 +620,11 @@ function Dashboard({ onLock }) {
 
         {/* العروض المميّزة — قسم الرئيسية + صف /offers */}
         <Route path="featured" element={<FeaturedPage companies={companies} loading={loading} notify={notify} />} />
+
+        {/* عروض بلا كود — القائمة + الفورم */}
+        <Route path="nocode" element={<NocodePage notify={notify} />} />
+        <Route path="nocode/new" element={<NocodeEditor companies={companies} categories={categories} notify={notify} />} />
+        <Route path="nocode/:id" element={<NocodeEditor key="edit" companies={companies} categories={categories} notify={notify} />} />
 
         {/* الفئات — إدارة كاملة (إضافة/تعديل/حذف + ترجمة تلقائية) */}
         <Route

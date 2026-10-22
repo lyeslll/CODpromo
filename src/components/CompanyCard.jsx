@@ -1,13 +1,14 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence, animate } from "framer-motion";
-import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock } from "lucide-react";
+import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock, Undo2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getTypeMeta, getTypeKey } from "../lib/types.js";
 import { companySlug, companyCategoryRecord, categoryName } from "../lib/slug.js";
 import { useCategories } from "../lib/categories.jsx";
 import { getPremiumCode } from "../lib/supabase.js";
 import { logCodeCopy } from "../lib/copies.js";
+import { hasPremiumOffer } from "../lib/premiumOffer.js";
 import { isImageUrl } from "./CompanyLogo.jsx";
 import CodeVote from "./CodeVote.jsx";
 import { GlowSpot, useCardGlow } from "./CardGlow.jsx";
@@ -25,6 +26,8 @@ const GOLD_GLOW = "rgba(240,198,60,0.4)";
  *   - الجزء السفلي (الكعب): الكود + النسخ + زيارة الموقع + التصويت.
  * لون النوع (تخفيض/كوبون/كاش باك) يظهر في حافة الكوبون والقيمة والأزرار،
  * وفي وضع Premium يصبح كل شيء ذهبياً. القصّ عبر CSS mask (.ticket-* في index.css).
+ * وضع Premium لشركة بلا عرض Premium (لا كود Premium) → بطاقة "مجمّدة" رمادية (FrozenTicket):
+ * بلا نسخ ولا زيارة ولا خدش ولا نداء لـ RPC، مع رابط onShowNormal يرجّع الصفحة للوضع العادي.
  */
 export default function CompanyCard({
   company,
@@ -37,6 +40,7 @@ export default function CompanyCard({
   onUnlock,
   linkToStore = true,
   copySource,
+  onShowNormal,
 }) {
   const { t, i18n } = useTranslation();
   const { byId, categories } = useCategories();
@@ -121,6 +125,22 @@ export default function CompanyCard({
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
   };
+
+  if (premium && !hasPremiumOffer(company)) {
+    return (
+      <FrozenTicket
+        company={company}
+        index={index}
+        isFavorite={isFavorite}
+        onToggleFav={onToggleFav}
+        linkToStore={linkToStore}
+        storeHref={storeHref}
+        category={category}
+        desc={loc("description") || ""}
+        onShowNormal={onShowNormal}
+      />
+    );
+  }
 
   // متغيّرات التذكرة: حافة بلون النوع (أقوى عند المرور/اللمس) + تلوين الكعب
   const ticketVars = {
@@ -338,6 +358,111 @@ export default function CompanyCard({
         {/* قسم التصويت على الكود — "هل نجح هذا الكود معك؟" (عادي + Premium) */}
         <div data-part="vote" className="relative">
           <CodeVote companyId={company.id} accent={accent} glow={accentGlow} />
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
+/* ===== البطاقة المجمّدة: وضع Premium لشركة بلا عرض Premium =====
+   رمادية وباهتة بلا أي ذهب (الفرق عن القفل الذهبي = عرض Premium موجود والزائر غير مشترك):
+   قفل رمادي + "لا يوجد عرض Premium لهذه الشركة"، بلا نسخ ولا زيارة ولا خدش، والتصويت معطّل.
+   نفس أجزاء data-part ونفس الارتفاع، فلا تقفز الشبكة. */
+const FROZEN = "#71717a";
+
+function FrozenTicket({ company, index, isFavorite, onToggleFav, linkToStore, storeHref, category, desc, onShowNormal }) {
+  const { t } = useTranslation();
+  const meta = getTypeMeta(company.type);
+  const Icon = meta.icon;
+  const head = (
+    <>
+      <div className="shrink-0 opacity-60 grayscale">
+        <CardLogo logo={company.logo} name={company.name} accent={FROZEN} glow="rgba(0,0,0,0)" premium={false} />
+      </div>
+      <div className="min-w-0">
+        <h3 className="truncate text-[17px] font-extrabold text-[var(--text-soft)]">{company.name}</h3>
+        <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">{category}</p>
+      </div>
+    </>
+  );
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 26 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10, scale: 0.97 }}
+      transition={{ duration: 0.45, delay: Math.min(index * 0.05, 0.35), ease: [0.16, 1, 0.3, 1] }}
+      data-frozen=""
+      className="ticket ticket-frozen relative flex flex-col"
+      style={{ "--edge-base": "rgba(255,255,255,0.07)", "--edge-strong": "rgba(255,255,255,0.07)", "--perf": "rgba(255,255,255,0.12)" }}
+    >
+      <div className="ticket-top relative bg-[var(--color-ink-card)] p-5 pb-4">
+        <span aria-hidden className="ticket-ring ticket-ring-l" />
+        <span aria-hidden className="ticket-ring ticket-ring-r" />
+        <div className="relative flex items-start justify-between gap-2">
+          {linkToStore ? (
+            <Link to={storeHref} className="flex min-w-0 items-center gap-3">
+              {head}
+            </Link>
+          ) : (
+            <div className="flex min-w-0 items-center gap-3">{head}</div>
+          )}
+          <button
+            data-part="fav"
+            onClick={() => onToggleFav(company.id)}
+            aria-label={t("card.addFav")}
+            aria-pressed={!!isFavorite}
+            className="grid h-8 w-8 shrink-0 place-items-center self-start rounded-full border border-[var(--color-ink-line)] bg-[var(--fill)] transition-colors hover:bg-[var(--fill-strong)]"
+          >
+            <Heart size={15} className={isFavorite ? "fill-red-500 text-red-500" : "text-[var(--color-mute)]"} />
+          </button>
+        </div>
+
+        <p className="relative mt-4 line-clamp-3 h-[60px] overflow-hidden text-[13.5px] leading-[1.48] text-[var(--color-mute)]">{desc}</p>
+
+        <div className="relative mt-4 flex items-end justify-between">
+          <div data-part="value">
+            <div className="flex items-center gap-1.5 text-[11.5px] font-semibold text-[var(--color-mute)]">
+              <Crown size={12} /> {t("card.premiumDiscount")}
+            </div>
+            <div className="text-[30px] font-black leading-none text-[#52525b]">—</div>
+          </div>
+          <span className="flex items-center gap-1.5 rounded-full bg-white/[0.04] px-3 py-1.5 text-[12px] font-bold text-[var(--color-mute)]">
+            <Icon size={13} />
+            {t(`types.${getTypeKey(company.type)}`)}
+          </span>
+        </div>
+      </div>
+
+      <div className="ticket-stub relative bg-[var(--color-ink-card)] px-5 pb-5 pt-4">
+        <span aria-hidden className="ticket-ring ticket-ring-l" />
+        <span aria-hidden className="ticket-ring ticket-ring-r" />
+        <span aria-hidden className="ticket-perf" />
+
+        <div
+          data-part="code"
+          role="note"
+          className="relative flex min-h-[46px] items-center justify-center gap-2 rounded-xl border border-dashed border-white/[0.1] bg-white/[0.025] px-3.5 py-2.5 text-center"
+        >
+          <Lock size={15} className="shrink-0" style={{ color: FROZEN }} />
+          <span className="text-[12.5px] font-bold leading-snug text-[var(--text-soft)]">{t("card.frozen")}</span>
+        </div>
+
+        {onShowNormal ? (
+          <button
+            data-part="visit"
+            type="button"
+            onClick={onShowNormal}
+            className="relative mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-xl border border-transparent px-4 py-2.5 text-[13px] font-bold text-[var(--text-softer)] underline-offset-4 transition-colors hover:text-[var(--text)] hover:underline"
+          >
+            <Undo2 size={14} /> {t("card.showNormal")}
+          </button>
+        ) : (
+          <div data-part="visit" aria-hidden className="relative mt-2.5 h-[42px]" />
+        )}
+
+        <div data-part="vote" className="relative opacity-50" inert="">
+          <CodeVote companyId={company.id} accent={FROZEN} glow="rgba(113,113,122,0.2)" />
         </div>
       </div>
     </motion.article>

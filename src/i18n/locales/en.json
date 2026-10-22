@@ -129,7 +129,9 @@
     "visit": "Visit store",
     "scratchReveal": "Scratch to reveal",
     "unlockPremium": "Unlock Premium deals",
-    "premiumBadge": "PREMIUM"
+    "premiumBadge": "PREMIUM",
+    "frozen": "No Premium offer for this company",
+    "showNormal": "See the regular offer"
   },
   "vote": {
     "question": "Did this code work for you?",
@@ -171,7 +173,8 @@
       "cod": "COD",
       "code": "Code",
       "promo": "promo"
-    }
+    },
+    "commission": "Some links may earn us a commission at no extra cost to you."
   },
   "accountDeletion": {
     "title": "CODpromo Account Deletion",
@@ -606,7 +609,8 @@
         "premium": "Premium / Stork",
         "siteStats": "Homepage numbers",
         "seo": "SEO",
-        "featured": "Featured offers"
+        "featured": "Featured offers",
+        "nocode": "No-code deals"
       },
       "range": {
         "label": "Period",
@@ -888,6 +892,88 @@
         "loadError": "Couldn't load featured offers. Try again.",
         "modeNormal": "Standard",
         "modePremium": "Premium"
+      },
+      "nocode": {
+        "sub": "Offers activated by tapping a special link instead of copying a code. Drag to reorder.",
+        "add": "Add offer",
+        "saveOrder": "Save order",
+        "orderSaved": "Order saved.",
+        "listTitle": "Order on the site",
+        "listHint": "The first one shows first on the home page and /offers. Drag the handle or use the arrows.",
+        "emptyTitle": "No no-code deals",
+        "empty": "The section stays hidden on the home page until you add an active offer.",
+        "loadError": "Couldn't load no-code deals. Try again.",
+        "drag": "Drag to reorder",
+        "active": "Active",
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirmDelete": "Permanently delete “{{name}}” and its stats?",
+        "deleted": "Offer deleted.",
+        "clicks7": "Clicks, 7 days",
+        "clicks30": "Clicks, 30 days",
+        "normalClicks": "Regular",
+        "premiumClicks": "Premium",
+        "statsNote": "Each visitor counts once a day per offer (exact count from the database): signed-in users by account, visitors by an anonymous fingerprint.",
+        "newTitle": "New no-code deal",
+        "editTitle": "Edit no-code deal",
+        "formSub": "Write in Arabic; English and French are translated automatically on save.",
+        "back": "Back to list",
+        "s": {
+          "identity": "Company",
+          "identitySub": "Link the offer to an existing company (fills the name, logo and category), or write a new name and logo without adding a company to the code list.",
+          "offer": "Offer",
+          "offerSub": "The perk shows in large type, with the condition below it.",
+          "premium": "Premium offer (optional)",
+          "premiumSub": "A stronger perk for Premium members, with their own link.",
+          "publish": "Link and dates",
+          "publishSub": "The short link and when the offer shows."
+        },
+        "fromCompany": "Existing company",
+        "custom": "New name and logo",
+        "searchCompany": "Search a company by name…",
+        "noCompany": "No company with this name.",
+        "unlink": "Unlink",
+        "f": {
+          "name": "Name",
+          "category": "Category",
+          "logo": "Logo",
+          "reward": "Perk",
+          "condition": "Condition",
+          "description": "Description (optional)",
+          "url": "Offer link",
+          "premiumReward": "Premium perk",
+          "premiumCondition": "Premium condition",
+          "premiumUrl": "Premium link",
+          "slug": "Short link (slug)"
+        },
+        "h": {
+          "logo": "An image link (https) or upload an image.",
+          "reward": "Example: $8 free credit",
+          "condition": "Example: when you top up $2",
+          "url": "The company's special link. Never shown to visitors: the button goes through codpromo.com/go/…",
+          "premiumFallback": "Empty = uses the regular offer's value.",
+          "premiumUrl": "Stored in an admin-only table, and only reaches Premium members through /go.",
+          "slug": "Shows as: {{path}}. Lowercase Latin letters, numbers and hyphens only."
+        },
+        "noCategory": "No category",
+        "upload": "Upload",
+        "imageOnly": "The file must be an image.",
+        "frozenWarn": "Without a Premium link, the card appears frozen in Premium mode.",
+        "slugInvalid": "Lowercase Latin letters, numbers and hyphens only (example: youcan-credit).",
+        "slugTaken": "Another offer already uses this short link. Change it.",
+        "required": "This field is required",
+        "httpsOnly": "The link must start with https://",
+        "fixFields": "Complete the required fields",
+        "save": "Save offer",
+        "saving": "Saving…",
+        "saved": "Offer saved with translations.",
+        "savedNoTranslation": "Saved in Arabic only: automatic translation failed for now, save again later.",
+        "cancel": "Cancel",
+        "preview": "Live preview",
+        "previewNote": "This is how visitors see the card. The preview never logs a click.",
+        "previewFrozen": "No Premium link: this is how the card appears frozen in Premium mode.",
+        "namePh": "Company name",
+        "rewardPh": "Perk"
       }
     }
   },
@@ -896,7 +982,10 @@
     "subtitle": "Promo codes, coupons and cashback on what cash-on-delivery sellers pay for: shipping, store platforms, ads, payment cards and ERP.",
     "typeLabel": "Offer type",
     "categoryLabel": "Category",
-    "swipeHint": "Swipe the list sideways to switch"
+    "swipeHint": "Swipe the list sideways to switch",
+    "kindCode": "With code",
+    "kindNocode": "No code",
+    "kindLabel": "Offer kind"
   },
   "seo": {
     "offers": {
@@ -1114,7 +1203,7 @@
       "premiumCode": "Hard to guess. Example: ILY-X7Q9",
       "premiumUrl": "A link just for Premium members, if any",
       "premiumDescription": "What a Premium member gains on top of the regular offer",
-      "fallback": "Any empty Premium field falls back to the regular offer: value, code, link and description.",
+      "fallback": "Any empty Premium field (value, link, description) falls back to the regular offer. Without a Premium code, the card appears frozen in Premium mode.",
       "contactName": "Who we talk to at the company",
       "whatsapp": "Example: +213 555 12 34 56",
       "email": "Example: partners@youcan.shop",
@@ -1130,7 +1219,8 @@
     },
     "warn": {
       "https": "The link should start with https://",
-      "weaker": "The Premium value isn't stronger than the regular one"
+      "weaker": "The Premium value isn't stronger than the regular one",
+      "frozen": "Without a Premium code, the card appears frozen in Premium mode."
     },
     "errors": {
       "required": "This field is required",
@@ -1146,7 +1236,8 @@
       "namePh": "Company name",
       "normalNote": "This is how every visitor sees the card on /offers.",
       "premiumNote": "This is what a visitor sees. A Premium member reveals the code: {{code}}",
-      "premiumOff": "Premium identity is off: the card won't show in Premium mode."
+      "premiumOff": "Premium is off for this company: the card appears frozen in Premium mode.",
+      "premiumFrozen": "No Premium code: this is how the card appears frozen in Premium mode."
     },
     "cat": {
       "title": "New category",
@@ -1282,6 +1373,10 @@
       "stats": {
         "q": "What stats do I see?",
         "a": "How often your code is copied, clicks, your code's success rate from merchant votes, and how many people saved your offer, with a 30-day chart."
+      },
+      "commission": {
+        "q": "Does CODpromo earn a commission from offers?",
+        "a": "Some links may earn us a commission at no extra cost to you."
       }
     },
     "final": {
@@ -1351,5 +1446,33 @@
     "rowTitle": "Featured offers",
     "showAll": "See all",
     "chip": "Featured"
+  },
+  "nocode": {
+    "title": "No-code deals",
+    "sub": "Tap “Get the offer” to reach the company through a special link that activates the perk for you, with no code to copy.",
+    "seeAll": "See all no-code deals",
+    "tag": "No code",
+    "premiumTag": "Premium",
+    "cta": "Get the offer",
+    "ctaAria": "Get the {{name}} offer (opens in a new tab)",
+    "ctaLocked": "The {{name}} offer is for Premium members: unlock Premium",
+    "frozen": "No Premium version of this offer"
+  },
+  "go": {
+    "title": "Redirecting",
+    "redirecting": "Redirecting you…",
+    "redirectTo": "Taking you to {{name}}…",
+    "sub": "The perk is applied through CODpromo's special link.",
+    "fallback": "Not redirected? Tap here",
+    "premiumTitle": "This offer is for Premium members",
+    "premiumSub": "Unlock Premium for the stronger perk, or take the regular offer now.",
+    "openPremium": "Unlock Premium",
+    "takeNormal": "Take the regular offer",
+    "noPremiumTitle": "There's no Premium version of this offer",
+    "notFound": "This offer isn't available right now",
+    "notFoundSub": "It may have ended or been paused. Browse the no-code deals that are available.",
+    "browse": "Browse no-code deals",
+    "error": "Couldn't connect. Check your internet and try again.",
+    "retry": "Try again"
   }
 }

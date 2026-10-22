@@ -2,17 +2,20 @@ import { Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import FeaturedMobileCarousel from "./FeaturedMobileCarousel.jsx";
 import { useMobileFx, useDesktopFx } from "./mobile.js";
+import { premiumFirst } from "../../lib/premiumOffer.js";
 
 /**
  * صف "العروض المميّزة" أعلى شبكة /offers.
  * موبايل (أقل من 1024px أو لمس): شريط سحب خفيف بلا مؤثرات (FeaturedMobileCarousel).
  * كمبيوتر: رفّ البطاقات المضيئة (FeaturedShelf) — يُحمَّل ديناميكياً فقط هنا.
  */
-export default function FeaturedRow({ items, premiumMode, favorites, onToggleFav, onCopy, unlocked, onUnlock, onShowAll }) {
+export default function FeaturedRow({ items, premiumMode, favorites, onToggleFav, onCopy, unlocked, onUnlock, onShowNormal, onShowAll }) {
   const { t } = useTranslation();
   const mobile = useMobileFx();
   const fxMod = useDesktopFx(!mobile);
-  const cardProps = { items, premiumMode, favorites, onToggleFav, onCopy, unlocked, onUnlock };
+  // في وضع Premium: عروض Premium الحقيقية أولاً، والمجمّدة بعدها
+  const shown = premiumMode ? premiumFirst(items, undefined, (it) => it.company) : items;
+  const cardProps = { items: shown, premiumMode, favorites, onToggleFav, onCopy, unlocked, onUnlock, onShowNormal };
 
   return (
     <section aria-labelledby="featured-row-title" className="mb-2">

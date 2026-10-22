@@ -36,7 +36,7 @@ export const partnersPath = (lang) => `${langPrefix(lang)}/partners`;
  */
 export function offersLink(lang, params = {}) {
   const qs = new URLSearchParams();
-  for (const key of ["type", "category", "featured", "mode", "sort", "q"]) {
+  for (const key of ["kind", "type", "category", "featured", "mode", "sort", "q"]) {
     if (params[key]) qs.set(key, params[key]);
   }
   const s = qs.toString();

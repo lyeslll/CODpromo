@@ -13,14 +13,14 @@ const SHELF_MIN = 940;
  * صف "العروض المميّزة" في /offers — نسخة الكمبيوتر (تُحمَّل ديناميكياً عبر desktop.js):
  * رفّ من 3 بطاقات مضيئة (يتمرّر بالأسهم إن كانت أكثر).
  */
-export default function FeaturedShelf({ items, premiumMode, favorites, onToggleFav, onCopy, unlocked, onUnlock }) {
+export default function FeaturedShelf({ items, premiumMode, favorites, onToggleFav, onCopy, unlocked, onUnlock, onShowNormal }) {
   const { i18n } = useTranslation();
   const rtl = i18n.dir(i18n.language) === "rtl";
   const wrapRef = useRef(null);
   const width = useElementWidth(wrapRef);
   const fx = useMemo(() => canUseFx(), []);
   const tones = useMemo(
-    () => items.map((it) => frameTone(it.company, premiumMode && it.company.supports_premium !== false)),
+    () => items.map((it) => frameTone(it.company, premiumMode)),
     [items, premiumMode]
   );
 
@@ -31,9 +31,10 @@ export default function FeaturedShelf({ items, premiumMode, favorites, onToggleF
       isFavorite={favorites.includes(it.company.id)}
       onToggleFav={onToggleFav}
       onCopy={onCopy}
-      premium={premiumMode && it.company.supports_premium !== false}
+      premium={premiumMode}
       unlocked={unlocked}
       onUnlock={onUnlock}
+      onShowNormal={onShowNormal}
       copySource="featured"
     />
   );

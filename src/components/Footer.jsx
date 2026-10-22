@@ -266,6 +266,8 @@ export default function Footer({ onPremium, showCta = true }) {
               <BackToTop inline />
             </div>
           </div>
+          {/* الشفافية: بعض روابط العروض روابط إحالة */}
+          <p className="-mt-2 pb-6 text-center text-[11.5px] leading-relaxed text-[var(--color-mute)] sm:text-start">{t("footer.commission")}</p>
         </div>
       </footer>
 

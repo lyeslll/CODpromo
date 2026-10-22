@@ -9,8 +9,16 @@ import { useTranslation } from "react-i18next";
 export default function KindTabs({ value, onChange, counts = {} }) {
   const { t } = useTranslation();
   const items = [
-    { key: "code", icon: Ticket, label: t("offers.kindCode"), bg: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))" },
-    { key: "nocode", icon: Gift, label: t("offers.kindNocode"), bg: "linear-gradient(135deg, #d9c7ff, #9b6dff)" },
+    {
+      key: "code",
+      icon: Ticket,
+      label: t("offers.kindCode"),
+      bg: "linear-gradient(135deg, var(--color-lime-soft), var(--color-lime-deep))",
+      text: "#0a0a0a",
+      count: "rgba(10,10,10,0.6)",
+    },
+    // نفس بنفسجي زر "احصل على العرض" في بطاقة الهدية، بكتابة بيضاء (≥ 5.47:1)
+    { key: "nocode", icon: Gift, label: t("offers.kindNocode"), bg: "linear-gradient(135deg, #7346ee, #5f36d4)", text: "#ffffff", count: "#ffffff" },
   ];
   return (
     <div role="tablist" aria-label={t("offers.kindLabel")} className="grid grid-cols-2 gap-1 rounded-2xl border border-[var(--color-ink-line)] bg-[var(--fill)] p-1 sm:inline-grid">
@@ -24,7 +32,7 @@ export default function KindTabs({ value, onChange, counts = {} }) {
             aria-selected={active}
             onClick={() => onChange(it.key)}
             className="relative z-10 flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-[14px] font-extrabold transition-colors"
-            style={{ color: active ? "#0a0a0a" : "var(--text-softer)" }}
+            style={{ color: active ? it.text : "var(--text-softer)" }}
           >
             {active && (
               <motion.span
@@ -37,7 +45,7 @@ export default function KindTabs({ value, onChange, counts = {} }) {
             <it.icon size={16} />
             {it.label}
             {counts[it.key] != null && (
-              <span className="text-[12px] font-bold tabular-nums" style={{ color: active ? "rgba(10,10,10,0.6)" : "var(--color-mute)" }}>
+              <span className="text-[12px] font-bold tabular-nums" style={{ color: active ? it.count : "var(--color-mute)" }}>
                 {counts[it.key]}
               </span>
             )}

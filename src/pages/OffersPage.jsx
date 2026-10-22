@@ -212,6 +212,8 @@ export default function OffersPage({ lang = "ar" }) {
   const showFeaturedRow = !nocode && featured.length > 0 && !featuredParam && !typeParam && !categoryParam && !search.trim();
   const gridLoading = nocode ? deals === null : loading || featuredPending || (!mobileFx && !fxMod && !error);
   const activeCount = nocode ? filteredDeals.length : filtered.length;
+  // القائمة معروضة → المبدّل العائم يظهر في الهاتف (ونترك له مسافة تحت القائمة)
+  const switchable = !gridLoading && !(error && !nocode) && activeCount > 0;
   const changeKind = (k) =>
     updateParams(k === "nocode" ? { kind: "nocode", type: null, featured: null, sort: null } : { kind: null });
 
@@ -468,7 +470,8 @@ export default function OffersPage({ lang = "ar" }) {
           onPointerMove={onPointerMove}
           onPointerUp={endSwipe}
           onPointerCancel={endSwipe}
-          className="relative"
+          // الهاتف: مسافة تحت آخر بطاقة بقدر المبدّل العائم (مع التلميح) — آخر بطاقة تطلع كاملة فوقه
+          className={`relative ${switchable ? "pb-24 md:pb-0" : ""}`}
           style={{ touchAction: "pan-y" }}
         >
           {!isPremium && (
@@ -554,7 +557,7 @@ export default function OffersPage({ lang = "ar" }) {
       <Footer onPremium={() => setPremiumModal(true)} />
 
       <FloatingModeSwitch
-        visible={listInView && !gridLoading && !(error && !nocode) && activeCount > 0}
+        visible={listInView && switchable}
         value={premiumView}
         onChange={setMode}
         burst={burst}

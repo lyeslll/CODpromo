@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,8 @@ import NocodeGrid from "./NocodeGrid.jsx";
 import { useNocodeDeals } from "../../lib/nocode.js";
 import { dealHasPremium, premiumFirst } from "../../lib/premiumOffer.js";
 import { offersLink } from "../../lib/seo.js";
+import { ModeWaveContext, useWaveSwitch, useFloatingSwitch } from "../../lib/modeWave.jsx";
+import DesktopModeSwitch from "../DesktopModeSwitch.jsx";
 
 const MAX_HOME = 6;
 
@@ -23,12 +25,18 @@ export default function NocodeSection({ unlocked, onUnlock }) {
   const deals = useNocodeDeals();
   const [mode, setMode] = useState("normal");
   const [burst, setBurst] = useState(0);
+  // موجة التبديل + تثبيت البطاقة اللي قدامك + مبدّل عائم في الكمبيوتر (lib/modeWave.jsx)
+  const toggleRef = useRef(null);
+  const areaRef = useRef(null);
+  const floating = useFloatingSwitch(toggleRef, areaRef, !!deals?.length);
+  const { wave, beforeChange } = useWaveSwitch(mode === "premium", areaRef, areaRef, (id) => !dealHasPremium(deals?.find((d) => `d${d.id}` === id)));
 
   if (!deals?.length) return null;
 
   const premium = mode === "premium";
   const changeMode = (m) => {
     if (m === mode) return;
+    beforeChange();
     if (m === "premium") setBurst((b) => b + 1);
     setMode(m);
   };
@@ -38,17 +46,22 @@ export default function NocodeSection({ unlocked, onUnlock }) {
     <section aria-labelledby="nocode-title" className="mx-auto max-w-6xl px-4 py-24 sm:py-28">
       <div className="flex flex-wrap items-end justify-between gap-5">
         <SectionHead id="nocode-title" title={t("nocode.title")} sub={t("nocode.sub")} />
-        <div className="relative">
+        <div ref={toggleRef} className="relative">
           <PremiumToggle value={mode} onChange={changeMode} layoutId="nocode-prem-pill" />
           <GoldBurst fire={burst} />
         </div>
       </div>
 
+      <ModeWaveContext.Provider value={wave}>
+      <div ref={areaRef}>
       <NocodeGrid rail className="mt-10">
         {shown.map((d) => (
           <NocodeCard key={d.id} deal={d} premium={premium} unlocked={unlocked} onUnlock={onUnlock} onShowNormal={() => changeMode("normal")} />
         ))}
       </NocodeGrid>
+      </div>
+      </ModeWaveContext.Provider>
+      <DesktopModeSwitch visible={floating} value={mode} onChange={changeMode} layoutId="nocode-prem-pill-desk" />
 
       <div className="mt-10 flex justify-center">
         <Link

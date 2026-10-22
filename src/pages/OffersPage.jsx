@@ -36,6 +36,7 @@ import OfferModeNote from "../components/offers/OfferModeNote.jsx";
 import TypeFilter from "../components/offers/TypeFilter.jsx";
 import CategoryChips from "../components/offers/CategoryChips.jsx";
 import FloatingModeSwitch from "../components/offers/FloatingModeSwitch.jsx";
+import DesktopModeSwitch from "../components/DesktopModeSwitch.jsx";
 import KindTabs from "../components/offers/KindTabs.jsx";
 import NocodeCard from "../components/nocode/NocodeCard.jsx";
 import NocodeGrid from "../components/nocode/NocodeGrid.jsx";
@@ -43,7 +44,8 @@ import FeaturedRow from "../components/featured/FeaturedRow.jsx";
 import { FeaturedMark } from "../components/featured/FeaturedMobileCarousel.jsx";
 import { frameTone } from "../components/featured/tone.js";
 import { useMobileFx, useDesktopFx } from "../components/featured/mobile.js";
-import { premiumFirst, dealHasPremium } from "../lib/premiumOffer.js";
+import { premiumFirst, dealHasPremium, hasPremiumOffer } from "../lib/premiumOffer.js";
+import { ModeWaveContext, useWaveSwitch, useFloatingSwitch } from "../lib/modeWave.jsx";
 import { useNocodeDeals, dealMatches } from "../lib/nocode.js";
 import { SkeletonGrid, EmptyState, ErrorState } from "../components/States.jsx";
 
@@ -120,12 +122,19 @@ export default function OffersPage({ lang = "ar" }) {
     return () => clearTimeout(id);
   }, [search, updateParams]);
 
+  // التبديل (من أي مبدّل أو بالسحب): موجة على البطاقات الظاهرة + تثبيت البطاقة اللي في وسط الشاشة
+  const mainRef = useRef(null);
+  const listRef = useRef(null);
+  const frozenCheck = useRef(() => false);
+  const { wave, beforeChange } = useWaveSwitch(premiumView === "premium", mainRef, listRef, (id) => frozenCheck.current(id));
   const setMode = useCallback(
     (m) => {
       if (m === premiumView) return;
+      beforeChange();
       if (m === "premium") setBurst((b) => b + 1);
       updateParams({ mode: m === "premium" ? "premium" : null });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [premiumView, updateParams]
   );
 
@@ -226,7 +235,6 @@ export default function OffersPage({ lang = "ar" }) {
   };
 
   // ===== المبدّل العائم (هاتف): يظهر ما دامت القائمة في الشاشة =====
-  const listRef = useRef(null);
   const [listInView, setListInView] = useState(false);
   useEffect(() => {
     const el = listRef.current;
@@ -237,6 +245,21 @@ export default function OffersPage({ lang = "ar" }) {
     io.observe(el);
     return () => io.disconnect();
   }, []);
+  // الكمبيوتر: مبدّل عائم كي يخرج مبدّل شريط الأدوات من الشاشة
+  const deskToggleRef = useRef(null);
+  const deskFloat = useFloatingSwitch(deskToggleRef, listRef, switchable);
+
+  // بطاقة تتجمّد في Premium (تهبط لآخر القائمة) → نثبّتو على أقرب وحدة ما تجمّدتش
+  frozenCheck.current = (id) => {
+    const key = id.slice(1);
+    if (id[0] === "d") {
+      const d = deals?.find((x) => String(x.id) === key);
+      return d ? !dealHasPremium(d) : false;
+    }
+    const c = companies.find((x) => String(x.id) === key);
+    return c ? !hasPremiumOffer(c) : false;
+  };
+
   const [pastTop, setPastTop] = useState(false);
   useEffect(() => {
     const onScroll = () => setPastTop(window.scrollY > SWITCH_AFTER_PX);
@@ -405,7 +428,8 @@ export default function OffersPage({ lang = "ar" }) {
         </div>
       </header>
 
-      <main className="relative mx-auto max-w-6xl px-4 pb-6 pt-5">
+      <ModeWaveContext.Provider value={wave}>
+      <main ref={mainRef} className="relative mx-auto max-w-6xl px-4 pb-6 pt-5">
         {/* التبويبان + فلتر النوع (بكود فقط) + شرائح التصنيفات */}
         <div className="flex flex-col gap-3">
           <KindTabs
@@ -436,7 +460,7 @@ export default function OffersPage({ lang = "ar" }) {
           <>
             <div className="mb-5 mt-6 flex flex-wrap items-center justify-between gap-3">
               {nocode ? <span /> : <SortToggle value={sortMode} onChange={(v) => updateParams({ sort: v === "newest" ? null : v })} />}
-              <div className="relative hidden md:block">
+              <div ref={deskToggleRef} className="relative hidden md:block">
                 <PremiumToggle value={premiumView} onChange={setMode} />
                 <GoldBurst fire={burst} />
               </div>
@@ -480,7 +504,7 @@ export default function OffersPage({ lang = "ar" }) {
           onPointerUp={endSwipe}
           onPointerCancel={endSwipe}
           // الهاتف: مسافة تحت آخر بطاقة بقدر المبدّل العائم (مع التلميح) — آخر بطاقة تطلع كاملة فوقه
-          className={`relative ${switchable ? "pb-24 md:pb-0" : ""}`}
+          className={`relative ${switchable ? "pb-24" : ""}`}
           style={{ touchAction: "pan-y" }}
         >
           {!isPremium && (
@@ -562,6 +586,7 @@ export default function OffersPage({ lang = "ar" }) {
           )}
         </div>
       </main>
+      </ModeWaveContext.Provider>
 
       <Footer onPremium={() => setPremiumModal(true)} />
 
@@ -572,6 +597,7 @@ export default function OffersPage({ lang = "ar" }) {
         burst={burst}
         showHint={showSwipeHint}
       />
+      <DesktopModeSwitch visible={deskFloat} value={premiumView} onChange={setMode} layoutId="prem-pill-desk" />
 
       <CopyToast code={toast} />
       <PremiumModal open={premiumModal} onClose={() => setPremiumModal(false)} />

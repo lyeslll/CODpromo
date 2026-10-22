@@ -115,7 +115,8 @@
   },
   "premiumToggle": {
     "normal": "عادي",
-    "premium": "Premium"
+    "premium": "Premium",
+    "floating": "اختر العرض: عادي أو Premium"
   },
   "card": {
     "hot": "رائج",

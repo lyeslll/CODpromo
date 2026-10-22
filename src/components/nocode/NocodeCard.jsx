@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Gift, Crown, Lock, ExternalLink, Undo2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useCategories } from "../../lib/categories.jsx";
@@ -7,6 +7,7 @@ import { dealText, goPath } from "../../lib/nocode.js";
 import { dealHasPremium } from "../../lib/premiumOffer.js";
 import { isImageUrl } from "../CompanyLogo.jsx";
 import { GlowSpot, useCardGlow } from "../CardGlow.jsx";
+import { useWaveValue, useCountText } from "../../lib/modeWave.jsx";
 import "./nocode.css";
 
 // اللون الرابع: "بلا كود" (بنفسجي) — والذهبي لـ Premium، والرمادي للمجمّدة.
@@ -77,8 +78,10 @@ function splitReward(text) {
  *  - preview: معاينة الأدمن — بلا تنقّل ولا تسجيل.
  * بلا تصويت ولا مفضّلة في هذه النسخة.
  */
-export default function NocodeCard({ deal, premium = false, unlocked = false, onUnlock, onShowNormal, preview = false }) {
+export default function NocodeCard({ deal, premium: premiumProp = false, unlocked = false, onUnlock, onShowNormal, preview = false }) {
   const { t, i18n } = useTranslation();
+  // موجة التبديل (lib/modeWave.jsx): الظاهرة تلحق الوضع الجديد بعد تأخيرها، والباقي في الحين
+  const premium = useWaveValue(premiumProp, `d${deal.id}`);
   const lang = i18n.language;
   const { byId } = useCategories();
   const glow = useCardGlow();
@@ -97,6 +100,8 @@ export default function NocodeCard({ deal, premium = false, unlocked = false, on
   const desc = dealText(deal, "description", lang);
   const ctaLabel = t("nocode.cta");
   const [rewardNum, rewardRest] = splitReward(reward);
+  const numRef = useRef(null);
+  const numText = useCountText(rewardNum, numRef);
 
   let cta;
   if (frozen) {
@@ -137,7 +142,7 @@ export default function NocodeCard({ deal, premium = false, unlocked = false, on
   }
 
   return (
-    <article ref={glow.ref} {...glow.handlers} data-tone={toneName} className="gift group" style={vars}>
+    <article ref={glow.ref} {...glow.handlers} data-wave-id={`d${deal.id}`} data-tone={toneName} className="gift group" style={vars}>
       {/* النسبة (حدّ أدنى) والمحتوى في نفس خانة الشبكة — شوف nocode.css */}
       <span aria-hidden className="gift-ratio" />
       <span aria-hidden className="gift-decor">
@@ -185,7 +190,7 @@ export default function NocodeCard({ deal, premium = false, unlocked = false, on
             <p className={`gift-reward ${reward.length > 18 ? "is-long" : ""}`}>
               {rewardNum ? (
                 <>
-                  <span className="gift-num">{rewardNum}</span> {rewardRest}
+                  <span ref={numRef} className="gift-num">{numText ?? rewardNum}</span> {rewardRest}
                 </>
               ) : (
                 reward

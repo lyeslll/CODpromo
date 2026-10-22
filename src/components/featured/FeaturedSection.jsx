@@ -9,6 +9,8 @@ import { offersLink } from "../../lib/seo.js";
 import FeaturedMobileCarousel from "./FeaturedMobileCarousel.jsx";
 import { useMobileFx } from "./mobile.js";
 import { premiumFirst } from "../../lib/premiumOffer.js";
+import { ModeWaveContext, useWaveSwitch, useFloatingSwitch } from "../../lib/modeWave.jsx";
+import DesktopModeSwitch from "../DesktopModeSwitch.jsx";
 
 // المسرح والمؤثرات (الكمبيوتر فقط) في chunk منفصل: لا يُحمَّل إلا حين يقترب الزائر من القسم
 const FeaturedShowcase = lazy(() => import("./FeaturedShowcase.jsx"));
@@ -28,6 +30,10 @@ export default function FeaturedSection({ items, favorites, onToggleFav, onCopy,
   const [near, setNear] = useState(false);
   const mobile = useMobileFx();
   const has = items.length > 0;
+  // موجة التبديل + مبدّل عائم في الكمبيوتر (lib/modeWave.jsx)
+  const toggleRef = useRef(null);
+  const floating = useFloatingSwitch(toggleRef, holderRef, has);
+  const { wave } = useWaveSwitch(mode === "premium", holderRef);
 
   useEffect(() => {
     if (!has || near || mobile) return;
@@ -66,12 +72,13 @@ export default function FeaturedSection({ items, favorites, onToggleFav, onCopy,
       <SectionHead center id="featured-title" title={t("featured.title")} sub={t("featured.sub")} />
 
       <div className="mt-8 flex justify-center">
-        <div className="relative">
+        <div ref={toggleRef} className="relative">
           <PremiumToggle value={mode} onChange={changeMode} layoutId="featured-prem-pill" />
           <GoldBurst fire={burst} />
         </div>
       </div>
 
+      <ModeWaveContext.Provider value={wave}>
       <div ref={holderRef} className="relative">
         {mobile ? (
           <FeaturedMobileCarousel
@@ -101,6 +108,8 @@ export default function FeaturedSection({ items, favorites, onToggleFav, onCopy,
           placeholder
         )}
       </div>
+      </ModeWaveContext.Provider>
+      <DesktopModeSwitch visible={floating} value={mode} onChange={changeMode} layoutId="featured-prem-pill-desk" />
 
       <div className="mt-8 flex justify-center">
         <Link

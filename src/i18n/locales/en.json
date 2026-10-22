@@ -115,7 +115,8 @@
   },
   "premiumToggle": {
     "normal": "Standard",
-    "premium": "Premium"
+    "premium": "Premium",
+    "floating": "Choose the view: Standard or Premium"
   },
   "card": {
     "hot": "Trending",

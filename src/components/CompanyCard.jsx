@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence, animate } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock, Undo2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getTypeMeta, getTypeKey } from "../lib/types.js";
@@ -12,6 +12,7 @@ import { hasPremiumOffer } from "../lib/premiumOffer.js";
 import { isImageUrl } from "./CompanyLogo.jsx";
 import CodeVote from "./CodeVote.jsx";
 import { GlowSpot, useCardGlow } from "./CardGlow.jsx";
+import { useWaveValue, useCountText } from "../lib/modeWave.jsx";
 
 // هوية Premium الذهبية
 const GOLD = "#f0c63c";
@@ -35,7 +36,7 @@ export default function CompanyCard({
   isFavorite,
   onToggleFav,
   onCopy,
-  premium = false,
+  premium: premiumProp = false,
   unlocked = false,
   onUnlock,
   linkToStore = true,
@@ -43,6 +44,8 @@ export default function CompanyCard({
   onShowNormal,
 }) {
   const { t, i18n } = useTranslation();
+  // موجة التبديل (lib/modeWave.jsx): البطاقة الظاهرة تلحق الوضع الجديد بعد تأخيرها، والباقي في الحين
+  const premium = useWaveValue(premiumProp, `c${company.id}`);
   const { byId, categories } = useCategories();
   const meta = getTypeMeta(company.type);
   const Icon = meta.icon;
@@ -154,6 +157,7 @@ export default function CompanyCard({
     <motion.article
       ref={glow.ref}
       {...glow.handlers}
+      data-wave-id={`c${company.id}`}
       initial={{ opacity: 0, y: 26 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10, scale: 0.97 }}
@@ -393,6 +397,7 @@ function FrozenTicket({ company, index, isFavorite, onToggleFav, linkToStore, st
       exit={{ opacity: 0, y: -10, scale: 0.97 }}
       transition={{ duration: 0.45, delay: Math.min(index * 0.05, 0.35), ease: [0.16, 1, 0.3, 1] }}
       data-frozen=""
+      data-wave-id={`c${company.id}`}
       className="ticket ticket-frozen relative flex flex-col"
       style={{ "--edge-base": "rgba(255,255,255,0.07)", "--edge-strong": "rgba(255,255,255,0.07)", "--perf": "rgba(255,255,255,0.12)" }}
     >
@@ -783,36 +788,12 @@ function ScratchCanvas({ accent = GOLD, onReveal }) {
   );
 }
 
-/* ===== عدّاد متحرّك لقيمة الخصم ===== */
-function parseVal(v) {
-  const m = String(v ?? "").match(/^(\D*)([\d.,]+)(.*)$/s);
-  if (!m) return null;
-  return { prefix: m[1], num: parseFloat(m[2].replace(/,/g, "")), suffix: m[3] };
-}
-
+/* ===== عدّاد متحرّك لقيمة الخصم (~0.6 ثانية، في البطاقة الظاهرة برك — lib/modeWave.jsx) ===== */
 function AnimatedDiscount({ value, color, glow }) {
-  const [display, setDisplay] = useState(value);
-  const prev = useRef(parseVal(value)?.num ?? null);
-
-  useEffect(() => {
-    const p = parseVal(value);
-    if (!p || Number.isNaN(p.num)) {
-      setDisplay(value);
-      prev.current = null;
-      return;
-    }
-    const from = prev.current ?? p.num;
-    const controls = animate(from, p.num, {
-      duration: 0.7,
-      ease: [0.16, 1, 0.3, 1],
-      onUpdate: (v) => setDisplay(`${p.prefix}${Math.round(v)}${p.suffix}`),
-    });
-    prev.current = p.num;
-    return () => controls.stop();
-  }, [value]);
-
+  const ref = useRef(null);
+  const display = useCountText(value, ref);
   return (
-    <span style={{ color, textShadow: `0 0 24px ${glow}` }}>{display}</span>
+    <span ref={ref} style={{ color, textShadow: `0 0 24px ${glow}` }}>{display}</span>
   );
 }
 

@@ -2,11 +2,11 @@ import { useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Sparkles, Megaphone } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { getTypeMeta } from "../../lib/types.js";
 import { clamp } from "./hooks.js";
+import { frameTone } from "./tone.js";
 import "./featured.css";
 
-const GOLD = { color: "#f0c63c", glow: "rgba(240,198,60,0.4)" };
+export { frameTone };
 
 // لمعة الهولوغرام: ثلاث درجات قريبة من لون البطاقة (اللون يبقى دالاً على النوع أو Premium)
 const HOLO = {
@@ -15,13 +15,6 @@ const HOLO = {
   "#fbbf24": ["rgba(253,230,138,0.3)", "rgba(251,191,36,0.26)", "rgba(252,165,165,0.2)"],
   "#f0c63c": ["rgba(255,247,214,0.32)", "rgba(240,198,60,0.28)", "rgba(255,228,134,0.22)"],
 };
-
-/** لون الإطار = لون البطاقة نفسها: نوع العرض، أو الذهبي في وضع Premium. */
-export function frameTone(company, premium) {
-  if (premium) return GOLD;
-  const m = getTypeMeta(company?.type);
-  return { color: m.color, glow: m.glow };
-}
 
 const SPRING = { stiffness: 170, damping: 20, mass: 0.5 };
 const MAX_X = 5; // درجات

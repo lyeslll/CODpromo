@@ -6,14 +6,17 @@ import SectionHead from "../landing/SectionHead.jsx";
 import PremiumToggle from "../PremiumToggle.jsx";
 import GoldBurst from "../GoldBurst.jsx";
 import { offersLink } from "../../lib/seo.js";
+import FeaturedMobileCarousel from "./FeaturedMobileCarousel.jsx";
+import { useMobileFx } from "./mobile.js";
 
-// المسرح والمؤثرات في chunk منفصل: لا يُحمَّل إلا حين يقترب الزائر من القسم
+// المسرح والمؤثرات (الكمبيوتر فقط) في chunk منفصل: لا يُحمَّل إلا حين يقترب الزائر من القسم
 const FeaturedShowcase = lazy(() => import("./FeaturedShowcase.jsx"));
 
 /**
  * قسم "العروض المميّزة" في الرئيسية (مباشرة تحت شريط الأرقام).
  * العروض يختارها الأدمن (featured_offers)؛ إذا لا يوجد عرض منشور، القسم يختفي.
  * items: [{ company, label }] بالترتيب. مبدّل عادي/Premium يجعل كل الوظائف متاحة.
+ * الموبايل (أقل من 1024px أو لمس): شريط سحب خفيف بلا مؤثرات، ولا يُحمَّل الـ 3D أصلاً.
  */
 export default function FeaturedSection({ items, favorites, onToggleFav, onCopy, unlocked, onUnlock }) {
   const { t, i18n } = useTranslation();
@@ -22,10 +25,11 @@ export default function FeaturedSection({ items, favorites, onToggleFav, onCopy,
   const [burst, setBurst] = useState(0);
   const holderRef = useRef(null);
   const [near, setNear] = useState(false);
+  const mobile = useMobileFx();
   const has = items.length > 0;
 
   useEffect(() => {
-    if (!has || near) return;
+    if (!has || near || mobile) return;
     const el = holderRef.current;
     if (!el) return;
     if (typeof IntersectionObserver === "undefined") {
@@ -42,7 +46,7 @@ export default function FeaturedSection({ items, favorites, onToggleFav, onCopy,
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [has, near]);
+  }, [has, near, mobile]);
 
   if (!has) return null;
 
@@ -65,7 +69,17 @@ export default function FeaturedSection({ items, favorites, onToggleFav, onCopy,
       </div>
 
       <div ref={holderRef} className="relative">
-        {near ? (
+        {mobile ? (
+          <FeaturedMobileCarousel
+            items={items}
+            premiumMode={mode === "premium"}
+            favorites={favorites}
+            onToggleFav={onToggleFav}
+            onCopy={onCopy}
+            unlocked={unlocked}
+            onUnlock={onUnlock}
+          />
+        ) : near ? (
           <Suspense fallback={placeholder}>
             <FeaturedShowcase
               items={items}

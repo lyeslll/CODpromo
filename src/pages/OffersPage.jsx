@@ -37,7 +37,9 @@ import TypeFilter from "../components/offers/TypeFilter.jsx";
 import CategoryChips from "../components/offers/CategoryChips.jsx";
 import FloatingModeSwitch from "../components/offers/FloatingModeSwitch.jsx";
 import FeaturedRow from "../components/featured/FeaturedRow.jsx";
-import FeaturedFrame, { frameTone } from "../components/featured/FeaturedFrame.jsx";
+import { FeaturedMark } from "../components/featured/FeaturedMobileCarousel.jsx";
+import { frameTone } from "../components/featured/tone.js";
+import { useMobileFx, useDesktopFx } from "../components/featured/mobile.js";
 import { SkeletonGrid, EmptyState, ErrorState } from "../components/States.jsx";
 
 const SWIPE_HINT_KEY = "codpromo:swipe-hint";
@@ -137,6 +139,9 @@ export default function OffersPage({ lang = "ar" }) {
   const featured = useMemo(() => joinFeatured(featuredRows, companies), [featuredRows, companies]);
   const featuredLabel = useMemo(() => new Map(featured.map((f) => [f.company.id, f.label])), [featured]);
   const gridFx = useMemo(() => canUseFx(), []);
+  // الموبايل: علامة ثابتة خفيفة؛ الكمبيوتر: الإطار المضيء (يُحمَّل ديناميكياً هنا فقط)
+  const mobileFx = useMobileFx();
+  const fxMod = useDesktopFx(!mobileFx);
   const [usageRank, setUsageRank] = useState(null);
   useEffect(() => {
     if (sortMode !== "usage" || usageRank) return;
@@ -416,7 +421,7 @@ export default function OffersPage({ lang = "ar" }) {
         )}
 
         {/* الحالات */}
-        {(loading || featuredPending) && <SkeletonGrid />}
+        {(loading || featuredPending || (!mobileFx && !fxMod && !error)) && <SkeletonGrid />}
         {error && <ErrorState message={error} onRetry={load} />}
         {!loading && !featuredPending && !error && filtered.length === 0 && <EmptyState onReset={resetFilters} />}
 
@@ -456,7 +461,7 @@ export default function OffersPage({ lang = "ar" }) {
               />
             </motion.div>
           )}
-          {!loading && !error && filtered.length > 0 && (
+          {!loading && !error && filtered.length > 0 && (mobileFx || fxMod) && (
             <motion.div style={{ x: dragX }} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <AnimatePresence>
                 {ordered.map((c, i) => {
@@ -476,12 +481,15 @@ export default function OffersPage({ lang = "ar" }) {
                     />
                   );
                   // العرض المميّز داخل الشبكة: نفس الحافة المضيئة بنسخة أخف (ضوء خلفي + الوسم)
-                  return label ? (
-                    <FeaturedFrame key={c.id} variant="soft" tone={frameTone(c, premium)} label={label} fx={gridFx}>
+                  if (!label) return card;
+                  return mobileFx ? (
+                    <FeaturedMark key={c.id} tone={frameTone(c, premium)} label={label}>
                       {card}
-                    </FeaturedFrame>
+                    </FeaturedMark>
                   ) : (
-                    card
+                    <fxMod.FeaturedFrame key={c.id} variant="soft" tone={frameTone(c, premium)} label={label} fx={gridFx}>
+                      {card}
+                    </fxMod.FeaturedFrame>
                   );
                 })}
               </AnimatePresence>

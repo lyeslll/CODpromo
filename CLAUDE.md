@@ -55,7 +55,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 `LandingHero` (العنوان + "الكوبون السحري") → `StatsStrip` (أرقام `site_stats`) → `FeaturedSection` (العروض المميّزة، شوف تحت) → `NameStory` (COD → Cash On Delivery → Code promo مع التمرير) → `Pillars` (الأنواع الثلاثة بعروض حيّة من عروض حقيقية) → `CardAnatomy` (بطاقة حقيقية + خطوط شرح) → `PremiumCompare` (عادي مقابل Premium، السعر من `plans.js`، المضاعف = القيمة ÷ سعر الشهر) → `CategoryGrid` (`#categories`) → `HowSteps` (`#how`) → `TrustSection` (تصويت حقيقي + شريط الشركاء) → `SampleOffers` (الأنجح من كل نوع) → `NocodeSection` (عروض بلا كود، شوف تحت) → `AppDownload` (حمّل التطبيق: هاتف حيّ + Google Play + QR) → `Footer`. كل زر نحو العروض يفتح `/offers` بالفلتر المناسب (`offersLink()` في `src/lib/seo.js`).
 
 ### الفوتر — `src/components/Footer.jsx` + `src/components/footer/`
-- فوقه `FooterCta`: كوبون واحد بجهتين (افتح العروض | Premium ذهبي بالسعر و×N من `site_stats`) يفرقهما خط مثقّب (CSS `.duo*` في `index.css`). ثم: البراند + النشرة (`email_subscribers`، source = `footer`)، أعمدة الروابط (accordion على الهاتف)، التطبيق، تابعنا، كلمة CODpromo الضخمة (`Wordmark`)، زر الرجوع للأعلى (`BackToTop`).
+- فوقه `FooterCta`: كوبون واحد بجهتين (افتح العروض | Premium ذهبي بالسعر و×N من `site_stats`) يفرقهما خط مثقّب (CSS `.duo*` في `index.css`). ثم: البراند + النشرة (`email_subscribers`، source = `footer`)، أعمدة الروابط (accordion على الهاتف)، التطبيق، تابعنا، كلمة CODpromo الضخمة (`Wordmark`)، زر الرجوع للأعلى (`BackToTop`؛ في الهاتف 40px ويتبع شريط التنقّل السفلي كيما المبدّل العائم، باش ما يغطّيش سطر "آخر نجاح" في البطاقات).
 
 ### توقيع Ilyes Derradji — `src/components/IlyesSignature.jsx`
 مكوّن مستقل (React فقط، التنسيق داخل الملف، بلا Tailwind ولا i18n) لنسخه لأي موقع:

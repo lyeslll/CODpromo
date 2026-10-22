@@ -34,7 +34,7 @@ export function FeaturedMark({ tone, label, children }) {
  * البطاقة في الوسط حافتها مضيئة بلون النوع (ثابتة)، والجاران يطلّان من الحافتين.
  * النقطة النشطة من IntersectionObserver (شريط ضيّق في وسط الشريط) — لا حسابات أثناء السحب.
  */
-export default function FeaturedMobileCarousel({ items, premiumMode = false, favorites = [], onToggleFav, onCopy, unlocked = false, onUnlock }) {
+export default function FeaturedMobileCarousel({ items, premiumMode = false, favorites = [], onToggleFav, onCopy, unlocked = false, onUnlock, onShowNormal }) {
   const { t } = useTranslation();
   const trackRef = useRef(null);
   const [active, setActive] = useState(0);
@@ -62,13 +62,14 @@ export default function FeaturedMobileCarousel({ items, premiumMode = false, fav
           isFavorite={favorites.includes(it.company.id)}
           onToggleFav={onToggleFav || (() => {})}
           onCopy={onCopy || (() => {})}
-          premium={premiumMode && it.company.supports_premium !== false}
+          premium={premiumMode}
           unlocked={unlocked}
           onUnlock={onUnlock}
+          onShowNormal={onShowNormal}
           copySource="featured"
         />
       )),
-    [items, premiumMode, favorites, onToggleFav, onCopy, unlocked, onUnlock]
+    [items, premiumMode, favorites, onToggleFav, onCopy, unlocked, onUnlock, onShowNormal]
   );
 
   const scrollToSlide = (i) => {
@@ -84,7 +85,7 @@ export default function FeaturedMobileCarousel({ items, premiumMode = false, fav
     <div className="-mx-4">
       <div ref={trackRef} className="fm-track no-scrollbar" data-no-swipe>
         {items.map((it, i) => {
-          const premium = premiumMode && it.company.supports_premium !== false;
+          const premium = premiumMode;
           return (
             <div
               key={it.company.id}
@@ -115,7 +116,7 @@ export default function FeaturedMobileCarousel({ items, premiumMode = false, fav
                 className="block h-2 rounded-full"
                 style={{
                   width: i === active ? 22 : 8,
-                  background: i === active ? frameTone(it.company, premiumMode && it.company.supports_premium !== false).color : "rgba(255,255,255,0.22)",
+                  background: i === active ? frameTone(it.company, premiumMode).color : "rgba(255,255,255,0.22)",
                 }}
               />
             </button>

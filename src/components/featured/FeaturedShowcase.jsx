@@ -41,6 +41,7 @@ export default function FeaturedShowcase({
   onCopy,
   unlocked = false,
   onUnlock,
+  onShowNormal,
   preview = false,
 }) {
   const { i18n } = useTranslation();
@@ -50,7 +51,7 @@ export default function FeaturedShowcase({
   const fx = useMemo(() => canUseFx(), []);
 
   const tones = useMemo(
-    () => items.map((it) => frameTone(it.company, premiumMode && it.company.supports_premium !== false)),
+    () => items.map((it) => frameTone(it.company, premiumMode)),
     [items, premiumMode]
   );
 
@@ -62,9 +63,10 @@ export default function FeaturedShowcase({
         isFavorite={favorites.includes(it.company.id)}
         onToggleFav={onToggleFav || (() => {})}
         onCopy={onCopy || (() => {})}
-        premium={premiumMode && it.company.supports_premium !== false}
+        premium={premiumMode}
         unlocked={unlocked}
         onUnlock={onUnlock}
+        onShowNormal={onShowNormal}
         copySource="featured"
       />
     );

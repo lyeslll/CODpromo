@@ -8,6 +8,7 @@ import GoldBurst from "../GoldBurst.jsx";
 import { offersLink } from "../../lib/seo.js";
 import FeaturedMobileCarousel from "./FeaturedMobileCarousel.jsx";
 import { useMobileFx } from "./mobile.js";
+import { premiumFirst } from "../../lib/premiumOffer.js";
 
 // المسرح والمؤثرات (الكمبيوتر فقط) في chunk منفصل: لا يُحمَّل إلا حين يقترب الزائر من القسم
 const FeaturedShowcase = lazy(() => import("./FeaturedShowcase.jsx"));
@@ -56,6 +57,9 @@ export default function FeaturedSection({ items, favorites, onToggleFav, onCopy,
     setMode(m);
   };
   const placeholder = <div className="min-h-[640px]" />;
+  // في وضع Premium: عروض Premium الحقيقية أولاً، والمجمّدة بعدها
+  const shown = mode === "premium" ? premiumFirst(items, undefined, (it) => it.company) : items;
+  const showNormal = () => changeMode("normal");
 
   return (
     <section aria-labelledby="featured-title" className="relative mx-auto max-w-6xl px-4 pb-6 pt-24 sm:pt-28">
@@ -71,8 +75,9 @@ export default function FeaturedSection({ items, favorites, onToggleFav, onCopy,
       <div ref={holderRef} className="relative">
         {mobile ? (
           <FeaturedMobileCarousel
-            items={items}
+            items={shown}
             premiumMode={mode === "premium"}
+            onShowNormal={showNormal}
             favorites={favorites}
             onToggleFav={onToggleFav}
             onCopy={onCopy}
@@ -82,8 +87,9 @@ export default function FeaturedSection({ items, favorites, onToggleFav, onCopy,
         ) : near ? (
           <Suspense fallback={placeholder}>
             <FeaturedShowcase
-              items={items}
+              items={shown}
               premiumMode={mode === "premium"}
+              onShowNormal={showNormal}
               favorites={favorites}
               onToggleFav={onToggleFav}
               onCopy={onCopy}

@@ -12,5 +12,7 @@ Disallow: /payment-success
 Disallow: /payment-cancel
 Disallow: /payment-return
 Disallow: /payment-return-paypal
+# روابط التحويل لعروض بلا كود (روابط الشركات لا تُفهرس)
+Disallow: /go/
 
 Sitemap: https://codpromo.com/sitemap.xml

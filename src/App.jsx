@@ -33,6 +33,7 @@ const PaymentReturn = lazy(() => import("./pages/PaymentReturn.jsx"));
 const PaymentReturnPaypal = lazy(() => import("./pages/PaymentReturnPaypal.jsx"));
 const Privacy = lazy(() => import("./pages/Privacy.jsx"));
 const AccountDeletion = lazy(() => import("./pages/AccountDeletion.jsx"));
+const GoPage = lazy(() => import("./pages/GoPage.jsx"));
 
 /** مؤشّر تحميل الصفحة (نفس حلقة شاشة البداية). */
 function PageFallback() {
@@ -97,7 +98,8 @@ function RouteLangSync() {
 function MobileBottomNav() {
   const { pathname } = useLocation();
   const [premiumOpen, setPremiumOpen] = useState(false);
-  const enabled = !pathname.startsWith("/admin");
+  // مخفي على لوحة الأدمن وعلى شاشة التحويل /go
+  const enabled = !pathname.startsWith("/admin") && !pathname.startsWith("/go/");
 
   useEffect(() => {
     document.body.classList.toggle("has-bottom-nav", enabled);
@@ -178,6 +180,8 @@ export default function App() {
           <Route path="/payment-return-paypal" element={<PaymentReturnPaypal />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/account-deletion" element={<AccountDeletion />} />
+          {/* التحويل النظيف لعروض بلا كود (noindex + Disallow في robots.txt) */}
+          <Route path="/go/:slug" element={<GoPage />} />
           <Route
             path="/dashboard/*"
             element={

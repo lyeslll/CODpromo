@@ -36,10 +36,15 @@ import OfferModeNote from "../components/offers/OfferModeNote.jsx";
 import TypeFilter from "../components/offers/TypeFilter.jsx";
 import CategoryChips from "../components/offers/CategoryChips.jsx";
 import FloatingModeSwitch from "../components/offers/FloatingModeSwitch.jsx";
+import KindTabs from "../components/offers/KindTabs.jsx";
+import NocodeCard from "../components/nocode/NocodeCard.jsx";
+import NocodeGrid from "../components/nocode/NocodeGrid.jsx";
 import FeaturedRow from "../components/featured/FeaturedRow.jsx";
 import { FeaturedMark } from "../components/featured/FeaturedMobileCarousel.jsx";
 import { frameTone } from "../components/featured/tone.js";
 import { useMobileFx, useDesktopFx } from "../components/featured/mobile.js";
+import { premiumFirst, dealHasPremium } from "../lib/premiumOffer.js";
+import { useNocodeDeals, dealMatches } from "../lib/nocode.js";
 import { SkeletonGrid, EmptyState, ErrorState } from "../components/States.jsx";
 
 const SWIPE_HINT_KEY = "codpromo:swipe-hint";
@@ -49,6 +54,7 @@ const SWIPE_HINT_KEY = "codpromo:swipe-hint";
 //  كل فلتر محفوظ في الرابط (type / category / featured / mode / sort / q) لمشاركة روابط جاهزة:
 //    /offers?type=cashback&category=payment-cards&mode=premium
 //    /offers?featured=1 (العروض المميّزة فقط) · ?sort=usage (الأكثر استخداماً)
+//    /offers?kind=nocode (تبويب "بلا كود": البحث والفئات ومبدّل Premium تعمل فيه أيضاً)
 //  الهاتف: مبدّل عائم فوق شريط التنقّل + سحب أفقي على القائمة للتبديل كأنها تبويبات.
 // ============================================================
 export default function OffersPage({ lang = "ar" }) {
@@ -70,6 +76,8 @@ export default function OffersPage({ lang = "ar" }) {
   const typeParam = TYPE_PARAMS[params.get("type")] ? params.get("type") : null;
   const categoryParam = params.get("category") || null;
   const premiumView = params.get("mode") === "premium" ? "premium" : "normal";
+  const kindParam = params.get("kind") === "nocode" ? "nocode" : "code";
+  const nocode = kindParam === "nocode";
   const featuredParam = params.get("featured") === "1";
   const sortMode = ["success", "usage"].includes(params.get("sort")) ? params.get("sort") : "newest";
   const qParam = params.get("q") || "";
@@ -154,6 +162,9 @@ export default function OffersPage({ lang = "ar" }) {
 
   // ===== الفلترة + الترتيب =====
   const cats = useMemo(() => activeCategories(categories), [categories]);
+  // تبويب "بلا كود": نفس البحث والفئات؛ في Premium العروض ذات رابط Premium أولاً والمجمّدة بعدها
+  const deals = useNocodeDeals();
+  const dealCounts = useMemo(() => countByCategory(deals || [], cats), [deals, cats]);
   const counts = useMemo(() => countByCategory(companies, cats), [companies, cats]);
 
   const filtered = useMemo(
@@ -167,25 +178,42 @@ export default function OffersPage({ lang = "ar" }) {
     [companies, featuredParam, featuredLabel, typeParam, categoryParam, search, lang, byId, categories]
   );
 
+  const isPremiumView = premiumView === "premium";
+  const filteredDeals = useMemo(
+    () =>
+      (deals || []).filter(
+        (d) => (!categoryParam || companyCategorySlug(d, byId, categories) === categoryParam) && dealMatches(d, search)
+      ),
+    [deals, categoryParam, byId, categories, search]
+  );
+  const orderedDeals = useMemo(
+    () => (isPremiumView ? premiumFirst(filteredDeals, dealHasPremium) : filteredDeals),
+    [filteredDeals, isPremiumView]
+  );
   const ordered = useMemo(() => {
+    let list = filtered;
     if (sortMode === "success") {
-      return [...filtered].sort((a, b) => successRank(voteStats, b.id) - successRank(voteStats, a.id));
-    }
-    // الأكثر استخداماً: ترتيب النسخ الحقيقي؛ العروض بلا نسخ بعدُ تبقى بعدها بترتيب الأحدث
-    if (sortMode === "usage" && usageRank) {
+      list = [...filtered].sort((a, b) => successRank(voteStats, b.id) - successRank(voteStats, a.id));
+    } else if (sortMode === "usage" && usageRank) {
+      // الأكثر استخداماً: ترتيب النسخ الحقيقي؛ العروض بلا نسخ بعدُ تبقى بعدها بترتيب الأحدث
       const rank = (id) => usageRank.get(id) ?? Infinity;
-      return [...filtered].sort((a, b) => {
+      list = [...filtered].sort((a, b) => {
         const ra = rank(a.id);
         const rb = rank(b.id);
         return ra === rb ? 0 : ra - rb;
       });
     }
-    return filtered;
-  }, [filtered, sortMode, voteStats, usageRank]);
+    // وضع Premium: عروض Premium الحقيقية أولاً، والبطاقات المجمّدة (بلا عرض Premium) في الآخر
+    return isPremiumView ? premiumFirst(list) : list;
+  }, [filtered, sortMode, voteStats, usageRank, isPremiumView]);
 
   // ?featured=1 قبل وصول قائمة المميّزة: هيكل تحميل بدل "لا نتائج"
   const featuredPending = featuredParam && featuredRows === null;
-  const showFeaturedRow = featured.length > 0 && !featuredParam && !typeParam && !categoryParam && !search.trim();
+  const showFeaturedRow = !nocode && featured.length > 0 && !featuredParam && !typeParam && !categoryParam && !search.trim();
+  const gridLoading = nocode ? deals === null : loading || featuredPending || (!mobileFx && !fxMod && !error);
+  const activeCount = nocode ? filteredDeals.length : filtered.length;
+  const changeKind = (k) =>
+    updateParams(k === "nocode" ? { kind: "nocode", type: null, featured: null, sort: null } : { kind: null });
 
   const resetFilters = () => {
     setSearch("");
@@ -359,7 +387,7 @@ export default function OffersPage({ lang = "ar" }) {
                 </button>
               )}
               <span className="hidden shrink-0 rounded-lg bg-[var(--fill)] px-2 py-1 text-[11px] font-bold text-[var(--color-mute)] sm:block">
-                {t("search.results", { count: filtered.length })}
+                {t("search.results", { count: activeCount })}
               </span>
             </div>
           </div>
@@ -367,16 +395,21 @@ export default function OffersPage({ lang = "ar" }) {
       </header>
 
       <main className="relative mx-auto max-w-6xl px-4 pb-6 pt-5">
-        {/* فلتر النوع + شرائح التصنيفات */}
+        {/* التبويبان + فلتر النوع (بكود فقط) + شرائح التصنيفات */}
         <div className="flex flex-col gap-3">
-          <TypeFilter value={typeParam} onChange={(v) => updateParams({ type: v })} />
+          <KindTabs
+            value={kindParam}
+            onChange={changeKind}
+            counts={{ code: loading ? null : companies.length, nocode: deals ? deals.length : null }}
+          />
+          {!nocode && <TypeFilter value={typeParam} onChange={(v) => updateParams({ type: v })} />}
           <CategoryChips
             categories={cats}
-            counts={counts}
+            counts={nocode ? dealCounts : counts}
             value={categoryParam}
             onChange={(v) => updateParams({ category: v })}
             featured={
-              featured.length || featuredParam
+              !nocode && (featured.length || featuredParam)
                 ? {
                     active: featuredParam,
                     count: featured.length,
@@ -391,18 +424,20 @@ export default function OffersPage({ lang = "ar" }) {
         {!loading && !error && (
           <>
             <div className="mb-5 mt-6 flex flex-wrap items-center justify-between gap-3">
-              <SortToggle value={sortMode} onChange={(v) => updateParams({ sort: v === "newest" ? null : v })} />
+              {nocode ? <span /> : <SortToggle value={sortMode} onChange={(v) => updateParams({ sort: v === "newest" ? null : v })} />}
               <div className="relative hidden md:block">
                 <PremiumToggle value={premiumView} onChange={setMode} />
                 <GoldBurst fire={burst} />
               </div>
             </div>
+            {!nocode && (
             <OfferModeNote
               mode={premiumView}
               unlocked={unlocked}
               onSwitchPremium={() => setMode("premium")}
               onOpenPremium={() => setPremiumModal(true)}
             />
+            )}
           </>
         )}
 
@@ -416,14 +451,15 @@ export default function OffersPage({ lang = "ar" }) {
             onCopy={handleCopy}
             unlocked={unlocked}
             onUnlock={() => setPremiumModal(true)}
+            onShowNormal={() => setMode("normal")}
             onShowAll={() => updateParams({ featured: "1" })}
           />
         )}
 
         {/* الحالات */}
-        {(loading || featuredPending || (!mobileFx && !fxMod && !error)) && <SkeletonGrid />}
-        {error && <ErrorState message={error} onRetry={load} />}
-        {!loading && !featuredPending && !error && filtered.length === 0 && <EmptyState onReset={resetFilters} />}
+        {gridLoading && <SkeletonGrid />}
+        {error && !nocode && <ErrorState message={error} onRetry={load} />}
+        {!gridLoading && !(error && !nocode) && activeCount === 0 && <EmptyState onReset={resetFilters} />}
 
         {/* الشبكة — السحب الأفقي (لمس) يبدّل بين عادي و Premium */}
         <div
@@ -461,11 +497,27 @@ export default function OffersPage({ lang = "ar" }) {
               />
             </motion.div>
           )}
-          {!loading && !error && filtered.length > 0 && (mobileFx || fxMod) && (
+          {nocode && !gridLoading && orderedDeals.length > 0 && (
+            <motion.div style={{ x: dragX }}>
+              <NocodeGrid>
+                {orderedDeals.map((d) => (
+                  <NocodeCard
+                    key={d.id}
+                    deal={d}
+                    premium={isPremium}
+                    unlocked={unlocked}
+                    onUnlock={() => setPremiumModal(true)}
+                    onShowNormal={() => setMode("normal")}
+                  />
+                ))}
+              </NocodeGrid>
+            </motion.div>
+          )}
+          {!nocode && !loading && !error && filtered.length > 0 && (mobileFx || fxMod) && (
             <motion.div style={{ x: dragX }} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <AnimatePresence>
                 {ordered.map((c, i) => {
-                  const premium = isPremium && c.supports_premium !== false;
+                  const premium = isPremium;
                   const label = featuredLabel.get(c.id);
                   const card = (
                     <CompanyCard
@@ -478,6 +530,7 @@ export default function OffersPage({ lang = "ar" }) {
                       premium={premium}
                       unlocked={unlocked}
                       onUnlock={() => setPremiumModal(true)}
+                      onShowNormal={() => setMode("normal")}
                     />
                   );
                   // العرض المميّز داخل الشبكة: نفس الحافة المضيئة بنسخة أخف (ضوء خلفي + الوسم)
@@ -501,7 +554,7 @@ export default function OffersPage({ lang = "ar" }) {
       <Footer onPremium={() => setPremiumModal(true)} />
 
       <FloatingModeSwitch
-        visible={listInView && !loading && !error && filtered.length > 0}
+        visible={listInView && !gridLoading && !(error && !nocode) && activeCount > 0}
         value={premiumView}
         onChange={setMode}
         burst={burst}

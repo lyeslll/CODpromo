@@ -15,7 +15,7 @@ import { formatNumber } from "../lib/values.js";
 
 const LIME = "#a6f000";
 const GOLD = "#f0c63c";
-const FAQ_KEYS = ["cost", "who", "time", "codes", "edit", "stats"];
+const FAQ_KEYS = ["cost", "who", "time", "codes", "edit", "stats", "commission"];
 
 /** رقم مختصر حسب اللغة (855 ألف / 855K / 855 k). */
 function compact(n, lang) {

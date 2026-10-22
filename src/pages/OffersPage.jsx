@@ -48,6 +48,8 @@ import { useNocodeDeals, dealMatches } from "../lib/nocode.js";
 import { SkeletonGrid, EmptyState, ErrorState } from "../components/States.jsx";
 
 const SWIPE_HINT_KEY = "codpromo:swipe-hint";
+// المبدّل العائم (هاتف) يظهر بعد تمريرة صغيرة فقط: عند التحميل ما يغطّيش أول بطاقة
+const SWITCH_AFTER_PX = 80;
 
 // ============================================================
 //  صفحة /offers — كل العروض مع البحث والفلاتر والترتيب ومبدّل عادي/Premium.
@@ -234,6 +236,13 @@ export default function OffersPage({ lang = "ar" }) {
     });
     io.observe(el);
     return () => io.disconnect();
+  }, []);
+  const [pastTop, setPastTop] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setPastTop(window.scrollY > SWITCH_AFTER_PX);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const [showSwipeHint, setShowSwipeHint] = useState(() => {
@@ -557,7 +566,7 @@ export default function OffersPage({ lang = "ar" }) {
       <Footer onPremium={() => setPremiumModal(true)} />
 
       <FloatingModeSwitch
-        visible={listInView && switchable}
+        visible={listInView && pastTop && switchable}
         value={premiumView}
         onChange={setMode}
         burst={burst}

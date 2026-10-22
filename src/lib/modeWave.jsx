@@ -160,14 +160,26 @@ export function useCountText(value, ref, duration = 0.6) {
 
 /* ===== تثبيت البطاقة اللي قدّام الزائر ===== */
 
-/** قبل التبديل: البطاقات الظاهرة مرتّبة حسب قربها من وسط الشاشة (الأولى = المرساة). */
+/**
+ * قبل التبديل: المرشّحين للتثبيت بالترتيب — الظاهرة حسب قربها من وسط الشاشة (الأولى = المرساة)،
+ * ثم الباقي حسب بعدهم عن المرساة في الترتيب القديم (يتحطّو في بلاصة المرساة).
+ */
 export function captureAnchor(root) {
   const mid = window.innerHeight / 2;
-  const shown = cards(root).filter((c) => inView(c.r));
+  const all = cards(root);
+  const shown = all.filter((c) => inView(c.r));
+  if (!shown.length) return [];
   const midX = window.innerWidth / 2;
   const dist = (r) => Math.round(Math.abs((r.top + r.bottom) / 2 - mid) / ROW_PX) * 1e4 + Math.abs((r.left + r.right) / 2 - midX);
   shown.sort((a, b) => dist(a.r) - dist(b.r));
-  return shown.map((c) => ({ id: c.id, top: c.r.top }));
+  const head = shown[0];
+  const at = all.indexOf(head);
+  const rest = all
+    .map((c, i) => ({ c, d: Math.abs(i - at) }))
+    .filter(({ c }) => !shown.includes(c))
+    .sort((a, b) => a.d - b.d)
+    .map(({ c }) => ({ id: c.id, top: head.r.top }));
+  return [...shown.map((c) => ({ id: c.id, top: c.r.top })), ...rest];
 }
 
 /**
@@ -177,7 +189,9 @@ export function captureAnchor(root) {
 export function restoreAnchor(root, candidates, isFrozen, holdMs = 0) {
   const none = { stop: () => {}, placed: null };
   if (!root || !candidates?.length) return none;
-  const pick = candidates.find((c) => !isFrozen(c.id) && root.querySelector(`[${WAVE_ATTR}="${c.id}"]`));
+  const exists = (c) => root.querySelector(`[${WAVE_ATTR}="${c.id}"]`);
+  // أقرب بطاقة ما تجمّدتش؛ وإذا تجمّدو كامل، المرساة نفسها تبقى في بلاصتها
+  const pick = candidates.find((c) => !isFrozen(c.id) && exists(c)) || candidates.find(exists);
   if (!pick) return none;
   const find = () => root.querySelector(`[${WAVE_ATTR}="${pick.id}"]`);
   // الـ scroll اللي حطّيناه. الزائر (عجلة/لمس/لوحة مفاتيح/ضغطة) يوقّف التثبيت عبر USER_SCROLL؛

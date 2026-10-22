@@ -191,7 +191,7 @@ function HowSection({ join }) {
   });
 
   return (
-    <section id="partners-how" ref={ref} className="mx-auto max-w-6xl scroll-mt-24 px-4 py-24 sm:py-28">
+    <section id="partners-how" ref={ref} className="mx-auto max-w-6xl scroll-mt-28 px-4 py-24 sm:py-28">
       <SectionHead title={t("partners.how.title")} sub={t("partners.how.sub")} />
       <div className="relative mt-14">
         <div aria-hidden className="absolute inset-x-[16%] top-[26px] hidden h-[2px] bg-[var(--color-ink-line)] md:block">

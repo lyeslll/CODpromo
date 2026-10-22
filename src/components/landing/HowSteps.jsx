@@ -32,7 +32,7 @@ export default function HowSteps() {
   });
 
   return (
-    <section id="how" ref={ref} className="mx-auto max-w-6xl scroll-mt-24 px-4 py-24 sm:py-28">
+    <section id="how" ref={ref} className="mx-auto max-w-6xl scroll-mt-28 px-4 py-24 sm:py-28">
       <SectionHead title={t("how.title")} sub={t("how.sub")} />
 
       <div className="relative mt-14">

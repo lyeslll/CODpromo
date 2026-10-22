@@ -145,11 +145,13 @@ export default function Navbar({ onPremium }) {
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed inset-x-0 top-0 z-50"
+      // الغلاف شفاف ويمتدّ بعرض الشاشة: ما يلتقطش الضغط (pointer-events-none)، الكبسولة والميغا مينيو برك.
+      // مخبّي → بلا ضغط و visibility: hidden بعد ما تكمل الحركة (transition على visibility).
+      className="pointer-events-none fixed inset-x-0 top-0 z-50"
     >
       <div
-        className={`nav-inner mx-auto max-w-6xl px-4 pt-3 transition-transform duration-300 will-change-transform sm:pt-4 ${
-          hidden && !open && !mega.open && !searchOpen ? "-translate-y-[150%]" : "translate-y-0"
+        className={`nav-inner mx-auto max-w-6xl px-4 pt-3 transition-[transform,visibility] duration-300 will-change-transform sm:pt-4 ${
+          hidden && !open && !mega.open && !searchOpen ? "invisible -translate-y-[150%]" : "visible translate-y-0 [&>*]:pointer-events-auto"
         }`}
       >
         {/* ===== الكبسولة (الهيدر) — لمسة تعريف خفيفة في الأعلى، زجاجية وأصغر قليلاً عند النزول ===== */}

@@ -15,7 +15,7 @@ export default function CategoryGrid({ categories, counts }) {
   if (!shown.length) return null;
 
   return (
-    <section id="categories" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-24 sm:py-28">
+    <section id="categories" className="mx-auto max-w-6xl scroll-mt-28 px-4 py-24 sm:py-28">
       <SectionHead title={t("catGrid.title")} sub={t("catGrid.sub")} />
       <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {shown.map((cat) => {

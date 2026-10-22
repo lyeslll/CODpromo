@@ -42,6 +42,7 @@
       "free": "Free for everyone",
       "unlock": "Just ${{price}} unlocks +${{value}} in Premium discounts",
       "unlockShort": "Unlock Premium for just ${{price}}",
+      "unlockStrip": "${{price}} unlocks +${{value}}",
       "multiplierAria": "Premium is worth {{x}} times its price"
     },
     "titleLine1": "One platform…",

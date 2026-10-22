@@ -42,6 +42,7 @@
       "free": "مجاني للجميع",
       "unlock": "بـ {{price}}$ فقط تفتح +{{value}}$ من خصومات Premium",
       "unlockShort": "افتح Premium بـ {{price}}$ فقط",
+      "unlockStrip": "بـ {{price}}$ تفتح +{{value}}$",
       "multiplierAria": "Premium يساوي {{x}} مرة سعره"
     },
     "titleLine1": "منصة واحدة…",

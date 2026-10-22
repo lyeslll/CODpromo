@@ -42,6 +42,7 @@
       "free": "Gratuit pour tous",
       "unlock": "Pour seulement {{price}} $, Premium débloque +{{value}} $ de réductions",
       "unlockShort": "Débloquez Premium pour seulement {{price}} $",
+      "unlockStrip": "{{price}} $ débloquent +{{value}} $",
       "multiplierAria": "Premium vaut {{x}} fois son prix"
     },
     "titleLine1": "Une seule plateforme…",

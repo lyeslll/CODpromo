@@ -1,0 +1,43 @@
+/* ======================================================================
+   Hero الهاتف (أقل من 768px) — HeroMobile.jsx
+   الكوبونات الصغيرة تطفو بـ transform فقط (طبقة واحدة لكل وحدة)، بلا blur ولا filter.
+   ====================================================================== */
+.hm-bob {
+  animation: hm-bob 6.5s ease-in-out infinite;
+}
+@keyframes hm-bob {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+/* أول ظهور: الكوبون ينزل بنعومة، ثم يبقى ثابتاً (الحركة بعدها من الميلان والانقلاب فقط) */
+.hm-rise {
+  animation: hm-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes hm-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* زر ضيّق (FitLabel): نخبّيو الأيقونة قبل ما نقسمو النص على سطرين */
+.hm-btn[data-tight] > svg {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hm-bob,
+  .hm-rise {
+    animation: none;
+  }
+}

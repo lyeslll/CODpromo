@@ -9,6 +9,7 @@ import { offersLink, offersPath } from "../../lib/seo.js";
 import { categoryName, categoryRecordSlug } from "../../lib/slug.js";
 import MagicCoupon2D from "./magic/MagicCoupon2D.jsx";
 import HeroModeSwitch from "./magic/HeroModeSwitch.jsx";
+import HeroMobile from "./HeroMobile.jsx";
 import { pickHeroOffer, buildCouponFaces } from "./magic/couponData.js";
 import { canUse3D, isIOS } from "./magic/canUse3D.js";
 
@@ -125,6 +126,15 @@ export default function LandingHero({ companies, loading, voteStats, categories,
   const [switchBurst, setSwitchBurst] = useState(0);
   const [mobile, setMobile] = useState(false);
   const [stacked, setStacked] = useState(false); // تخطيط عمودي (النص فوق الكوبون) تحت lg
+  // الهاتف (أقل من 768px): تخطيط خاص (HeroMobile) — الكوبون بـ CSS 3D، بلا WebGL
+  const [small, setSmall] = useState(() => typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const sync = () => setSmall(mq.matches);
+    sync();
+    mq.addEventListener?.("change", sync);
+    return () => mq.removeEventListener?.("change", sync);
+  }, []);
 
   const offer = useMemo(() => (loading ? null : pickHeroOffer(companies, voteStats)), [loading, companies, voteStats]);
   const faces = useMemo(
@@ -161,10 +171,10 @@ export default function LandingHero({ companies, loading, voteStats, categories,
   };
 
   const orientationAsked = useRef(false);
-  const markInteracted = () => {
+  const markInteracted = (ask = true) => {
     setInteracted(true);
-    // iOS 13+: إذن ميلان الهاتف يُطلب داخل لمسة المستخدم
-    if (!orientationAsked.current && typeof DeviceOrientationEvent !== "undefined" && DeviceOrientationEvent.requestPermission) {
+    // iOS 13+: إذن ميلان الهاتف يُطلب داخل لمسة المستخدم (في تخطيط الهاتف: HeroMobile يطلبو في pointerup)
+    if (ask && !orientationAsked.current && typeof DeviceOrientationEvent !== "undefined" && DeviceOrientationEvent.requestPermission) {
       orientationAsked.current = true;
       DeviceOrientationEvent.requestPermission().catch(() => {});
     }
@@ -181,7 +191,8 @@ export default function LandingHero({ companies, loading, voteStats, categories,
 
   useEffect(() => {
     setMobile(window.matchMedia("(max-width: 767px), (pointer: coarse)").matches);
-    if (!canUse3D()) return;
+    // تخطيط الهاتف: الكوبون بـ CSS 3D برك — ما نجرّبوش WebGL أصلاً
+    if (window.matchMedia("(max-width: 767px)").matches || !canUse3D()) return;
     const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 500));
     const cancel = window.cancelIdleCallback || clearTimeout;
     const id = idle(() => setWant3D(true));
@@ -231,7 +242,7 @@ export default function LandingHero({ companies, loading, voteStats, categories,
 
   // ===== ميلان الهاتف (gyro) — يُطبَّق على الكوبون وعلى الكوبونات الطافية =====
   useEffect(() => {
-    if (!mobile) return;
+    if (!mobile || small) return;
     let base = null;
     const onOri = (e) => {
       if (e.gamma == null || e.beta == null) return;
@@ -245,7 +256,7 @@ export default function LandingHero({ companies, loading, voteStats, categories,
     };
     window.addEventListener("deviceorientation", onOri);
     return () => window.removeEventListener("deviceorientation", onOri);
-  }, [mobile, store]);
+  }, [mobile, small, store]);
 
   // ===== ميلان مع الماوس (الحاسوب) =====
   const onHeroPointerMove = (e) => {
@@ -272,7 +283,7 @@ export default function LandingHero({ companies, loading, voteStats, categories,
   // ===== سحب/نقر الكوبون نفسه =====
   const drag = useRef(null);
   const onStageDown = (e) => {
-    markInteracted();
+    markInteracted(!small);
     // الهاتف: الضوء يظهر في موضع اللمس
     if (e.pointerType !== "mouse") Object.assign(store.glow, { x: e.clientX, y: e.clientY, on: true, touch: true });
     drag.current = { x: e.clientX, y: e.clientY, w: stageRef.current?.offsetWidth || 300, axis: null, moved: false };
@@ -344,9 +355,9 @@ export default function LandingHero({ companies, loading, voteStats, categories,
   // الـ 3D يُحمَّل عند أول ظهور للـ Hero فقط، ثم يبقى (حلقته تتوقف خارج الشاشة عبر active)
   const [load3D, setLoad3D] = useState(false);
   useEffect(() => {
-    if (want3D && inView) setLoad3D(true);
-  }, [want3D, inView]);
-  const show3D = load3D && !failed3D && !!faces;
+    if (want3D && inView && !small) setLoad3D(true);
+  }, [want3D, inView, small]);
+  const show3D = load3D && !failed3D && !!faces && !small;
   const memberCta = isPremiumActive;
 
   return (
@@ -354,7 +365,7 @@ export default function LandingHero({ companies, loading, voteStats, categories,
       ref={heroRef}
       onPointerMove={onHeroPointerMove}
       onPointerLeave={onHeroPointerLeave}
-      className="hero-section relative overflow-hidden pb-16 pt-28 sm:pt-32 lg:pb-24 lg:pt-36"
+      className={small ? "hero-section relative overflow-hidden pb-10 pt-[112px]" : "hero-section relative overflow-hidden pb-16 pt-28 sm:pt-32 lg:pb-24 lg:pt-36"}
     >
       {/* الخلفية: شبكة + توهّج، ثم طبقة الـ 3D (الكوبونات الطافية + الكوبون الرئيسي) */}
       <div className="pointer-events-none absolute inset-0 -z-10">
@@ -390,6 +401,30 @@ export default function LandingHero({ companies, loading, voteStats, categories,
         )}
       </div>
 
+      {small ? (
+        <HeroMobile
+          faces={faces}
+          labels={labels}
+          mode={mode}
+          angleDeg={angleDeg}
+          dragging={dragging}
+          reduced={!!reduced}
+          inView={inView}
+          stageRef={stageRef}
+          onStageDown={onStageDown}
+          onStageMove={onStageMove}
+          onStageUp={onStageUp}
+          onToggle={() => {
+            markInteracted(false);
+            flipTo(store.flipIndex + 1);
+          }}
+          stats={stats}
+          memberCta={memberCta}
+          onOpenPremium={onOpenPremium}
+          chips={chips}
+          counts={counts}
+        />
+      ) : (
       <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] lg:gap-14">
         {/* ===== النص ===== */}
         <div ref={textColRef}>
@@ -545,6 +580,7 @@ export default function LandingHero({ companies, loading, voteStats, categories,
           )}
         </div>
       </div>
+      )}
     </section>
   );
 }

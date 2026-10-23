@@ -42,7 +42,7 @@ export default function Home() {
   const lang = i18n.language;
   const navigate = useNavigate();
   const location = useLocation();
-  const { unlocked, isPremiumActive } = usePremium();
+  const { unlocked, hasPremium } = usePremium();
   const { stats: voteStats } = useVoteStats();
   const { categories, byId } = useCategories();
 
@@ -146,7 +146,7 @@ export default function Home() {
           counts={counts}
           stats={siteStats}
           onOpenPremium={openPremium}
-          isPremiumActive={isPremiumActive}
+          isPremiumActive={hasPremium}
         />
         <StatsStrip stats={siteStats} />
         <FeaturedSection
@@ -167,7 +167,7 @@ export default function Home() {
           unlocked={unlocked}
           onUnlock={openPremium}
         />
-        <PremiumCompare company={compareCompany} stats={siteStats} onOpenPremium={openPremium} isPremiumActive={isPremiumActive} />
+        <PremiumCompare company={compareCompany} stats={siteStats} onOpenPremium={openPremium} isPremiumActive={hasPremium} />
         <CategoryGrid categories={cats} counts={counts} />
         <HowSteps />
         <TrustSection companies={companies} voteStats={voteStats} />

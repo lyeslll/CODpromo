@@ -1,8 +1,9 @@
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { MotionConfig } from "framer-motion";
 import { AuthProvider } from "./lib/auth.jsx";
-import { PremiumProvider } from "./lib/premium.jsx";
+import { PremiumProvider, usePremium } from "./lib/premium.jsx";
+import { offersLink } from "./lib/seo.js";
 import { CategoriesProvider } from "./lib/categories.jsx";
 import { VoteStatsProvider } from "./lib/voteStats.jsx";
 import { ScrollVisibilityProvider } from "./lib/scrollVisibility.jsx";
@@ -13,6 +14,7 @@ import RequireAuth from "./components/auth/RequireAuth.jsx";
 import CursorGlow from "./components/CursorGlow.jsx";
 import { reloadIfUpdatePending } from "./lib/swAutoReload.js";
 import AppBanner from "./components/app/AppBanner.jsx";
+import GiftResume from "./components/gift/GiftResume.jsx";
 
 // باقي الصفحات تُحمَّل عند زيارتها فقط (حزمة الصفحة الرئيسية أخفّ)
 const StorePage = lazy(() => import("./pages/StorePage.jsx"));
@@ -34,6 +36,7 @@ const PaymentReturnPaypal = lazy(() => import("./pages/PaymentReturnPaypal.jsx")
 const Privacy = lazy(() => import("./pages/Privacy.jsx"));
 const AccountDeletion = lazy(() => import("./pages/AccountDeletion.jsx"));
 const GoPage = lazy(() => import("./pages/GoPage.jsx"));
+const GiftPage = lazy(() => import("./pages/GiftPage.jsx"));
 
 /** مؤشّر تحميل الصفحة (نفس حلقة شاشة البداية). */
 function PageFallback() {
@@ -97,9 +100,14 @@ function RouteLangSync() {
  */
 function MobileBottomNav() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { lang } = useLocale();
+  const { isGift } = usePremium();
   const [premiumOpen, setPremiumOpen] = useState(false);
-  // مخفي على لوحة الأدمن وعلى شاشة التحويل /go
-  const enabled = !pathname.startsWith("/admin") && !pathname.startsWith("/go/");
+  // مخفي على لوحة الأدمن وعلى شاشتي التحويل /go والهدية /gift
+  const enabled = !pathname.startsWith("/admin") && !pathname.startsWith("/go/") && !pathname.startsWith("/gift/");
+  // مول الهدية عضو Premium: التاج يفتح عروض Premium (كيما شارة الهيدر) بلاصة نافذة الاشتراك
+  const onPremium = () => (isGift ? navigate(offersLink(lang, { mode: "premium" })) : setPremiumOpen(true));
 
   useEffect(() => {
     document.body.classList.toggle("has-bottom-nav", enabled);
@@ -109,7 +117,7 @@ function MobileBottomNav() {
   if (!enabled) return null;
   return (
     <>
-      <BottomNav onPremium={() => setPremiumOpen(true)} />
+      <BottomNav onPremium={onPremium} />
       <PremiumModal open={premiumOpen} onClose={() => setPremiumOpen(false)} />
     </>
   );
@@ -137,6 +145,7 @@ export default function App() {
           <VoteStatsProvider>
           <ScrollVisibilityProvider>
           <RouteLangSync />
+          <GiftResume />
           <AppBanner />
           <Suspense fallback={<PageFallback />}>
           <Routes>
@@ -182,6 +191,8 @@ export default function App() {
           <Route path="/account-deletion" element={<AccountDeletion />} />
           {/* التحويل النظيف لعروض بلا كود (noindex + Disallow في robots.txt) */}
           <Route path="/go/:slug" element={<GoPage />} />
+          {/* صفحة الهدية: Premium مجاني لمدة محدّدة (noindex + Disallow في robots.txt، ماشي في الـ sitemap) */}
+          <Route path="/gift/:code" element={<GiftPage />} />
           <Route
             path="/dashboard/*"
             element={

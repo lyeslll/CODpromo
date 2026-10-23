@@ -15,13 +15,13 @@ const INK = "#1d1403";
 /**
  * الـ CTA فوق الفوتر: كوبون واحد بجهتين يفرقهما خط مثقّب —
  * جهة عادية (افتح العروض) وجهة ذهبية (Premium: السعر + المضاعف ×N من site_stats).
- * المشترك يرى "عضو Premium" ورابط عروض Premium بدل زر الاشتراك.
+ * المشترك (ومول الهدية) يرى "عضو Premium" ورابط عروض Premium بدل زر الاشتراك.
  */
 export default function FooterCta({ onPremium, innerRef }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const navigate = useNavigate();
-  const { isPremiumActive } = usePremium();
+  const { hasPremium } = usePremium();
   const stats = useSharedStats();
   const usd = monthlyUsdPrice();
   const multiplier = premiumMultiplier(stats?.premiumUnlockValueUsd ?? null, usd);
@@ -61,13 +61,13 @@ export default function FooterCta({ onPremium, innerRef }) {
             <span className="grid h-9 w-9 place-items-center rounded-xl" style={{ background: INK, color: "#ffe486" }}>
               <Crown size={18} />
             </span>
-            {isPremiumActive ? t("header.member") : t("premiumToggle.premium")}
+            {hasPremium ? t("header.member") : t("premiumToggle.premium")}
           </div>
           <p className="relative mt-2 text-[14.5px] font-semibold" style={{ color: "rgba(29,20,3,0.72)" }}>
-            {isPremiumActive ? t("hero.ctaMember") : t("nav.premiumSub")}
+            {hasPremium ? t("hero.ctaMember") : t("nav.premiumSub")}
           </p>
 
-          {!isPremiumActive && (
+          {!hasPremium && (
             <div className="relative mt-6 flex flex-wrap items-end gap-x-8 gap-y-4">
               {usd != null && (
                 <p className="text-[14px] font-bold" style={{ color: "rgba(29,20,3,0.75)" }}>
@@ -93,14 +93,14 @@ export default function FooterCta({ onPremium, innerRef }) {
 
           <motion.button
             type="button"
-            onClick={isPremiumActive ? () => navigate(offersLink(lang, { mode: "premium" })) : onPremium}
+            onClick={hasPremium ? () => navigate(offersLink(lang, { mode: "premium" })) : onPremium}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             className="relative mt-7 flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-[15.5px] font-extrabold sm:w-auto sm:self-start"
             style={{ background: INK, color: "#ffe486", boxShadow: "0 14px 30px -14px rgba(29,20,3,0.8)" }}
           >
             <Crown size={17} />
-            {isPremiumActive ? t("compare.seePremium") : t("nav.premium")}
+            {hasPremium ? t("compare.seePremium") : t("nav.premium")}
           </motion.button>
         </div>
       </div>

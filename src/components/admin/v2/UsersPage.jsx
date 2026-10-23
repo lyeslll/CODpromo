@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Download, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Users, X, Loader2, Crown, Infinity as InfinityIcon, Copy, Heart, AlertCircle } from "lucide-react";
+import { Search, Download, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Users, X, Loader2, Crown, Infinity as InfinityIcon, Copy, Heart, AlertCircle, Gift } from "lucide-react";
 import CompanyLogo from "../../CompanyLogo.jsx";
 import { getTypeMeta } from "../../../lib/types.js";
 import { listAdminUsers, listAllAdminUsers, fetchUserCopies } from "../../../lib/adminStats.js";
@@ -94,7 +94,7 @@ export default function UsersPage() {
             <Search size={16} className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#6b7280]" />
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("users.search")} className={`${inputCls} pr-10`} />
           </label>
-          <Select value={plan} onChange={setPlan} label={t("users.col.plan")} options={[["", t("users.allPlans")], ["free", t("plan.free")], ["premium", t("plan.premium")], ["lifetime", t("plan.lifetime")]]} />
+          <Select value={plan} onChange={setPlan} label={t("users.col.plan")} options={[["", t("users.allPlans")], ["free", t("plan.free")], ["premium", t("plan.premium")], ["gift", t("plan.gift")], ["lifetime", t("plan.lifetime")]]} />
           <Select value={type} onChange={setType} label={t("users.col.type")} options={[["", t("users.allTypes")], ["customer", t("type.customer")], ["company", t("type.company")]]} />
           <Select value={range} onChange={setRange} label={t("range.label")} options={["all", "today", "7d", "30d"].map((v) => [v, t(`users.joined_${v}`)])} />
         </div>
@@ -182,7 +182,7 @@ export default function UsersPage() {
                             <bdi dir="ltr">{u.email}</bdi>
                           </span>
                           <span className="mt-1.5 flex flex-wrap items-center gap-2 text-[11.5px] text-[var(--color-mute)]">
-                            <PlanChip plan={u.plan} />
+                            <PlanChip plan={u.plan} until={u.plan === "gift" ? u.premium_until : undefined} />
                             <Provider value={u.provider} />
                             <span>{fmtDate(u.created_at)}</span>
                           </span>
@@ -250,6 +250,16 @@ export function PlanChip({ plan, until }) {
       <span className="inline-flex flex-col">
         <span className="inline-flex items-center gap-1 rounded-full bg-[#f0c63c]/15 px-2 py-0.5 text-[11.5px] font-extrabold text-[#ffe486]">
           <Crown size={12} /> {t("plan.premium")}
+        </span>
+        {until && <span className="mt-0.5 text-[11px] text-[var(--color-mute)]">{t("users.until", { date: fmtDate(until) })}</span>}
+      </span>
+    );
+  // هدية (phase30): Premium مجاني لمدة، ماشي اشتراك — premium_until هنا = نهاية الهدية
+  if (plan === "gift")
+    return (
+      <span className="inline-flex flex-col">
+        <span className="inline-flex items-center gap-1 rounded-full border border-[#f0c63c]/35 px-2 py-0.5 text-[11.5px] font-extrabold text-[#ffe486]">
+          <Gift size={12} /> {t("plan.gift")}
         </span>
         {until && <span className="mt-0.5 text-[11px] text-[var(--color-mute)]">{t("users.until", { date: fmtDate(until) })}</span>}
       </span>

@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import AuthShell, { GoogleButton, AuthAlert, authInputCls } from "../components/auth/AuthShell.jsx";
 import { useBotGuard } from "../components/auth/botGuard.jsx";
 import { useAuth } from "../lib/auth.jsx";
+import { pendingGiftPath } from "../lib/gifts.js";
 
 /** يحوّل رسالة خطأ Supabase إلى مفتاح ترجمة. */
 export function loginErrorKey(msg = "") {
@@ -38,13 +39,14 @@ export default function Login() {
     const { error } = await signIn(email.trim(), password);
     setLoading(false);
     if (error) return setError(t(`auth.login.${loginErrorKey(error.message)}`));
-    navigate("/dashboard");
+    // جا من رابط هدية → يرجع لصفحتها وتتفعّل وحدها
+    navigate(pendingGiftPath() || "/dashboard");
   };
 
   const google = async () => {
     setError("");
     setGoogleLoading(true);
-    const { error } = await signInWithGoogle();
+    const { error } = await signInWithGoogle(pendingGiftPath());
     if (error) {
       setGoogleLoading(false);
       setError(t(`auth.login.${loginErrorKey(error.message)}`));

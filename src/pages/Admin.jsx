@@ -58,6 +58,7 @@ import UsersPage from "../components/admin/v2/UsersPage.jsx";
 import FeaturedPage from "../components/admin/v2/FeaturedPage.jsx";
 import NocodePage from "../components/admin/v2/NocodePage.jsx";
 import NocodeEditor from "../components/admin/v2/NocodeEditor.jsx";
+import GiftsPage from "../components/admin/v2/GiftsPage.jsx";
 import { Glass, PageHeader, Skeleton, EmptyState, LIME_BG } from "../components/admin/v2/ui.jsx";
 import { fetchCompanyPrivate, saveCompanyPrivate } from "../lib/adminStats.js";
 import RequestsManager from "../components/admin/RequestsManager.jsx";
@@ -696,6 +697,8 @@ function Dashboard({ onLock }) {
             </>
           }
         />
+        {/* الهدايا — روابط Premium مجاني لمدة محدّدة (منفصلة على الدفع وعلى Stork) */}
+        <Route path="gifts" element={<GiftsPage notify={notify} />} />
         <Route
           path="site-stats"
           element={

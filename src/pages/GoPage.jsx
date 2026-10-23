@@ -22,8 +22,8 @@ export default function GoPage() {
   const { slug = "" } = useParams();
   const [params] = useSearchParams();
   const premium = params.get("premium") === "1";
-  const { user, loading: authLoading, profileLoaded } = useAuth();
-  const { unlocked } = usePremium();
+  const { user, loading: authLoading } = useAuth();
+  const { unlocked, premiumReady } = usePremium();
   const [state, setState] = useState({ phase: "loading", name: "" });
   const [slow, setSlow] = useState(false);
   const [modal, setModal] = useState(false);
@@ -31,8 +31,8 @@ export default function GoPage() {
   const urlRef = useRef(null);
 
   useEffect(() => {
-    // ننتظر الجلسة حتى تحمل الضغطة هوية المستخدم (وحالة Premium الصحيحة)
-    if (authLoading || (user && !profileLoaded)) return;
+    // ننتظر الجلسة (والملف والهدية) حتى تحمل الضغطة هوية المستخدم وحالة Premium الصحيحة
+    if (authLoading || !premiumReady) return;
     let active = true;
     setSlow(false);
     if (premium && !unlocked) {
@@ -62,7 +62,7 @@ export default function GoPage() {
     return () => {
       active = false;
     };
-  }, [slug, premium, unlocked, user, authLoading, profileLoaded, attempt]);
+  }, [slug, premium, unlocked, user, authLoading, premiumReady, attempt]);
 
   // رابط احتياطي إذا لم يتمّ التحويل خلال لحظات
   useEffect(() => {

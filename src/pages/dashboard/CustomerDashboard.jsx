@@ -1,18 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Store, Check, ShieldCheck } from "lucide-react";
+import { Store, Check, ShieldCheck, Hourglass, Crown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import DashboardShell from "../../components/dashboard/DashboardShell.jsx";
 import WelcomePanel from "../../components/dashboard/customer/WelcomePanel.jsx";
 import PlanPass from "../../components/dashboard/customer/PlanPass.jsx";
+import GiftCodeField from "../../components/dashboard/customer/GiftCodeField.jsx";
 import RecentCopies from "../../components/dashboard/customer/RecentCopies.jsx";
 import GrowCards from "../../components/dashboard/customer/GrowCards.jsx";
 import SettingsPanel from "../../components/dashboard/customer/SettingsPanel.jsx";
 import CompanyCard from "../../components/CompanyCard.jsx";
 import PremiumModal from "../../components/PremiumModal.jsx";
+import GiftConfetti from "../../components/gift/GiftConfetti.jsx";
 import { useAuth } from "../../lib/auth.jsx";
 import { usePremium } from "../../lib/premium.jsx";
+import { giftDaysLeft } from "../../lib/gifts.js";
 import { fetchFavoritesWithCompany, addFavorite, removeFavorite } from "../../lib/favorites.js";
 import { fetchRecentCopies, countCopiedCodes, logCodeCopy, COPY_EVENT } from "../../lib/copies.js";
 import { countMyVotes } from "../../lib/account.js";
@@ -21,6 +24,8 @@ import { loadHeaderOffers, useSharedStats } from "../../components/header/header
 import { offersPath } from "../../lib/seo.js";
 
 const NEW_OFFERS = 6;
+// بانر الاشتراك يبان كي تبقى 7 أيام (أو أقل) في الهدية
+const GIFT_ENDING_DAYS = 7;
 
 /**
  * داشبورد الزبون. الحاسوب: شبكة 12 عموداً. الهاتف: عمود واحد والأهم فوق
@@ -29,7 +34,7 @@ const NEW_OFFERS = 6;
  */
 export default function CustomerDashboard() {
   const { user, profile } = useAuth();
-  const { unlocked, isPremiumActive, isLifetime } = usePremium();
+  const { unlocked, hasPremium, isPremiumActive, isLifetime, isGift, gift, premiumReady, refreshGift } = usePremium();
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const stats = useSharedStats();
@@ -41,11 +46,27 @@ export default function CustomerDashboard() {
   const [copiedCount, setCopiedCount] = useState(null);
   const [votes, setVotes] = useState(null);
   const [allOffers, setAllOffers] = useState([]);
-  const [modal, setModal] = useState(null); // null | "home" | "stork"
+  const [modal, setModal] = useState(null); // null | "home" | "stork" | "pay"
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
+  const [celebrate, setCelebrate] = useState(0);
+  const [giftToast, setGiftToast] = useState(null);
+  const giftToastTimer = useRef(null);
 
-  const kind = isLifetime ? "lifetime" : isPremiumActive ? "premium" : "free";
+  const kind = isLifetime ? "lifetime" : isPremiumActive ? "premium" : isGift ? "gift" : "free";
+  const giftLeft = isGift ? giftDaysLeft(gift) : null;
+  const giftEnding = isGift && giftLeft <= GIFT_ENDING_DAYS;
+  const fmtDay = (d) => new Date(d).toLocaleDateString(lang, { day: "numeric", month: "long", year: "numeric" });
+
+  // تفعيل من خانة "هل لديك كود هدية؟": الخطة تتبدّل + قصاصات ذهبية + رسالة
+  const onGiftRedeemed = async (r) => {
+    await refreshGift();
+    setCelebrate((n) => n + 1);
+    setGiftToast(r.premium_until || null);
+    clearTimeout(giftToastTimer.current);
+    giftToastTimer.current = setTimeout(() => setGiftToast(null), 4200);
+  };
+  useEffect(() => () => clearTimeout(giftToastTimer.current), []);
   const name = profile?.full_name || user?.user_metadata?.full_name || t("dashboard.customer.friend");
   const joined = new Date(profile?.created_at || user?.created_at || Date.now()).toLocaleDateString(lang, { month: "long", year: "numeric" });
 
@@ -130,7 +151,7 @@ export default function CustomerDashboard() {
     isFavorite: favIds.includes(c.id),
     onToggleFav: () => toggleFav(c),
     onCopy: handleCardCopy,
-    premium: isPremiumActive && c.supports_premium !== false,
+    premium: hasPremium && c.supports_premium !== false,
     unlocked,
     onUnlock: () => setModal("home"),
   });
@@ -153,14 +174,45 @@ export default function CustomerDashboard() {
             </Link>
           </div>
         )}
+        {/* هدية Premium: 7 أيام قبل النهاية → عرض الاشتراك المدفوع */}
+        {giftEnding && (
+          <div className="order-0 flex flex-col gap-3 rounded-[var(--radius-card)] border border-[#f0c63c]/40 bg-[linear-gradient(90deg,rgba(240,198,60,0.13),rgba(240,198,60,0.04))] px-5 py-4 sm:flex-row sm:items-center sm:justify-between lg:col-span-12">
+            <div className="flex items-start gap-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-[#1d1403]" style={{ background: "linear-gradient(135deg, #ffe486, #cf9a1e)" }}>
+                <Hourglass size={19} />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[15px] font-extrabold text-[var(--text)]">{t("dashboard.gift.endingTitle", { duration: t("gift.dur.daysNom", { count: giftLeft }) })}</p>
+                <p className="mt-0.5 text-[13px] leading-relaxed text-[var(--text-soft)]">{t("dashboard.gift.endingDesc")}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setModal("pay")}
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[13.5px] font-extrabold text-[#1d1403] transition-transform hover:scale-[1.02]"
+              style={{ background: "linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e)" }}
+            >
+              <Crown size={16} /> {t("dashboard.gift.endingCta")}
+            </button>
+          </div>
+        )}
         <div className="order-3 lg:order-none lg:col-span-7">
           <WelcomePanel name={name} email={user?.email} joined={joined} kind={kind} stats={{ copied: copiedCount, favorites: favLoading ? null : favorites.length, votes }} />
         </div>
         <div className="order-1 lg:order-none lg:col-span-5">
-          <PlanPass kind={kind} profile={profile} stats={stats} onOpenPremium={() => setModal("home")} onOpenStork={() => setModal("stork")} />
+          <PlanPass
+            kind={kind}
+            profile={profile}
+            gift={gift}
+            stats={stats}
+            onOpenPremium={() => setModal("home")}
+            onOpenStork={() => setModal("stork")}
+            // هدية وحدة لكل حساب في حياتو: الخانة تبان غير لحساب ما خذاش هدية من قبل
+            giftField={premiumReady && !gift ? <GiftCodeField onRedeemed={onGiftRedeemed} /> : null}
+          />
         </div>
         <div className="order-2 lg:order-none lg:col-span-7">
-          <RecentCopies rows={copies} loading={copiesLoading} premiumActive={isPremiumActive} onCopy={copyAgain} onUnlock={() => setModal("home")} />
+          <RecentCopies rows={copies} loading={copiesLoading} premiumActive={hasPremium} onCopy={copyAgain} onUnlock={() => setModal("home")} />
         </div>
         <div className="order-6 lg:order-none lg:col-span-5 lg:self-start">
           <GrowCards />
@@ -232,6 +284,25 @@ export default function CustomerDashboard() {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {giftToast !== null && (
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 30, scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 380, damping: 28 }}
+            role="status"
+            className="fixed bottom-5 left-1/2 z-50 flex w-max max-w-[92vw] -translate-x-1/2 items-center gap-2.5 rounded-2xl border border-[#f0c63c]/45 bg-[var(--elev)]/95 px-4 py-3 shadow-[0_16px_50px_-12px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+          >
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#1d1403]" style={{ background: "linear-gradient(135deg, #ffe486, #cf9a1e)" }}>
+              <Check size={16} strokeWidth={3} />
+            </span>
+            <span className="text-[14px] font-semibold text-[var(--text)]">{t("gift.toast", { date: giftToast ? fmtDay(giftToast) : "" })}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <GiftConfetti fire={celebrate} />
       <PremiumModal open={modal !== null} initialStep={modal || "home"} onClose={() => setModal(null)} />
     </DashboardShell>
   );

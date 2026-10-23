@@ -57,7 +57,7 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
   const navigate = useNavigate();
   const reduce = useReducedMotion();
   const { user } = useAuth();
-  const { isPremiumActive, isLifetime } = usePremium();
+  const { hasPremium, isLifetime } = usePremium();
   const { categories } = useCategories();
   const offers = useHeaderOffers(open);
   const app = useAppTarget();
@@ -194,11 +194,11 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
                     <Crown size={21} />
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-[18px] font-black text-[#ffe486]">{isPremiumActive ? (isLifetime ? t("premium.lifetime") : t("header.member")) : t("premiumToggle.premium")}</span>
-                    <span className="mt-0.5 block text-[13px] font-medium text-[var(--text-soft)]">{isPremiumActive ? t("hero.ctaMember") : t("nav.premiumSub")}</span>
+                    <span className="block text-[18px] font-black text-[#ffe486]">{hasPremium ? (isLifetime ? t("premium.lifetime") : t("header.member")) : t("premiumToggle.premium")}</span>
+                    <span className="mt-0.5 block text-[13px] font-medium text-[var(--text-soft)]">{hasPremium ? t("hero.ctaMember") : t("nav.premiumSub")}</span>
                   </span>
                 </div>
-                {!isPremiumActive && usd != null && (
+                {!hasPremium && usd != null && (
                   <div className="relative mt-4">
                     <p className="text-[14px] font-semibold text-[var(--text-soft)]">
                       {t("compare.priceFrom")} <bdi className="text-[28px] font-black leading-none text-[#ffe486] [font-family:Inter,sans-serif]">{fmtUSD(usd)}</bdi>{" "}
@@ -214,14 +214,14 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
                 <span aria-hidden className="ticket-perf" />
                 <motion.button
                   type="button"
-                  onClick={isPremiumActive ? goPremiumOffers : onPremium}
+                  onClick={hasPremium ? goPremiumOffers : onPremium}
                   whileTap={{ scale: 0.97 }}
                   className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl py-3 text-[15px] font-extrabold text-[#0a0a0a]"
                   style={{ background: GOLD_BG, boxShadow: "0 12px 28px -12px rgba(240,198,60,0.8)" }}
                 >
                   <span aria-hidden className="absolute inset-0 -translate-x-full bg-white/35 transition-transform duration-700 group-hover:translate-x-full" />
                   <Crown size={17} className="relative" />
-                  <span className="relative">{isPremiumActive ? t("compare.seePremium") : t("nav.premium")}</span>
+                  <span className="relative">{hasPremium ? t("compare.seePremium") : t("nav.premium")}</span>
                 </motion.button>
               </div>
             </motion.div>

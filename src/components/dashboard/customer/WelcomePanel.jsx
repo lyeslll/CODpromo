@@ -1,8 +1,8 @@
-import { Crown, Infinity as InfinityIcon } from "lucide-react";
+import { Crown, Gift, Infinity as InfinityIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { formatNumber } from "../../../lib/values.js";
 
-/** شارة الخطة: عادي / Premium / Premium مدى الحياة. */
+/** شارة الخطة: عادي / Premium / Premium مدى الحياة / Premium هدية. */
 export function PlanBadge({ kind }) {
   const { t } = useTranslation();
   if (kind === "free") {
@@ -12,13 +12,13 @@ export function PlanBadge({ kind }) {
       </span>
     );
   }
-  const Icon = kind === "lifetime" ? InfinityIcon : Crown;
+  const Icon = kind === "lifetime" ? InfinityIcon : kind === "gift" ? Gift : Crown;
   return (
     <span
       className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-extrabold text-[#0a0a0a]"
       style={{ background: "linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e)" }}
     >
-      <Icon size={13} /> {kind === "lifetime" ? t("premium.lifetime") : t("premiumToggle.premium")}
+      <Icon size={13} /> {kind === "lifetime" ? t("premium.lifetime") : kind === "gift" ? t("dashboard.gift.title") : t("premiumToggle.premium")}
     </span>
   );
 }

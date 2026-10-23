@@ -79,12 +79,16 @@ export function AuthProvider({ children }) {
       return p;
     },
 
-    // إنشاء حساب بالإيميل وكلمة المرور (metadata = نوع الحساب وبياناته)
-    signUp: (email, password, metadata = {}) =>
+    // إنشاء حساب بالإيميل وكلمة المرور (metadata = نوع الحساب وبياناته).
+    // redirectPath اختياري: رابط التفعيل في الإيميل يرجّع لهاد الصفحة (مثلاً صفحة هدية معلّقة).
+    signUp: (email, password, metadata = {}, redirectPath = null) =>
       supabase.auth.signUp({
         email,
         password,
-        options: { data: metadata },
+        options: {
+          data: metadata,
+          ...(redirectPath ? { emailRedirectTo: `${window.location.origin}${redirectPath}` } : {}),
+        },
       }),
 
     // تسجيل الدخول بالإيميل وكلمة المرور
@@ -94,11 +98,11 @@ export function AuthProvider({ children }) {
         password,
       }),
 
-    // تسجيل الدخول/التسجيل عبر Google
-    signInWithGoogle: () =>
+    // تسجيل الدخول/التسجيل عبر Google (next: صفحة الرجوع، الافتراضي /dashboard)
+    signInWithGoogle: (next = null) =>
       supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${window.location.origin}/dashboard` },
+        options: { redirectTo: `${window.location.origin}${typeof next === "string" && next.startsWith("/") ? next : "/dashboard"}` },
       }),
 
     // إرسال رابط استعادة كلمة المرور (يفتح صفحة /reset-password)

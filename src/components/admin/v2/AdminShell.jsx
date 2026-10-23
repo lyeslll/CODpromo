@@ -14,6 +14,7 @@ import {
   Globe,
   Sparkles,
   Gift,
+  PartyPopper,
   Menu,
   X,
   PanelLeftClose,
@@ -44,6 +45,7 @@ export const NAV = [
       { key: "users", path: "/admin/users", icon: Users },
       { key: "subscribers", path: "/admin/subscribers", icon: AtSign },
       { key: "premium", path: "/admin/premium", icon: Crown },
+      { key: "gifts", path: "/admin/gifts", icon: PartyPopper },
     ],
   },
   {

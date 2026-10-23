@@ -9,12 +9,12 @@ const GOLD_BG = "linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e)";
 
 /**
  * زر Premium الذهبي في الهيدر (دائماً ظاهر): يفتح نفس نافذة Premium الموجودة.
- * للمشترك يتحوّل إلى شارة ذهبية "عضو Premium" تفتح عروض Premium.
+ * للمشترك (ومول الهدية) يتحوّل إلى شارة ذهبية "عضو Premium" تفتح عروض Premium.
  * compact: نسخة الهاتف الصغيرة. أزرار (لا روابط) حتى لا تمسّها قواعد وضع التطبيق على روابط الهيدر.
  */
 export default function PremiumNavButton({ onOpen, compact = false }) {
   const { t, i18n } = useTranslation();
-  const { isPremiumActive, isLifetime } = usePremium();
+  const { hasPremium, isLifetime } = usePremium();
   // حساب الأدمن: Premium مدى الحياة
   const memberLabel = isLifetime ? t("premium.lifetime") : t("header.member");
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ export default function PremiumNavButton({ onOpen, compact = false }) {
   // الهواتف الضيّقة (< 370px) لا تتّسع للشعار والنص معاً: التاج وحده ظاهر، والنص يبقى لقارئ الشاشة
   const label = compact ? "relative max-[369px]:sr-only" : "relative";
 
-  if (isPremiumActive) {
+  if (hasPremium) {
     return (
       <button
         type="button"

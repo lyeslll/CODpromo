@@ -17,7 +17,7 @@ const wasClosed = () => {
 
 /**
  * شريط صغير أعلى الصفحة في متصفح Android فقط: "حمّل تطبيق CODpromo" + زر يفتح Google Play.
- * يُغلق بـ X ويتذكّر ذلك (localStorage). لا يظهر داخل التطبيق ولا في لوحة الأدمن.
+ * يُغلق بـ X ويتذكّر ذلك (localStorage). لا يظهر داخل التطبيق ولا في لوحة الأدمن ولا في صفحة الهدية.
  * يأخذ مكانه في أعلى الصفحة (body يُزاح بـ --app-banner-h)، والهيدر الثابت ينزل تحته
  * ثم يصعد مع التمرير حتى يختفي الشريط (--app-banner-top) — القواعد في index.css.
  */
@@ -25,7 +25,7 @@ export default function AppBanner() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const [open, setOpen] = useState(() => platformOf() === "android" && !isInsideApp() && !wasClosed());
-  const show = open && !pathname.startsWith("/admin");
+  const show = open && !pathname.startsWith("/admin") && !pathname.startsWith("/gift/");
 
   useEffect(() => {
     if (!show) return;

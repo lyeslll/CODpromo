@@ -362,7 +362,8 @@
       "errCaptchaFail": "Échec du captcha, réessayez",
       "errRateLimit": "Trop de tentatives, réessayez bientôt",
       "errGeneric": "Impossible de créer le compte",
-      "typeLabel": "Type de compte"
+      "typeLabel": "Type de compte",
+      "giftNote": "Votre cadeau est conservé : après la confirmation de votre e-mail, il s'active sur votre compte. S'il ne s'active pas automatiquement, rouvrez le lien du cadeau."
     },
     "forgot": {
       "title": "Réinitialiser le mot de passe",
@@ -479,6 +480,14 @@
     "admin": {
       "note": "Ceci est le compte admin",
       "open": "Ouvrir le panneau admin"
+    },
+    "gift": {
+      "title": "Premium cadeau",
+      "from": "Un cadeau d'Ilyes Derradji",
+      "daysLeft": "Jours restants de votre cadeau",
+      "endingTitle": "Votre cadeau se termine dans {{duration}}",
+      "endingDesc": "Abonnez-vous à Premium pour garder les codes les plus forts après la fin du cadeau.",
+      "endingCta": "S'abonner à Premium"
     }
   },
   "payment": {
@@ -612,7 +621,8 @@
         "siteStats": "Chiffres de l'accueil",
         "seo": "SEO",
         "featured": "Offres en vedette",
-        "nocode": "Offres sans code"
+        "nocode": "Offres sans code",
+        "gifts": "Cadeaux"
       },
       "range": {
         "label": "Période",
@@ -658,7 +668,8 @@
       "plan": {
         "free": "Classique",
         "premium": "Premium",
-        "lifetime": "À vie"
+        "lifetime": "À vie",
+        "gift": "Cadeau"
       },
       "type": {
         "customer": "Client",
@@ -739,7 +750,8 @@
         "subscribersSub": "E-mails inscrits à la newsletter",
         "premiumSub": "Membres Premium et codes Stork",
         "siteStatsSub": "Chiffres affichés sur l'accueil",
-        "seoSub": "Titres et descriptions des pages entreprises pour les moteurs"
+        "seoSub": "Titres et descriptions des pages entreprises pour les moteurs",
+        "giftsSub": "Des liens qui offrent Premium gratuitement pour une durée définie, séparés des paiements et de Stork."
       },
       "premium": {
         "members": "Membres Premium",
@@ -976,6 +988,82 @@
         "previewFrozen": "Sans lien Premium : voici la carte figée en mode Premium.",
         "namePh": "Nom de l'entreprise",
         "rewardPh": "Avantage"
+      },
+      "gifts": {
+        "new": "Nouveau cadeau",
+        "loadError": "Impossible de charger les liens cadeaux",
+        "copyFailed": "Impossible de copier le lien",
+        "listTitle": "Liens cadeaux",
+        "listHint": "Cliquez sur un lien pour voir qui l'a utilisé. La pause bloque les nouvelles activations sans retirer les cadeaux déjà activés.",
+        "emptyTitle": "Aucun lien cadeau pour l'instant",
+        "emptyDesc": "Créez votre premier cadeau et partagez son lien sur WhatsApp.",
+        "noLabel": "Sans note",
+        "noExpiry": "Sans date d'expiration",
+        "expiresOn": "Expire le {{date}}",
+        "usage": "Utilisation",
+        "copy": "Copier le lien",
+        "copied": "Copié",
+        "whatsapp": "Partager sur WhatsApp",
+        "whoUsed": "Qui l'a utilisé ({{n}})",
+        "activeLabel": "Activer ou suspendre le lien",
+        "enable": "Activer",
+        "disable": "Suspendre",
+        "kind": {
+          "personal": "Personnel",
+          "group": "Invitation de groupe"
+        },
+        "status": {
+          "active": "Actif",
+          "exhausted": "Complet",
+          "expired": "Expiré",
+          "inactive": "Suspendu"
+        },
+        "stats": {
+          "accounts": "Comptes avec un cadeau actif",
+          "links": "Liens actifs",
+          "month": "Utilisations ce mois-ci"
+        },
+        "waMessage": "🎁 Ilyes Derradji vous offre {{duration}} de Premium sur CODpromo.\nOuvrez votre cadeau ici : {{url}}",
+        "form": {
+          "sub": "Un lien qui offre Premium gratuitement pour une durée définie, sans paiement.",
+          "kind": "Type",
+          "personalHint": "Fonctionne une seule fois, puis s'arrête.",
+          "groupHint": "Un seul lien pour plusieurs personnes, jusqu'à la limite.",
+          "duration": "Durée",
+          "customDays": "Nombre de jours",
+          "daysLabel": "Nombre de jours (de 1 à 3650)",
+          "maxUses": "Utilisations maximum",
+          "expires": "Date d'expiration (facultative)",
+          "expiresHint": "Le lien s'arrête à la fin de ce jour. Ceux qui l'ont activé avant gardent leur cadeau jusqu'à sa fin.",
+          "label": "Note (visible par vous seul)",
+          "labelPh": "ex. : groupe VIP",
+          "create": "Créer le lien",
+          "cancel": "Annuler",
+          "created": "Lien cadeau créé",
+          "readyTitle": "Le lien est prêt",
+          "readySub": "Copiez-le ou partagez-le directement sur WhatsApp.",
+          "done": "Terminé",
+          "errDays": "Saisissez un nombre de jours entre 1 et 3650.",
+          "errMax": "Saisissez un maximum entre 2 et 100000.",
+          "errExpiry": "Choisissez une date d'expiration future."
+        },
+        "drawer": {
+          "title": "Qui a utilisé ce lien",
+          "none": "Personne n'a encore utilisé ce lien.",
+          "redeemed": "Activé le",
+          "until": "Fin de Premium",
+          "revokedAt": "Retiré le",
+          "revoke": "Retirer le cadeau",
+          "confirm": "Retirer le cadeau de {{name}} ? Premium s'arrête immédiatement sur son compte, et il ne pourra pas recevoir d'autre cadeau.",
+          "revokedToast": "Cadeau retiré",
+          "deleted": "Compte supprimé",
+          "note": "Le retrait est définitif : l'utilisation reste comptée, et chaque compte n'a droit qu'à un seul cadeau.",
+          "state": {
+            "active": "Actif",
+            "ended": "Terminé",
+            "revoked": "Retiré"
+          }
+        }
       }
     }
   },
@@ -1476,5 +1564,123 @@
     "browse": "Parcourir les offres sans code",
     "error": "Connexion impossible. Vérifiez votre connexion puis réessayez.",
     "retry": "Réessayer"
+  },
+  "gift": {
+    "seoTitle": "Un cadeau Premium d'Ilyes Derradji | CODpromo",
+    "seoDesc": "Ouvrez votre cadeau et profitez de Premium gratuitement sur CODpromo : des codes de réduction plus forts et des codes exclusifs.",
+    "title": "Ilyes Derradji vous offre {{duration}} de Premium",
+    "titleGeneric": "Vous avez reçu un cadeau Premium d'Ilyes Derradji",
+    "anonDesc": "Créez un compte gratuit ou connectez-vous : le cadeau s'active automatiquement sur votre compte.",
+    "googleNote": "Vous pouvez aussi continuer avec Google.",
+    "signup": "Créer un compte",
+    "login": "Se connecter",
+    "userDesc": "Le cadeau sera activé sur votre compte :",
+    "open": "Ouvrir le cadeau",
+    "opening": "Ouverture du cadeau…",
+    "loading": "Chargement du cadeau…",
+    "doneTitle": "Premium est activé sur votre compte",
+    "doneDesc": "Votre cadeau est valable jusqu'au {{date}}. Tous les codes Premium sont désormais débloqués.",
+    "toAccount": "Aller à mon compte",
+    "subscribe": "S'abonner à Premium",
+    "browse": "Parcourir les offres",
+    "retry": "Réessayer",
+    "tagSub": "Premium",
+    "toast": "Cadeau Premium activé jusqu'au {{date}}",
+    "perks": {
+      "title": "Ce que Premium débloque",
+      "codes": "Des codes Premium exclusifs, avec des réductions plus fortes que les codes classiques",
+      "reveal": "Grattez pour révéler n'importe quel code Premium directement sur la carte",
+      "nocode": "Des avantages plus grands sur les offres sans code",
+      "note": "Sans paiement ni carte. Le cadeau se termine seul à sa date, sans renouvellement."
+    },
+    "state": {
+      "yours": {
+        "title": "Votre cadeau est actif",
+        "desc": "Premium est débloqué pour vous jusqu'au {{date}}."
+      },
+      "ended": {
+        "title": "Votre cadeau est terminé",
+        "desc": "La période de votre cadeau Premium est terminée. Abonnez-vous pour garder les codes Premium."
+      },
+      "invalid": {
+        "title": "Ce lien cadeau n'est pas valide",
+        "desc": "Vérifiez que vous avez ouvert le lien complet, tel que vous l'avez reçu."
+      },
+      "expired": {
+        "title": "Ce cadeau a expiré",
+        "desc": "Cette invitation est terminée et ne peut plus être activée."
+      },
+      "used": {
+        "title": "Ce cadeau a déjà été ouvert",
+        "desc": "Un cadeau personnel ne s'active qu'une seule fois, et celui-ci a déjà été utilisé."
+      },
+      "full": {
+        "title": "Cette invitation est complète",
+        "desc": "Toutes les places disponibles de cette invitation ont été prises."
+      },
+      "inactive": {
+        "title": "Ce cadeau est suspendu",
+        "desc": "Ce lien a été arrêté et ne fonctionne pas pour le moment."
+      },
+      "already": {
+        "title": "Vous avez déjà reçu un cadeau",
+        "desc": "Chaque compte ne peut recevoir qu'un seul cadeau Premium. Abonnez-vous pour retrouver Premium."
+      },
+      "hasPremium": {
+        "title": "Vous avez déjà Premium",
+        "desc": "Votre abonnement est actif et tous les codes Premium sont débloqués : ce cadeau n'a donc pas été utilisé, et quelqu'un d'autre peut en profiter."
+      },
+      "rateLimited": {
+        "title": "Trop de tentatives incorrectes",
+        "desc": "Des codes incorrects ont été saisis plusieurs fois depuis ce compte. Réessayez dans une heure."
+      },
+      "error": {
+        "title": "Connexion impossible",
+        "desc": "Vérifiez votre connexion Internet, puis réessayez."
+      }
+    },
+    "dur": {
+      "monthsNom_zero": "{{count}} mois",
+      "monthsNom_one": "1 mois",
+      "monthsNom_two": "{{count}} mois",
+      "monthsNom_few": "{{count}} mois",
+      "monthsNom_many": "{{count}} mois",
+      "monthsNom_other": "{{count}} mois",
+      "monthsAcc_zero": "{{count}} mois",
+      "monthsAcc_one": "1 mois",
+      "monthsAcc_two": "{{count}} mois",
+      "monthsAcc_few": "{{count}} mois",
+      "monthsAcc_many": "{{count}} mois",
+      "monthsAcc_other": "{{count}} mois",
+      "daysNom_zero": "{{count}} jours",
+      "daysNom_one": "1 jour",
+      "daysNom_two": "{{count}} jours",
+      "daysNom_few": "{{count}} jours",
+      "daysNom_many": "{{count}} jours",
+      "daysNom_other": "{{count}} jours",
+      "daysAcc_zero": "{{count}} jours",
+      "daysAcc_one": "1 jour",
+      "daysAcc_two": "{{count}} jours",
+      "daysAcc_few": "{{count}} jours",
+      "daysAcc_many": "{{count}} jours",
+      "daysAcc_other": "{{count}} jours"
+    },
+    "field": {
+      "label": "Vous avez un code cadeau ?",
+      "placeholder": "XXXX-XXXX-XXXX-XXXX",
+      "submit": "Activer"
+    },
+    "err": {
+      "invalid": "Ce code n'est pas valide.",
+      "inactive": "Ce cadeau est suspendu.",
+      "expired": "Ce cadeau a expiré.",
+      "used": "Ce code a déjà été utilisé.",
+      "full": "Cette invitation est complète.",
+      "already": "Vous avez déjà reçu un cadeau : un seul par compte.",
+      "hasPremium": "Vous avez déjà Premium.",
+      "rateLimited": "Trop de tentatives incorrectes. Réessayez dans une heure.",
+      "ended": "Votre cadeau est terminé.",
+      "network": "Connexion impossible. Réessayez."
+    }
   }
 }

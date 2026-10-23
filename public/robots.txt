@@ -14,5 +14,7 @@ Disallow: /payment-return
 Disallow: /payment-return-paypal
 # روابط التحويل لعروض بلا كود (روابط الشركات لا تُفهرس)
 Disallow: /go/
+# روابط الهدايا (Premium مجاني) — خاصة، لا تُفهرس
+Disallow: /gift/
 
 Sitemap: https://codpromo.com/sitemap.xml

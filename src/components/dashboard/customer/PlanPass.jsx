@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Crown, Infinity as InfinityIcon, KeyRound, CalendarClock, CreditCard } from "lucide-react";
+import { Crown, Infinity as InfinityIcon, KeyRound, CalendarClock, CreditCard, Gift } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { offersLink } from "../../../lib/seo.js";
 import { monthlyUsdPrice, premiumMultiplier } from "../../../lib/siteStats.js";
@@ -24,44 +24,49 @@ const ticketVars = {
 /**
  * بطاقة الخطة = تذكرة ذهبية.
  *  - Premium / مدى الحياة: نوع الخطة، تاريخ الانتهاء، دائرة الأيام الباقية، طريقة الدفع (من profiles).
- *  - عادي: كوبون ترقية بالسعر (plans.js) والمضاعف (site_stats) + زر يفتح نافذة Premium، وتحته تفعيل كود Stork.
+ *  - هدية (kind="gift"): "Premium هدية" + نهاية الهدية والأيام الباقية (من gift_redemptions عبر my_gift).
+ *  - عادي: كوبون ترقية بالسعر (plans.js) والمضاعف (site_stats) + زر يفتح نافذة Premium، وتحته تفعيل كود Stork
+ *    وخانة "هل لديك كود هدية؟" (giftField).
  */
-export default function PlanPass({ kind, profile, stats, onOpenPremium, onOpenStork }) {
-  return kind === "free" ? (
-    <UpgradeCoupon stats={stats} onOpenPremium={onOpenPremium} onOpenStork={onOpenStork} />
-  ) : (
-    <MemberPass lifetime={kind === "lifetime"} profile={profile} />
-  );
+export default function PlanPass({ kind, profile, gift, stats, onOpenPremium, onOpenStork, giftField }) {
+  if (kind === "free") return <UpgradeCoupon stats={stats} onOpenPremium={onOpenPremium} onOpenStork={onOpenStork} giftField={giftField} />;
+  if (kind === "gift" && gift) return <MemberPass gift={gift} />;
+  return <MemberPass lifetime={kind === "lifetime"} profile={profile} />;
 }
 
-function MemberPass({ lifetime, profile }) {
+function MemberPass({ lifetime, profile, gift }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
-  const until = profile?.premium_until ? new Date(profile.premium_until) : null;
-  const endless = lifetime || !until;
+  const rawUntil = gift ? gift.premium_until : profile?.premium_until;
+  const until = rawUntil ? new Date(rawUntil) : null;
+  const endless = !gift && (lifetime || !until);
   const daysLeft = endless ? null : Math.max(0, Math.ceil((until - Date.now()) / DAY));
-  const total = PLAN_DAYS[profile?.plan_type] || Math.max(daysLeft || 0, 30);
+  const total = gift ? Math.max(gift.duration_days || 0, daysLeft || 0, 1) : PLAN_DAYS[profile?.plan_type] || Math.max(daysLeft || 0, 30);
   const ratio = endless ? 1 : Math.min(1, (daysLeft || 0) / total);
-  const providerKey = PROVIDER_KEY[profile?.payment_provider];
+  const providerKey = gift ? null : PROVIDER_KEY[profile?.payment_provider];
+  const Icon = gift ? Gift : Crown;
 
-  const title = lifetime
-    ? t("premium.lifetime")
-    : profile?.plan_type && PLAN_DAYS[profile.plan_type]
-      ? t(`dashboard.plan.plan_${profile.plan_type}`)
-      : t("premiumToggle.premium");
+  const title = gift
+    ? t("dashboard.gift.title")
+    : lifetime
+      ? t("premium.lifetime")
+      : profile?.plan_type && PLAN_DAYS[profile.plan_type]
+        ? t(`dashboard.plan.plan_${profile.plan_type}`)
+        : t("premiumToggle.premium");
 
   return (
     <div className="ticket ticket-premium flex h-full flex-col" style={ticketVars}>
       <div className="ticket-top relative flex-1 p-5 sm:p-6" style={{ background: "linear-gradient(160deg, rgba(240,198,60,0.16), rgba(240,198,60,0.04) 60%), var(--color-ink-card)" }}>
         <div className="flex items-start gap-3.5">
           <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-[#0a0a0a]" style={{ background: GOLD_BG }}>
-            <Crown size={23} />
+            <Icon size={23} />
           </span>
           <div className="min-w-0">
             <p className="text-[13px] font-bold text-[var(--text-soft)]">{t("dashboard.plan.yourPlan")}</p>
             <h2 className="mt-0.5 text-[22px] font-black leading-tight" style={{ color: GOLD_SOFT }}>
               {title}
             </h2>
+            {gift && <p className="mt-0.5 text-[12.5px] font-semibold text-[var(--text-soft)]">{t("dashboard.gift.from")}</p>}
           </div>
         </div>
         <dl className="mt-5 grid gap-2.5 text-[13.5px]">
@@ -82,7 +87,7 @@ function MemberPass({ lifetime, profile }) {
         <DaysRing ratio={ratio} label={endless ? null : daysLeft} lang={lang} />
         <div className="min-w-0 flex-1">
           <p className="text-[14px] font-extrabold text-[var(--text)]">
-            {endless ? t("dashboard.plan.forever") : t("dashboard.plan.daysLeft", { count: daysLeft })}
+            {endless ? t("dashboard.plan.forever") : gift ? t("dashboard.gift.daysLeft") : t("dashboard.plan.daysLeft", { count: daysLeft })}
           </p>
           <Link
             to={offersLink(lang, { mode: "premium" })}
@@ -149,7 +154,7 @@ function DaysRing({ ratio, label, lang }) {
   );
 }
 
-function UpgradeCoupon({ stats, onOpenPremium, onOpenStork }) {
+function UpgradeCoupon({ stats, onOpenPremium, onOpenStork, giftField }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const usd = monthlyUsdPrice();
@@ -207,6 +212,7 @@ function UpgradeCoupon({ stats, onOpenPremium, onOpenStork }) {
           {t("dashboard.plan.storkQ")} <span className="font-extrabold" style={{ color: GOLD_SOFT }}>{t("dashboard.plan.storkCta")}</span>
         </span>
       </button>
+      {giftField}
     </div>
   );
 }

@@ -362,7 +362,8 @@
       "errCaptchaFail": "Captcha failed, please try again",
       "errRateLimit": "Too many attempts, please try again shortly",
       "errGeneric": "Couldn't create the account",
-      "typeLabel": "Account type"
+      "typeLabel": "Account type",
+      "giftNote": "Your gift is saved: once you confirm your email, it activates on your account. If it doesn't activate automatically, open the gift link again."
     },
     "forgot": {
       "title": "Reset your password",
@@ -479,6 +480,14 @@
     "admin": {
       "note": "This is the admin account",
       "open": "Open the admin panel"
+    },
+    "gift": {
+      "title": "Premium gift",
+      "from": "A gift from Ilyes Derradji",
+      "daysLeft": "Days left in your gift",
+      "endingTitle": "Your gift ends in {{duration}}",
+      "endingDesc": "Subscribe to Premium to keep the stronger codes after your gift ends.",
+      "endingCta": "Subscribe to Premium"
     }
   },
   "payment": {
@@ -612,7 +621,8 @@
         "siteStats": "Homepage numbers",
         "seo": "SEO",
         "featured": "Featured offers",
-        "nocode": "No-code deals"
+        "nocode": "No-code deals",
+        "gifts": "Gifts"
       },
       "range": {
         "label": "Period",
@@ -658,7 +668,8 @@
       "plan": {
         "free": "Regular",
         "premium": "Premium",
-        "lifetime": "Lifetime"
+        "lifetime": "Lifetime",
+        "gift": "Gift"
       },
       "type": {
         "customer": "Customer",
@@ -739,7 +750,8 @@
         "subscribersSub": "Emails signed up to the newsletter",
         "premiumSub": "Premium members and Stork codes",
         "siteStatsSub": "Numbers shown on the homepage",
-        "seoSub": "Search titles and descriptions for company pages"
+        "seoSub": "Search titles and descriptions for company pages",
+        "giftsSub": "Links that give free Premium for a set period, separate from payments and Stork."
       },
       "premium": {
         "members": "Premium members",
@@ -976,6 +988,82 @@
         "previewFrozen": "No Premium link: this is how the card appears frozen in Premium mode.",
         "namePh": "Company name",
         "rewardPh": "Perk"
+      },
+      "gifts": {
+        "new": "New gift",
+        "loadError": "Couldn't load gift links",
+        "copyFailed": "Couldn't copy the link",
+        "listTitle": "Gift links",
+        "listHint": "Click a link to see who used it. Pausing stops new activations without taking gifts back.",
+        "emptyTitle": "No gift links yet",
+        "emptyDesc": "Create your first gift and share its link on WhatsApp.",
+        "noLabel": "No note",
+        "noExpiry": "No expiry date",
+        "expiresOn": "Expires {{date}}",
+        "usage": "Usage",
+        "copy": "Copy link",
+        "copied": "Copied",
+        "whatsapp": "Share on WhatsApp",
+        "whoUsed": "Who used it ({{n}})",
+        "activeLabel": "Turn the link on or off",
+        "enable": "Turn on",
+        "disable": "Pause",
+        "kind": {
+          "personal": "Personal",
+          "group": "Group invite"
+        },
+        "status": {
+          "active": "Active",
+          "exhausted": "Full",
+          "expired": "Expired",
+          "inactive": "Paused"
+        },
+        "stats": {
+          "accounts": "Accounts with an active gift",
+          "links": "Active links",
+          "month": "Uses this month"
+        },
+        "waMessage": "🎁 Ilyes Derradji gifted you {{duration}} of Premium on CODpromo.\nOpen your gift here: {{url}}",
+        "form": {
+          "sub": "A link that gives free Premium for a set period, with no payment.",
+          "kind": "Type",
+          "personalHint": "Works once, then stops.",
+          "groupHint": "One link for several people, up to the limit.",
+          "duration": "Duration",
+          "customDays": "Number of days",
+          "daysLabel": "Number of days (1 to 3650)",
+          "maxUses": "Maximum uses",
+          "expires": "Expiry date (optional)",
+          "expiresHint": "The link stops at the end of this day. People who activated it before keep their gift until it ends.",
+          "label": "Note (only you see it)",
+          "labelPh": "e.g. VIP group",
+          "create": "Create link",
+          "cancel": "Cancel",
+          "created": "Gift link created",
+          "readyTitle": "Your link is ready",
+          "readySub": "Copy it or share it straight on WhatsApp.",
+          "done": "Done",
+          "errDays": "Enter a number of days between 1 and 3650.",
+          "errMax": "Enter a maximum between 2 and 100000.",
+          "errExpiry": "Pick an expiry date in the future."
+        },
+        "drawer": {
+          "title": "Who used this link",
+          "none": "Nobody has used this link yet.",
+          "redeemed": "Activated on",
+          "until": "Premium ends",
+          "revokedAt": "Taken back on",
+          "revoke": "Take back gift",
+          "confirm": "Take the gift back from {{name}}? Premium stops on their account right away, and they can't get another gift.",
+          "revokedToast": "Gift taken back",
+          "deleted": "Deleted account",
+          "note": "Taking a gift back is final: the use still counts, and each account gets one gift only.",
+          "state": {
+            "active": "Active",
+            "ended": "Ended",
+            "revoked": "Taken back"
+          }
+        }
       }
     }
   },
@@ -1476,5 +1564,123 @@
     "browse": "Browse no-code deals",
     "error": "Couldn't connect. Check your internet and try again.",
     "retry": "Try again"
+  },
+  "gift": {
+    "seoTitle": "A Premium gift from Ilyes Derradji | CODpromo",
+    "seoDesc": "Open your gift and get Premium for free on CODpromo: stronger discount codes and exclusive codes.",
+    "title": "Ilyes Derradji gifted you {{duration}} of Premium",
+    "titleGeneric": "You've received a Premium gift from Ilyes Derradji",
+    "anonDesc": "Create a free account or log in, and the gift activates on your account automatically.",
+    "googleNote": "You can also continue with Google.",
+    "signup": "Create account",
+    "login": "Log in",
+    "userDesc": "The gift will be added to your account:",
+    "open": "Open the gift",
+    "opening": "Opening your gift…",
+    "loading": "Loading the gift…",
+    "doneTitle": "Premium is active on your account",
+    "doneDesc": "Your gift is valid until {{date}}. Every Premium code is now unlocked for you.",
+    "toAccount": "Go to my account",
+    "subscribe": "Subscribe to Premium",
+    "browse": "Browse offers",
+    "retry": "Try again",
+    "tagSub": "Premium",
+    "toast": "Premium gift activated until {{date}}",
+    "perks": {
+      "title": "What Premium unlocks",
+      "codes": "Exclusive Premium codes with bigger discounts than the regular ones",
+      "reveal": "Scratch to reveal any Premium code right on the card",
+      "nocode": "Bigger rewards on no-code deals",
+      "note": "No payment and no card. The gift ends on its own date, with no renewal."
+    },
+    "state": {
+      "yours": {
+        "title": "Your gift is active",
+        "desc": "Premium is unlocked for you until {{date}}."
+      },
+      "ended": {
+        "title": "Your gift has ended",
+        "desc": "Your Premium gift period is over. Subscribe to keep Premium codes unlocked."
+      },
+      "invalid": {
+        "title": "This gift link isn't valid",
+        "desc": "Make sure you opened the full link exactly as you received it."
+      },
+      "expired": {
+        "title": "This gift has expired",
+        "desc": "This invitation has ended and can no longer be activated."
+      },
+      "used": {
+        "title": "This gift has already been opened",
+        "desc": "A personal gift can be activated only once, and this one has been used."
+      },
+      "full": {
+        "title": "This invitation is full",
+        "desc": "All available places in this invitation have been taken."
+      },
+      "inactive": {
+        "title": "This gift is paused",
+        "desc": "This link has been stopped and doesn't work right now."
+      },
+      "already": {
+        "title": "You've already received a gift",
+        "desc": "Each account can get one Premium gift. Subscribe to get Premium again."
+      },
+      "hasPremium": {
+        "title": "You already have Premium",
+        "desc": "Your subscription is active and every Premium code is unlocked, so this gift wasn't used and someone else can still enjoy it."
+      },
+      "rateLimited": {
+        "title": "Too many incorrect attempts",
+        "desc": "Incorrect codes were entered several times from this account. Try again in an hour."
+      },
+      "error": {
+        "title": "Couldn't connect",
+        "desc": "Check your internet connection and try again."
+      }
+    },
+    "dur": {
+      "monthsNom_zero": "{{count}} months",
+      "monthsNom_one": "1 month",
+      "monthsNom_two": "{{count}} months",
+      "monthsNom_few": "{{count}} months",
+      "monthsNom_many": "{{count}} months",
+      "monthsNom_other": "{{count}} months",
+      "monthsAcc_zero": "{{count}} months",
+      "monthsAcc_one": "1 month",
+      "monthsAcc_two": "{{count}} months",
+      "monthsAcc_few": "{{count}} months",
+      "monthsAcc_many": "{{count}} months",
+      "monthsAcc_other": "{{count}} months",
+      "daysNom_zero": "{{count}} days",
+      "daysNom_one": "1 day",
+      "daysNom_two": "{{count}} days",
+      "daysNom_few": "{{count}} days",
+      "daysNom_many": "{{count}} days",
+      "daysNom_other": "{{count}} days",
+      "daysAcc_zero": "{{count}} days",
+      "daysAcc_one": "1 day",
+      "daysAcc_two": "{{count}} days",
+      "daysAcc_few": "{{count}} days",
+      "daysAcc_many": "{{count}} days",
+      "daysAcc_other": "{{count}} days"
+    },
+    "field": {
+      "label": "Have a gift code?",
+      "placeholder": "XXXX-XXXX-XXXX-XXXX",
+      "submit": "Activate"
+    },
+    "err": {
+      "invalid": "This code isn't valid.",
+      "inactive": "This gift is paused.",
+      "expired": "This gift has expired.",
+      "used": "This code has already been used.",
+      "full": "This invitation is full.",
+      "already": "You've already received a gift. Each account gets one.",
+      "hasPremium": "You already have Premium.",
+      "rateLimited": "Too many incorrect attempts. Try again in an hour.",
+      "ended": "Your gift has ended.",
+      "network": "Couldn't connect. Try again."
+    }
   }
 }

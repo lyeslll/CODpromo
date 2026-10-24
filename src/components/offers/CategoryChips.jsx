@@ -36,7 +36,7 @@ export default function CategoryChips({ categories, counts, value, onChange, fea
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12.5px] font-bold transition-colors ${
+      className={`flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12.5px] font-bold transition-colors sm:min-h-0 ${
         active
           ? "border-[var(--color-lime)] bg-[var(--color-lime)]/12 text-[var(--accent-text)]"
           : "border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--text-softer)] hover:border-[var(--color-lime)]/40 hover:text-[var(--text)]"

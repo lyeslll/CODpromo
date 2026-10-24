@@ -104,7 +104,8 @@ export default function CategoriesPage({ lang = "ar" }) {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-            {active.map((cat, i) => (
+            {/* فئة بلا عروض ما تبانش (كانت تفتح "الفئة غير موجودة") */}
+            {active.filter((cat) => counts[cat.id] > 0).map((cat, i) => (
               <CategoryTile key={cat.id} cat={cat} count={counts[cat.id] || 0} lang={lang} index={i} t={t} />
             ))}
           </div>

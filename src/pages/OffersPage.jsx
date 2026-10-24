@@ -49,8 +49,6 @@ import { useNocodeDeals, dealMatches } from "../lib/nocode.js";
 import { SkeletonGrid, EmptyState, ErrorState } from "../components/States.jsx";
 
 const SWIPE_HINT_KEY = "codpromo:swipe-hint";
-// المبدّل العائم (هاتف) يظهر بعد تمريرة صغيرة فقط: عند التحميل ما يغطّيش أول بطاقة
-const SWITCH_AFTER_PX = 80;
 
 // ============================================================
 //  صفحة /offers — كل العروض مع البحث والفلاتر والترتيب ومبدّل عادي/Premium.
@@ -243,15 +241,15 @@ export default function OffersPage({ lang = "ar" }) {
   // الكمبيوتر: مبدّل عائم كي يخرج مبدّل شريط الأدوات من الشاشة
   const deskToggleRef = useRef(null);
   const deskFloat = useFloatingSwitch(deskToggleRef, listRef, switchable);
-
-
-  const [pastTop, setPastTop] = useState(false);
+  // الهاتف: المبدّل العائم يبان كي يخرج المبدّل اللي في السطر من الشاشة (ماشي بعد 80px — كانو يبانو الزوج)
+  const [inlineOut, setInlineOut] = useState(false);
   useEffect(() => {
-    const onScroll = () => setPastTop(window.scrollY > SWITCH_AFTER_PX);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    const el = deskToggleRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => setInlineOut(!e.isIntersecting && e.boundingClientRect.top < 120), { rootMargin: "-100px 0px 0px 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [switchable, loading]);
 
   const [showSwipeHint, setShowSwipeHint] = useState(() => {
     try {
@@ -270,11 +268,11 @@ export default function OffersPage({ lang = "ar" }) {
   };
   // التلميح كان يبقى حتى يسحب الزائر (كثير ما يسحبوش) ويغطّي "نسخ الكود": دروك يروح وحدو بعد 5 ثواني من ظهورو
   useEffect(() => {
-    if (!showSwipeHint || !pastTop) return;
+    if (!showSwipeHint || !inlineOut) return;
     const id = setTimeout(dismissSwipeHint, 5000);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showSwipeHint, pastTop]);
+  }, [showSwipeHint, inlineOut]);
 
   // ===== السحب الأفقي على القائمة (لمس فقط) للتبديل عادي ⇄ Premium =====
   // touch-action: pan-y → التمرير العمودي يبقى للمتصفح، والحركة الأفقية لنا.
@@ -371,7 +369,7 @@ export default function OffersPage({ lang = "ar" }) {
       />
 
       {/* ===== هيرو صغير: العنوان + عدد العروض + البحث ===== */}
-      <header className="hero-section relative overflow-hidden pt-[104px] sm:pt-[120px]">
+      <header className="hero-section relative overflow-hidden pt-[96px] sm:pt-[120px]">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-grid" />
         </div>
@@ -384,15 +382,16 @@ export default function OffersPage({ lang = "ar" }) {
               </span>
             )}
           </div>
-          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[var(--text-soft)] sm:text-[16px]">{t("offers.subtitle")}</p>
+          {/* الهاتف: سطرين برك (كانت 3 أسطر + كل الفلاتر قبل أول بطاقة) */}
+          <p className="mt-2.5 line-clamp-2 max-w-2xl text-[14.5px] leading-relaxed text-[var(--text-soft)] sm:mt-3 sm:line-clamp-none sm:text-[16px]">{t("offers.subtitle")}</p>
 
           {/* حقل البحث — مرساة سلوك الهيدر عند التمرير (id ثابت مستقل عن اللغة) */}
-          <div id="search-anchor" className="group relative mt-6">
+          <div id="search-anchor" className="group relative mt-4 sm:mt-6">
             <div
               className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 blur transition-opacity duration-300 group-focus-within:opacity-100"
               style={{ background: "linear-gradient(120deg, rgba(166,240,0,0.4), rgba(56,189,248,0.25))" }}
             />
-            <div className="relative flex items-center gap-3 rounded-2xl border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] px-4 py-3.5 transition-colors group-focus-within:border-transparent">
+            <label className="relative flex cursor-text items-center gap-3 rounded-2xl border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] px-4 py-3.5 transition-colors group-focus-within:border-transparent">
               <Search size={20} className="shrink-0 text-[var(--color-mute)] transition-colors group-focus-within:text-[var(--color-lime)]" />
               <input
                 type="search"
@@ -407,7 +406,7 @@ export default function OffersPage({ lang = "ar" }) {
                   type="button"
                   onClick={() => setSearch("")}
                   aria-label={t("search.clear")}
-                  className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[var(--fill)] text-[var(--color-mute)] transition-colors hover:bg-[var(--fill-strong)] hover:text-[var(--text)]"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--fill)] text-[var(--color-mute)] transition-colors hover:bg-[var(--fill-strong)] hover:text-[var(--text)]"
                 >
                   <X size={14} />
                 </button>
@@ -415,7 +414,7 @@ export default function OffersPage({ lang = "ar" }) {
               <span className="hidden shrink-0 rounded-lg bg-[var(--fill)] px-2 py-1 text-[11px] font-bold text-[var(--color-mute)] sm:block">
                 {t("search.results", { count: activeCount })}
               </span>
-            </div>
+            </label>
           </div>
         </div>
       </header>
@@ -450,20 +449,23 @@ export default function OffersPage({ lang = "ar" }) {
         {/* شريط الأدوات: الترتيب + مبدّل Premium (الحاسوب؛ الهاتف يستعمل المبدّل العائم) */}
         {!loading && !error && (
           <>
-            <div className="mb-5 mt-6 flex flex-wrap items-center justify-between gap-3">
+            <div className="mb-4 mt-4 flex flex-wrap items-center justify-between gap-3 sm:mb-5 sm:mt-6">
               {nocode ? <span /> : <SortToggle value={sortMode} onChange={(v) => updateParams({ sort: v === "newest" ? null : v })} />}
-              <div ref={deskToggleRef} className="relative hidden md:block">
+              {/* المبدّل في السطر (حتى في الهاتف): العائم يبان غير كي يخرج هذا من الشاشة */}
+              <div ref={deskToggleRef} className="relative">
                 <PremiumToggle value={premiumView} onChange={setMode} />
                 <GoldBurst fire={burst} />
               </div>
             </div>
             {!nocode && (
+            <div className="hidden md:block">
             <OfferModeNote
               mode={premiumView}
               unlocked={unlocked}
               onSwitchPremium={() => setMode("premium")}
               onOpenPremium={goPremium}
             />
+            </div>
             )}
           </>
         )}
@@ -583,7 +585,7 @@ export default function OffersPage({ lang = "ar" }) {
       <Footer />
 
       <FloatingModeSwitch
-        visible={listInView && pastTop && switchable}
+        visible={listInView && inlineOut && switchable}
         value={premiumView}
         onChange={setMode}
         burst={burst}

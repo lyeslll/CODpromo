@@ -24,7 +24,7 @@ export default function TypeFilter({ value, onChange }) {
             type="button"
             onClick={() => onChange(key)}
             aria-pressed={active}
-            className="relative rounded-xl border px-1.5 py-2 text-[12px] font-bold transition-colors sm:px-4 sm:text-[13.5px]"
+            className="relative min-h-[44px] rounded-xl border px-1.5 py-2 text-[12px] font-bold transition-colors sm:min-h-0 sm:px-4 sm:text-[13.5px]"
             style={{
               color: active ? "#0a0a0a" : meta ? meta.color : "var(--text-softer)",
               borderColor: active ? "transparent" : meta ? `${meta.color}33` : "var(--color-ink-line)",

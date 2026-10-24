@@ -173,7 +173,8 @@ export default function StoreHero({
                 </span>
               </span>
               <span className="flex shrink-0 items-center gap-0.5 text-[12.5px] font-bold text-[#f0c63c]">
-                {unlocked ? t("storePage.premiumReveal") : t("storePage.premiumCta")}
+                {/* تحت 400px: السهم برك (الزر كامل يتضغط) — بلاه "مع Premium" يتقصّ لـ "مع m…" */}
+                <span className="max-[399px]:sr-only">{unlocked ? t("storePage.premiumReveal") : t("storePage.premiumCta")}</span>
                 <ChevronLeft size={15} className="ltr:rotate-180" />
               </span>
             </button>

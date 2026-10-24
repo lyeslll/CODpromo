@@ -6,6 +6,7 @@ import MagicCoupon2D from "./magic/MagicCoupon2D.jsx";
 import { premiumMultiplier } from "../../lib/siteStats.js";
 import { formatNumber } from "../../lib/values.js";
 import { formatPrice, usePricing } from "../../lib/pricing.jsx";
+import BidiText from "../BidiText.jsx";
 import { offersLink, offersPath } from "../../lib/seo.js";
 import { categoryName, categoryRecordSlug } from "../../lib/slug.js";
 import "./hero-mobile.css";
@@ -108,7 +109,8 @@ function HeroValueStrip({ stats, lang, t }) {
   const priceText = formatPrice(t, lang, pricing.dzd, pricing.usd);
   return (
     <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-[#f0c63c]/30 bg-[linear-gradient(120deg,rgba(166,240,0,0.06),rgba(240,198,60,0.09))] px-3.5 py-2.5">
-      {/* كل جزء يبقى مجموع: إذا ما دخلش في سطر، يتقسم بين "مجاني للجميع" وجملة السعر */}
+      {/* كل جزء يبقى مجموع: إذا ما دخلش في سطر، يتقسم بين "مجاني للجميع" وجملة السعر.
+          تحت 380px جملة السعر ما تدخلش وحدها في سطر → تمشي عادي (بلاها تدخل تحت ×N) */}
       <p className="min-w-0 text-start text-[12.5px] font-bold leading-snug text-[var(--text-softer)]">
         <span className="inline-flex items-center gap-1 whitespace-nowrap align-middle font-black text-[var(--color-lime)]">
           <Check size={14} strokeWidth={3} aria-hidden />
@@ -117,10 +119,12 @@ function HeroValueStrip({ stats, lang, t }) {
             ·
           </span>
         </span>{" "}
-        <span className="inline-block whitespace-nowrap">
-          {unlock != null
-            ? t("hero.value.unlockStrip", { price: priceText, value: formatNumber(unlock, lang) })
-            : t("hero.value.unlockShort", { price: priceText })}
+        <span className="inline-block whitespace-nowrap max-[379px]:inline max-[379px]:whitespace-normal">
+          {/* BidiText: "1,176$" في آخر الجملة العربية كان يبان "$1,176" */}
+          <BidiText
+            rtl={lang === "ar"}
+            text={unlock != null ? t("hero.value.unlockStrip", { price: priceText, value: formatNumber(unlock, lang) }) : t("hero.value.unlockShort", { price: priceText })}
+          />
         </span>
       </p>
       {multiplier && (

@@ -5,6 +5,7 @@ import { ArrowLeft, Check, Crown, Hand } from "lucide-react";
 import { premiumMultiplier } from "../../lib/siteStats.js";
 import { formatNumber } from "../../lib/values.js";
 import { formatPrice, usePricing } from "../../lib/pricing.jsx";
+import BidiText from "../BidiText.jsx";
 import { useTranslation } from "react-i18next";
 import { offersLink, offersPath } from "../../lib/seo.js";
 import { categoryName, categoryRecordSlug } from "../../lib/slug.js";
@@ -90,9 +91,10 @@ function HeroValueBox({ stats, lang, t }) {
       <span aria-hidden className="h-px w-full border-t border-dashed border-[#f0c63c]/35 sm:h-auto sm:w-px sm:self-stretch sm:border-s sm:border-t-0" />
       <div className="flex min-w-0 flex-1 items-center justify-between gap-4">
         <p className="min-w-0 text-[14.5px] font-bold leading-snug text-[var(--text-softer)]">
-          {unlock != null
-            ? t("hero.value.unlock", { price: priceText, value: formatNumber(unlock, lang) })
-            : t("hero.value.unlockShort", { price: priceText })}
+          <BidiText
+            rtl={lang === "ar"}
+            text={unlock != null ? t("hero.value.unlock", { price: priceText, value: formatNumber(unlock, lang) }) : t("hero.value.unlockShort", { price: priceText })}
+          />
         </p>
         {multiplier && (
           <bdi

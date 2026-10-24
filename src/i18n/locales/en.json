@@ -43,7 +43,9 @@
       "unlock": "Pay {{price}} once, unlock ${{value}}+ in Premium discounts for life",
       "unlockShort": "Lifetime Premium for one payment: {{price}}",
       "unlockStrip": "{{price}} once · ${{value}}+ in discounts",
-      "multiplierAria": "Premium is worth {{x}} times its price"
+      "multiplierAria": "Premium is worth {{x}} times its price",
+      "memberStrip": "Premium is active · ${{value}}+ in discounts unlocked for you",
+      "memberShort": "Premium is active: every Premium code is unlocked for you"
     },
     "titleLine1": "One platform…",
     "titleLine2": "every discount your business needs."
@@ -2430,7 +2432,8 @@
     },
     "similarTitle": "Similar companies",
     "similarAll": "All {{category}} companies",
-    "moreIn": "More in {{category}}"
+    "moreIn": "More in {{category}}",
+    "copyShort": "Copy"
   },
   "notFound": {
     "kicker": "This link is no longer valid",

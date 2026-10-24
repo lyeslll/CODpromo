@@ -6,6 +6,8 @@ import { premiumMultiplier } from "../../lib/siteStats.js";
 import { formatNumber } from "../../lib/values.js";
 import { formatPrice, usePricing } from "../../lib/pricing.jsx";
 import BidiText from "../BidiText.jsx";
+import { usePremium } from "../../lib/premium.jsx";
+import { useAuth } from "../../lib/auth.jsx";
 import { useTranslation } from "react-i18next";
 import { offersLink, offersPath } from "../../lib/seo.js";
 import { categoryName, categoryRecordSlug } from "../../lib/slug.js";
@@ -70,9 +72,13 @@ const CHIP_SLOTS = ["top-[2%] end-[-11%]", "top-[40%] end-[-15%]", "top-[78%] en
  */
 function HeroValueBox({ stats, lang, t }) {
   const pricing = usePricing();
-  // قبل ما يوصلو السعر وأرقام site_stats: نفس المربع بالنسخة الطويلة (القيمة + ×N) والنص مخفي (visibility)
-  // باش الـ Hero ما يقفزش — حتى رقم ما يبان (88… = مكان محجوز برك)
-  const waiting = !pricing || stats == null;
+  const { hasPremium, premiumReady } = usePremium();
+  const { loading: authLoading } = useAuth();
+  // حالة الحساب مازال ما تعرفتش → نستناو (بلاها العضو يشوف جملة السعر ومن بعد تتبدّل)
+  const statusPending = authLoading || !premiumReady;
+  // قبل ما يوصلو السعر وأرقام site_stats وحالة الحساب: نفس المربع بالنسخة الطويلة (القيمة + ×N) والنص مخفي
+  // (visibility) باش الـ Hero ما يقفزش — حتى رقم ما يبان (88… = مكان محجوز برك)
+  const waiting = !pricing || stats == null || statusPending;
   const unlock = waiting ? 8888 : stats?.premiumUnlockValueUsd ?? null;
   const multiplier = waiting ? 88 : premiumMultiplier(unlock, pricing.usd);
   const priceText = waiting ? formatPrice(t, lang, 88888, 88) : formatPrice(t, lang, pricing.dzd, pricing.usd);
@@ -93,7 +99,15 @@ function HeroValueBox({ stats, lang, t }) {
         <p className="min-w-0 text-[14.5px] font-bold leading-snug text-[var(--text-softer)]">
           <BidiText
             rtl={lang === "ar"}
-            text={unlock != null ? t("hero.value.unlock", { price: priceText, value: formatNumber(unlock, lang) }) : t("hero.value.unlockShort", { price: priceText })}
+            text={
+              hasPremium && !waiting
+                ? unlock != null
+                  ? t("hero.value.memberStrip", { value: formatNumber(unlock, lang) })
+                  : t("hero.value.memberShort")
+                : unlock != null
+                  ? t("hero.value.unlock", { price: priceText, value: formatNumber(unlock, lang) })
+                  : t("hero.value.unlockShort", { price: priceText })
+            }
           />
         </p>
         {multiplier && (

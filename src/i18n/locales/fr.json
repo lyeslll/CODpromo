@@ -43,7 +43,9 @@
       "unlock": "Payez {{price}} une fois et débloquez plus de {{value}} $ de réductions Premium à vie",
       "unlockShort": "Premium à vie en un seul paiement : {{price}}",
       "unlockStrip": "{{price}} une fois · +{{value}} $ de réductions",
-      "multiplierAria": "Premium vaut {{x}} fois son prix"
+      "multiplierAria": "Premium vaut {{x}} fois son prix",
+      "memberStrip": "Premium actif · +{{value}} $ de réductions débloquées pour vous",
+      "memberShort": "Premium actif : tous les codes Premium sont débloqués pour vous"
     },
     "titleLine1": "Une seule plateforme…",
     "titleLine2": "toutes les réductions dont votre commerce a besoin."
@@ -2430,7 +2432,8 @@
     },
     "similarTitle": "Entreprises similaires",
     "similarAll": "Toutes les entreprises : {{category}}",
-    "moreIn": "Plus dans {{category}}"
+    "moreIn": "Plus dans {{category}}",
+    "copyShort": "Copier"
   },
   "notFound": {
     "kicker": "Ce lien n’est plus valide",

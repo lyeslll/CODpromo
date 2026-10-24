@@ -43,7 +43,9 @@
       "unlock": "دفعة واحدة بـ{{price}} تفتح لك خصومات Premium تفوق {{value}}$، مدى الحياة",
       "unlockShort": "Premium مدى الحياة بدفعة واحدة: {{price}}",
       "unlockStrip": "{{price}} مرة واحدة = خصومات تفوق {{value}}$",
-      "multiplierAria": "قيمة Premium تعادل سعره مضروباً في {{x}}"
+      "multiplierAria": "قيمة Premium تعادل سعره مضروباً في {{x}}",
+      "memberStrip": "Premium مفعّل على حسابك · خصومات تفوق {{value}}$ مفتوحة لك",
+      "memberShort": "Premium مفعّل على حسابك: كل أكواد Premium مفتوحة لك"
     },
     "titleLine1": "منصة واحدة…",
     "titleLine2": "وكل الخصومات التي تحتاجها تجارتك."
@@ -2430,7 +2432,8 @@
     },
     "similarTitle": "شركات مشابهة",
     "similarAll": "كل شركات {{category}}",
-    "moreIn": "المزيد في {{category}}"
+    "moreIn": "المزيد في {{category}}",
+    "copyShort": "نسخ"
   },
   "notFound": {
     "kicker": "هذا الرابط لم يعد صالحاً",

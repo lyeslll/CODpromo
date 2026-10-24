@@ -112,8 +112,8 @@ export function storeKeywords(company, lang) {
 
 /** صورة المشاركة لصفحة شركة: لوجو الشركة إن كان رابط صورة، وإلا الافتراضي. */
 export function storeImage(company) {
-  const logo = company?.logo || "";
-  return /^https?:\/\//i.test(logo) ? logo : DEFAULT_OG_IMAGE;
+  // صورة المشاركة الخاصة (api/og.js) — نفس اللي يحطّها prerender للزواحف
+  return company?.slug ? `${SITE_URL}/api/og?slug=${encodeURIComponent(company.slug)}` : DEFAULT_OG_IMAGE;
 }
 
 // ===================== عناوين وأوصاف الفئة =====================

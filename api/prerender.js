@@ -128,6 +128,7 @@ function buildHead({ lang, title, description, canonical, image, alternates, jso
   out += `<meta property="og:description" content="${esc(description)}"/>`;
   out += `<meta property="og:url" content="${esc(canonical)}"/>`;
   out += `<meta property="og:image" content="${esc(image)}"/>`;
+  if (/\/api\/og\?/.test(image)) out += `<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>`;
   out += `<meta property="og:locale" content="${og}"/>`;
   out += `<meta name="twitter:card" content="summary_large_image"/>`;
   out += `<meta name="twitter:title" content="${esc(title)}"/>`;
@@ -195,7 +196,8 @@ export default async function handler(req, res) {
 
       const title = storeSeoTitle(c, lang);
       const description = storeSeoDescription(c, lang);
-      const image = /^https?:\/\//i.test(c.logo || "") ? c.logo : DEFAULT_OG_IMAGE;
+      // صورة مشاركة خاصة بالشركة (api/og.js): اللوغو + القيمة + Premium، 1200×630
+      const image = `https://${host}/api/og?slug=${encodeURIComponent(c.slug)}`;
       const canonical = storeUrl(c.slug, lang);
       const alternates = ["ar", "en", "fr"].map((l) => ({ lang: l, url: storeUrl(c.slug, l) }));
       const home = { name: L.store?.breadcrumbHome || SITE_NAME, url: `${SITE_URL}${prefix(lang)}/` };

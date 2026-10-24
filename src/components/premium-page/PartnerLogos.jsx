@@ -30,7 +30,7 @@ export default function PartnerLogos({ companies, countText }) {
                 className="flex h-full flex-col items-center gap-2.5 rounded-2xl border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] px-2 py-4 text-center transition-colors hover:border-[#f0c63c]/45"
               >
                 <CompanyLogo logo={c.logo} bg={c.logo_bg} name={c.name} size={52} accent="#f0c63c" />
-                <span className="line-clamp-1 w-full text-[12.5px] font-bold text-[var(--text-softer)]">{c.name}</span>
+                <span dir="auto" className="line-clamp-2 w-full break-words text-center text-[12.5px] font-bold leading-snug text-[var(--text-softer)]">{c.name}</span>
               </Link>
             </li>
           ))}

@@ -11,6 +11,7 @@ import { fetchMyRequests, fetchPartnerOverview } from "../../lib/requests.js";
 import { storePath, partnersPath } from "../../lib/seo.js";
 import { formatNumber } from "../../lib/values.js";
 import PartnerOfferPage from "./PartnerOfferPage.jsx";
+import SettingsPanel from "../../components/dashboard/customer/SettingsPanel.jsx";
 
 const STATUS = {
   pending: { icon: Clock, color: "#fbbf24" },
@@ -173,6 +174,11 @@ function PartnerHome({ requests, overview, error }) {
           </ul>
         )}
       </section>
+
+      {/* الإعدادات (نفس لوحة الزبون): الاسم، كلمة المرور، اللغة، الخروج، حذف الحساب — ما كانتش في حساب الشركة */}
+      <div className="mt-8">
+        <SettingsPanel />
+      </div>
     </>
   );
 }

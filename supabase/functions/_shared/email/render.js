@@ -34,7 +34,10 @@ const TONES = {
   lime: { bar: C.lime, barImg: "linear-gradient(90deg,#c4ff4d,#a6f000,#8bd000)", btn: C.lime, btnImg: "linear-gradient(135deg,#c4ff4d,#8bd000)", btnText: "#0a0a0a", icon: "mail" },
   gold: { bar: C.gold, barImg: "linear-gradient(90deg,#ffe486,#f0c63c,#cf9a1e)", btn: C.gold, btnImg: "linear-gradient(135deg,#ffe486,#f0c63c 55%,#cf9a1e)", btnText: C.ink, icon: "crown" },
   mute: { bar: "#3f3f46", barImg: "", btn: C.lime, btnImg: "linear-gradient(135deg,#c4ff4d,#8bd000)", btnText: "#0a0a0a", icon: "lock" },
+  // المفاتيح الماسية (phase37): كريستال جليدي — ماشي لون نوع عرض ولا ذهبي Premium
+  diamond: { bar: "#cfe8ff", barImg: "linear-gradient(90deg,#f4fbff,#9cc7ff,#c9b8ff)", btn: "#cfe8ff", btnImg: "linear-gradient(135deg,#f4fbff,#bcdcff 50%,#8fb2ff)", btnText: "#0b1430", icon: "diamond" },
 };
+const DIAMOND_SOFT = "#dbeeff";
 
 const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -101,7 +104,7 @@ function fallback(x, url) {
 
 /** صفوف ملخّص (إيصال): [label, valueHtml, tagHtml?] — خط مثقّب فوق كيما كعب تذاكر الكوبون. */
 function receipt(x, tone, title, rows) {
-  const edge = tone === "gold" ? "rgba(240,198,60,0.45)" : C.line;
+  const edge = tone === "gold" ? "rgba(240,198,60,0.45)" : tone === "diamond" ? "rgba(156,199,255,0.5)" : C.line;
   const body = rows
     .map(
       ([k, v], i) =>
@@ -110,7 +113,7 @@ function receipt(x, tone, title, rows) {
     )
     .join("");
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 22px;border-top:2px dashed ${edge};"><tr><td style="padding-top:14px;">` +
-    `<p style="margin:0 0 4px;font-family:${x.font};font-size:13px;line-height:18px;font-weight:800;color:${tone === "gold" ? C.goldSoft : C.softer};">${title}</p>` +
+    `<p style="margin:0 0 4px;font-family:${x.font};font-size:13px;line-height:18px;font-weight:800;color:${tone === "gold" ? C.goldSoft : tone === "diamond" ? DIAMOND_SOFT : C.softer};">${title}</p>` +
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${body}</table></td></tr></table>`;
 }
 
@@ -286,6 +289,47 @@ const TEMPLATES = {
       p(x, esc(S.note), C.soft, 14) +
       button(x, "lime", esc(S.cta), x.links.offers);
     return { subject: S.subject, preheader: S.preheader, tone: "mute", content, footer: esc(x.L.common.footer) };
+  },
+
+  // المفاتيح الماسية (phase37): تأكيد شراء باقة — الملخص، الرصيد، كيفاش يستعمل، الرصيد في Premium، والاسترداد.
+  keys_purchase: (x, d) => {
+    const S = x.L.keysPurchase;
+    const K = x.L.keysCommon;
+    const rows = [
+      [esc(S.pack), fill(K.packV, { keys: esc(String(d.keys ?? "")) })],
+      [esc(S.amount), `${fmtAmount(x, d.amount, d.currency)}${d.tier === "test" ? tag(S.testTag) : ""}`],
+      [esc(S.method), esc(x.L.methods[d.provider] || d.provider || "")],
+      [esc(S.date), esc(fmtDate(x, d.paidAt))],
+      [esc(K.balance), esc(String(d.balance ?? ""))],
+    ];
+    const content =
+      p(x, greet(x, d.name), C.text) +
+      h1(x, esc(S.title)) +
+      p(x, esc(K.what)) +
+      receipt(x, "diamond", esc(S.summary), rows) +
+      steps(x, esc(K.howTitle), [esc(K.step1), esc(K.step2), esc(K.step3)]) +
+      button(x, "diamond", esc(K.cta), x.links.premiumOffers) +
+      panel(x, { title: esc(S.creditTitle), html: esc(S.creditBody), cta: esc(S.creditCta), url: x.links.premium, tone: "gold" }) +
+      panel(x, { title: esc(S.refundTitle), html: fill(S.refundBody, { date: esc(fmtDate(x, d.refundUntil)), email: mailLink(x.contact, DIAMOND_SOFT) }), tone: "mute" });
+    return { subject: S.subject, preheader: S.preheader, tone: "diamond", content, footer: esc(x.L.common.footer) };
+  },
+
+  // مفاتيح ماسية هدية من CODpromo (الأدمن): العدد والرصيد (السبب للأدمن برك، ما يتبعثش).
+  keys_gift: (x, d) => {
+    const S = x.L.keysGift;
+    const K = x.L.keysCommon;
+    const content =
+      p(x, greet(x, d.name), C.text) +
+      h1(x, esc(S.title)) +
+      p(x, esc(K.what)) +
+      receipt(x, "diamond", "", [
+        [esc(S.gifted), esc(String(d.keys ?? ""))],
+        [esc(K.balance), esc(String(d.balance ?? ""))],
+      ]).replace(/<p[^>]*><\/p>/, "") +
+      steps(x, esc(K.howTitle), [esc(K.step1), esc(K.step2), esc(K.step3)]) +
+      button(x, "diamond", esc(K.cta), x.links.premiumOffers) +
+      p(x, esc(S.note), C.mute, 13);
+    return { subject: S.subject, preheader: S.preheader, tone: "diamond", content, footer: esc(x.L.common.footer) };
   },
 
   // هدية Premium تفعّلت: تاريخ النهاية.

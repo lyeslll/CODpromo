@@ -31,8 +31,15 @@ function safeEqual(a: string, b: string): boolean {
 
 const admin = adminClient();
 
-async function done(id: number, ok: boolean, providerId: string | null, error: string | null) {
-  await admin.rpc("email_job_done", { p_id: id, p_ok: ok, p_provider_id: providerId, p_error: error?.slice(0, 500) ?? null });
+// المفاتيح الماسية (phase37): صندوق وحدو (public.key_emails) — الجسم { keys_id } بلاصة { id }،
+// باش رقم من صندوق ما يتقراش أبداً في الصندوق الآخر.
+// (لكل طلب وحدو: نفس الـ isolate يخدم بزاف الطلبات في نفس الوقت)
+type Box = { claim: string; done: string; idem: string };
+const MAIN_BOX: Box = { claim: "email_job_claim", done: "email_job_done", idem: "codpromo-email" };
+const KEYS_BOX: Box = { claim: "key_email_claim", done: "key_email_done", idem: "codpromo-keys-email" };
+
+async function finish(box: Box, id: number, ok: boolean, providerId: string | null, error: string | null) {
+  await admin.rpc(box.done, { p_id: id, p_ok: ok, p_provider_id: providerId, p_error: error?.slice(0, 500) ?? null });
 }
 
 Deno.serve(async (req) => {
@@ -41,11 +48,14 @@ Deno.serve(async (req) => {
   if (!secret || !safeEqual(req.headers.get("x-email-secret") ?? "", secret)) return json({ error: "forbidden" }, 403);
 
   const body = await req.json().catch(() => ({}));
-  const id = Number(body?.id);
+  const keysBox = body?.keys_id != null;
+  const box = keysBox ? KEYS_BOX : MAIN_BOX;
+  const done = (id: number, ok: boolean, providerId: string | null, error: string | null) => finish(box, id, ok, providerId, error);
+  const id = Number(keysBox ? body?.keys_id : body?.id);
   if (!Number.isSafeInteger(id) || id <= 0) return json({ error: "bad id" }, 400);
 
   // حجز المهمة (pending / failed → sending) + كل بياناتها من القاعدة. null = مبعوثة ولا محجوزة.
-  const { data: job, error } = await admin.rpc("email_job_claim", { p_id: id });
+  const { data: job, error } = await admin.rpc(box.claim, { p_id: id });
   if (error) return json({ error: "claim" }, 500);
   if (!job) return json({ skipped: true });
 
@@ -70,7 +80,7 @@ Deno.serve(async (req) => {
         Authorization: `Bearer ${key}`,
         "Content-Type": "application/json",
         // نفس المهمة مرّتين (إعادة محاولة بعد انقطاع) → إيميل واحد
-        "Idempotency-Key": `codpromo-email-${id}`,
+        "Idempotency-Key": `${box.idem}-${id}`,
       },
       body: JSON.stringify({
         from: FROM,

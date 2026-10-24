@@ -9,6 +9,8 @@
 // ============================================================
 import { adminClient, json, revokeLifetime } from "../_shared/lifetime.ts";
 import { PAYPAL_BASE, getAccessToken } from "../_shared/paypal.ts";
+// المفاتيح الماسية (phase37): الاسترداد على capture تاع key_orders برك (capture تاع Premium = بلا أثر هنا)
+import { keysRefundGateway } from "../_shared/keys.ts";
 
 const EVENTS = new Set(["PAYMENT.CAPTURE.REFUNDED", "PAYMENT.CAPTURE.REVERSED"]);
 
@@ -59,6 +61,12 @@ Deno.serve(async (req) => {
     const capture = await cRes.json().catch(() => ({}));
     if (capture?.status === "REFUNDED" || capture?.status === "REVERSED") {
       await revokeLifetime(adminClient(), "paypal", captureId);
+    }
+    // مفاتيح: حتى الاسترداد الجزئي (PARTIALLY_REFUNDED) ينحّي المفاتيح اللي ما تستعملوش من هاد الطلب
+    if (capture?.status === "REFUNDED" || capture?.status === "REVERSED" || capture?.status === "PARTIALLY_REFUNDED") {
+      const full = capture?.status !== "PARTIALLY_REFUNDED";
+      const refunded = full ? Number(capture?.amount?.value) : Number(event?.resource?.amount?.value);
+      await keysRefundGateway(adminClient(), "paypal", captureId, Number.isFinite(refunded) ? refunded : 0);
     }
     return json({ received: true });
   } catch (e) {

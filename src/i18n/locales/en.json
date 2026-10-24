@@ -1364,7 +1364,8 @@
     "keyCtrl": "Ctrl",
     "member": "Premium member",
     "offersBadge": "{{count}} offers",
-    "menuClose": "Close menu"
+    "menuClose": "Close menu",
+    "admin": "Admin panel"
   },
   "app": {
     "title": "Every discount, in your pocket.",

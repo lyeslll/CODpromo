@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogIn, LogOut, UserPlus, Menu, X, Search, ChevronDown } from "lucide-react";
+import { LogIn, UserPlus, Menu, X, Search, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Logo from "./Logo.jsx";
 import LanguageSwitcher from "./LanguageSwitcher.jsx";
@@ -10,6 +10,7 @@ import PremiumNavButton from "./header/PremiumNavButton.jsx";
 import CategoriesMega from "./header/CategoriesMega.jsx";
 import QuickSearch from "./header/QuickSearch.jsx";
 import MobileMenu from "./header/MobileMenu.jsx";
+import AccountMenu from "./header/AccountMenu.jsx";
 import { loadHeaderOffers, useHeaderOffers, useHoverMenu, useOffersCount, userDisplay } from "./header/headerData.js";
 import { useAuth } from "../lib/auth.jsx";
 import { useCategories } from "../lib/categories.jsx";
@@ -254,26 +255,8 @@ export default function Navbar() {
             <PremiumNavButton onOpen={openPremium} />
 
             {user ? (
-              <>
-                <Link
-                  to="/dashboard"
-                  title={t("nav.account")}
-                  className="flex items-center gap-2 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] py-1.5 pe-3 ps-1.5 transition-colors hover:bg-[var(--fill-strong)]"
-                >
-                  <span className="grid h-7 w-7 place-items-center rounded-lg text-[13px] font-black text-[#0a0a0a]" style={{ background: "linear-gradient(150deg, var(--color-lime-soft), var(--color-lime-deep))" }}>
-                    {initial}
-                  </span>
-                  <span className="max-w-[110px] truncate text-[13px] font-bold text-[var(--text)]">{name}</span>
-                </Link>
-                <button
-                  onClick={logout}
-                  aria-label={t("nav.logout")}
-                  title={t("nav.logout")}
-                  className="flex items-center gap-1.5 rounded-xl border border-[var(--color-ink-line)] px-2.5 py-2 text-[13.5px] font-bold text-[var(--text-softer)] transition-colors hover:border-red-500/40 hover:text-red-400 xl:px-3"
-                >
-                  <LogOut size={15} /> <span className="hidden xl:inline">{t("nav.logout")}</span>
-                </button>
-              </>
+              // قائمة الحساب (حسابي، المفضّلة، لوحة التحكم، الخروج) بلاصة زر "خروج" وحدو جنب الاسم
+              <AccountMenu name={name} initial={initial} onLogout={logout} />
             ) : (
               <>
                 <Link

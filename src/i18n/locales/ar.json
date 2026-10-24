@@ -1364,7 +1364,8 @@
     "keyCtrl": "Ctrl",
     "member": "عضو Premium",
     "offersBadge": "{{count}} عرض",
-    "menuClose": "إغلاق القائمة"
+    "menuClose": "إغلاق القائمة",
+    "admin": "لوحة التحكم"
   },
   "app": {
     "title": "الخصومات كلها في جيبك.",

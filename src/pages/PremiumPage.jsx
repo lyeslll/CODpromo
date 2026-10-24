@@ -183,16 +183,23 @@ export default function PremiumPage({ lang = "ar" }) {
   let pill = null;
   let title = t("premiumPage.hero.title");
   let sub = companiesText ? t("premiumPage.hero.sub", { companies: companiesText }) : t("premiumPage.hero.subLoading");
+  // قبل ما يوصل عدد الشركات: الجملة النهائية (بعدد محجوز 88) مخفية تحت نص التحميل → نفس الطول، الأزرار ما يقفزوش
+  let subGhost = companiesText ? null : t("premiumPage.hero.sub", { companies: t("premiumPage.companies", { count: 88, n: formatNumber(88, lang) }) });
   if (member) {
     pill = { icon: Crown, text: t("premiumPage.hero.memberPill") };
     title = t("premiumPage.hero.memberTitle");
     sub = isLifetime || !profile?.premium_until ? t("premiumPage.hero.memberLifetime") : t("premiumPage.hero.memberUntil", { date: fmtDay(profile.premium_until) });
+    subGhost = null;
   } else if (isGift && gift?.premium_until) {
     pill = { icon: Gift, text: t("premiumPage.hero.giftPill", { date: fmtDay(gift.premium_until) }) };
     title = t("premiumPage.hero.giftTitle");
     sub = t("premiumPage.hero.giftSub", { date: fmtDay(gift.premium_until) });
+    subGhost = null;
   } else if (pricing?.isLaunch) {
     pill = { icon: null, text: t("premiumPage.hero.launchPill"), dot: true };
+  } else if (!pricing) {
+    // السعر مازال ما وصلش: الوسم مخفي في بلاصتو (الإطلاق = الحالة العادية دروك) باش العنوان والأزرار ما يقفزوش
+    pill = { icon: null, text: t("premiumPage.hero.launchPill"), dot: true, ghost: true };
   }
 
   return (
@@ -218,23 +225,33 @@ export default function PremiumPage({ lang = "ar" }) {
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 pt-[112px] sm:pt-[136px] lg:grid-cols-[1.08fr_0.92fr] lg:gap-16 lg:pb-24">
           <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
             {pill && (
-              <span className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-extrabold" style={{ borderColor: "rgba(240,198,60,0.4)", color: GOLD_SOFT, background: "rgba(240,198,60,0.08)" }}>
+              <span aria-hidden={pill.ghost || undefined} className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-extrabold ${pill.ghost ? "invisible" : ""}`} style={{ borderColor: "rgba(240,198,60,0.4)", color: GOLD_SOFT, background: "rgba(240,198,60,0.08)" }}>
                 {pill.icon ? <pill.icon size={14} /> : <span className="h-2 w-2 rounded-full bg-[#f0c63c]" />}
                 {pill.text}
               </span>
             )}
             <h1 className="mt-5 text-balance text-[clamp(32px,8.4vw,40px)] font-black leading-[1.12] tracking-tight sm:text-[52px] lg:text-[58px]">{title}</h1>
-            <p className="mt-5 max-w-xl text-[16.5px] leading-[1.85] text-[var(--text-soft)] sm:text-[18px]">{sub}</p>
+            <p className="mt-5 grid max-w-xl text-[16.5px] leading-[1.85] text-[var(--text-soft)] sm:text-[18px]">
+              <span className="[grid-area:1/1]">{sub}</span>
+              {subGhost && (
+                <span aria-hidden className="invisible [grid-area:1/1]">
+                  {subGhost}
+                </span>
+              )}
+            </p>
 
             {/* السعر في أول شاشة (كان يبان غير في البطاقة الذهبية تحت) — من pricing_public، بلا رقم قبل ما يوصل */}
-            {!member && !isGift && pricing && (
-              <p className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                {pricing.isLaunch && pricing.regularDzd != null && (
+            {/* قبل ما يوصل السعر: نفس السطر مخفي (visibility) باش الأزرار ما يقفزوش — 88… = مكان محجوز برك */}
+            {!member && !isGift && (
+              <p aria-hidden={!pricing || undefined} className={`mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1 ${pricing ? "" : "invisible"}`}>
+                {(pricing ? pricing.isLaunch && pricing.regularDzd != null : true) && (
                   <s className="text-[14px] font-bold text-[var(--text-soft)] decoration-[var(--color-mute)]">
-                    <bdi>{formatPrice(t, lang, pricing.regularDzd, pricing.regularUsd)}</bdi>
+                    <bdi>{pricing ? formatPrice(t, lang, pricing.regularDzd, pricing.regularUsd) : formatPrice(t, lang, 88888, 88)}</bdi>
                   </s>
                 )}
-                <bdi className="text-[24px] font-black leading-none text-[#ffe486] sm:text-[28px]">{formatPrice(t, lang, pricing.dzd, pricing.usd)}</bdi>
+                <bdi className="text-[24px] font-black leading-none text-[#ffe486] sm:text-[28px]">
+                  {pricing ? formatPrice(t, lang, pricing.dzd, pricing.usd) : formatPrice(t, lang, 8888, 88)}
+                </bdi>
                 <span className="text-[13.5px] font-bold text-[var(--text-soft)]">{t("premiumPage.hero.priceNote")}</span>
               </p>
             )}

@@ -33,7 +33,7 @@ export default function MiniCoupon({ company, premium = false, className = "" })
         <span aria-hidden className="ticket-ring ticket-ring-r" />
         <div className="relative flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <CompanyLogo logo={company.logo} name={company.name} size={44} />
+            <CompanyLogo logo={company.logo} bg={company.logo_bg} name={company.name} size={44} />
             <span className="truncate text-[15px] font-extrabold text-[var(--text)]">{company.name}</span>
           </div>
           {premium ? (

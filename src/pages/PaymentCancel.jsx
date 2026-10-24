@@ -3,6 +3,7 @@ import { XCircle, Crown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import PaymentShell, { StatusBadge } from "../components/payment/PaymentShell.jsx";
 import { premiumPath } from "../lib/seo.js";
+import { homePath } from "../lib/seo.js";
 
 /** صفحة إلغاء الدفع — لم تتم أي عملية خصم. */
 export default function PaymentCancel() {
@@ -22,7 +23,7 @@ export default function PaymentCancel() {
         >
           <Crown size={17} /> {t("purchase.failBack")}
         </Link>
-        <Link to="/" className="inline-flex items-center justify-center rounded-2xl border border-[var(--color-ink-line)] px-6 py-3.5 text-[15px] font-bold text-[var(--text)] transition-colors hover:bg-[var(--fill)]">
+        <Link to={homePath(i18n.language)} className="inline-flex items-center justify-center rounded-2xl border border-[var(--color-ink-line)] px-6 py-3.5 text-[15px] font-bold text-[var(--text)] transition-colors hover:bg-[var(--fill)]">
           {t("payment.back")}
         </Link>
       </div>

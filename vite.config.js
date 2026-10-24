@@ -43,7 +43,8 @@ export default defineConfig({
         // precache لقشرة التطبيق فقط (JS/CSS/HTML) — لا نخزّن أعلام/صور ضخمة مسبقاً.
         globPatterns: ["**/*.{js,css,html}"],
         // مشهد الـ 3D يُحمَّل عند الحاجة فقط (الأجهزة القادرة) — لا نفرضه على كل الزوار مسبقاً.
-        globIgnores: ["**/MagicScene3D-*.js"],
+        // + لوحة الأدمن وفورم الشركة: للأدمن والشركات برك (~250KB ما يلزمش يتحمّل في الخلفية لكل زائر).
+        globIgnores: ["**/MagicScene3D-*.js", "**/Admin-*.js", "**/CompanyOfferForm-*.js"],
         // SPA: أي تنقّل يُخدَم من index.html (يشمل /store, /category, /admin, العودة من الدفع…)
         navigateFallback: "/index.html",
         cleanupOutdatedCaches: true,
@@ -64,6 +65,16 @@ export default defineConfig({
               cacheName: "supabase-data",
               networkTimeoutSeconds: 4,
               expiration: { maxEntries: 80, maxAgeSeconds: 300 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          // الخطوط من الموقع (/fonts/، أسماء فيها النسخة) → CacheFirst (سنة)
+          {
+            urlPattern: ({ url }) => url.origin === self.location.origin && url.pathname.startsWith("/fonts/"),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "site-fonts",
+              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
               cacheableResponse: { statuses: [0, 200] },
             },
           },

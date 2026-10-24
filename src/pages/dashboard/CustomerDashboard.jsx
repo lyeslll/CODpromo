@@ -20,6 +20,7 @@ import { usePremium } from "../../lib/premium.jsx";
 import { giftDaysLeft } from "../../lib/gifts.js";
 import { fetchMyPurchase } from "../../lib/billing.js";
 import { usePricing } from "../../lib/pricing.jsx";
+import { useFreeKey } from "../../lib/freeKeyContext.jsx";
 import LifetimePrice from "../../components/pricing/LifetimePrice.jsx";
 import SeatsMeter from "../../components/pricing/SeatsMeter.jsx";
 import { fetchFavoritesWithCompany, addFavorite, removeFavorite } from "../../lib/favorites.js";
@@ -63,16 +64,22 @@ export default function CustomerDashboard() {
 
   const kind = isLifetime ? "lifetime" : isPremiumActive ? "premium" : isGift ? "gift" : "free";
   const pricing = usePricing();
+  const fk = useFreeKey();
   // تاريخ الشراء (Premium مدى الحياة) — من purchases، المستخدم يقرا مشترياتو برك
   const [purchase, setPurchase] = useState(null);
+  const [purchaseFor, setPurchaseFor] = useState(null); // الحساب اللي تجاب شراؤه (ولا فشل) — بطاقة الخطة تكبر بسطرين
+  const needPurchase = kind === "lifetime" && !profile?.is_admin;
   useEffect(() => {
-    if (kind !== "lifetime" || profile?.is_admin) return;
+    if (!needPurchase) return;
     let active = true;
-    fetchMyPurchase(user.id).then((p) => active && setPurchase(p));
+    fetchMyPurchase(user.id)
+      .then((p) => active && setPurchase(p))
+      .catch(() => {})
+      .finally(() => active && setPurchaseFor(user.id));
     return () => {
       active = false;
     };
-  }, [kind, user.id, profile?.is_admin]);
+  }, [needPurchase, user.id]);
   const giftLeft = isGift ? giftDaysLeft(gift) : null;
   const giftEnding = isGift && giftLeft <= GIFT_ENDING_DAYS;
   const fmtDay = (d) => new Date(d).toLocaleDateString(lang, { day: "numeric", month: "long", year: "numeric" });
@@ -175,6 +182,21 @@ export default function CustomerDashboard() {
     onUnlock: goPremium,
   });
 
+  // البطاقات تتبدّل كي توصل حالة Premium والسعر والمفتاح الذهبي (بطاقة الخطة تكبر ~260px) → هيكل واحد
+  // حتى يكونو معروفين، ثم الصفحة كاملة مرة وحدة (بلا قفزات متتالية).
+  const ready = premiumReady && (hasPremium || pricing != null) && (hasPremium || fk.status !== "loading") && (!needPurchase || purchaseFor === user.id);
+  if (!ready) {
+    return (
+      <DashboardShell badge={t("dashboard.customer.badge")} wide>
+        <div aria-busy="true" className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+          <div className="h-[260px] animate-pulse rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] lg:col-span-7" />
+          <div className="h-[420px] animate-pulse rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] lg:col-span-5" />
+          <div className="h-[220px] animate-pulse rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] lg:col-span-12" />
+        </div>
+      </DashboardShell>
+    );
+  }
+
   return (
     <DashboardShell badge={t("dashboard.customer.badge")} wide>
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
@@ -224,7 +246,8 @@ export default function CustomerDashboard() {
             </div>
           </div>
         )}
-        <div className="order-3 lg:order-none lg:col-span-7">
+        {/* الهاتف: الترحيب والأرقام أولاً (كانت 4 بطاقات بيع قبلها والاسم في y≈1190) */}
+        <div className="-order-1 lg:order-none lg:col-span-7">
           <WelcomePanel name={name} email={user?.email} joined={joined} kind={kind} stats={{ copied: copiedCount, favorites: favLoading ? null : favorites.length, votes }} />
         </div>
         <div className="order-1 lg:order-none lg:col-span-5">

@@ -24,7 +24,7 @@ export default function SortToggle({ value, onChange }) {
             type="button"
             onClick={() => onChange(it.key)}
             aria-pressed={active}
-            className="relative z-10 flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl px-2.5 py-2 text-[12.5px] font-extrabold transition-colors sm:px-4 sm:text-[13.5px]"
+            className="relative z-10 flex min-h-[40px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl px-2.5 py-2 text-[12.5px] font-extrabold transition-colors sm:min-h-0 sm:px-4 sm:text-[13.5px]"
             style={{ color: active ? "#0a0a0a" : "var(--text-softer)" }}
           >
             {active && (

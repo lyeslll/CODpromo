@@ -11,6 +11,7 @@ import { activeCategories, countByCategory, matchesSearch } from "../../lib/offe
 import { getTypeMeta } from "../../lib/types.js";
 import CompanyLogo from "../CompanyLogo.jsx";
 import { useHeaderOffers } from "./headerData.js";
+import { useBackToClose } from "../../lib/useBackToClose.js";
 
 const MAX_OFFERS = 6;
 const MAX_CATS = 3;
@@ -20,6 +21,7 @@ const MAX_CATS = 3;
  * والضغط على نتيجة يفتح /offers بالبحث (أو بالفئة). الأسهم للتنقّل، Enter للفتح، Esc للإغلاق.
  */
 export default function QuickSearch({ open, onClose }) {
+  useBackToClose(open, onClose);
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const navigate = useNavigate();
@@ -228,7 +230,7 @@ function ResultRow({ item, lang, t, byId, categories, counts, query }) {
     const value = (lang !== "ar" && c[`discount_${lang}`]) || c.discount || "";
     return (
       <>
-        <CompanyLogo logo={c.logo} name={c.name} size={36} accent={meta.color} />
+        <CompanyLogo logo={c.logo} bg={c.logo_bg} name={c.name} size={36} accent={meta.color} />
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[14.5px] font-extrabold text-[var(--text)]">{c.name}</span>
           <span className="block truncate text-[12px] font-medium text-[var(--color-mute)]">{rec ? categoryName(rec, lang) : c.category}</span>

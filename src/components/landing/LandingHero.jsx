@@ -5,6 +5,9 @@ import { ArrowLeft, Check, Crown, Hand } from "lucide-react";
 import { premiumMultiplier } from "../../lib/siteStats.js";
 import { formatNumber } from "../../lib/values.js";
 import { formatPrice, usePricing } from "../../lib/pricing.jsx";
+import BidiText from "../BidiText.jsx";
+import { usePremium } from "../../lib/premium.jsx";
+import { useAuth } from "../../lib/auth.jsx";
 import { useTranslation } from "react-i18next";
 import { offersLink, offersPath } from "../../lib/seo.js";
 import { categoryName, categoryRecordSlug } from "../../lib/slug.js";
@@ -69,13 +72,22 @@ const CHIP_SLOTS = ["top-[2%] end-[-11%]", "top-[40%] end-[-15%]", "top-[78%] en
  */
 function HeroValueBox({ stats, lang, t }) {
   const pricing = usePricing();
-  if (!pricing) return null;
-  const unlock = stats?.premiumUnlockValueUsd ?? null;
-  const multiplier = premiumMultiplier(unlock, pricing.usd);
-  const priceText = formatPrice(t, lang, pricing.dzd, pricing.usd);
+  const { hasPremium, premiumReady } = usePremium();
+  const { loading: authLoading } = useAuth();
+  // حالة الحساب مازال ما تعرفتش → نستناو (بلاها العضو يشوف جملة السعر ومن بعد تتبدّل)
+  const statusPending = authLoading || !premiumReady;
+  // قبل ما يوصلو السعر وأرقام site_stats وحالة الحساب: نفس المربع بالنسخة الطويلة (القيمة + ×N) والنص مخفي
+  // (visibility) باش الـ Hero ما يقفزش — حتى رقم ما يبان (88… = مكان محجوز برك)
+  const waiting = !pricing || stats == null || statusPending;
+  const unlock = waiting ? 8888 : stats?.premiumUnlockValueUsd ?? null;
+  const multiplier = waiting ? 88 : premiumMultiplier(unlock, pricing.usd);
+  const priceText = waiting ? formatPrice(t, lang, 88888, 88) : formatPrice(t, lang, pricing.dzd, pricing.usd);
 
   return (
-    <div className="mt-7 flex max-w-xl flex-col gap-4 rounded-2xl border border-[#f0c63c]/35 bg-[linear-gradient(120deg,rgba(166,240,0,0.07),rgba(240,198,60,0.1))] p-4 sm:flex-row sm:items-center sm:gap-5 sm:p-5">
+    <div
+      aria-hidden={waiting || undefined}
+      className={`mt-7 flex max-w-xl flex-col gap-4 rounded-2xl border border-[#f0c63c]/35 bg-[linear-gradient(120deg,rgba(166,240,0,0.07),rgba(240,198,60,0.1))] p-4 sm:flex-row sm:items-center sm:gap-5 sm:p-5 ${waiting ? "[&_bdi]:invisible [&_p]:invisible" : ""}`}
+    >
       <span className="flex shrink-0 items-center gap-2 text-[17px] font-black text-[var(--color-lime)]">
         <span className="grid h-7 w-7 place-items-center rounded-full bg-[var(--color-lime)] text-[#0a0a0a]">
           <Check size={16} strokeWidth={3} />
@@ -85,9 +97,18 @@ function HeroValueBox({ stats, lang, t }) {
       <span aria-hidden className="h-px w-full border-t border-dashed border-[#f0c63c]/35 sm:h-auto sm:w-px sm:self-stretch sm:border-s sm:border-t-0" />
       <div className="flex min-w-0 flex-1 items-center justify-between gap-4">
         <p className="min-w-0 text-[14.5px] font-bold leading-snug text-[var(--text-softer)]">
-          {unlock != null
-            ? t("hero.value.unlock", { price: priceText, value: formatNumber(unlock, lang) })
-            : t("hero.value.unlockShort", { price: priceText })}
+          <BidiText
+            rtl={lang === "ar"}
+            text={
+              hasPremium && !waiting
+                ? unlock != null
+                  ? t("hero.value.memberStrip", { value: formatNumber(unlock, lang) })
+                  : t("hero.value.memberShort")
+                : unlock != null
+                  ? t("hero.value.unlock", { price: priceText, value: formatNumber(unlock, lang) })
+                  : t("hero.value.unlockShort", { price: priceText })
+            }
+          />
         </p>
         {multiplier && (
           <bdi
@@ -372,7 +393,7 @@ export default function LandingHero({ companies, loading, voteStats, categories,
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-grid" />
         <div
-          className="absolute left-1/2 top-[-12%] h-[460px] w-[760px] -translate-x-1/2 rounded-full blur-[120px]"
+          className="absolute left-1/2 top-[-60px] h-[460px] w-[760px] -translate-x-1/2 rounded-full blur-[120px]"
           style={{ background: "radial-gradient(circle, rgba(166,240,0,0.2), transparent 62%)" }}
         />
         <motion.div
@@ -497,7 +518,7 @@ export default function LandingHero({ companies, loading, voteStats, categories,
                         className="pointer-events-auto block whitespace-nowrap rounded-full border border-[var(--color-ink-line)] bg-[var(--elev)]/80 px-3.5 py-1.5 text-[12.5px] font-bold text-[var(--text-softer)] backdrop-blur transition-colors hover:border-[var(--color-lime)]/50 hover:text-[var(--text)] motion-safe:animate-[float-slow_9s_ease-in-out_infinite]"
                         style={{ animationDelay: `${i * -2.2}s` }}
                       >
-                        {categoryName(cat, lang)}
+                        <bdi>{categoryName(cat, lang)}</bdi>
                         <span className="ms-1.5 text-[11px] font-semibold text-[var(--color-mute)]">{counts[cat.id]}</span>
                       </Link>
                     </motion.div>
@@ -572,7 +593,7 @@ export default function LandingHero({ companies, loading, voteStats, categories,
                     tabIndex={i >= chips.length ? -1 : 0}
                     className="whitespace-nowrap rounded-full border border-[var(--color-ink-line)] bg-[var(--fill)] px-3.5 py-1.5 text-[12.5px] font-bold text-[var(--text-softer)]"
                   >
-                    {categoryName(cat, lang)}
+                    <bdi>{categoryName(cat, lang)}</bdi>
                     <span className="ms-1.5 text-[11px] font-semibold text-[var(--color-mute)]">{counts[cat.id]}</span>
                   </Link>
                 ))}

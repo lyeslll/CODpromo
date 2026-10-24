@@ -8,7 +8,7 @@ import SectionHead from "./SectionHead.jsx";
 import GoldBurst from "../GoldBurst.jsx";
 import { offersLink } from "../../lib/seo.js";
 import { premiumMultiplier } from "../../lib/siteStats.js";
-import { formatNumber } from "../../lib/values.js";
+import { formatNumber, formatUsd } from "../../lib/values.js";
 import { usePricing } from "../../lib/pricing.jsx";
 import LifetimePrice from "../pricing/LifetimePrice.jsx";
 import SeatsMeter from "../pricing/SeatsMeter.jsx";
@@ -51,15 +51,27 @@ export default function PremiumCompare({ company, stats, onOpenPremium, isPremiu
           {/* السعر مقابل القيمة */}
           <div className="flex flex-col justify-between rounded-[var(--radius-card)] border border-[#f0c63c]/35 bg-[linear-gradient(160deg,rgba(240,198,60,0.12),rgba(240,198,60,0.02))] p-6">
             <div>
-              <p className="text-[14px] font-extrabold text-[#ffe486]">{t("pricing.oneTime")}</p>
-              <LifetimePrice pricing={pricing} size="md" className="mt-2" />
-              <SeatsMeter pricing={pricing} className="mt-4" />
+              {/* العضو (مدفوع / هدية / أدمن) ما يشوفش السعر والمقاعد: Premium مفعّل عندو */}
+              {isPremiumActive ? (
+                <>
+                  <p className="flex items-center gap-2 text-[16px] font-black text-[#ffe486]">
+                    <Crown size={17} /> {t("premiumPage.hero.memberTitle")}
+                  </p>
+                  <p className="mt-2 text-[13.5px] leading-relaxed text-[var(--text-soft)]">{t("compare.memberNote")}</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-[14px] font-extrabold text-[#ffe486]">{t("pricing.oneTime")}</p>
+                  <LifetimePrice pricing={pricing} size="md" className="mt-2" />
+                  <SeatsMeter pricing={pricing} className="mt-4" />
+                </>
+              )}
 
               {unlock != null && (
                 <div className="mt-6 border-t border-dashed border-[#f0c63c]/30 pt-5">
                   <p className="text-[13.5px] font-semibold text-[var(--text-soft)]">{t("compare.unlockLabel")}</p>
-                  <bdi className="mt-1 block text-[34px] font-black leading-none text-[var(--text)] [font-family:Inter,sans-serif]">
-                    ${formatNumber(unlock, "en")}
+                  <bdi dir="ltr" className="mt-1 block text-start text-[34px] font-black leading-none text-[var(--text)] [font-family:Inter,sans-serif] rtl:text-end">
+                    {formatUsd(unlock, lang)}
                   </bdi>
                 </div>
               )}

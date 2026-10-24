@@ -8,6 +8,8 @@ import { dealHasPremium } from "../../lib/premiumOffer.js";
 import { isImageUrl } from "../CompanyLogo.jsx";
 import { GlowSpot, useCardGlow } from "../CardGlow.jsx";
 import { useWaveValue, useCountText } from "../../lib/modeWave.jsx";
+import { logoSrc } from "../../lib/logoImage.js";
+import BidiText from "../BidiText.jsx";
 import "./nocode.css";
 
 // اللون الرابع: "بلا كود" (بنفسجي) — والذهبي لـ Premium، والرمادي للمجمّدة.
@@ -198,10 +200,16 @@ export default function NocodeCard({ deal, premium: premiumProp = false, unlocke
             </p>
             {condition && (
               <p className="gift-chip">
-                <span>{condition}</span>
+                <span>
+                  <BidiText text={condition} rtl={lang === "ar"} />
+                </span>
               </p>
             )}
-            {desc && <p className="gift-desc">{desc}</p>}
+            {desc && (
+              <p className="gift-desc">
+                <BidiText text={desc} rtl={lang === "ar"} />
+              </p>
+            )}
           </>
         )}
 
@@ -219,7 +227,7 @@ function DealLogo({ logo, name }) {
   return (
     <div className="gift-logo grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-xl border border-white/[0.08] bg-[#1b1b20]">
       {showImage ? (
-        <img src={logo} alt={name || "logo"} loading="lazy" onError={() => setErrored(true)} className="h-full w-full object-cover" />
+        <img src={logoSrc(logo, 88)} alt={name || "logo"} width={44} height={44} loading="lazy" decoding="async" onError={() => setErrored(true)} className="h-full w-full object-cover" />
       ) : (
         <span className="text-[20px] font-black text-[var(--gc)]">{letter}</span>
       )}

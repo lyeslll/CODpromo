@@ -4,6 +4,7 @@ import { Crown, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import LifetimePrice from "../pricing/LifetimePrice.jsx";
 import SeatsMeter from "../pricing/SeatsMeter.jsx";
+import { logoSrc } from "../../lib/logoImage.js";
 import "./premium-page.css";
 
 const GOLD_SOFT = "#ffe486";
@@ -116,7 +117,7 @@ export default function GoldenPass({ pricing, logos = [], companiesText, holder,
                       {logos.slice(0, 5).map((l) => (
                         <img
                           key={l.id}
-                          src={l.logo}
+                          src={logoSrc(l.logo, 60)}
                           alt=""
                           width={30}
                           height={30}

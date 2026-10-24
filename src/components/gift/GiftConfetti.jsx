@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useReducedMotion } from "framer-motion";
 
 // ألوان Premium الذهبية + ورقي فاتح
@@ -92,5 +93,7 @@ export default function GiftConfetti({ fire, origin = { x: 0.5, y: 0.34 } }) {
     };
   }, [fire, reduce]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return <canvas ref={ref} aria-hidden className="pointer-events-none fixed inset-0 z-[120] h-full w-full" />;
+  // portal لـ body: داخل عنصر متحرّك (transform) الـ fixed يتبع العنصر ويحسب كـ layout shift كبير
+  if (typeof document === "undefined") return null;
+  return createPortal(<canvas ref={ref} aria-hidden className="pointer-events-none fixed inset-0 z-[120] h-full w-full" />, document.body);
 }

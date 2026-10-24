@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowDown, Crown, Gift, KeyRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { ensureLang } from "../i18n/index.js";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import Seo from "../components/Seo.jsx";
@@ -18,7 +19,7 @@ import { useMobileFx } from "../components/featured/mobile.js";
 import { loadHeaderOffers, useSharedStats } from "../components/header/headerData.js";
 import { useAuth } from "../lib/auth.jsx";
 import { usePremium } from "../lib/premium.jsx";
-import { usePricing, usePricingRefresh } from "../lib/pricing.jsx";
+import { usePricing, usePricingRefresh, formatPrice } from "../lib/pricing.jsx";
 import { useFreeKey } from "../lib/freeKeyContext.jsx";
 import { useAndroidApp } from "../lib/androidApp.js";
 import { canUseFx } from "../lib/fxCapability.js";
@@ -53,7 +54,10 @@ export default function PremiumPage({ lang = "ar" }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, profile, loading: authLoading } = useAuth();
-  const { isPremiumActive, isLifetime, isGift, gift } = usePremium();
+  const { isPremiumActive, isLifetime, isGift, gift, premiumReady } = usePremium();
+  // الـ Hero يتبدّل كامل حسب الحالة (زائر / عضو / هدية): قبل ما نعرفوها، بلاصتو محجوزة ومخفية — بلاها العضو يشوف
+  // نسخة الزائر (السعر وزر الشراء) ومن بعد تتبدّل قدّامو (CLS 0.37 في التطبيق). الزائر: فوري.
+  const heroPending = authLoading || !premiumReady;
   const pricing = usePricing();
   const refreshPricing = usePricingRefresh();
   const stats = useSharedStats();
@@ -128,7 +132,10 @@ export default function PremiumPage({ lang = "ar" }) {
   // (api/prerender.js، فيها جواب الويب). Google وزوار المتصفح يلقاوها كاملة.
   useEffect(() => {
     if (appMode !== "app") return;
-    stripServerFaqQuestions(["ar", "en", "fr"].map((l) => i18n.getFixedT(l)("premiumFaq.methods.q")));
+    // en / fr تتحمّل غير كي تلزم (i18n/index.js) → نحمّلوهم قبل ما نقارنو النصوص
+    Promise.all(["en", "fr"].map(ensureLang))
+      .catch(() => {})
+      .then(() => stripServerFaqQuestions(["ar", "en", "fr"].map((l) => i18n.getFixedT(l)("premiumFaq.methods.q"))));
   }, [appMode, i18n]);
 
   // SEO: Product (السعر الحقيقي بالدولار والدينار) + FAQPage (نفس الأسئلة الظاهرة؛ في التطبيق بلا طرق الدفع) + Breadcrumb
@@ -179,16 +186,23 @@ export default function PremiumPage({ lang = "ar" }) {
   let pill = null;
   let title = t("premiumPage.hero.title");
   let sub = companiesText ? t("premiumPage.hero.sub", { companies: companiesText }) : t("premiumPage.hero.subLoading");
+  // قبل ما يوصل عدد الشركات: الجملة النهائية (بعدد محجوز 88) مخفية تحت نص التحميل → نفس الطول، الأزرار ما يقفزوش
+  let subGhost = companiesText ? null : t("premiumPage.hero.sub", { companies: t("premiumPage.companies", { count: 88, n: formatNumber(88, lang) }) });
   if (member) {
     pill = { icon: Crown, text: t("premiumPage.hero.memberPill") };
     title = t("premiumPage.hero.memberTitle");
     sub = isLifetime || !profile?.premium_until ? t("premiumPage.hero.memberLifetime") : t("premiumPage.hero.memberUntil", { date: fmtDay(profile.premium_until) });
+    subGhost = null;
   } else if (isGift && gift?.premium_until) {
     pill = { icon: Gift, text: t("premiumPage.hero.giftPill", { date: fmtDay(gift.premium_until) }) };
     title = t("premiumPage.hero.giftTitle");
     sub = t("premiumPage.hero.giftSub", { date: fmtDay(gift.premium_until) });
+    subGhost = null;
   } else if (pricing?.isLaunch) {
     pill = { icon: null, text: t("premiumPage.hero.launchPill"), dot: true };
+  } else if (!pricing) {
+    // السعر مازال ما وصلش: الوسم مخفي في بلاصتو (الإطلاق = الحالة العادية دروك) باش العنوان والأزرار ما يقفزوش
+    pill = { icon: null, text: t("premiumPage.hero.launchPill"), dot: true, ghost: true };
   }
 
   return (
@@ -211,18 +225,44 @@ export default function PremiumPage({ lang = "ar" }) {
           className="pointer-events-none absolute inset-0"
           style={{ background: "radial-gradient(50% 60% at 78% 30%, rgba(240,198,60,0.14), transparent 70%), radial-gradient(40% 40% at 10% 90%, rgba(240,198,60,0.05), transparent 70%)" }}
         />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 pt-[112px] sm:pt-[136px] lg:grid-cols-[1.08fr_0.92fr] lg:gap-16 lg:pb-24">
+        <div
+          aria-busy={heroPending || undefined}
+          className={`relative mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 pt-[112px] sm:pt-[136px] lg:grid-cols-[1.08fr_0.92fr] lg:gap-16 lg:pb-24 ${heroPending ? "invisible" : ""}`}
+        >
           <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
             {pill && (
-              <span className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-extrabold" style={{ borderColor: "rgba(240,198,60,0.4)", color: GOLD_SOFT, background: "rgba(240,198,60,0.08)" }}>
+              <span aria-hidden={pill.ghost || undefined} className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-extrabold ${pill.ghost ? "invisible" : ""}`} style={{ borderColor: "rgba(240,198,60,0.4)", color: GOLD_SOFT, background: "rgba(240,198,60,0.08)" }}>
                 {pill.icon ? <pill.icon size={14} /> : <span className="h-2 w-2 rounded-full bg-[#f0c63c]" />}
                 {pill.text}
               </span>
             )}
             <h1 className="mt-5 text-balance text-[clamp(32px,8.4vw,40px)] font-black leading-[1.12] tracking-tight sm:text-[52px] lg:text-[58px]">{title}</h1>
-            <p className="mt-5 max-w-xl text-[16.5px] leading-[1.85] text-[var(--text-soft)] sm:text-[18px]">{sub}</p>
+            <p className="mt-5 grid max-w-xl text-[16.5px] leading-[1.85] text-[var(--text-soft)] sm:text-[18px]">
+              <span className="[grid-area:1/1]">{sub}</span>
+              {subGhost && (
+                <span aria-hidden className="invisible [grid-area:1/1]">
+                  {subGhost}
+                </span>
+              )}
+            </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            {/* السعر في أول شاشة (كان يبان غير في البطاقة الذهبية تحت) — من pricing_public، بلا رقم قبل ما يوصل */}
+            {/* قبل ما يوصل السعر: نفس السطر مخفي (visibility) باش الأزرار ما يقفزوش — 88… = مكان محجوز برك */}
+            {!member && !isGift && (
+              <p aria-hidden={!pricing || undefined} className={`mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1 ${pricing ? "" : "invisible"}`}>
+                {(pricing ? pricing.isLaunch && pricing.regularDzd != null : true) && (
+                  <s className="text-[14px] font-bold text-[var(--text-soft)] decoration-[var(--color-mute)]">
+                    <bdi>{pricing ? formatPrice(t, lang, pricing.regularDzd, pricing.regularUsd) : formatPrice(t, lang, 88888, 88)}</bdi>
+                  </s>
+                )}
+                <bdi className="text-[24px] font-black leading-none text-[#ffe486] sm:text-[28px]">
+                  {pricing ? formatPrice(t, lang, pricing.dzd, pricing.usd) : formatPrice(t, lang, 8888, 88)}
+                </bdi>
+                <span className="text-[13.5px] font-bold text-[var(--text-soft)]">{t("premiumPage.hero.priceNote")}</span>
+              </p>
+            )}
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               {member ? (
                 <Link to={offersTo} className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-[16.5px] font-extrabold text-[#1d1403]" style={{ background: GOLD_BG }}>
                   <Crown size={18} /> {t("premiumPage.hero.memberCta")}
@@ -253,7 +293,7 @@ export default function PremiumPage({ lang = "ar" }) {
 
             {!member && (
               <>
-                <p className="mt-5 max-w-lg text-[13.5px] leading-relaxed text-[var(--color-mute)]">{t("premiumPage.hero.assurance")}</p>
+                <p className="mt-5 max-w-lg text-[13.5px] leading-relaxed text-[var(--text-soft)]">{t("premiumPage.hero.assurance")}</p>
                 <button type="button" onClick={stork} className="mt-3 inline-flex items-center gap-1.5 text-[13.5px] font-bold text-[var(--text-soft)] underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--text)]">
                   <KeyRound size={14} className="text-[#cf9a1e]" /> {t("premium.storkMemberBtn")}
                 </button>

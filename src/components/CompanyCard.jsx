@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock, Undo2, Key } from "lucide-react";
+import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock, Undo2, Key, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getTypeMeta, getTypeKey } from "../lib/types.js";
 import { companySlug, companyCategoryRecord, categoryName } from "../lib/slug.js";
@@ -13,7 +13,9 @@ import { hasPremiumOffer } from "../lib/premiumOffer.js";
 import { useFreeKey } from "../lib/freeKeyContext.jsx";
 import { setPendingFreeKey } from "../lib/freeKey.js";
 import { isImageUrl } from "./CompanyLogo.jsx";
+import { cachedTone, detectTone, logoSrc, logoSrcSet, tileStyle } from "../lib/logoImage.js";
 import CodeVote from "./CodeVote.jsx";
+import BidiText from "./BidiText.jsx";
 import { GlowSpot, useCardGlow } from "./CardGlow.jsx";
 import FreeKeyDialog from "./freekey/FreeKeyDialog.jsx";
 import GiftConfetti from "./gift/GiftConfetti.jsx";
@@ -214,6 +216,7 @@ export default function CompanyCard({
     let code = company.code;
     let copiedPremium = false;
     if (premium) {
+      setRevealed(true); // النسخ = كشف (بلا ما يبقى الغطاء فوق الكود المنسوخ)
       const d = await ensurePremium();
       code = d?.premium_code || company.code;
       copiedPremium = !!d?.premium_code;
@@ -303,18 +306,18 @@ export default function CompanyCard({
         <div className="relative flex items-start justify-between gap-2">
           {linkToStore ? (
             <Link to={storeHref} className="group/link flex min-w-0 items-center gap-3">
-              <CardLogo logo={company.logo} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
+              <CardLogo logo={company.logo} bg={company.logo_bg} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
               <div className="min-w-0">
                 <h3 className="truncate text-[17px] font-extrabold text-[var(--text)] transition-colors group-hover/link:text-[var(--accent-text)]">{company.name}</h3>
-                <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">{category}</p>
+                <p className={`mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)] ${premium ? "pe-11" : ""}`}>{category}</p>
               </div>
             </Link>
           ) : (
             <div className="flex min-w-0 items-center gap-3">
-              <CardLogo logo={company.logo} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
+              <CardLogo logo={company.logo} bg={company.logo_bg} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
               <div className="min-w-0">
                 <h3 className="truncate text-[17px] font-extrabold text-[var(--text)]">{company.name}</h3>
-                <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">{category}</p>
+                <p className={`mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)] ${premium ? "pe-11" : ""}`}>{category}</p>
               </div>
             </div>
           )}
@@ -330,7 +333,7 @@ export default function CompanyCard({
               onClick={() => onToggleFav(company.id)}
               aria-label={t("card.addFav")}
               aria-pressed={!!isFavorite}
-              className="grid h-8 w-8 place-items-center rounded-full border border-[var(--color-ink-line)] bg-[var(--fill)] transition-colors hover:bg-[var(--fill-strong)]"
+              className="relative grid h-8 w-8 place-items-center rounded-full border border-[var(--color-ink-line)] bg-[var(--fill)] transition-colors before:absolute before:-inset-1.5 before:content-[''] hover:bg-[var(--fill-strong)]"
             >
               <Heart size={15} className={isFavorite ? "fill-red-500 text-red-500" : "text-[var(--color-mute)]"} />
             </button>
@@ -339,7 +342,7 @@ export default function CompanyCard({
 
         {/* الوصف — ارتفاع ثابت (ثلاثة أسطر) ليتساوى ارتفاع كل البطاقات */}
         <p className="relative mt-4 line-clamp-3 h-[60px] overflow-hidden text-[13.5px] leading-[1.48] text-[var(--text-soft)]">
-          {desc}
+          <BidiText text={desc} rtl={lang === "ar"} />
         </p>
 
         {/* قيمة الخصم + شارة النوع */}
@@ -399,7 +402,7 @@ export default function CompanyCard({
             data-part="copy"
             onClick={handleCopy}
             whileTap={{ scale: 0.94 }}
-            className="relative grid w-[120px] shrink-0 place-items-center overflow-hidden rounded-xl px-4 text-[14px] font-extrabold text-[#0a0a0a]"
+            className="relative grid min-w-[120px] shrink-0 place-items-center overflow-hidden whitespace-nowrap rounded-xl px-3.5 text-[14px] font-extrabold text-[#0a0a0a]"
             style={{
               background: copied
                 ? "linear-gradient(135deg, #34d399, #10b981)"
@@ -416,7 +419,16 @@ export default function CompanyCard({
                 </motion.span>
               ) : (
                 <motion.span key="copy" initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -14, opacity: 0 }} transition={{ duration: 0.2 }} className="flex items-center gap-1.5">
-                  <Copy size={15} /> {t("card.copy")}
+                  {/* كود Premium مقفول: الزر ما ينسخش — يكشف (المفتاح الذهبي / Premium) */}
+                  {premium && !canSee ? (
+                    <>
+                      <Lock size={15} /> {t("card.unlockCode")}
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={15} /> {t("card.copy")}
+                    </>
+                  )}
                 </motion.span>
               )}
             </AnimatePresence>
@@ -432,6 +444,19 @@ export default function CompanyCard({
           keyCta ? (
             // المفتاح الذهبي بلاصة زر الزيارة المقفول (نفس الارتفاع: الشبكة ما تقفزش)
             <KeyCta kind={keyCta} label={t(`freeKey.card.${keyCta}`)} onClick={keyAction} />
+          ) : canSee ? (
+            // عضو Premium قبل الخدش: زر فعّال يكشف الكود والرابط (بلا قفل — الكود مفتوح لك)
+            <motion.button
+              type="button"
+              data-part="visit"
+              onClick={onScratchReveal}
+              whileTap={{ scale: 0.98 }}
+              className="relative mt-2.5 flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold text-[var(--text)]"
+              style={{ borderColor: `${accent}66`, background: `${accent}14` }}
+            >
+              <Sparkles size={15} style={{ color: accent }} />
+              {t("card.revealAll")}
+            </motion.button>
           ) : (
             <div
               data-part="visit"
@@ -527,13 +552,13 @@ function KeyCta({ kind, label, onClick }) {
 const FROZEN = "#71717a";
 
 function FrozenTicket({ company, index, isFavorite, onToggleFav, linkToStore, storeHref, category, desc, onShowNormal }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const meta = getTypeMeta(company.type);
   const Icon = meta.icon;
   const head = (
     <>
       <div className="shrink-0 opacity-60 grayscale">
-        <CardLogo logo={company.logo} name={company.name} accent={FROZEN} glow="rgba(0,0,0,0)" premium={false} />
+        <CardLogo logo={company.logo} bg={company.logo_bg} name={company.name} accent={FROZEN} glow="rgba(0,0,0,0)" premium={false} />
       </div>
       <div className="min-w-0">
         <h3 className="truncate text-[17px] font-extrabold text-[var(--text-soft)]">{company.name}</h3>
@@ -575,7 +600,7 @@ function FrozenTicket({ company, index, isFavorite, onToggleFav, linkToStore, st
           </button>
         </div>
 
-        <p className="relative mt-4 line-clamp-3 h-[60px] overflow-hidden text-[13.5px] leading-[1.48] text-[var(--color-mute)]">{desc}</p>
+        <p className="relative mt-4 line-clamp-3 h-[60px] overflow-hidden text-[13.5px] leading-[1.48] text-[var(--color-mute)]"><BidiText text={desc} rtl={i18n.language === "ar"} /></p>
 
         <div className="relative mt-4 flex items-end justify-between">
           <div data-part="value">
@@ -647,8 +672,8 @@ function ScratchLayer({ t, unlocked, accent = GOLD, onReveal, onUnlock, lockLabe
         className="absolute inset-0 flex cursor-pointer select-none items-center justify-center gap-1.5 overflow-hidden rounded-xl"
         style={METAL_BG}
       >
-        <Lock size={13} className="text-[#4a4f58]" />
-        <span className="text-[11.5px] font-extrabold text-[#4a4f58]">{t("card.premiumCode")}</span>
+        <Lock size={13} className="text-[#2f333a]" />
+        <span className="text-[12px] font-extrabold text-[#2f333a]">{t("card.premiumCode")}</span>
       </button>
     );
   }
@@ -921,8 +946,8 @@ function ScratchCanvas({ accent = GOLD, onReveal }) {
       {/* الأيقونة + النص كعنصر DOM (pointer-events:none) — نفس markup زر القفل العادي
           بالضبط فيرث Tajawal ونفس الحجم/السماكة/اللون، فيتطابق المظهر تماماً. */}
       <div className="pointer-events-none absolute inset-0 flex select-none items-center justify-center gap-1.5">
-        <Lock size={13} className="text-[#4a4f58]" />
-        <span className="text-[11.5px] font-extrabold text-[#4a4f58]">{t("card.scratchReveal")}</span>
+        <Sparkles size={14} className="text-[#2f333a]" />
+        <span className="text-[12.5px] font-extrabold text-[#2f333a]">{t("card.scratchReveal")}</span>
       </div>
       <canvas ref={partRef} className="pointer-events-none absolute inset-0 h-full w-full" />
       {/* لمعة ذهبية احتفالية عند الكشف */}
@@ -951,22 +976,46 @@ function AnimatedDiscount({ value, color, glow }) {
 }
 
 /* ===== لوجو البطاقة ===== */
-function CardLogo({ logo, name, accent, glow, premium }) {
-  const [errored, setErrored] = useState(false);
-  const showImage = isImageUrl(logo) && !errored;
+function CardLogo({ logo, name, accent, glow, premium, bg = null }) {
+  // 0 = النسخة المصغّرة (WebP بحجم البطاقة)، 1 = الملف الأصلي، 2 = فشل → الحرف
+  const [fail, setFail] = useState(0);
+  const showImage = isImageUrl(logo) && fail < 2;
   const showEmoji = !showImage && logo && !isImageUrl(logo);
   const letter = (name || "؟").trim().charAt(0);
+  const [tone, setTone] = useState(() => (showImage && !bg ? cachedTone(logo) : undefined));
+  useEffect(() => setFail(0), [logo]);
+  useEffect(() => {
+    if (!showImage || bg || cachedTone(logo)) return;
+    let alive = true;
+    detectTone(logo).then((t) => alive && setTone(t));
+    return () => {
+      alive = false;
+    };
+  }, [logo, bg, showImage]);
+  const tile = showImage ? tileStyle(bg, tone ?? cachedTone(logo)) : null;
+  const pad = tile ? Math.round(64 * tile.pad) : 0;
 
   return (
     <div
       className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-xl transition-transform duration-300 group-hover:scale-105"
       style={{
-        background: showImage ? "transparent" : "linear-gradient(150deg, #1c1c20, #141417)",
+        background: showImage ? tile.background : "linear-gradient(150deg, #1c1c20, #141417)",
         boxShadow: `0 6px 18px -10px ${glow}`,
+        padding: pad,
       }}
     >
       {showImage ? (
-        <img src={logo} alt={name || "logo"} loading="lazy" onError={() => setErrored(true)} className="h-full w-full object-cover" />
+        <img
+          src={fail ? logo : logoSrc(logo, 128)}
+          srcSet={fail ? undefined : logoSrcSet(logo, 64)}
+          width={64}
+          height={64}
+          alt={name || "logo"}
+          loading="lazy"
+          decoding="async"
+          onError={() => setFail((n) => n + 1)}
+          className={`h-full w-full ${pad ? "object-contain" : "object-cover"}`}
+        />
       ) : showEmoji ? (
         <span style={{ fontSize: 30, lineHeight: 1 }}>{logo}</span>
       ) : (

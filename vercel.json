@@ -21,9 +21,13 @@
     { "source": "/category/:slug", "destination": "/api/prerender?type=category&lang=ar&slug=:slug" },
     { "source": "/en/category/:slug", "destination": "/api/prerender?type=category&lang=en&slug=:slug" },
     { "source": "/fr/category/:slug", "destination": "/api/prerender?type=category&lang=fr&slug=:slug" },
-    { "source": "/((?!\\.well-known/).*)", "destination": "/index.html" }
+    { "source": "/((?!\\.well-known/|api/).*)", "destination": "/index.html" }
   ],
   "headers": [
+    {
+      "source": "/fonts/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
     {
       "source": "/.well-known/assetlinks.json",
       "headers": [{ "key": "Content-Type", "value": "application/json" }]

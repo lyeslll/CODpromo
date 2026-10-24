@@ -6,7 +6,7 @@
     "fr": "Français"
   },
   "nav": {
-    "stores": "Stores",
+    "stores": "Companies",
     "offers": "Offers",
     "categories": "Categories",
     "how": "How it works",
@@ -28,7 +28,7 @@
     "ctaExplore": "Explore offers",
     "subtitle": "Exclusive promo codes, coupons and cashback on shipping, store platforms, ads, payment cards and ERP. Free.",
     "ctaPremium": "Unlock Premium",
-    "ctaMember": "Your Premium offers are open",
+    "ctaMember": "Your Premium offers are unlocked",
     "magic": {
       "switchLabel": "Coupon side: Regular or Premium",
       "dragHint": "Drag or tap the coupon",
@@ -40,10 +40,12 @@
     "tagline": "Cut your costs. Multiply your profits.",
     "value": {
       "free": "Free for everyone",
-      "unlock": "One payment of {{price}} unlocks +${{value}} in Premium discounts for life",
+      "unlock": "Pay {{price}} once, unlock ${{value}}+ in Premium discounts for life",
       "unlockShort": "Lifetime Premium for one payment: {{price}}",
-      "unlockStrip": "{{price}} once unlocks +${{value}}",
-      "multiplierAria": "Premium is worth {{x}} times its price"
+      "unlockStrip": "{{price}} once · ${{value}}+ in discounts",
+      "multiplierAria": "Premium is worth {{x}} times its price",
+      "memberStrip": "Premium is active · ${{value}}+ in discounts unlocked for you",
+      "memberShort": "Premium is active: every Premium code is unlocked for you"
     },
     "titleLine1": "One platform…",
     "titleLine2": "every discount your business needs."
@@ -66,9 +68,15 @@
     "cta": "Pick your first offer"
   },
   "search": {
-    "placeholder": "Search for a store, category, or promo code…",
+    "placeholder": "Search for a company, category or promo code…",
     "clear": "Clear",
-    "results": "{{count}} results"
+    "results": "{{count}} results",
+    "results_zero": "No results",
+    "results_one": "{{count}} result",
+    "results_two": "{{count}} results",
+    "results_few": "{{count}} results",
+    "results_many": "{{count}} results",
+    "results_other": "{{count}} results"
   },
   "filters": {
     "all": "All",
@@ -83,17 +91,29 @@
     "offer": "Offer"
   },
   "home": {
-    "allOffers": "All deals",
+    "allOffers": "All offers",
     "toggleHint": "Switch between Standard and Premium to see the difference",
-    "offersCount": "{{count}} deals",
-    "premiumBanner": "You're viewing Premium deals — get Lifetime Premium or redeem a Stork code to reveal the codes",
+    "offersCount": "{{count}} offers",
+    "premiumBanner": "You're viewing Premium offers — get Lifetime Premium or redeem a Stork code to reveal the codes",
     "premiumUnlocked": "Premium is active — every exclusive code is unlocked for you. Enjoy the best discounts.",
-    "normalInfo": "You're viewing standard deals — switch to Premium to reveal the exclusive codes.",
+    "normalInfo": "You're viewing regular offers — switch to Premium to reveal the exclusive codes.",
     "openPremium": "Unlock Premium",
     "copiedToast": "Code copied",
     "browseByCategory": "Browse by category",
-    "categoryCount": "{{count}} deals",
-    "allCategories": "All categories"
+    "categoryCount": "{{count}} offers",
+    "allCategories": "All categories",
+    "offersCount_zero": "No offers",
+    "offersCount_one": "{{count}} offer",
+    "offersCount_two": "{{count}} offers",
+    "offersCount_few": "{{count}} offers",
+    "offersCount_many": "{{count}} offers",
+    "offersCount_other": "{{count}} offers",
+    "categoryCount_zero": "No offers",
+    "categoryCount_one": "{{count}} offer",
+    "categoryCount_two": "{{count}} offers",
+    "categoryCount_few": "{{count}} offers",
+    "categoryCount_many": "{{count}} offers",
+    "categoryCount_other": "{{count}} offers"
   },
   "bottomNav": {
     "label": "Quick navigation",
@@ -109,31 +129,39 @@
     "subtitle": "{{count}} items",
     "emptyTitle": "No favorites yet",
     "emptyDesc": "Tap the heart on any card to add it here for quick access.",
-    "browse": "Browse deals",
+    "browse": "Browse offers",
     "loginTitle": "Log in to see your favorites",
     "loginDesc": "Favorites are saved to your account — log in to access them from any device.",
-    "login": "Log in"
+    "login": "Log in",
+    "subtitle_zero": "No items",
+    "subtitle_one": "{{count}} item",
+    "subtitle_two": "{{count}} items",
+    "subtitle_few": "{{count}} items",
+    "subtitle_many": "{{count}} items",
+    "subtitle_other": "{{count}} items"
   },
   "premiumToggle": {
-    "normal": "Standard",
+    "normal": "Regular",
     "premium": "Premium",
-    "floating": "Choose the view: Standard or Premium"
+    "floating": "Choose the view: Regular or Premium"
   },
   "card": {
     "hot": "Trending",
     "addFav": "Add to favorites",
-    "premiumDiscount": "Premium discount",
-    "offerValue": "Deal value",
+    "premiumDiscount": "Premium value",
+    "offerValue": "Offer value",
     "premiumCode": "Premium code",
     "code": "Code",
     "copy": "Copy code",
     "copied": "Copied",
-    "visit": "Visit store",
+    "visit": "Visit website",
     "scratchReveal": "Scratch to reveal",
-    "unlockPremium": "Unlock Premium deals",
+    "unlockPremium": "Unlock Premium offers",
     "premiumBadge": "PREMIUM",
     "frozen": "No Premium offer for this company",
-    "showNormal": "See the regular offer"
+    "showNormal": "See the regular offer",
+    "unlockCode": "Unlock code",
+    "revealAll": "Reveal code & link"
   },
   "vote": {
     "question": "Did this code work for you?",
@@ -147,11 +175,23 @@
     "sortLabel": "Sort",
     "sortNewest": "Newest",
     "sortSuccess": "Top success rate",
-    "sortUsage": "Most used"
+    "sortUsage": "Most used",
+    "successBadge_zero": "No votes yet",
+    "successBadge_one": "Worked for {{rate}}% ({{count}} vote)",
+    "successBadge_two": "Worked for {{rate}}% ({{count}} votes)",
+    "successBadge_few": "Worked for {{rate}}% ({{count}} votes)",
+    "successBadge_many": "Worked for {{rate}}% ({{count}} votes)",
+    "successBadge_other": "Worked for {{rate}}% ({{count}} votes)",
+    "rateBadge_zero": "No votes yet",
+    "rateBadge_one": "{{rate}}% success ({{count}} vote)",
+    "rateBadge_two": "{{rate}}% success ({{count}} votes)",
+    "rateBadge_few": "{{rate}}% success ({{count}} votes)",
+    "rateBadge_many": "{{rate}}% success ({{count}} votes)",
+    "rateBadge_other": "{{rate}}% success ({{count}} votes)"
   },
   "footer": {
     "follow": "Follow us",
-    "poweredBy": "Powered by",
+    "poweredBy": "Developed by",
     "privacy": "Privacy Policy",
     "accountDeletion": "Account Deletion",
     "desc": "Every discount your business needs in one place: shipping, store platforms, ads, payment cards and ERP.",
@@ -164,12 +204,12 @@
     "typeCashback": "Cashback",
     "addOffers": "List your company’s offers",
     "contact": "Contact us",
-    "newsTitle": "Never miss a new code",
+    "newsTitle": "Get notified when code alerts launch",
     "newsPlaceholder": "Your email",
-    "newsCta": "Get new codes",
-    "newsConsent": "By subscribing you agree to receive codes by email, and you can unsubscribe anytime. Read our",
-    "newsDone": "Done! New codes will reach your inbox.",
-    "newsDup": "This email is already subscribed, no need to sign up again.",
+    "newsCta": "Notify me",
+    "newsConsent": "We'll only email you when code alerts launch, and you can ask us to remove your email anytime. Read our",
+    "newsDone": "Done! We'll email you when code alerts launch.",
+    "newsDup": "This email is already on the list — no need to add it again.",
     "backToTop": "Back to top",
     "word": {
       "cod": "COD",
@@ -196,11 +236,15 @@
     "s1Items": [
       "Email address",
       "Full name or company name",
-      "Account type (user / company)",
-      "Login credentials and session information"
+      "Account type (merchant / company)",
+      "For company accounts: phone or WhatsApp number and company website",
+      "Your purchase record if you buy Premium (amount, payment method and date)",
+      "Your company ratings, code votes and favorites",
+      "An encrypted fingerprint of your IP address (we don't store the address itself) to prevent abuse of gifts and the golden key",
+      "Login data and session information"
     ],
     "s2Title": "Login and authentication",
-    "s2Desc": "You can create an account and sign in using email and password, or via your Google account (OAuth). We use the hCaptcha service to verify you are not a bot and to protect accounts from abuse.",
+    "s2Desc": "You can create an account and log in with your email and password, or with your Google account (OAuth). We use an invisible, built-in bot check (no third-party service) to protect accounts from abuse.",
     "s3Title": "How we use your data",
     "s3Desc": "We use your data only for the following purposes:",
     "s3Items": [
@@ -210,9 +254,9 @@
       "Contacting you about your account or our services"
     ],
     "s4Title": "Payments",
-    "s4Desc": "All payments are processed by trusted third-party providers: Stripe, PayPal and SlickPay on the website, and Google Play Billing in the app. Your card details are handled directly by these providers — CODpromo does not store or have access to any bank card information.",
+    "s4Desc": "All payments go through trusted third-party payment providers: Stripe, PayPal and SlickPay. Your card details are processed directly by these providers, and CODpromo never stores or sees any bank card information.",
     "s5Title": "Data storage and emails",
-    "s5Desc": "Your data is stored securely in a Supabase database. Emails (such as account confirmation and offers) are sent via the Brevo service.",
+    "s5Desc": "Your data is stored securely in a Supabase database. We only send account and purchase emails (such as email confirmation and payment confirmation) through the Resend service, and we don't send any marketing emails at the moment.",
     "s6Title": "Your rights",
     "s6Desc": "You have full control over your data, including the right to:",
     "s6Items": [
@@ -221,20 +265,23 @@
       "Request permanent deletion of your account and data"
     ],
     "s7Title": "Contact us",
-    "s7Desc": "For any privacy question or to exercise your rights, contact us at:"
+    "s7Desc": "For any privacy question or to exercise your rights, contact us at:",
+    "s4DescApp": "In the Android app, purchases are made through Google Play Billing only. Payment details are processed directly by Google, and CODpromo never stores or sees any bank card information."
   },
   "emailPopup": {
-    "doneTitle": "You're in! 🎉",
-    "doneDesc": "The best exclusive deals are on their way to your inbox.",
-    "title": "Get <0>exclusive</0> coupons and deals in your inbox",
-    "desc": "Join thousands of smart savers — the best promo codes, every week.",
-    "consent": "I agree to receive deals and coupons by email and to the <0>Privacy Policy</0>.",
-    "submit": "Subscribe & get the deals",
-    "noSpam": "No spam — unsubscribe anytime.",
+    "doneTitle": "You're on the list 🎉",
+    "doneDesc": "We'll email you when code alerts launch. Until then, every code is right here on the site.",
+    "title": "Join the waitlist for <0>code alerts</0>",
+    "desc": "We're building email alerts for new codes. Leave your email and we'll write to you when they launch — nothing before that.",
+    "consent": "I agree to be emailed when code alerts launch, and to the <0>Privacy Policy</0>.",
+    "submit": "Notify me at launch",
+    "noSpam": "No spam. To remove your email from the list, just write to us.",
     "close": "Close",
     "errEmail": "Please enter a valid email",
-    "errConsent": "Please agree to receive deals to continue",
-    "errGeneric": "Couldn't subscribe, please try again later"
+    "errConsent": "Please agree to be emailed at launch to continue",
+    "errGeneric": "Couldn't save your email, please try again later",
+    "emailLabel": "Your e-mail",
+    "emailPh": "Your e-mail address"
   },
   "premium": {
     "close": "Close",
@@ -248,7 +295,7 @@
       "homeH": "Lifetime Premium",
       "homeS": "Pay once and keep Premium codes unlocked for good",
       "payH": "Choose a payment method",
-      "storkH": "Team Stork membership",
+      "storkH": "Stork Community membership",
       "storkS": "Enter your code to unlock every perk"
     },
     "methods": {
@@ -274,8 +321,8 @@
     "storkLabel": "Your Stork code",
     "storkPlaceholder": "Enter your Stork code",
     "storkActivate": "Activate",
-    "storkAbout": "Team Stork is a community for creators and entrepreneurs — members get exclusive Premium codes and extra perks.",
-    "storkDiscover": "Discover the Team Stork community",
+    "storkAbout": "Every Stork Community member gets a code that activates Premium free for 30 days.",
+    "storkDiscover": "Discover Stork Community",
     "payError": "Couldn't start the payment",
     "storkErr": {
       "enter": "Enter the code",
@@ -316,7 +363,7 @@
       "subtitle": "Join CODpromo and save on every order",
       "haveAccount": "Already have an account?",
       "signin": "Log in",
-      "customerLabel": "Shopper",
+      "customerLabel": "Merchant",
       "customerDesc": "Enjoy coupons and deals",
       "companyLabel": "Business / Supplier",
       "companyDesc": "Showcase your coupons and services",
@@ -340,12 +387,13 @@
       "errExists": "This email is already registered",
       "errShort": "Password is too short",
       "errInvalidEmail": "Invalid email format",
-      "errCaptchaFail": "Captcha failed, please try again",
+      "errCaptchaFail": "Verification failed, please try again",
       "errRateLimit": "Too many attempts, please try again shortly",
       "errGeneric": "Couldn't create the account",
       "typeLabel": "Account type",
       "giftNote": "Your gift is saved: once you confirm your email, it activates on your account. If it doesn't activate automatically, open the gift link again.",
-      "freeKeyNote": "Your golden key is saved: once you confirm your email, you'll go straight back to the offers to use it."
+      "freeKeyNote": "Your golden key is saved: once you confirm your email, you'll go straight back to the offers to use it.",
+      "companyEmailOnly": "Company accounts are created with an e-mail and password, so we can link them to your company details."
     },
     "forgot": {
       "title": "Reset your password",
@@ -355,7 +403,8 @@
       "email": "Email",
       "submit": "Send link",
       "doneText": "If <0>{{email}}</0> is registered, you'll receive an email with a password reset link.",
-      "errFail": "Couldn't send the link"
+      "errFail": "Couldn't send the link",
+      "errWait": "We just sent you a link. Wait a minute before trying again, and check your spam folder."
     },
     "reset": {
       "title": "New password",
@@ -370,12 +419,13 @@
       "doneSubtitle": "Redirecting you to log in…",
       "doneText": "Your password has been updated.",
       "invalidTitle": "Invalid link",
-      "invalidSubtitle": "The reset link has expired or was opened incorrectly",
+      "invalidSubtitle": "The reset link has expired or is incomplete",
       "invalidLink": "Request a new link",
       "invalidText": "Open the reset link straight from your email, or request a new one.",
       "errShort": "Password must be at least 6 characters",
       "errMismatch": "Passwords don't match",
-      "errFail": "Couldn't update the password"
+      "errFail": "Couldn't update the password",
+      "errSame": "Choose a password different from your current one."
     },
     "tooFast": "One moment, then try again."
   },
@@ -384,16 +434,22 @@
     "logout": "Log out",
     "loading": "Loading…",
     "customer": {
-      "badge": "Shopper account",
+      "badge": "Merchant account",
       "friend": "friend",
-      "accountTypeVal": "Customer account",
+      "accountTypeVal": "Merchant account",
       "memberSince": "Member since",
       "upgradeDesc": "Bigger discounts, exclusive codes and higher cashback.",
       "favorites": "Favorites",
       "items": "{{count}} items",
       "emptyTitle": "No favorites yet",
-      "emptyDesc": "Browse stores and tap the heart ♡ to save your favorite deals here.",
-      "browse": "Browse deals"
+      "emptyDesc": "Browse offers and tap the heart ♡ to save your favorite offers here.",
+      "browse": "Browse offers",
+      "items_zero": "No items",
+      "items_one": "{{count}} item",
+      "items_two": "{{count}} items",
+      "items_few": "{{count}} items",
+      "items_many": "{{count}} items",
+      "items_other": "{{count}} items"
     },
     "company": {
       "badge": "Business account",
@@ -406,10 +462,10 @@
       "endsOn": "Ends on",
       "noEnd": "No end date",
       "paidWith": "Payment method",
-      "forever": "Every Premium code stays open for you",
+      "forever": "Every Premium code stays unlocked for you",
       "daysLeft": "Days left on your Premium",
-      "openPremium": "Open Premium",
-      "storkQ": "Member of the Stork community?",
+      "openPremium": "Unlock Premium",
+      "storkQ": "In Stork Community?",
       "storkCta": "Activate Premium free with your code",
       "purchasedOn": "Purchased on"
     },
@@ -425,7 +481,7 @@
       "emptyDesc": "Every code you copy from the offers shows up here, ready to copy again.",
       "again": "Copy again",
       "done": "Copied",
-      "unlock": "Open Premium"
+      "unlock": "Unlock Premium"
     },
     "newOffers": {
       "title": "New offers for you",
@@ -438,7 +494,7 @@
       "ilyesDesc": "Content to learn e-commerce",
       "storkTitle": "Stork Community",
       "storkDesc": "The e-commerce community and its paid track.",
-      "storkPerk": "Members get Premium for free"
+      "storkPerk": "Members get 30 days of Premium free"
     },
     "settings": {
       "title": "Settings",
@@ -488,7 +544,7 @@
       "enjoy": "Enjoy the biggest discounts.",
       "checkingTitle": "Confirming your payment",
       "checkingSlickpay": "Checking your transaction status…",
-      "checkingPaypal": "Capturing your PayPal payment…",
+      "checkingPaypal": "Finalizing your PayPal payment…",
       "failTitle": "Payment incomplete",
       "failSlickpay": "We couldn't confirm your payment. If you completed it, activation may take a minute — refresh later, or try again.",
       "failPaypal": "We couldn't confirm your payment. Nothing was charged if it didn't complete — try again or choose another method.",
@@ -497,10 +553,10 @@
     }
   },
   "states": {
-    "emptyTitle": "No matching deals",
+    "emptyTitle": "No matching offers",
     "emptyDesc": "Try another search term or change the filter to find what suits you.",
     "reset": "Reset filters",
-    "errorTitle": "Couldn't load deals",
+    "errorTitle": "Couldn't load offers",
     "retry": "Try again"
   },
   "store": {
@@ -518,13 +574,19 @@
     "faqTitle": "Frequently asked questions",
     "similarTitle": "Similar stores",
     "notFoundTitle": "Page not found",
-    "notFoundDesc": "We couldn't find this store — the link may have changed.",
+    "notFoundDesc": "We couldn't find this company — the link may have changed.",
     "backHome": "Back to home"
   },
   "category": {
-    "count": "{{count}} stores in this category",
+    "count": "{{count}} companies in this category",
     "notFoundTitle": "Category not found",
-    "notFoundDesc": "There are no stores in this category yet."
+    "notFoundDesc": "There are no companies in this category yet.",
+    "count_zero": "No companies in this category yet",
+    "count_one": "{{count}} company in this category",
+    "count_two": "{{count}} companies in this category",
+    "count_few": "{{count}} companies in this category",
+    "count_many": "{{count}} companies in this category",
+    "count_other": "{{count}} companies in this category"
   },
   "admin": {
     "siteStats": {
@@ -605,7 +667,14 @@
         "gifts": "Gifts",
         "freeKey": "Golden key",
         "sales": "Sales",
-        "pricing": "Pricing"
+        "pricing": "Pricing",
+        "ratings": "Ratings",
+        "pending_zero": "No pending requests",
+        "pending_one": "{{count}} pending request",
+        "pending_two": "{{count}} pending requests",
+        "pending_few": "{{count}} pending requests",
+        "pending_many": "{{count}} pending requests",
+        "pending_other": "{{count}} pending requests"
       },
       "range": {
         "label": "Period",
@@ -646,7 +715,13 @@
         "votesUnit": "votes",
         "successShort": "{{pct}}% success",
         "topEmpty": "Nothing yet in this period",
-        "topEmptyDesc": "Try a longer period above."
+        "topEmptyDesc": "Try a longer period above.",
+        "votesCount_zero": "No votes in the period",
+        "votesCount_one": "From {{count}} vote in the period",
+        "votesCount_two": "From {{count}} votes in the period",
+        "votesCount_few": "From {{count}} votes in the period",
+        "votesCount_many": "From {{count}} votes in the period",
+        "votesCount_other": "From {{count}} votes in the period"
       },
       "plan": {
         "free": "Regular",
@@ -707,7 +782,13 @@
           "last_sign_in": "Last sign-in",
           "favorites": "Favorites",
           "copies": "Codes copied"
-        }
+        },
+        "count_zero": "No matching users",
+        "count_one": "{{count}} matching user",
+        "count_two": "{{count}} matching users",
+        "count_few": "{{count}} matching users",
+        "count_many": "{{count}} matching users",
+        "count_other": "{{count}} matching users"
       },
       "companies": {
         "sub": "{{count}} companies on the site",
@@ -725,7 +806,19 @@
         "notFoundDesc": "It may have been deleted. Go back to the list.",
         "saved": "Changes saved",
         "added": "Company added",
-        "categoryAdded": "Category added"
+        "categoryAdded": "Category added",
+        "sub_zero": "No companies on the site yet",
+        "sub_one": "{{count}} company on the site",
+        "sub_two": "{{count}} companies on the site",
+        "sub_few": "{{count}} companies on the site",
+        "sub_many": "{{count}} companies on the site",
+        "sub_other": "{{count}} companies on the site",
+        "hiddenBadge": "Hidden",
+        "visibleTitle": "Visible on the site — click to hide (not deleted)",
+        "hiddenTitle": "Hidden from the site — click to show",
+        "visibilityLabel": "Visibility on the site",
+        "hiddenDone": "{{name}} is now hidden from the site",
+        "shownDone": "{{name}} is visible on the site again"
       },
       "pages": {
         "categoriesSub": "Organize the categories shown on the site",
@@ -738,7 +831,13 @@
         "giftsSub": "Links that give free Premium for a set period, separate from payments and Stork.",
         "freeKeySub": "One free Premium code per account, once. It doesn't grant Premium and isn't counted in members or sales.",
         "salesSub": "Lifetime Premium purchases across every gateway. Gifts, the golden key and admin accounts aren't counted.",
-        "pricingSub": "Launch price, regular price and number of launch seats. The price is set on the server when each payment starts."
+        "pricingSub": "Launch price, regular price and number of launch seats. The price is set on the server when each payment starts.",
+        "requestsSub_zero": "No requests waiting for review",
+        "requestsSub_one": "{{count}} request waiting for review",
+        "requestsSub_two": "{{count}} requests waiting for review",
+        "requestsSub_few": "{{count}} requests waiting for review",
+        "requestsSub_many": "{{count}} requests waiting for review",
+        "requestsSub_other": "{{count}} requests waiting for review"
       },
       "premium": {
         "members": "Premium members",
@@ -787,7 +886,13 @@
         "cancel": "Cancel",
         "deleteFailed": "Couldn't delete the code. It may have just been used.",
         "added": "Code {{code}} added",
-        "deleted": "Code deleted"
+        "deleted": "Code deleted",
+        "count_zero": "No codes",
+        "count_one": "{{count}} code",
+        "count_two": "{{count}} codes",
+        "count_few": "{{count}} codes",
+        "count_many": "{{count}} codes",
+        "count_other": "{{count}} codes"
       },
       "req": {
         "tab": {
@@ -1191,6 +1296,20 @@
         "deletedUser": "Deleted account",
         "adminTag": "Admin (not counted)",
         "more": "Show more"
+      },
+      "ratings": {
+        "title": "Company ratings",
+        "sub": "Stars and tags from signed-in accounts. Hidden ratings don't count in the average.",
+        "total": "All ratings",
+        "visible": "Visible",
+        "avg": "Overall average",
+        "search": "Search by company or email…",
+        "empty": "No ratings yet",
+        "emptyDesc": "They appear here when customers rate companies from their pages.",
+        "hide": "Hide",
+        "show": "Show",
+        "hiddenOk": "Rating hidden",
+        "shown": "Rating visible again"
       }
     }
   },
@@ -1202,7 +1321,7 @@
     "swipeHint": "Swipe the list sideways to switch",
     "kindCode": "With code",
     "kindNocode": "No code",
-    "kindLabel": "Offer kind"
+    "kindLabel": "With or without code"
   },
   "seo": {
     "offers": {
@@ -1226,7 +1345,7 @@
   },
   "story": {
     "label": "The story behind the name",
-    "intro": "The name tells the whole idea",
+    "intro": "The name says it all",
     "codMeaning": "",
     "readAs": "Read it fast: Code promo",
     "conclusion": "Promo codes for cash-on-delivery sellers.",
@@ -1234,7 +1353,7 @@
   },
   "pillars": {
     "title": "Three ways to pay less",
-    "sub": "Every offer on CODpromo is one of three types, each with a colour you spot at a glance.",
+    "sub": "Every offer on CODpromo is one of three types, each with a color you spot at a glance.",
     "liveFrom": "Live example from {{name}}",
     "discount": {
       "def": "A percentage taken straight off the price at checkout. Enter the code and the price drops.",
@@ -1258,11 +1377,11 @@
     "showNormal": "Back to Regular",
     "parts": {
       "fav": {
-        "title": "Favourite",
+        "title": "Favorite",
         "desc": "Save the offer in one tap and find it in your account."
       },
       "value": {
-        "title": "The value and its colour",
+        "title": "The value and its color",
         "desc": "Green for discounts, blue for coupons, orange for cashback."
       },
       "vote": {
@@ -1289,7 +1408,8 @@
     "free": "Free",
     "unlockLabel": "Discount value Premium unlocks",
     "multiplierLabel": "what Premium is worth vs. its price",
-    "seePremium": "See Premium offers"
+    "seePremium": "See Premium offers",
+    "memberNote": "Every Premium code is unlocked for you now, at every company."
   },
   "catGrid": {
     "title": "What does your store need today?",
@@ -1300,11 +1420,11 @@
     "sub": "A code that doesn't work wastes your time, so we treat every code like it's your money.",
     "review": {
       "title": "Checked by hand",
-      "desc": "Every code is tested and reviewed by hand before it appears on the platform."
+      "desc": "Every code is reviewed by hand before it goes live."
     },
     "votes": {
       "title": "Seller votes",
-      "desc": "After each use, sellers vote whether the code worked. The rate shows on every card."
+      "desc": "After using a code, sellers vote whether it worked. The rate shows on every card."
     },
     "fresh": {
       "title": "Always up to date",
@@ -1312,7 +1432,13 @@
     },
     "votesCount": "{{formatted}} votes from sellers so far",
     "partners": "Partners on CODpromo",
-    "cta": "Top-rated codes"
+    "cta": "Top-rated codes",
+    "votesCount_zero": "No votes from sellers yet",
+    "votesCount_one": "{{formatted}} vote from sellers so far",
+    "votesCount_two": "{{formatted}} votes from sellers so far",
+    "votesCount_few": "{{formatted}} votes from sellers so far",
+    "votesCount_many": "{{formatted}} votes from sellers so far",
+    "votesCount_other": "{{formatted}} votes from sellers so far"
   },
   "samples": {
     "title": "Try them now, for free",
@@ -1320,9 +1446,9 @@
     "cta": "See all offers ({{count}})"
   },
   "finalCta": {
-    "title": "Before you pay for any tool, open CODpromo.",
+    "title": "Before you pay for any service, open CODpromo.",
     "sub": "A few seconds could take a chunk off the bill.",
-    "cta": "Open the offers"
+    "cta": "Browse offers now"
   },
   "header": {
     "search": "Quick search",
@@ -1337,7 +1463,14 @@
     "keyCtrl": "Ctrl",
     "member": "Premium member",
     "offersBadge": "{{count}} offers",
-    "menuClose": "Close menu"
+    "menuClose": "Close menu",
+    "admin": "Admin panel",
+    "offersBadge_zero": "No offers",
+    "offersBadge_one": "{{count}} offer",
+    "offersBadge_two": "{{count}} offers",
+    "offersBadge_few": "{{count}} offers",
+    "offersBadge_many": "{{count}} offers",
+    "offersBadge_other": "{{count}} offers"
   },
   "app": {
     "title": "Every discount, in your pocket.",
@@ -1371,7 +1504,9 @@
       "premiumSub": "Shown to Premium members instead of the regular offer",
       "private": "Internal info",
       "privateSub": "Never shown on the site",
-      "adminOnly": "Admin only"
+      "adminOnly": "Admin only",
+      "page": "Company page",
+      "pageSub": "Shown on the company page (/store) and translated automatically. Only write real information from the official website."
     },
     "logo": {
       "upload": "Upload logo",
@@ -1403,7 +1538,14 @@
       "commission": "Platform commission (%)",
       "affiliate": "Referral / affiliate dashboard link",
       "notes": "Notes",
-      "freeReveal": "Available for the golden key"
+      "freeReveal": "Available for the golden key",
+      "storeKind": "Company type",
+      "checkedAt": "Code last checked",
+      "today": "Today",
+      "logoBg": "Logo tile background",
+      "about": "About the company",
+      "features": "Features",
+      "usageSteps": "Custom steps to use the code"
     },
     "h": {
       "name": "Example: YouCan",
@@ -1425,7 +1567,13 @@
       "affiliate": "Dashboard link only, no password",
       "notes": "Anything useful: deal terms, renewal date…",
       "websitePartner": "Example: https://youcan.shop",
-      "freeReveal": "Each account can reveal one Premium code for free, once. Works only if the company has a Premium code."
+      "freeReveal": "Each account can reveal one Premium code for free, once. Works only if the company has a Premium code.",
+      "storeKind": "Sets the how-to steps and rating tags. “Automatic” follows the category.",
+      "checkedAt": "Shown under the code as “Code last checked”. Update it whenever you test the code.",
+      "logoBg": "“Automatic” reads the image edges. Choose “As is” for a cropped logo with its own background.",
+      "about": "Two short paragraphs: what the company offers and to whom.",
+      "features": "One feature per line.",
+      "usageSteps": "One step per line. Leave empty to show automatic steps based on the offer and company type."
     },
     "types": {
       "discount": "Discount",
@@ -1478,17 +1626,48 @@
       "fMessage": "Message to us",
       "hMessage": "Anything else you'd like us to know before publishing",
       "hCategory": "Pick the category closest to your service; we'll adjust it with you during review if needed."
+    },
+    "kinds": {
+      "auto": "Automatic (from category)",
+      "platform": "Store platform / ERP",
+      "delivery": "Delivery",
+      "store": "Store",
+      "tool": "Tool (subscription)",
+      "payment": "Payment",
+      "service": "Service"
+    },
+    "logoBg": {
+      "auto": "Automatic",
+      "white": "White",
+      "dark": "Dark",
+      "transparent": "As is"
+    },
+    "draft": {
+      "restored": "We restored an unsaved draft ({{time}}).",
+      "discard": "Discard draft"
+    },
+    "cropper": {
+      "title": "Crop the logo",
+      "hint": "Drag to move the image",
+      "zoom": "Zoom",
+      "bg": "Background",
+      "bg_transparent": "Transparent",
+      "bg_white": "White",
+      "bg_dark": "Dark",
+      "bg_custom": "Color",
+      "apply": "Use this logo",
+      "note": "Saved as a light 512×512 WebP square."
     }
   },
   "partners": {
     "seo": {
       "title": "Show your discounts to e-commerce merchants | CODpromo for business",
-      "description": "List your company on CODpromo and show an exclusive discount code to thousands of cash-on-delivery merchants, with promotion in Ilyes Derradji's content and a dashboard with real stats."
+      "description": "List your company on CODpromo and show an exclusive discount code to cash-on-delivery merchants, with promotion in Ilyes Derradji's content and a dashboard with real stats."
     },
     "breadcrumb": "For business",
     "cta": "Register your company",
     "hero": {
-      "title": "Show your discounts to thousands of e-commerce merchants",
+      "title": "Show your discounts to the e-commerce merchants looking for them",
       "sub": "CODpromo is where cash-on-delivery merchants look for delivery, store platforms and tools to grow. Add your offer and we'll put it in front of them.",
       "how": "How it works",
       "free": "Creating a company account and sending an offer are free."
@@ -1591,7 +1770,7 @@
       },
       "commission": {
         "q": "Does CODpromo earn a commission from offers?",
-        "a": "Some links may earn us a commission at no extra cost to you."
+        "a": "Only if we agree on it: if you have a referral program, we can agree on a share through your referral link. It's entirely optional; listing your offer is free."
       }
     },
     "final": {
@@ -1631,7 +1810,13 @@
       "accepted": "Published",
       "rejected": "Rejected"
     },
-    "sentToast": "We received your request and will contact you before publishing."
+    "sentToast": "We received your request and will contact you before publishing.",
+    "votesNote_zero": "No votes yet",
+    "votesNote_one": "from {{count}} vote",
+    "votesNote_two": "from {{count}} votes",
+    "votesNote_few": "from {{count}} votes",
+    "votesNote_many": "from {{count}} votes",
+    "votesNote_other": "from {{count}} votes"
   },
   "partnerForm": {
     "newTitle": "New offer",
@@ -1716,7 +1901,7 @@
       "codes": "Exclusive Premium codes with bigger discounts than the regular ones",
       "reveal": "Scratch to reveal any Premium code right on the card",
       "nocode": "Bigger rewards on no-code deals",
-      "note": "No payment and no card. The gift ends on its own date, with no renewal."
+      "note": "No payment and no card. The gift simply ends on its date — nothing renews."
     },
     "state": {
       "yours": {
@@ -1745,7 +1930,7 @@
       },
       "inactive": {
         "title": "This gift is paused",
-        "desc": "This link has been stopped and doesn't work right now."
+        "desc": "This link has been turned off and doesn't work right now."
       },
       "already": {
         "title": "You've already received a gift",
@@ -1812,13 +1997,13 @@
     "card": {
       "guest": "Sign up free and reveal one Premium code on us",
       "use": "Use your golden key",
-      "upsell": "Free key used. Get Lifetime Premium to reveal them all",
+      "upsell": "Golden key used. Get Lifetime Premium to reveal every code",
       "badge": "Your golden key"
     },
     "confirm": {
       "title": "You only have one key",
       "body": "Are you sure you want to reveal the {{company}} code?",
-      "note": "This code stays visible to you for good. Every other company stays locked until you go Premium.",
+      "note": "This code stays visible to you for good. Every other company stays locked until you get Lifetime Premium.",
       "yes": "Yes, reveal the code",
       "busy": "Unlocking…",
       "no": "Not now",
@@ -1827,7 +2012,7 @@
     "err": {
       "used": "You've already used your key on another company. Each account gets one key.",
       "disabled": "The golden key is paused right now.",
-      "hasPremium": "You already have Premium, so every Premium code is open to you.",
+      "hasPremium": "You already have Premium, so every Premium code is unlocked for you.",
       "unavailable": "This company isn't available for the golden key. Pick another one.",
       "disposable": "The golden key doesn't work with temporary email. Sign up with a permanent email or with Google.",
       "unconfirmed": "Confirm your email first using the message we sent you, then try again.",
@@ -1841,13 +2026,13 @@
       "subAvailable": "Your golden key is in your account: pick one company and reveal its Premium code.",
       "subUsed": "You used your key on {{company}}. The rest of the Premium codes are waiting.",
       "subUsedGeneric": "You've used your golden key. The rest of the Premium codes are waiting.",
-      "keyLabel": "Your free key",
+      "keyLabel": "Your golden key",
       "saidGuest": "Sign up to open it",
       "saidAvailable": "It opens one Premium code of your choice",
-      "saidUsed": "Your free key has been used",
-      "ctaGuest": "Sign up and get your key",
-      "ctaAvailable": "Your key is ready, pick your card",
-      "ctaUsed": "Go Premium and reveal every code",
+      "saidUsed": "Your golden key has been used",
+      "ctaGuest": "Get my golden key",
+      "ctaAvailable": "Pick your card",
+      "ctaUsed": "Get Premium",
       "fine": {
         "free": "Free",
         "noCard": "No bank card",
@@ -1863,14 +2048,14 @@
     },
     "dash": {
       "availableTitle": "Your golden key is available",
-      "availableDesc": "Use it to reveal one Premium code for free, on the company you choose.",
+      "availableDesc": "Use it to reveal one Premium code for free, at the company of your choice.",
       "availableCta": "Pick a card",
       "usedTitle": "You used your key on {{company}}",
       "usedTitleGeneric": "You've used your golden key",
       "usedDesc": "This code stays revealed for you for good.",
       "usedGone": "The company you picked is no longer on the site.",
       "loading": "Loading the code…",
-      "inboxTitle": "Your inbox's key is used",
+      "inboxTitle": "Your email's key was already used",
       "inboxDesc": "Your email already used its golden key from another account. Each inbox gets one key."
     }
   },
@@ -1944,13 +2129,13 @@
     },
     "methods": {
       "q": "How can I pay?",
-      "a": "With an international card (Visa / Mastercard), an Algerian CIB / Edahabia card, PayPal, or Google Play inside the app.",
+      "a": "With an international card (Visa / Mastercard), an Algerian CIB / Edahabia card, or PayPal.",
       "aApp": "Inside the Android app, you pay through Google Play only, with your Google Play account."
     }
   },
   "premiumPage": {
     "seo": {
-      "title": "CODpromo Premium for life: the strongest discount codes, one payment",
+      "title": "CODpromo Lifetime Premium: the strongest discount codes, one payment",
       "description": "Unlock the strongest code at the delivery companies, platforms, tools and payment cards cash-on-delivery sellers rely on. One payment, no subscription, 7-day refund guarantee.",
       "productDesc": "Lifetime access to every Premium code on CODpromo with one payment, no subscription and no renewal."
     },
@@ -1962,8 +2147,8 @@
     "companies_many": "{{n}} companies",
     "companies_other": "{{n}} companies",
     "hero": {
-      "launchPill": "Launch price is open",
-      "title": "The strongest code at every company, unlocked for life",
+      "launchPill": "Launch price available now",
+      "title": "The strongest code at partner companies, unlocked for life",
       "sub": "Premium reveals the strongest code at {{companies}} cash-on-delivery sellers rely on: delivery, platforms, tools and payment cards. You pay once, and never again.",
       "subLoading": "Premium reveals the strongest code at the companies cash-on-delivery sellers rely on: delivery, platforms, tools and payment cards. You pay once, and never again.",
       "cta": "Get Premium",
@@ -1971,13 +2156,14 @@
       "assurance": "One payment, no renewal, and a full refund within 7 days if you don't reveal any Premium code.",
       "memberPill": "You're a Premium member",
       "memberTitle": "Premium is active on your account",
-      "memberLifetime": "For life: every Premium code is open to you now, plus everything added later.",
-      "memberUntil": "Active until {{date}}. Every Premium code is open to you.",
-      "memberCta": "Open Premium offers",
-      "giftPill": "Gift Premium until {{date}}",
+      "memberLifetime": "For life: every Premium code is unlocked for you now, plus everything added later.",
+      "memberUntil": "Active until {{date}}. Every Premium code is unlocked for you.",
+      "memberCta": "See Premium offers",
+      "giftPill": "Gifted Premium until {{date}}",
       "giftTitle": "Make Premium yours for life",
-      "giftSub": "Your gift ends on {{date}}. Pay once to keep Premium open after that, with no subscription.",
-      "giftCta": "Make it lifetime"
+      "giftSub": "Your gift ends on {{date}}. Pay once to keep Premium unlocked after that, with no subscription.",
+      "giftCta": "Make it lifetime",
+      "priceNote": "One payment · lifetime"
     },
     "pass": {
       "label": "CODpromo Premium pass",
@@ -1994,7 +2180,7 @@
       "colCompany": "Company",
       "colFree": "Regular",
       "colPremium": "Premium",
-      "more": "Show all companies ({{n}})",
+      "more": "Show all ({{n}})",
       "less": "Show less",
       "frozen_zero": "",
       "frozen_one": "{{n}} company has no Premium code yet: it shows locked in grey, and its regular code stays open to everyone.",
@@ -2005,7 +2191,7 @@
     },
     "partners": {
       "title": "Companies with a Premium code",
-      "sub": "Companies cash-on-delivery sellers use every day. The list keeps growing, and every new company opens to you at no extra cost."
+      "sub": "Companies cash-on-delivery sellers use every day. The list keeps growing, and every new company is unlocked for you at no extra cost."
     },
     "how": {
       "title": "How Premium works",
@@ -2020,7 +2206,7 @@
       },
       "s3": {
         "t": "Copy it and save",
-        "d": "Copy the code and use it at the company. Every new Premium code opens to you automatically."
+        "d": "Copy the code and use it at the company. Every new Premium code is unlocked for you automatically."
       },
       "scratch": "Scratch here",
       "copied": "Copied",
@@ -2029,7 +2215,7 @@
     "price": {
       "title": "One price, paid once",
       "subLaunch": "Launch price for the first {{seats}} members only, then the price rises to {{regular}} automatically.",
-      "subRegular": "You pay once, and Premium stays open to you for as long as CODpromo runs.",
+      "subRegular": "You pay once, and Premium stays unlocked for you for as long as CODpromo runs.",
       "perks": {
         "all": "Every current and future Premium code",
         "nocode": "The stronger version of no-code deals",
@@ -2043,7 +2229,7 @@
         "durationV": "For life",
         "activation": "Activation",
         "activationV": "Instant",
-        "seats": "Launch seats",
+        "seats": "Seats left",
         "seatsV": "{{left}} of {{total}}"
       }
     },
@@ -2060,18 +2246,18 @@
       },
       "frozen": {
         "q": "What if a company has no Premium code?",
-        "a": "Its card shows locked in grey in Premium mode, and its regular code stays open to you. When the company adds a Premium code, it opens to you automatically."
+        "a": "Its card shows locked in grey in Premium mode, and its regular code stays available to you. When the company adds a Premium code, it's unlocked for you automatically."
       },
       "newCodes": {
         "q": "Do I pay again when new codes are added?",
-        "a": "No. Every Premium code added later opens to you at no extra cost."
+        "a": "No. Every Premium code added later is unlocked for you at no extra cost."
       },
       "goldenKey": {
         "q": "I have the golden key. What's the difference?",
         "a": "The golden key reveals the Premium code of one company you choose, once per account. Premium opens the codes of every company, today and in the future."
       },
       "stork": {
-        "q": "I'm a Stork community member. Do I pay?",
+        "q": "I'm a Stork Community member. Do I pay?",
         "a": "No need. Tap “I'm a Stork member” and enter your code to turn on Premium for 30 days."
       }
     },
@@ -2080,7 +2266,7 @@
       "sub": "Pay once, and reveal every Premium code today and everything added later."
     },
     "sticky": {
-      "label": "Premium for life"
+      "label": "Lifetime Premium"
     }
   },
   "checkout": {
@@ -2094,24 +2280,24 @@
     "accountTitle": "Create your account first",
     "accountDesc": "Premium is tied to your account so you have it on every device. Create a free account or sign in, then come back here to pay.",
     "accountSignup": "Create a free account",
-    "accountLogin": "I have an account, sign in",
+    "accountLogin": "I already have an account",
     "storkDoneTitle": "Premium is active",
-    "storkDoneDesc": "Your Stork code is active on your account. Every Premium code is open to you now.",
-    "toOffers": "Open Premium offers"
+    "storkDoneDesc": "Your Stork code is active on your account. Every Premium code is unlocked for you now.",
+    "toOffers": "See Premium offers"
   },
   "purchase": {
     "confirmingTitle": "Confirming your payment",
     "confirmingDesc": "Premium will be active on your account in a moment.",
     "title": "Welcome to Premium",
-    "sub": "Lifetime Premium is active on your account. Every Premium code is open to you now.",
+    "sub": "Lifetime Premium is active on your account. Every Premium code is unlocked for you now.",
     "pendingTitle": "Payment received, activation being confirmed",
     "pendingDesc": "Confirmation can take a minute. Refresh the page shortly, or open your account.",
-    "loginDesc": "Sign in to see your purchase summary and start revealing codes.",
-    "login": "Sign in",
+    "loginDesc": "Log in to see your purchase summary and start revealing codes.",
+    "login": "Log in",
     "retry": "Refresh",
     "summary": "Purchase summary",
     "plan": "Plan",
-    "planV": "Premium for life",
+    "planV": "Lifetime Premium",
     "amount": "Amount",
     "method": "Payment method",
     "date": "Date",
@@ -2122,10 +2308,145 @@
       "s2": "Scratch the gold code on the card",
       "s3": "Copy it and use it at the company"
     },
-    "cta": "Open Premium offers",
+    "cta": "See Premium offers",
     "account": "My account",
     "refundNote": "You can ask for a refund within 7 days as long as you haven't revealed any Premium code.",
     "failBack": "Back to Premium",
     "usd": "${{usd}}"
+  },
+  "storePage": {
+    "codeLabel": "Code",
+    "copy": "Copy code",
+    "copied": "Copied",
+    "copyCode": "Copy {{code}}",
+    "visit": "Visit website",
+    "checkedAt": "Code last checked: {{date}}",
+    "offerFor": "on {{name}}",
+    "premiumWith": "With Premium",
+    "premiumOpen": "Your Premium code is unlocked",
+    "premiumCta": "Unlock with Premium",
+    "premiumReveal": "Reveal code",
+    "offersTitle": "{{name}} offers",
+    "premiumExplain": "The Premium code gives you {{premium}} instead of {{normal}}. Unlock every company's Premium code for life with a single payment, or reveal one code free with your golden key.",
+    "premiumExplainNoKey": "The Premium code gives you {{premium}} instead of {{normal}}. Unlock every company's Premium code for life with a single payment.",
+    "premiumLink": "What does Premium give you?",
+    "stepsTitle": "How to use the {{name}} code",
+    "steps": {
+      "copyTitle": "Copy the code",
+      "copyDesc": "Tap “Copy code” and {{code}} is copied right away.",
+      "linkTitle": "Open {{name}} from here",
+      "linkDesc": "Go to {{name}} with the “Visit website” button on this page — some offers only apply through this link.",
+      "open": {
+        "platformTitle": "Create your {{name}} account",
+        "platformDesc": "Sign up to {{name}} or log in, then pick the plan that fits your store.",
+        "deliveryTitle": "Sign up as a merchant with {{name}}",
+        "deliveryDesc": "Open a merchant account with {{name}} or log in to your existing one.",
+        "storeTitle": "Choose your items",
+        "storeDesc": "Open the {{name}} store and add what you need to your cart.",
+        "toolTitle": "Pick your {{name}} plan",
+        "toolDesc": "Go to {{name}} and choose the plan or subscription that suits you.",
+        "paymentTitle": "Open your {{name}} account",
+        "paymentDesc": "Open an account or order your card with {{name}}.",
+        "serviceTitle": "Contact {{name}}",
+        "serviceDesc": "Get in touch with {{name}} and ask for the service you need.",
+        "defaultTitle": "Open the {{name}} website",
+        "defaultDesc": "Go to {{name}} using the “Visit website” button on this page."
+      },
+      "applyTitle": "Paste the code",
+      "applyDesc": "Paste {{code}} in the discount or referral code field at sign-up or checkout, and check the offer is applied before you pay.",
+      "cashbackTitle": "Use the code and get your cashback",
+      "cashbackDesc": "Enter {{code}} if asked, and follow the cashback terms set by {{name}}.",
+      "customNote": "Steps specific to {{name}}"
+    },
+    "aboutTitle": "About {{name}}",
+    "featuresTitle": "What {{name}} offers",
+    "visitSite": "Official website",
+    "rating": {
+      "title": "{{name}} ratings",
+      "outOf": "out of 5",
+      "count_zero": "No ratings",
+      "count_one": "{{count}} rating",
+      "count_two": "{{count}} ratings",
+      "count_few": "{{count}} ratings",
+      "count_many": "{{count}} ratings",
+      "count_other": "{{count}} ratings",
+      "stars": "{{n}} out of 5 stars",
+      "starsShort": "{{avg}} out of 5",
+      "few": "There are only a few ratings so far, so we don’t show an average yet.",
+      "empty": "No ratings yet. Have you used {{name}}? Be the first to rate it.",
+      "note": "Ratings from signed-in CODpromo members only, one per account.",
+      "yourTitle": "Rate {{name}}",
+      "tagsQ": "What stands out? Pick up to 4 (optional)",
+      "submit": "Submit rating",
+      "update": "Save changes",
+      "saving": "Saving…",
+      "saved": "Thanks, your rating is saved.",
+      "yours": "Your rating: {{n}} out of 5",
+      "edit": "Edit your rating",
+      "cancel": "Cancel",
+      "pickStars": "Choose a number of stars first.",
+      "loginCta": "Log in to rate {{name}}",
+      "loginHint": "Only signed-in members can rate, so ratings stay genuine.",
+      "hidden": "Your rating was hidden by the team and isn’t counted in the average.",
+      "err": {
+        "auth": "Please log in first.",
+        "unconfirmed": "Confirm your email first, then rate.",
+        "disposable": "Ratings aren’t possible with a temporary email address.",
+        "owner": "You can’t rate your own company.",
+        "company_account": "Ratings are for merchant accounts only.",
+        "rate_limited": "You’ve changed your rating several times today. Try again tomorrow.",
+        "unavailable": "This company can’t be rated right now.",
+        "invalid": "Choose 1 to 5 stars and up to 4 tags.",
+        "generic": "Couldn’t save your rating. Please try again.",
+        "inbox_used": "This email address already rated this company from another account."
+      },
+      "tags": {
+        "easy_setup": "Easy setup",
+        "many_features": "Lots of features",
+        "fair_price": "Fair price",
+        "fast_support": "Fast support",
+        "stable": "Stable, no outages",
+        "on_time": "On time",
+        "careful_handling": "Careful with parcels",
+        "wide_coverage": "Wide coverage",
+        "fast_payout": "Fast payouts",
+        "quality_products": "Good products",
+        "fast_shipping": "Fast shipping",
+        "as_described": "As described",
+        "accurate_data": "Accurate data",
+        "easy_to_use": "Easy to use",
+        "time_saver": "Saves time",
+        "fast_activation": "Quick activation",
+        "low_fees": "Low fees",
+        "reliable": "Reliable",
+        "professional": "Professional",
+        "good_results": "Good results",
+        "good_value": "Good value"
+      }
+    },
+    "faq": {
+      "title": "Questions about {{name}}",
+      "hasCodeQ": "Is there a working {{name}} promo code?",
+      "hasCodeA": "Yes. The current {{name}} code is {{code}} and gives you {{value}}.",
+      "hasCodeChecked": "It was last checked on {{date}}.",
+      "howQ": "How do I use the {{name}} code?",
+      "premiumQ": "Does CODpromo Premium give a better offer on {{name}}?",
+      "premiumYes": "Yes. With Premium you get {{premium}} instead of {{normal}}. Premium is a single payment for lifetime access, and it unlocks Premium codes for every company.",
+      "premiumNo": "Not at the moment: there’s no Premium offer for {{name}}, and the regular offer is free for everyone.",
+      "freeQ": "Is the {{name}} code free?",
+      "freeA": "Yes. The regular code is free for everyone and doesn’t need an account."
+    },
+    "similarTitle": "Similar companies",
+    "similarAll": "All {{category}} companies",
+    "moreIn": "More in {{category}}",
+    "copyShort": "Copy"
+  },
+  "notFound": {
+    "kicker": "This link is no longer valid",
+    "title": "Page not found",
+    "desc": "The link may have changed or the offer may have ended. Every current offer is on the offers page.",
+    "offers": "Browse offers",
+    "home": "Home",
+    "categories": "Or browse by category"
   }
 }

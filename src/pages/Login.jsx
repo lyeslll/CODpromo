@@ -9,6 +9,7 @@ import { useAuth } from "../lib/auth.jsx";
 import { pendingGiftPath } from "../lib/gifts.js";
 import { pendingFreeKeyPath } from "../lib/freeKey.js";
 import { pendingPremiumPath } from "../lib/goPremium.js";
+import { peekReturnTo, takeReturnTo } from "../lib/returnTo.js";
 
 /** يحوّل رسالة خطأ Supabase إلى مفتاح ترجمة. */
 export function loginErrorKey(msg = "") {
@@ -42,13 +43,13 @@ export default function Login() {
     setLoading(false);
     if (error) return setError(t(`auth.login.${loginErrorKey(error.message)}`));
     // جا من رابط هدية → يرجع لصفحتها وتتفعّل وحدها؛ جا من بطاقة (المفتاح الذهبي) → يرجع لنفس البطاقة
-    navigate(pendingGiftPath() || pendingFreeKeyPath() || pendingPremiumPath() || "/dashboard");
+    navigate(pendingGiftPath() || pendingFreeKeyPath() || pendingPremiumPath() || takeReturnTo() || "/dashboard");
   };
 
   const google = async () => {
     setError("");
     setGoogleLoading(true);
-    const { error } = await signInWithGoogle(pendingGiftPath() || pendingFreeKeyPath() || pendingPremiumPath());
+    const { error } = await signInWithGoogle(pendingGiftPath() || pendingFreeKeyPath() || pendingPremiumPath() || peekReturnTo());
     if (error) {
       setGoogleLoading(false);
       setError(t(`auth.login.${loginErrorKey(error.message)}`));
@@ -110,8 +111,9 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setShow((v) => !v)}
-              className="absolute end-3 top-1/2 -translate-y-1/2 text-[var(--color-mute)] hover:text-[var(--text)]"
-              tabIndex={-1}
+              className="absolute end-1 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-lg text-[var(--color-mute)] hover:text-[var(--text)]"
+              aria-label={t(show ? "dashboard.settings.hide" : "dashboard.settings.show")}
+              aria-pressed={show}
             >
               {show ? <EyeOff size={17} /> : <Eye size={17} />}
             </button>

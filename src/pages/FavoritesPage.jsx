@@ -8,6 +8,7 @@ import { trackClick } from "../lib/supabase.js";
 import { fetchFavoritesWithCompany, removeFavorite } from "../lib/favorites.js";
 import { useAuth } from "../lib/auth.jsx";
 import { usePremium } from "../lib/premium.jsx";
+import { hasPremiumOffer } from "../lib/premiumOffer.js";
 import { favoritesUrl } from "../lib/seo.js";
 
 import Navbar from "../components/Navbar.jsx";
@@ -23,7 +24,7 @@ import Seo from "../components/Seo.jsx";
 export default function FavoritesPage({ lang = "ar" }) {
   const { t } = useTranslation();
   const { user, loading: authLoading } = useAuth();
-  const { unlocked } = usePremium();
+  const { unlocked, hasPremium } = usePremium();
 
   const [items, setItems] = useState([]); // [{ company_id, companies }]
   const [loading, setLoading] = useState(true);
@@ -105,7 +106,7 @@ export default function FavoritesPage({ lang = "ar" }) {
                   isFavorite
                   onToggleFav={() => removeFav(c.id)}
                   onCopy={handleCopy}
-                  premium={false}
+                  premium={hasPremium && hasPremiumOffer(c)}
                   unlocked={unlocked}
                   onUnlock={goPremium}
                 />

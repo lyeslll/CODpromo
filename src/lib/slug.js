@@ -6,11 +6,16 @@
 
 /** "YouCan Store" → "youcan-store" · النص العربي البحت يعطي "" (فارغ). */
 export function slugify(v) {
-  return String(v || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/-{2,}/g, "-")
-    .replace(/^-+|-+$/g, "");
+  return (
+    String(v || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/-{2,}/g, "-")
+      .replace(/^-+|-+$/g, "")
+      // 72 حرف كحدّ أقصى: القاعدة تقبل 80 (phase35)، والباقي للاحقة "-xxxx" كي يتكرّر الرابط
+      .slice(0, 72)
+      .replace(/-+$/g, "")
+  );
 }
 
 /** slug آمن دائماً لشركة: من الاسم، وإلا "store-<id>". */

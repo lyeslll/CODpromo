@@ -6,6 +6,9 @@ import MagicCoupon2D from "./magic/MagicCoupon2D.jsx";
 import { premiumMultiplier } from "../../lib/siteStats.js";
 import { formatNumber } from "../../lib/values.js";
 import { formatPrice, usePricing } from "../../lib/pricing.jsx";
+import BidiText from "../BidiText.jsx";
+import { usePremium } from "../../lib/premium.jsx";
+import { useAuth } from "../../lib/auth.jsx";
 import { offersLink, offersPath } from "../../lib/seo.js";
 import { categoryName, categoryRecordSlug } from "../../lib/slug.js";
 import "./hero-mobile.css";
@@ -101,13 +104,28 @@ function FitLabel({ children, max = 15, min = 12 }) {
 /** شريط القيمة (رقيق): مجاني للجميع · بـ السعر تفتح +القيمة — والمضاعف ×N بالذهبي على الجنب. نفس أرقام site_stats. */
 function HeroValueStrip({ stats, lang, t }) {
   const pricing = usePricing();
-  if (!pricing) return null;
+  const { hasPremium, premiumReady } = usePremium();
+  const { loading: authLoading } = useAuth();
+  // حالة الحساب مازال ما تعرفتش → نستناو (بلاها العضو يشوف جملة السعر ومن بعد تتبدّل)
+  const statusPending = authLoading || !premiumReady;
+  // قبل ما يوصل السعر (ولا حالة الحساب): نفس المكان فارغ (بلا قفزة كي يبان الشريط)
+  if (!pricing || statusPending) return <div aria-hidden className="mt-3 h-[57px] rounded-2xl border border-[var(--color-ink-line)]/60" />;
   const unlock = stats?.premiumUnlockValueUsd ?? null;
   const multiplier = premiumMultiplier(unlock, pricing.usd);
   const priceText = formatPrice(t, lang, pricing.dzd, pricing.usd);
   return (
     <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-[#f0c63c]/30 bg-[linear-gradient(120deg,rgba(166,240,0,0.06),rgba(240,198,60,0.09))] px-3.5 py-2.5">
-      {/* كل جزء يبقى مجموع: إذا ما دخلش في سطر، يتقسم بين "مجاني للجميع" وجملة السعر */}
+      {/* كل جزء يبقى مجموع: إذا ما دخلش في سطر، يتقسم بين "مجاني للجميع" وجملة السعر.
+          تحت 380px جملة السعر ما تدخلش وحدها في سطر → تمشي عادي (بلاها تدخل تحت ×N) */}
+      {hasPremium ? (
+        // العضو: Premium مفعّل (بلا "مجاني للجميع" ولا السعر) — جملة وحدة تمشي على سطرين إذا لزم
+        <p className="min-w-0 text-start text-[12.5px] font-bold leading-snug text-[#ffe486]">
+          <BidiText
+            rtl={lang === "ar"}
+            text={unlock != null ? t("hero.value.memberStrip", { value: formatNumber(unlock, lang) }) : t("hero.value.memberShort")}
+          />
+        </p>
+      ) : (
       <p className="min-w-0 text-start text-[12.5px] font-bold leading-snug text-[var(--text-softer)]">
         <span className="inline-flex items-center gap-1 whitespace-nowrap align-middle font-black text-[var(--color-lime)]">
           <Check size={14} strokeWidth={3} aria-hidden />
@@ -116,12 +134,19 @@ function HeroValueStrip({ stats, lang, t }) {
             ·
           </span>
         </span>{" "}
-        <span className="inline-block whitespace-nowrap">
-          {unlock != null
-            ? t("hero.value.unlockStrip", { price: priceText, value: formatNumber(unlock, lang) })
-            : t("hero.value.unlockShort", { price: priceText })}
+        <span className="inline-block whitespace-nowrap max-[379px]:inline max-[379px]:whitespace-normal">
+          {/* BidiText: "1,176$" في آخر الجملة العربية كان يبان "$1,176" */}
+          <BidiText
+            rtl={lang === "ar"}
+            text={
+              unlock != null
+                ? t("hero.value.unlockStrip", { price: priceText, value: formatNumber(unlock, lang) })
+                : t("hero.value.unlockShort", { price: priceText })
+            }
+          />
         </span>
       </p>
+      )}
       {multiplier && (
         <bdi
           dir="ltr"
@@ -340,7 +365,8 @@ export default function HeroMobile({
 
       <HeroValueStrip stats={stats} lang={lang} t={t} />
 
-      {/* شرائح التصنيفات: شريط متحرك (تحت أول شاشة) */}
+      {/* شرائح التصنيفات: شريط متحرك (تحت أول شاشة) — مكانها محجوز قبل ما توصل الفئات */}
+      {chips.length === 0 && <div aria-hidden className="mt-6 h-[33px]" />}
       {chips.length > 0 && (
         <div className="marquee-wrap no-scrollbar relative -mx-4 mt-6 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
           <div className="marquee-track flex w-max gap-2 px-4" style={{ "--marquee-duration": "38s" }}>
@@ -352,7 +378,7 @@ export default function HeroMobile({
                 tabIndex={i >= chips.length ? -1 : 0}
                 className="whitespace-nowrap rounded-full border border-[var(--color-ink-line)] bg-[var(--fill)] px-3.5 py-1.5 text-[12.5px] font-bold text-[var(--text-softer)]"
               >
-                {categoryName(cat, lang)}
+                <bdi>{categoryName(cat, lang)}</bdi>
                 <span className="ms-1.5 text-[11px] font-semibold text-[var(--color-mute)]">{counts[cat.id]}</span>
               </Link>
             ))}

@@ -1,0 +1,26 @@
+/* ============================================================
+   أعلام اللغات الثلاث برك (SVG من flag-icons، رخصة MIT — LICENSE-flag-icons).
+   كانت flag-icons.min.css كاملة (~400 علم داخل الـ CSS الأساسي ≈ 540KB يحبس أول رسم).
+   نفس الأصناف: .fi .fi-dz / .fi-gb / .fi-fr
+   ============================================================ */
+.fi {
+  position: relative;
+  display: inline-block;
+  width: 1.333333em;
+  line-height: 1em;
+  background-size: contain;
+  background-position: 50%;
+  background-repeat: no-repeat;
+}
+.fi::before {
+  content: "\00a0";
+}
+.fi-dz {
+  background-image: url("./dz.svg");
+}
+.fi-gb {
+  background-image: url("./gb.svg");
+}
+.fi-fr {
+  background-image: url("./fr.svg");
+}

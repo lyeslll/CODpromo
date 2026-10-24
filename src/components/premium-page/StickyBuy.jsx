@@ -1,26 +1,42 @@
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Crown } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useScrollVisibility } from "../../lib/scrollVisibility.jsx";
 import { formatPrice } from "../../lib/pricing.jsx";
 import "./premium-page.css";
 
 /**
  * شريط الشراء العائم: يبان كي يخرج زر الـ Hero من الشاشة وما يكونش زر الشراء الآخر قدّامك.
- * الهاتف: فوق شريط التنقّل السفلي (ينزل مكانه كي يختفي الشريط). الكمبيوتر: كبسولة في الوسط تحت.
+ * الهاتف: وقت يبان، شريط التنقّل السفلي يتنحّى (body.sticky-buy-on) — الشراء هو الزر الأساسي هنا،
+ * وما يركبوش فوق بعض (تاج الشريط الذهبي مرفوع). يتخبّى حتى كي يبان الفوتر. الكمبيوتر: كبسولة في الوسط تحت.
  */
 export default function StickyBuy({ visible, pricing, onBuy }) {
   const { t, i18n } = useTranslation();
-  const { hidden } = useScrollVisibility();
   const price = pricing ? formatPrice(t, i18n.language, pricing.dzd, pricing.usd) : "";
+
+  // الفوتر قدّامك → الشريط يتخبّى (ما يغطّيش روابط الفوتر)
+  const [footerOn, setFooterOn] = useState(false);
+  useEffect(() => {
+    const footer = document.querySelector("footer");
+    if (!footer || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => setFooterOn(e.isIntersecting), { rootMargin: "0px 0px -15% 0px" });
+    io.observe(footer);
+    return () => io.disconnect();
+  }, []);
+  const on = visible && !footerOn;
+
+  useEffect(() => {
+    document.body.classList.toggle("sticky-buy-on", on);
+    return () => document.body.classList.remove("sticky-buy-on");
+  }, [on]);
 
   return (
     <div
       className="pp-sticky pointer-events-none fixed inset-x-0 z-30 flex justify-center px-3 transition-transform duration-300"
-      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 14px)", "--pp-sticky-y": hidden ? "0px" : "-66px" }}
+      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)" }}
     >
       <AnimatePresence>
-        {visible && (
+        {on && (
           <motion.div
             key="sticky-buy"
             initial={{ y: 28, opacity: 0 }}
@@ -37,7 +53,7 @@ export default function StickyBuy({ visible, pricing, onBuy }) {
             <button
               type="button"
               onClick={onBuy}
-              className="flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-3 text-[14.5px] font-extrabold text-[#1d1403]"
+              className="flex min-h-[48px] shrink-0 items-center gap-1.5 rounded-xl px-4 text-[14.5px] font-extrabold text-[#1d1403]"
               style={{ background: "linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e)" }}
             >
               <Crown size={16} /> {t("premiumPage.hero.cta")}

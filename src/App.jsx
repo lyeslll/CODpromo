@@ -42,6 +42,7 @@ const Terms = lazy(() => import("./pages/Terms.jsx"));
 const AccountDeletion = lazy(() => import("./pages/AccountDeletion.jsx"));
 const GoPage = lazy(() => import("./pages/GoPage.jsx"));
 const GiftPage = lazy(() => import("./pages/GiftPage.jsx"));
+const NotFound = lazy(() => import("./pages/NotFound.jsx"));
 
 /** مؤشّر تحميل الصفحة (نفس حلقة شاشة البداية). */
 function PageFallback() {
@@ -168,6 +169,10 @@ export default function App() {
           <Suspense fallback={<PageFallback />}>
           <Routes>
           <Route path="/" element={<Home />} />
+          {/* الرئيسية بالإنجليزية والفرنسية (كانت تخدم غير عبر "*") + index.html (تحويل prerender الاحتياطي) */}
+          <Route path="/en" element={<Home />} />
+          <Route path="/fr" element={<Home />} />
+          <Route path="/index.html" element={<Home />} />
 
           {/* كل العروض + الفلاتر (الفلاتر في الرابط: ?type=&category=&mode=&sort=&q=) */}
           <Route path="/offers" element={<OffersPage lang="ar" />} />
@@ -234,7 +239,8 @@ export default function App() {
               </div>
             }
           />
-          <Route path="*" element={<Home />} />
+          {/* رابط ما يوجدش → صفحة 404 (noindex) بلاصة الرئيسية */}
+          <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>
           <MobileBottomNav />

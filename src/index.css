@@ -106,11 +106,6 @@
 /* ======================================================================
    Base
    ====================================================================== */
-@font-face {
-  font-family: "Tajawal";
-  font-display: swap;
-}
-
 /* ======================================================================
    Fonts per language — Tajawal للعربية، Inter للإنجليزية/الفرنسية.
    يتجاوز --font-sans (المعرّف في @theme) حسب وسم lang.
@@ -573,6 +568,24 @@ body {
   body.has-bottom-nav {
     padding-bottom: calc(68px + env(safe-area-inset-bottom));
   }
+}
+
+/* /premium: وقت يبان شريط الشراء العائم، شريط التنقّل وزر الرجوع للأعلى يتنحّاو (الهاتف) */
+@media (max-width: 767px) {
+  body.sticky-buy-on .bottom-nav {
+    transform: translateY(135%) !important;
+  }
+  body.sticky-buy-on [data-btt-float] {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+/* زر Premium الذهبي في الشريط السفلي: حلقة ذهبية خفيفة كي تكون في صفحات Premium */
+.bn-gold-on {
+  box-shadow:
+    0 12px 26px -10px rgba(240, 198, 60, 0.85),
+    0 0 0 5px var(--elev),
+    0 0 0 7px rgba(240, 198, 60, 0.45) !important;
 }
 
 /* ======================================================================

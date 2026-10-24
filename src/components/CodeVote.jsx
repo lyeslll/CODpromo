@@ -88,7 +88,7 @@ export default function CodeVote({ companyId, accent, glow }) {
           onClick={() => vote("up")}
           icon={ThumbsUp}
           label={t("vote.yes")}
-          count={up}
+          count={total >= MIN_VOTES ? up : null}
           color={accent}
           glow={glow}
           positive
@@ -99,7 +99,7 @@ export default function CodeVote({ companyId, accent, glow }) {
           onClick={() => vote("down")}
           icon={ThumbsDown}
           label={t("vote.no")}
-          count={down}
+          count={total >= MIN_VOTES ? down : null}
         />
       </div>
 
@@ -170,7 +170,8 @@ function VoteButton({ active, disabled, onClick, icon: Icon, label, count, color
     >
       <Icon size={14} />
       <span>{label}</span>
-      <AnimatedCount value={count} />
+      {/* الأرقام تبان غير كي تكون الأصوات كافية (ما نبيّنوش "نعم 0 / لا 0") */}
+      {count > 0 && <AnimatedCount value={count} />}
     </motion.button>
   );
 }

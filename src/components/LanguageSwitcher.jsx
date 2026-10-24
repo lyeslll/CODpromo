@@ -19,7 +19,9 @@ function localizedPath(pathname, code) {
     !rest.startsWith("/categories") &&
     !rest.startsWith("/favorites") &&
     !rest.startsWith("/offers") &&
-    !rest.startsWith("/partners")
+    !rest.startsWith("/partners") &&
+    // /premium حتى هي لغتها من المسار (كانت ترجع للعربية بعد ما تختار English)
+    !rest.startsWith("/premium")
   )
     return null;
   return code === "ar" ? rest : `/${code}${rest}`;

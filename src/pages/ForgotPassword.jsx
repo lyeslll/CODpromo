@@ -27,7 +27,8 @@ export default function ForgotPassword() {
     setLoading(true);
     const { error } = await resetPassword(email.trim());
     setLoading(false);
-    if (error) return setError(error.message || t("auth.forgot.errFail"));
+    // رسائل Supabase بالإنجليزية → رسالة مترجمة (مثلاً حدّ 60 ثانية بين رسالتين)
+    if (error) return setError(t(/security purposes|after \d+ seconds|rate limit/i.test(error.message || "") ? "auth.forgot.errWait" : "auth.forgot.errFail"));
     setDone(true);
   };
 

@@ -57,6 +57,7 @@ export default function BackToTop({ inline = false, footerVisible = false }) {
   const show = past && (wide || !footerVisible);
   return (
     <div
+      data-btt-float
       className={`pointer-events-none fixed bottom-[calc(14px+env(safe-area-inset-bottom))] end-4 z-30 transition-transform duration-300 md:bottom-7 md:end-7 ${
         hidden ? "" : "max-md:-translate-y-[66px]"
       }`}

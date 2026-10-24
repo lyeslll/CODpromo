@@ -10,6 +10,7 @@ import { useSharedStats } from "../header/headerData.js";
 import { premiumMultiplier } from "../../lib/siteStats.js";
 import { usePricing } from "../../lib/pricing.jsx";
 import { formatNumber } from "../../lib/values.js";
+import Seo from "../Seo.jsx";
 
 // نمط حقول الإدخال المشترك في صفحات الحساب — ضوء ليموني خفيف حول الحقل أثناء الكتابة
 export const authInputCls =
@@ -134,9 +135,10 @@ function IdentityPanel() {
  * الهاتف: النموذج فقط، مع شريط هوية صغير في الأعلى (اللوغو + العنوان).
  */
 export default function AuthShell({ title, subtitle, children, footer }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   return (
     <div className="min-h-screen w-full overflow-x-clip bg-[var(--color-ink)] text-[var(--text)] lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)]">
+      <Seo lang={i18n.language} title={`${title} | CODpromo`} noindex />
       {/* ===== جهة النموذج ===== */}
       <div className="relative flex min-h-screen flex-col">
         <div aria-hidden className="pointer-events-none absolute left-1/2 top-24 h-[360px] w-[520px] max-w-[100vw] -translate-x-1/2 rounded-full blur-[120px] lg:hidden" style={{ background: "radial-gradient(circle, rgba(166,240,0,0.13), transparent 65%)" }} />

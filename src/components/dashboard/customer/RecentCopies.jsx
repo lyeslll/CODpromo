@@ -109,7 +109,7 @@ function CopyRow({ row, lang, premiumActive, onCopy, onUnlock }) {
 
   return (
     <li className="flex items-center gap-3 rounded-2xl px-3 py-2.5 transition-colors hover:bg-[var(--fill)]">
-      <CompanyLogo logo={c.logo} name={c.name} size={40} accent={accent} />
+      <CompanyLogo logo={c.logo} bg={c.logo_bg} name={c.name} size={40} accent={accent} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
           <span className="truncate text-[14px] font-bold text-[var(--text)]">{c.name}</span>

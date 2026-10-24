@@ -24,7 +24,7 @@ export default function PremiumToggle({ value, onChange, layoutId = "prem-pill" 
             type="button"
             onClick={() => onChange(it.key)}
             aria-pressed={active}
-            className="relative z-10 flex items-center gap-1.5 rounded-xl px-4 py-2 text-[13.5px] font-extrabold transition-colors"
+            className="relative z-10 flex min-h-[40px] items-center gap-1.5 rounded-xl px-4 py-2 text-[13.5px] font-extrabold transition-colors"
             style={{ color: active ? "#0a0a0a" : "var(--text-softer)" }}
           >
             {active && (

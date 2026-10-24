@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ArrowLeft, Crown, LogIn, LogOut, Smartphone, Tag, UserPlus } from "lucide-react";
+import { ArrowLeft, Crown, LogIn, LogOut, Search, Smartphone, Tag, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LANGS, Flag, useLangPick } from "../LanguageSwitcher.jsx";
 import { useLocale } from "../../lib/locale.jsx";
@@ -18,7 +18,8 @@ import LifetimePrice from "../pricing/LifetimePrice.jsx";
 import SeatsMeter from "../pricing/SeatsMeter.jsx";
 import { useHeaderOffers, userDisplay } from "./headerData.js";
 import GooglePlayBadge from "../app/GooglePlayBadge.jsx";
-import { useAppTarget } from "../../lib/appInstall.js";
+import { useBackToClose } from "../../lib/useBackToClose.js";
+import { useAppTarget, IOS_APP_SOON } from "../../lib/appInstall.js";
 
 const GOLD_BG = "linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e)";
 // ألوان تذكرة Premium (نفس متغيّرات .ticket في البطاقات)
@@ -52,7 +53,7 @@ function measure(originRef) {
  * قائمة الهاتف بكامل الشاشة: تنفتح كدائرة من زر القائمة (وتلاشٍ بسيط مع تقليل الحركة).
  * تبقى تحت الهيدر (z-45) فيبقى الشعار وزر الإغلاق في مكانهما، وفوق شريط التنقّل السفلي (z-40).
  */
-export default function MobileMenu({ id, open, onClose, onPremium, onLogout, originRef, offersCount }) {
+export default function MobileMenu({ id, open, onClose, onPremium, onLogout, onSearch, originRef, offersCount }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const navigate = useNavigate();
@@ -63,6 +64,7 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
   const offers = useHeaderOffers(open);
   const app = useAppTarget();
   const [geo, setGeo] = useState(null);
+  useBackToClose(open, onClose); // زر الرجوع (Android) يسكّر القائمة
 
   // القياس قبل الرسم (حتى تبدأ الدائرة من الزر بالضبط)، ومع تدوير الشاشة،
   // وبعد تبديل اللغة (يتبدّل اتجاه الصفحة في الإطار التالي فينتقل زر القائمة للجهة الأخرى).
@@ -126,8 +128,8 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
           role="dialog"
           aria-label={t("nav.menu")}
           {...reveal}
-          className="fixed inset-0 z-[45] overflow-y-auto overscroll-contain bg-[var(--color-ink)] lg:hidden"
-          style={{ paddingTop: geo.top + 14, paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)" }}
+          className="fixed inset-0 z-[45] flex flex-col overflow-hidden bg-[var(--color-ink)] lg:hidden"
+          style={{ paddingTop: geo.top + 8 }}
         >
           {/* توهّج ليموني خفيف من جهة زر القائمة */}
           <span
@@ -136,7 +138,21 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
             style={{ background: `radial-gradient(90% 55% at ${geo.x}px 0, rgba(166,240,0,0.09), transparent 70%)` }}
           />
 
-          <motion.div variants={listVariants} initial="hidden" animate="show" className="relative mx-auto flex max-w-md flex-col px-5">
+          {/* التمرير داخل صندوق يبدا تحت الهيدر: النص ما يفوتش تحت اللوغو كي تهبط */}
+          <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)" }}>
+          <motion.div variants={listVariants} initial="hidden" animate="show" className="relative mx-auto flex max-w-md flex-col px-5 pt-1.5">
+            {/* البحث: في الهاتف ما كانش حتى بحث خارج /offers */}
+            {onSearch && (
+              <motion.button
+                variants={itemVariants}
+                type="button"
+                onClick={onSearch}
+                className="mb-2 flex min-h-[50px] items-center gap-3 rounded-2xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-4 text-start text-[15px] font-semibold text-[var(--color-mute)] transition-colors active:border-[var(--color-lime)]/50"
+              >
+                <Search size={18} className="shrink-0 text-[var(--accent-text)]" />
+                <span className="min-w-0 truncate">{t("search.placeholder")}</span>
+              </motion.button>
+            )}
             {/* روابط كبيرة بشكل سطور إيصال: الاسم ثم نقاط ثم القيمة */}
             <nav className="flex flex-col">
               <BigLink
@@ -171,7 +187,7 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
                               }`}
                             >
                               {icon ? <span aria-hidden>{icon}</span> : <Tag size={13} className="text-[var(--accent-text)]" />}
-                              {categoryName(c, lang)}
+                              <bdi>{categoryName(c, lang)}</bdi>
                               {n != null && <span className="text-[11.5px] font-extrabold tabular-nums text-[var(--color-mute)] [font-family:Inter,sans-serif]">{n}</span>}
                             </Link>
                           );
@@ -276,7 +292,7 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
             </motion.div>
 
             {/* تطبيق Android: شارة Google Play صغيرة (أو "قريباً على iPhone") — تختفي داخل التطبيق */}
-            {!app.inApp && (
+            {!app.inApp && !(app.platform === "ios" && !IOS_APP_SOON) && (
               <motion.div variants={itemVariants} className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-3 py-2">
                 <span className="text-[13.5px] font-bold text-[var(--text-softer)]">{t("app.getApp")}</span>
                 {app.platform === "ios" ? (
@@ -289,6 +305,7 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
               </motion.div>
             )}
           </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>,
@@ -332,7 +349,7 @@ function LanguageSegment() {
             onClick={() => pick(l.code)}
             aria-pressed={active}
             title={l.label}
-            className="relative grid h-8 w-9 place-items-center rounded-lg"
+            className="relative grid h-11 w-11 place-items-center rounded-lg"
           >
             {active && (
               <motion.span

@@ -3,8 +3,9 @@ import ReactDOM from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.jsx";
 import { LocaleProvider } from "./lib/locale.jsx";
-import "./i18n/index.js";
-import "flag-icons/css/flag-icons.min.css";
+import i18n, { ensureLang } from "./i18n/index.js";
+import "./assets/fonts/fonts.css";
+import "./assets/flags/flags.css";
 import "./index.css";
 import { Capacitor } from "@capacitor/core";
 import { startSwAutoReload } from "./lib/swAutoReload.js";
@@ -21,15 +22,20 @@ if (Capacitor.getPlatform() === "ios") {
   document.body.classList.add("is-ios-app");
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <HelmetProvider>
-      <LocaleProvider>
-        <App />
-      </LocaleProvider>
-    </HelmetProvider>
-  </React.StrictMode>
-);
+// اللغة النشطة لازم تكون محمّلة قبل أول رسم (العربية في الحزمة؛ en/fr ملف صغير منفصل)
+function mount() {
+  ReactDOM.createRoot(document.getElementById("root")).render(
+    <React.StrictMode>
+      <HelmetProvider>
+        <LocaleProvider>
+          <App />
+        </LocaleProvider>
+      </HelmetProvider>
+    </React.StrictMode>
+  );
+  hideBoot();
+}
+ensureLang(i18n.language).then(mount, mount);
 
 // TWA/تطبيق: امنع قائمة الكليك اليمين / الضغط المطوّل (Copier / Traduire / Partager)
 // مع استثناء حقول الإدخال باش الكتابة و التحديد فيهم يبقاو يخدمو عادي (البحث).
@@ -50,10 +56,12 @@ document.addEventListener(
 );
 
 // Fade out the first-paint boot loader once React has mounted.
-requestAnimationFrame(() => {
-  const boot = document.getElementById("boot");
-  if (boot) {
-    boot.classList.add("hide");
-    setTimeout(() => boot.remove(), 450);
-  }
-});
+function hideBoot() {
+  requestAnimationFrame(() => {
+    const boot = document.getElementById("boot");
+    if (boot) {
+      boot.classList.add("hide");
+      setTimeout(() => boot.remove(), 450);
+    }
+  });
+}

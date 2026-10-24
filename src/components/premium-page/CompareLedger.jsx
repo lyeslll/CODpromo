@@ -73,9 +73,9 @@ export default function CompareLedger({ companies, loading }) {
                       className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 px-4 py-4 transition-colors hover:bg-[var(--fill)] sm:grid-cols-[1fr_150px_170px] sm:px-6"
                     >
                       <span className="flex min-w-0 items-center gap-3">
-                        <CompanyLogo logo={c.logo} name={c.name} size={44} accent={meta.color} />
+                        <CompanyLogo logo={c.logo} bg={c.logo_bg} name={c.name} size={44} accent={meta.color} />
                         <span className="min-w-0">
-                          <span className="block truncate text-[15px] font-extrabold text-[var(--text)]">{c.name}</span>
+                          <span dir="auto" className="block truncate text-start text-[15px] font-extrabold text-[var(--text)]">{c.name}</span>
                           <span className="mt-0.5 inline-flex items-center gap-1.5 text-[12px] font-bold" style={{ color: meta.color }}>
                             <span className="h-1.5 w-1.5 rounded-full" style={{ background: meta.color }} />
                             {t(`types.${getTypeKey(c.type)}`)}

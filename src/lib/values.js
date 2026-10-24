@@ -21,10 +21,24 @@ export function withNum(parsed, n) {
 // العربية: أرقام لاتينية بفاصلة للآلاف (300,000) — نفس كتابة الأسعار في كل الموقع.
 const NUMBER_LOCALES = { ar: "en-US", en: "en-US", fr: "fr-FR" };
 
+/**
+ * مبلغ بالدولار كرقم بارز: "1,176$" (ar، كيما "39$" في الأسعار)، "$1,176" (en)، "1 176 $" (fr).
+ * يتعرض داخل <bdi dir="ltr"> باش الرمز ما يقفزش للجهة الأخرى في الصفحة العربية.
+ */
+export function formatUsd(n, lang) {
+  const v = formatNumber(n, lang);
+  return lang === "en" ? `$${v}` : lang === "fr" ? `${v}\u00a0$` : `${v}$`;
+}
+
+// Intl.NumberFormat غالي في الإنشاء (كان يتصنع في كل نداء: ~40ms في تحميل /offers بـ CPU ×4) → واحد لكل لغة
+const NUMBER_FORMATS = new Map();
 /** تنسيق رقم كبير حسب لغة العرض (فواصل الآلاف). */
 export function formatNumber(n, lang) {
   try {
-    return new Intl.NumberFormat(NUMBER_LOCALES[lang] || "en-US", { maximumFractionDigits: 0 }).format(n);
+    const locale = NUMBER_LOCALES[lang] || "en-US";
+    let f = NUMBER_FORMATS.get(locale);
+    if (!f) NUMBER_FORMATS.set(locale, (f = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 })));
+    return f.format(n);
   } catch {
     return String(Math.round(n));
   }

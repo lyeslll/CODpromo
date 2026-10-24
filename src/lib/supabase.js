@@ -83,9 +83,28 @@ export const COMPANY_PUBLIC_COLUMNS =
   "discount_en,discount_fr,premium_discount_en,premium_discount_fr," +
   "slug,seo_title,seo_title_en,seo_title_fr," +
   "seo_description,seo_description_en,seo_description_fr," +
-  "seo_keywords,seo_keywords_en,seo_keywords_fr";
+  "seo_keywords,seo_keywords_en,seo_keywords_fr," +
+  // phase34: خانات خفيفة تلزم البطاقات (نوع الشركة، خلفية اللوغو، آخر تحقق)
+  "store_kind,logo_bg,code_checked_at";
+
+// صفحة الشركة برك: النبذة، المميزات، والخطوات الخاصة (نص طويل — ماشي في القوائم)
+export const STORE_PAGE_COLUMNS =
+  COMPANY_PUBLIC_COLUMNS +
+  ",about,about_en,about_fr,features,features_en,features_fr,usage_steps,usage_steps_en,usage_steps_fr";
 
 /** يجلب كل الشركات مرتبة من الأحدث للأقدم (بأعمدة آمنة بلا أكواد Premium). */
+/**
+ * الأدمين: نفس القائمة بهوية المستخدم — فيها حتى الشركات المخفية (status = 'hidden'، phase36:
+ * الزوار والمفتاح العام ما يشوفوهاش). بلا جلسة أدمين = نفس القائمة العامة.
+ */
+export async function fetchCompaniesAdmin() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?select=${COMPANY_PUBLIC_COLUMNS}&order=created_at.desc`, {
+    headers: await adminHeaders(),
+  });
+  if (!res.ok) throw new Error("فشل الاتصال بالخادم");
+  return res.json();
+}
+
 export async function fetchCompanies() {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/companies?select=${COMPANY_PUBLIC_COLUMNS}&order=created_at.desc`,
@@ -143,6 +162,10 @@ const ALLOWED = [
   "seo_title", "seo_title_en", "seo_title_fr",
   "seo_description", "seo_description_en", "seo_description_fr",
   "seo_keywords", "seo_keywords_en", "seo_keywords_fr",
+  // صفحة الشركة (phase34): النبذة/المميزات/الخطوات تُترجَم تلقائياً، والباقي بلا ترجمة
+  "about", "about_en", "about_fr", "features", "features_en", "features_fr",
+  "usage_steps", "usage_steps_en", "usage_steps_fr",
+  "store_kind", "code_checked_at", "logo_bg",
 ];
 
 /** يبقي فقط الحقول المسموح بها ويحوّل الفراغات إلى null. */
@@ -159,6 +182,8 @@ function clean(payload) {
 // الحقول النصية القابلة للترجمة (تظهر في البطاقة): الوصف، الفئة، وقيمة العرض.
 // قيمة العرض تُترجَم وتُنسَّق حسب اللغة (مثل "5$ هدية" → "$5 gift" / "5$ cadeau").
 const I18N_FIELDS = ["description", "category", "discount", "premium_discount", "premium_description"];
+// نصوص صفحة الشركة (أطول): تُترجَم في نداء ثاني باش ما يتقطعش الجواب
+const PAGE_I18N_FIELDS = ["about", "features", "usage_steps"];
 
 /**
  * يترجم حقولاً عربية إلى en + fr عبر Edge Function translate-company.
@@ -180,15 +205,20 @@ export async function translateCompanyFields(fields) {
  * إن فشلت الترجمة لا نكسر الحفظ — نحفظ بالعربية فقط (تُترجَم لاحقاً بزر "ترجم الكل").
  */
 async function withTranslations(payload) {
+  const first = await translateBatch(payload, I18N_FIELDS);
+  return translateBatch(first, PAGE_I18N_FIELDS);
+}
+
+async function translateBatch(payload, FIELDS) {
   const src = {};
-  for (const f of I18N_FIELDS) {
+  for (const f of FIELDS) {
     if (typeof payload[f] === "string" && payload[f].trim()) src[f] = payload[f].trim();
   }
   if (Object.keys(src).length === 0) return payload;
   try {
     const { en = {}, fr = {} } = await translateCompanyFields(src);
     const out = { ...payload };
-    for (const f of I18N_FIELDS) {
+    for (const f of FIELDS) {
       if (en[f] != null) out[`${f}_en`] = en[f];
       if (fr[f] != null) out[`${f}_fr`] = fr[f];
     }
@@ -425,7 +455,7 @@ export async function updateCompanyRaw(id, payload) {
 /** يجلب شركة واحدة بالـ slug مع أسئلتها الشائعة (مرتّبة)، أو null إن لم توجد. */
 export async function fetchCompanyBySlug(slug) {
   const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/companies?slug=eq.${encodeURIComponent(slug)}&select=${COMPANY_PUBLIC_COLUMNS},company_faqs(*)`,
+    `${SUPABASE_URL}/rest/v1/companies?slug=eq.${encodeURIComponent(slug)}&select=${STORE_PAGE_COLUMNS},company_faqs(*)`,
     { headers }
   );
   if (!res.ok) throw new Error("فشل الاتصال بالخادم");
@@ -439,6 +469,14 @@ export async function fetchCompanyBySlug(slug) {
     );
   }
   return company;
+}
+
+/** نصوص صفحة الشركة (النبذة، المميزات، الخطوات) لفورم الأدمن — ماشي في القوائم. */
+export async function fetchCompanyPageFields(id) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${id}&select=about,features,usage_steps`, { headers });
+  if (!res.ok) throw new Error("فشل الاتصال بالخادم");
+  const data = await res.json();
+  return (Array.isArray(data) ? data[0] : data) || null;
 }
 
 // ===================== الأسئلة الشائعة (الأدمن) =====================

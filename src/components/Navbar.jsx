@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogIn, LogOut, UserPlus, Menu, X, Search, ChevronDown } from "lucide-react";
+import { LogIn, UserPlus, Menu, X, Search, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Logo from "./Logo.jsx";
 import LanguageSwitcher from "./LanguageSwitcher.jsx";
@@ -10,6 +10,7 @@ import PremiumNavButton from "./header/PremiumNavButton.jsx";
 import CategoriesMega from "./header/CategoriesMega.jsx";
 import QuickSearch from "./header/QuickSearch.jsx";
 import MobileMenu from "./header/MobileMenu.jsx";
+import AccountMenu from "./header/AccountMenu.jsx";
 import { loadHeaderOffers, useHeaderOffers, useHoverMenu, useOffersCount, userDisplay } from "./header/headerData.js";
 import { useAuth } from "../lib/auth.jsx";
 import { useCategories } from "../lib/categories.jsx";
@@ -155,7 +156,9 @@ export default function Navbar() {
         {/* ===== الكبسولة (الهيدر) — لمسة تعريف خفيفة في الأعلى، زجاجية وأصغر قليلاً عند النزول ===== */}
         <div
           className={`nav-capsule relative flex items-center justify-between rounded-2xl border px-3.5 transition-all duration-300 sm:px-5 lg:px-4 xl:px-5 ${
-            scrolled
+            open
+              ? `border-[var(--color-ink-line)] bg-[var(--elev)] shadow-[0_10px_40px_-14px_rgba(0,0,0,0.65)] ${scrolled ? "py-1.5" : "py-2.5"}`
+              : scrolled
               ? "border-[var(--color-ink-line)] bg-[var(--elev)]/65 py-1.5 shadow-[0_10px_40px_-14px_rgba(0,0,0,0.65)] backdrop-blur-2xl backdrop-saturate-150"
               : "border-[var(--color-ink-line)]/40 bg-[var(--elev)]/25 py-2.5 shadow-[0_4px_24px_-18px_rgba(0,0,0,0.5)] backdrop-blur-md"
           }`}
@@ -252,26 +255,8 @@ export default function Navbar() {
             <PremiumNavButton onOpen={openPremium} />
 
             {user ? (
-              <>
-                <Link
-                  to="/dashboard"
-                  title={t("nav.account")}
-                  className="flex items-center gap-2 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] py-1.5 pe-3 ps-1.5 transition-colors hover:bg-[var(--fill-strong)]"
-                >
-                  <span className="grid h-7 w-7 place-items-center rounded-lg text-[13px] font-black text-[#0a0a0a]" style={{ background: "linear-gradient(150deg, var(--color-lime-soft), var(--color-lime-deep))" }}>
-                    {initial}
-                  </span>
-                  <span className="max-w-[110px] truncate text-[13px] font-bold text-[var(--text)]">{name}</span>
-                </Link>
-                <button
-                  onClick={logout}
-                  aria-label={t("nav.logout")}
-                  title={t("nav.logout")}
-                  className="flex items-center gap-1.5 rounded-xl border border-[var(--color-ink-line)] px-2.5 py-2 text-[13.5px] font-bold text-[var(--text-softer)] transition-colors hover:border-red-500/40 hover:text-red-400 xl:px-3"
-                >
-                  <LogOut size={15} /> <span className="hidden xl:inline">{t("nav.logout")}</span>
-                </button>
-              </>
+              // قائمة الحساب (حسابي، المفضّلة، لوحة التحكم، الخروج) بلاصة زر "خروج" وحدو جنب الاسم
+              <AccountMenu name={name} initial={initial} onLogout={logout} />
             ) : (
               <>
                 <Link
@@ -342,6 +327,10 @@ export default function Navbar() {
         onClose={() => setOpen(false)}
         onPremium={openPremium}
         onLogout={logout}
+        onSearch={() => {
+          setOpen(false);
+          setSearchOpen(true);
+        }}
         originRef={menuBtnRef}
         offersCount={offersCount}
       />

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import i18n, { LANG_KEY, SUPPORTED, DEFAULT_LANG, dirOf } from "../i18n/index.js";
+import i18n, { LANG_KEY, SUPPORTED, DEFAULT_LANG, dirOf, ensureLang } from "../i18n/index.js";
 
 const LocaleContext = createContext({
   lang: DEFAULT_LANG,
@@ -28,8 +28,13 @@ export function LocaleProvider({ children }) {
     applyLang(lang);
   }, [lang]);
 
+  // ملف اللغة يتحمّل أولاً (en/fr)، ثم التبديل — بلا ما يبان النص العربي للحظة
   const setLang = useCallback((next) => {
-    if (SUPPORTED.includes(next)) setLangState(next);
+    if (!SUPPORTED.includes(next)) return;
+    ensureLang(next).then(
+      () => setLangState(next),
+      () => setLangState(next)
+    );
   }, []);
 
   return (

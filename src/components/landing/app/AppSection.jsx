@@ -6,6 +6,7 @@ import GooglePlayBadge from "../../app/GooglePlayBadge.jsx";
 import PlayQr from "../../app/PlayQr.jsx";
 import { LiveScreen, MiniTicket, PhoneFrame, ScreenSlides } from "../../app/AppPhone.jsx";
 import { offersPath } from "../../../lib/seo.js";
+import { IOS_APP_SOON } from "../../../lib/appInstall.js";
 
 // مزايا حقيقية للتطبيق (TWA): نفس العروض + النسخ بلمسة، الاشتراك عبر Google Play Billing،
 // والمحتوى يأتي من الموقع مباشرةً (لا تحديثات للتطبيق) بشاشة كاملة بلا شريط المتصفح.
@@ -230,6 +231,7 @@ export default function AppSection({ platform }) {
 /** "قريباً على iPhone" — هادئ، بلا شارة App Store ولا شعار Apple. */
 function IosSoon({ className = "" }) {
   const { t } = useTranslation();
+  if (!IOS_APP_SOON) return null;
   return (
     <p className={`flex items-center gap-2 text-[13.5px] font-semibold text-[var(--color-mute)] ${className}`}>
       <Smartphone size={15} aria-hidden />

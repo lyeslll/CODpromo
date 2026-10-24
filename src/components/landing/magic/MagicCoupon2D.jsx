@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { parseVal, withNum } from "../../../lib/values.js";
 import { getTypeMeta, TYPE_META } from "../../../lib/types.js";
 import { isImageUrl } from "../../CompanyLogo.jsx";
+import { logoSrc } from "../../../lib/logoImage.js";
 import { GlowSpot, useCardGlow } from "../../CardGlow.jsx";
 
 const GOLD_SOFT = "#ffe486";
@@ -42,7 +43,7 @@ function Logo({ src, name, color }) {
   return (
     <span className="grid aspect-square w-[12cqw] shrink-0 place-items-center overflow-hidden rounded-[2.6cqw]" style={{ background: img ? "#fff" : "#18181c" }}>
       {img ? (
-        <img src={src} alt="" onError={() => setErr(true)} className="h-full w-full object-cover" />
+        <img src={logoSrc(src, 128)} alt="" decoding="async" onError={() => setErr(true)} className="h-full w-full object-cover" />
       ) : (
         <span className="text-[5.5cqw] font-black" style={{ color }}>
           {(name || "C").trim().charAt(0)}
@@ -157,6 +158,11 @@ export default function MagicCoupon2D({ faces, labels, mode, angleDeg, dragging,
     );
   }
 
+  // الوجه الظاهر من الزاوية (Safari يضيّع backface-visibility داخل طبقات 3D متداخلة → الوجه الذهبي كان
+  // يبان مقلوب كالمرآة). نخبّيو الوجه المقلوب بـ visibility، والتبديل في نص الدوران (≈90°) مع الحركة.
+  const norm = (((angleDeg || 0) % 360) + 360) % 360;
+  const frontOn = norm < 90 || norm > 270;
+  const swap = dragging ? "none" : "visibility 0s linear 0.12s";
   const valueBack = <CountUp key={`${faces.normal}-${faces.premium}-${i18n.language}`} from={faces.normal} to={faces.premium} run={premium} reduced={reduced} />;
 
   return (
@@ -185,12 +191,12 @@ export default function MagicCoupon2D({ faces, labels, mode, angleDeg, dragging,
             transition: dragging ? "none" : "transform 0.85s cubic-bezier(0.16, 1, 0.3, 1)",
           }}
         >
-          <div className="absolute inset-0" style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}>
+          <div className="absolute inset-0" style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", visibility: frontOn ? "visible" : "hidden", transition: swap }}>
             <Face f={faces} labels={labels} valueNode={faces.normal} />
           </div>
           <div
             className="absolute inset-0"
-            style={{ transform: "rotateY(180deg)", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
+            style={{ transform: "rotateY(180deg)", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", visibility: frontOn ? "hidden" : "visible", transition: swap }}
           >
             <Face f={faces} premium labels={labels} valueNode={valueBack} />
           </div>

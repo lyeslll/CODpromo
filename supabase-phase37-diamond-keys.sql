@@ -943,7 +943,7 @@ begin
 end;
 $$;
 
--- آخر تفعيل Premium بالرصيد كامل (صفحة النجاح)
+-- آخر رصيد تحسب في Premium لهاد الحساب (صفحة النجاح): تفعيل كامل بالرصيد، ولا شراء بالبوابة (الباقي) كمل
 create or replace function public.my_credit_upgrade()
 returns json
 language sql
@@ -951,10 +951,14 @@ stable
 security definer
 set search_path = public
 as $$
-  select (select json_build_object('tier', c.tier, 'credit', c.credit, 'currency', c.currency,
-                                   'premium_price', c.premium_price, 'created_at', c.created_at)
+  select (select json_build_object('kind', c.kind, 'provider', c.provider, 'tier', c.tier, 'credit', c.credit,
+                                   'currency', c.currency, 'premium_price', c.premium_price, 'amount_due', c.amount_due,
+                                   'created_at', c.created_at)
             from public.key_credit_uses c
-           where c.user_id = auth.uid() and c.kind = 'full' and c.revoked_at is null
+           where c.user_id = auth.uid()
+             and ((c.kind = 'full' and c.revoked_at is null)
+                  or (c.kind = 'checkout' and exists (select 1 from public.purchases pu
+                                                       where pu.provider_ref = c.provider_ref and pu.refunded_at is null)))
            order by c.created_at desc limit 1);
 $$;
 

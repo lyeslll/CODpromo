@@ -40,9 +40,9 @@
     "tagline": "Réduisez vos coûts. Multipliez vos bénéfices.",
     "value": {
       "free": "Gratuit pour tous",
-      "unlock": "Pour seulement {{price}} $, Premium débloque +{{value}} $ de réductions",
-      "unlockShort": "Débloquez Premium pour seulement {{price}} $",
-      "unlockStrip": "{{price}} $ débloquent +{{value}} $",
+      "unlock": "Un paiement unique de {{price}} débloque +{{value}} $ de réductions Premium à vie",
+      "unlockShort": "Premium à vie en un seul paiement : {{price}}",
+      "unlockStrip": "{{price}} une fois débloque +{{value}} $",
       "multiplierAria": "Premium vaut {{x}} fois son prix"
     },
     "titleLine1": "Une seule plateforme…",
@@ -86,7 +86,7 @@
     "allOffers": "Toutes les offres",
     "toggleHint": "Basculez entre Standard et Premium pour voir la différence",
     "offersCount": "{{count}} offres",
-    "premiumBanner": "Vous consultez les offres Premium — abonnez-vous ou activez un code Stork pour révéler les codes",
+    "premiumBanner": "Vous consultez les offres Premium — obtenez Premium à vie ou activez un code Stork pour révéler les codes",
     "premiumUnlocked": "Premium est activé — tous les codes exclusifs sont débloqués. Profitez des meilleures réductions.",
     "normalInfo": "Vous consultez les offres standard — passez à Premium pour révéler les codes exclusifs.",
     "openPremium": "Débloquer Premium",
@@ -176,7 +176,8 @@
       "code": "Code",
       "promo": "promo"
     },
-    "commission": "Certains liens peuvent nous rapporter une commission, sans aucun coût supplémentaire pour vous."
+    "commission": "Certains liens peuvent nous rapporter une commission, sans aucun coût supplémentaire pour vous.",
+    "terms": "Conditions et remboursements"
   },
   "accountDeletion": {
     "title": "Suppression du compte CODpromo",
@@ -240,54 +241,35 @@
     "back": "Retour",
     "doneTitle": "Premium activé ! 👑",
     "doneDesc": "Tous les codes Premium sont débloqués — profitez des plus grosses réductions.",
-    "alreadyTitle": "Vous êtes déjà Premium 👑",
-    "alreadyDesc": "Votre abonnement est actif et tous les codes exclusifs sont débloqués — inutile de vous réabonner.",
-    "manageHint": "Pour gérer ou annuler votre abonnement : via Google Play si vous vous êtes abonné dans l'application, ou sur le site si vous vous êtes abonné sur le web.",
+    "alreadyTitle": "Vous êtes membre Premium 👑",
+    "alreadyDesc": "Premium est actif sur votre compte et tous les codes exclusifs sont débloqués — aucun paiement nécessaire.",
     "alreadyClose": "Compris",
     "titles": {
-      "homeH": "Débloquer les offres Premium",
-      "homeS": "Des réductions plus fortes et des codes exclusifs",
+      "homeH": "Premium à vie",
+      "homeS": "Payez une fois et gardez les codes Premium débloqués pour de bon",
       "payH": "Choisissez un mode de paiement",
-      "payS": "Payez en toute sécurité et activez Premium instantanément",
-      "stripeH": "Carte internationale — choisissez une formule",
-      "stripeS": "Abonnement auto-renouvelable en USD — annulable à tout moment",
-      "slickpayH": "Carte algérienne — choisissez une formule",
-      "slickpayS": "Payez avec CIB / Edahabia via SATIM et activez Premium",
-      "paypalH": "PayPal — choisissez une formule",
-      "paypalS": "Payez une fois et activez Premium pour la durée choisie",
       "storkH": "Adhésion Team Stork",
-      "storkS": "Saisissez votre code pour débloquer tous les avantages",
-      "playH": "Payer via Google Play",
-      "playS": "Payez en toute sécurité avec votre compte Google Play"
+      "storkS": "Saisissez votre code pour débloquer tous les avantages"
     },
     "methods": {
       "stripeName": "Carte internationale",
-      "stripeDesc": "Visa / Mastercard · 10 $/mois",
+      "stripeDesc": "Visa / Mastercard en USD",
       "slickpayName": "Carte algérienne",
       "slickpayDesc": "CIB / Edahabia via SATIM",
       "paypalName": "PayPal",
       "paypalDesc": "Payez avec votre compte PayPal en USD",
       "playName": "Google Play",
-      "playDesc": "Payez avec votre compte Google Play",
-      "soon": "Bientôt"
+      "playDesc": "Payez avec votre compte Google Play"
     },
-    "subscribeBtn": "S'abonner pour 10 $/mois",
     "storkMemberBtn": "Je suis membre Stork",
-    "benefit": "Avec Premium, vous obtenez des <0>réductions plus fortes</0> et des <1>codes exclusifs</1> introuvables dans la version gratuite.",
     "paySecure": "Paiement sécurisé — nous ne conservons aucune donnée de votre carte",
-    "stripeBtn": "S'abonner via Stripe",
-    "stripeNote": "Renouvellement automatique pour la durée de la formule — annulable à tout moment",
-    "slickpayBtn": "Payer via SATIM",
-    "slickpayNote": "Un paiement par carte algérienne — active Premium pour la formule choisie",
-    "paypalBtn": "Payer avec PayPal",
-    "paypalNote": "Paiement unique — active Premium pour la formule choisie",
-    "playBtn": "Payer via Google Play",
-    "playNote": "Facturé et renouvelé via votre compte Google Play",
     "playErr": {
       "unavailable": "Le paiement Google Play n'est pas disponible pour le moment",
       "cancelled": "Le paiement a été annulé",
       "verify": "Impossible de confirmer le paiement, veuillez réessayer",
-      "generic": "Une erreur est survenue lors du paiement, veuillez réessayer"
+      "generic": "Une erreur est survenue lors du paiement, veuillez réessayer",
+      "priceChanged": "Le prix a changé avant la confirmation de l'achat : Google Play vous remboursera automatiquement. Rouvrez cette fenêtre et achetez au nouveau prix.",
+      "pending": "Votre paiement Google Play est en attente. Premium s'activera une fois terminé."
     },
     "storkLabel": "Votre code Stork",
     "storkPlaceholder": "Saisissez votre code Stork",
@@ -301,16 +283,15 @@
       "invalid": "Code invalide",
       "used": "Ce code a déjà été utilisé",
       "activate": "Impossible d'activer le code",
-      "generic": "Impossible d'activer le code"
+      "generic": "Impossible d'activer le code",
+      "lifetime": "Votre compte a déjà Premium à vie : le code n'a pas été utilisé et quelqu'un d'autre peut en profiter."
     },
-    "plans": {
-      "month": "Mois",
-      "quarter": "3 mois",
-      "year": "An",
-      "badgePopular": "Le plus populaire",
-      "badgeBest": "Meilleure offre"
-    },
-    "lifetime": "Premium à vie"
+    "lifetime": "Premium à vie",
+    "playPrice": "Prix sur Google Play : {{price}}",
+    "errors": {
+      "already": "Premium est déjà actif sur votre compte — aucun nouveau paiement nécessaire.",
+      "outdated": "Le paiement vient d'être mis à jour. Actualisez la page puis réessayez."
+    }
   },
   "auth": {
     "or": "ou",
@@ -422,18 +403,15 @@
       "yourPlan": "Votre formule",
       "yourPlanFree": "Votre formule : classique",
       "free": "Classique",
-      "plan_month": "Premium mensuel",
-      "plan_quarter": "Premium 3 mois",
-      "plan_year": "Premium annuel",
       "endsOn": "Se termine le",
       "noEnd": "Sans date de fin",
       "paidWith": "Moyen de paiement",
       "forever": "Tous les codes Premium restent ouverts pour vous",
-      "daysLeft": "Jours restants dans votre formule",
-      "perMonth": "par mois",
+      "daysLeft": "Jours restants de Premium",
       "openPremium": "Ouvrir Premium",
       "storkQ": "Membre de la communauté Stork ?",
-      "storkCta": "Activez Premium gratuitement avec votre code"
+      "storkCta": "Activez Premium gratuitement avec votre code",
+      "purchasedOn": "Acheté le"
     },
     "stats": {
       "copied": "codes copiés",
@@ -487,8 +465,8 @@
       "from": "Un cadeau d'Ilyes Derradji",
       "daysLeft": "Jours restants de votre cadeau",
       "endingTitle": "Votre cadeau se termine dans {{duration}}",
-      "endingDesc": "Abonnez-vous à Premium pour garder les codes les plus forts après la fin du cadeau.",
-      "endingCta": "S'abonner à Premium"
+      "endingDesc": "Obtenez Premium à vie en un seul paiement pour garder les codes les plus forts après la fin du cadeau.",
+      "endingCta": "Obtenir Premium à vie"
     }
   },
   "payment": {
@@ -496,9 +474,9 @@
     "success": {
       "activeTitle": "Premium activé ! 👑",
       "receivedTitle": "Paiement reçu",
-      "activeDesc": "Votre abonnement est désormais actif — profitez des plus grosses réductions et des codes exclusifs.",
-      "confirming": "Confirmation de votre abonnement…",
-      "pending": "Paiement réussi. L'activation peut prendre une minute — actualisez la page sous peu."
+      "activeDesc": "Premium à vie est actif sur votre compte — profitez des plus grosses réductions et des codes exclusifs.",
+      "confirming": "Confirmation de votre paiement…",
+      "pending": "Paiement réussi. L'activation de Premium peut prendre une minute — actualisez la page sous peu."
     },
     "cancel": {
       "title": "Paiement annulé",
@@ -506,8 +484,7 @@
     },
     "return": {
       "successTitle": "Premium activé ! 👑",
-      "successDesc": "Votre abonnement est désormais actif.",
-      "successDaysDesc": "Votre abonnement est actif pour {{days}} jours.",
+      "successDesc": "Premium à vie est actif sur votre compte.",
       "enjoy": "Profitez des plus grosses réductions.",
       "checkingTitle": "Confirmation du paiement",
       "checkingSlickpay": "Vérification de l'état de votre transaction…",
@@ -578,7 +555,7 @@
         }
       },
       "autoHint": "Vide = calculé depuis la base de données (actuellement {{value}}).",
-      "multiplierPreview": "Multiplicateur affiché : ×{{x}} (valeur ÷ prix mensuel {{price}} $)",
+      "multiplierPreview": "Multiplicateur affiché : ×{{x}} (valeur ÷ prix actuel {{price}} $)",
       "multiplierHidden": "Multiplicateur masqué : saisissez la valeur pour l'afficher.",
       "clear": "Vider le champ (automatique)",
       "save": "Enregistrer les chiffres",
@@ -594,7 +571,8 @@
         "close": "Fermer",
         "loadFailed": "Impossible de charger les données",
         "loading": "Chargement…",
-        "retry": "Réessayer"
+        "retry": "Réessayer",
+        "refresh": "Actualiser"
       },
       "nav": {
         "menu": "Menu d'administration",
@@ -609,7 +587,8 @@
           "home": "Accueil",
           "content": "Contenu",
           "people": "Utilisateurs",
-          "settings": "Paramètres"
+          "settings": "Paramètres",
+          "sales": "Ventes"
         },
         "overview": "Vue d'ensemble",
         "companies": "Entreprises",
@@ -624,7 +603,9 @@
         "featured": "Offres en vedette",
         "nocode": "Offres sans code",
         "gifts": "Cadeaux",
-        "freeKey": "Clé dorée"
+        "freeKey": "Clé dorée",
+        "sales": "Ventes",
+        "pricing": "Tarifs"
       },
       "range": {
         "label": "Période",
@@ -708,7 +689,8 @@
         "planTypes": {
           "month": "Mois",
           "quarter": "3 mois",
-          "year": "Année"
+          "year": "Année",
+          "lifetime": "À vie"
         },
         "provider": "Moyen de paiement",
         "company": "Entreprise",
@@ -754,14 +736,16 @@
         "siteStatsSub": "Chiffres affichés sur l'accueil",
         "seoSub": "Titres et descriptions des pages entreprises pour les moteurs",
         "giftsSub": "Des liens qui offrent Premium gratuitement pour une durée définie, séparés des paiements et de Stork.",
-        "freeKeySub": "Un code Premium gratuit par compte, une seule fois. Elle ne donne pas Premium et ne compte ni dans les abonnés ni dans les revenus."
+        "freeKeySub": "Un code Premium gratuit par compte, une seule fois. Elle ne donne pas Premium et ne compte ni dans les membres ni dans les ventes.",
+        "salesSub": "Achats Premium à vie sur toutes les passerelles. Les cadeaux, la clé dorée et les comptes admin ne sont pas comptés.",
+        "pricingSub": "Prix de lancement, prix normal et nombre de places au lancement. Le prix est fixé côté serveur au début de chaque paiement."
       },
       "premium": {
         "members": "Membres Premium",
         "tabActive": "Actifs",
         "tabExpired": "Expirés",
         "emptyActive": "Aucun membre Premium actif pour l'instant.",
-        "emptyExpired": "Aucun abonnement expiré.",
+        "emptyExpired": "Aucune adhésion expirée.",
         "col": {
           "member": "Membre",
           "method": "Moyen de paiement",
@@ -779,7 +763,8 @@
         },
         "noEnd": "Sans date de fin",
         "viaStork": "Membres via code Stork",
-        "noStorkUsed": "Aucun code Stork utilisé pour l'instant."
+        "noStorkUsed": "Aucun code Stork utilisé pour l'instant.",
+        "lifetimeCell": "À vie"
       },
       "stork": {
         "activePremium": "Premium actifs",
@@ -1078,9 +1063,9 @@
           "today": "Révélations du jour",
           "week": "7 derniers jours",
           "total": "Toutes les révélations",
-          "converted": "Passés à Premium payant après la clé"
+          "converted": "Ont acheté Premium après la clé"
         },
-        "convertedNote": "D'après les factures SlickPay et PayPal et les achats Google Play après la date de révélation. Stripe ne garde pas de date de paiement ici : seuls ses abonnements actifs comptent.",
+        "convertedNote": "Un achat Premium à vie (toute passerelle, non remboursé) après la date de révélation.",
         "chart": "Révélations par jour (30 jours)",
         "top": "Entreprises les plus révélées",
         "unit": "révélations",
@@ -1109,6 +1094,103 @@
         "tableOff": "Non disponible pour la clé dorée, cliquez pour activer",
         "tableNoOffer": "Pas d'offre Premium : la clé dorée ne fonctionne pas sur cette entreprise",
         "switchLabel": "Disponible pour la clé dorée"
+      },
+      "pricing": {
+        "saved": "Tarifs enregistrés",
+        "tier": {
+          "launch": "Prix de lancement",
+          "regular": "Prix normal",
+          "test": "Test"
+        },
+        "kpi": {
+          "tier": "Prix affiché",
+          "sold": "Places vendues au lancement",
+          "left": "Places restantes",
+          "closed": "Fin du prix de lancement"
+        },
+        "stillOpen": "Toujours ouvert",
+        "formTitle": "Modifier les tarifs",
+        "formHint": "S'applique immédiatement à chaque nouveau paiement. Qui a commencé à payer avant le changement paie le prix affiché.",
+        "fields": {
+          "launch_price_dzd": "Prix de lancement (DA)",
+          "launch_price_usd": "Prix de lancement ($)",
+          "regular_price_dzd": "Prix normal (DA)",
+          "regular_price_usd": "Prix normal ($)",
+          "launch_seats": "Nombre de places au lancement"
+        },
+        "invalid": "Chaque prix doit être supérieur à zéro, et le nombre de places nul ou positif.",
+        "noteStripe": "Stripe et PayPal utilisent directement le prix en USD d'ici. S'il ne correspond pas au Price enregistré dans Stripe, le nouveau montant est créé sur le même produit.",
+        "notePlay": "Google Play : le prix est fixé dans la Play Console. Si vous changez le prix en USD, changez aussi celui de codpromo_lifetime_launch et codpromo_lifetime.",
+        "save": "Enregistrer les tarifs",
+        "updatedAt": "Dernière modification : {{date}}",
+        "previewTitle": "Aperçu comme sur le site",
+        "previewHint": "Voici comment le prix apparaît dans la fenêtre Premium, la section comparaison et le pied de page.",
+        "test": {
+          "title": "Prix de test",
+          "hint": "Un petit montant pour un seul compte, pendant 30 minutes. Il est fixé côté serveur pour ce compte uniquement ; l'achat est enregistré comme test (tier = test) et ne compte ni dans les ventes ni dans les places de lancement. Pour Google Play, utilisez des comptes License testing : leurs achats sont gratuits et enregistrés comme tests.",
+          "email": "E-mail du compte",
+          "dzd": "Montant (DA)",
+          "usd": "Montant ($)",
+          "start": "Activer 30 minutes",
+          "stop": "Arrêter",
+          "started": "Prix de test actif pour {{email}} pendant 30 minutes",
+          "alreadyPremium": "Le prix est appliqué à {{email}}, mais ce compte a déjà Premium : le serveur refusera le paiement. Utilisez un compte normal.",
+          "notFound": "Aucun compte avec cet e-mail",
+          "invalid": "Montant : au moins 50 DA et 0,50 $, sans dépasser le prix normal",
+          "stopped": "Prix de test arrêté pour {{email}}",
+          "amount": "{{dzd}} DA · {{usd}} $",
+          "left": "Reste {{time}}"
+        }
+      },
+      "sales": {
+        "dzd": "{{n}} DA",
+        "usd": "{{n}} $",
+        "kpi": {
+          "buyers": "Acheteurs",
+          "revenueDzd": "Revenus en DA",
+          "revenueUsd": "Revenus en USD",
+          "seats": "Places de lancement restantes",
+          "refunded": "Remboursés",
+          "afterGift": "Achat après un cadeau",
+          "afterKey": "Achat après la clé dorée"
+        },
+        "afterGiftNote": "Comptes ayant utilisé un cadeau Premium, puis acheté après sa date d'activation.",
+        "afterKeyNote": "Comptes ayant révélé un code avec la clé dorée, puis acheté après la date de révélation.",
+        "launchOver": "Lancement terminé",
+        "chart": "Achats — 30 derniers jours",
+        "byProvider": "Par passerelle",
+        "provider": {
+          "stripe": "Stripe (carte internationale)",
+          "slickpay": "SlickPay (carte algérienne)",
+          "paypal": "PayPal",
+          "google_play": "Google Play"
+        },
+        "excludedNote": "Non remboursés uniquement, sans les achats de test. Les cadeaux et la clé dorée n'apparaissent jamais ici, et les comptes admin ne sont pas comptés.",
+        "listTitle": "Achats",
+        "refundRule": "Remboursement : sous 7 jours après l'achat, si l'acheteur n'a révélé aucun nouveau code Premium depuis.",
+        "filterLabel": "Filtrer les achats",
+        "filter": {
+          "all": "Tous",
+          "active": "Actifs",
+          "eligible": "Remboursables",
+          "refunded": "Remboursés"
+        },
+        "status": {
+          "refunded": "Remboursé le {{date}}",
+          "eligible": "Remboursable ({{days}} jours restants)",
+          "revealed": "Non remboursable : codes Premium révélés ({{n}}), le premier le {{date}}",
+          "expired": "Délai de remboursement dépassé (7 jours)"
+        },
+        "revoke": "Retirer Premium après remboursement",
+        "revokeConfirm": "Avez-vous remboursé {{name}} via {{provider}} ? Premium sera retiré de ce compte immédiatement, sans retour possible.",
+        "revoked": "Premium retiré et remboursement enregistré",
+        "revokeAlready": "Cet achat était déjà enregistré comme remboursé",
+        "autoHint": "Premium est normalement retiré automatiquement lors d'un remboursement depuis Stripe ou PayPal.",
+        "emptyTitle": "Aucun achat pour l'instant",
+        "emptyDesc": "Chaque paiement Premium à vie, toutes passerelles confondues, apparaît ici.",
+        "deletedUser": "Compte supprimé",
+        "adminTag": "Admin (non compté)",
+        "more": "Afficher plus"
       }
     }
   },
@@ -1129,13 +1211,13 @@
     },
     "home": {
       "title": "CODpromo | Codes promo pour vendeurs en paiement à la livraison",
-      "description": "Codes promo, coupons et cashback sur la livraison, les plateformes e-commerce, la publicité, les cartes de paiement et l'ERP pour les vendeurs en paiement à la livraison en Algérie et dans le monde arabe. Gratuit, et chaque code est vérifié à la main."
+      "description": "Codes promo, coupons et cashback sur la livraison, les plateformes e-commerce, la publicité, les cartes de paiement et l'ERP pour les vendeurs en paiement à la livraison en Algérie et dans le monde arabe. Gratuit, chaque code vérifié à la main, et Premium à vie en un seul paiement."
     }
   },
   "stats": {
     "label": "CODpromo en chiffres",
     "free": "Gratuit",
-    "freeSub": "Offres classiques sans abonnement ni compte",
+    "freeSub": "Offres classiques gratuites, sans compte",
     "savings": "Valeur totale des réductions",
     "codes": "codes actifs",
     "partners": "entreprises partenaires",
@@ -1189,7 +1271,7 @@
       },
       "premium-badge": {
         "title": "Badge Premium",
-        "desc": "Signale les offres plus fortes réservées aux membres."
+        "desc": "Signale les offres plus fortes réservées aux membres Premium."
       },
       "code": {
         "title": "Le code et le bouton copier",
@@ -1205,12 +1287,8 @@
     "title": "Une offre, deux niveaux",
     "sub": "Le normal est gratuit pour tous. Premium débloque un code plus fort chez la même entreprise.",
     "free": "Gratuit",
-    "priceFrom": "Dès",
-    "perMonth": "par mois",
-    "orDzd": "ou {{price}} DA par carte algérienne",
-    "yearly": "ou {{price}} pour une année complète",
     "unlockLabel": "Valeur des réductions débloquées par Premium",
-    "multiplierLabel": "ce que vaut Premium face à son prix mensuel",
+    "multiplierLabel": "ce que vaut Premium face à son prix",
     "seePremium": "Voir les offres Premium"
   },
   "catGrid": {
@@ -1267,7 +1345,7 @@
     "f1Title": "Toutes les offres au même endroit",
     "f1Desc": "Réductions, coupons et cashback sur les services que paie votre activité. Copiez un code d’un geste avant de payer.",
     "f2Title": "Premium via Google Play",
-    "f2Desc": "Abonnez-vous à Premium directement depuis votre compte Google Play, dans l’application.",
+    "f2Desc": "Obtenez Premium à vie directement depuis votre compte Google Play, dans l’application.",
     "f3Title": "Toujours à jour, en plein écran",
     "f3Desc": "Les nouvelles offres apparaissent dès leur publication, sans mise à jour de l’app ni barre de navigateur.",
     "badgeAlt": "Disponible sur Google Play",
@@ -1288,7 +1366,7 @@
       "type": "Type d'offre",
       "typeSub": "La couleur suit le type sur tout le site",
       "free": "Offre classique (gratuite)",
-      "freeSub": "Visible par tous, sans abonnement",
+      "freeSub": "Visible par tous, gratuitement",
       "premium": "Offre Premium",
       "premiumSub": "Remplace l'offre classique pour les membres Premium",
       "private": "Infos internes",
@@ -1628,7 +1706,7 @@
     "doneTitle": "Premium est activé sur votre compte",
     "doneDesc": "Votre cadeau est valable jusqu'au {{date}}. Tous les codes Premium sont désormais débloqués.",
     "toAccount": "Aller à mon compte",
-    "subscribe": "S'abonner à Premium",
+    "subscribe": "Obtenir Premium à vie",
     "browse": "Parcourir les offres",
     "retry": "Réessayer",
     "tagSub": "Premium",
@@ -1647,7 +1725,7 @@
       },
       "ended": {
         "title": "Votre cadeau est terminé",
-        "desc": "La période de votre cadeau Premium est terminée. Abonnez-vous pour garder les codes Premium."
+        "desc": "La période de votre cadeau Premium est terminée. Obtenez Premium à vie en un seul paiement pour garder les codes Premium."
       },
       "invalid": {
         "title": "Ce lien cadeau n'est pas valide",
@@ -1671,11 +1749,11 @@
       },
       "already": {
         "title": "Vous avez déjà reçu un cadeau",
-        "desc": "Chaque compte ne peut recevoir qu'un seul cadeau Premium. Abonnez-vous pour retrouver Premium."
+        "desc": "Chaque compte ne peut recevoir qu'un seul cadeau Premium. Obtenez Premium à vie en un seul paiement."
       },
       "hasPremium": {
         "title": "Vous avez déjà Premium",
-        "desc": "Votre abonnement est actif et tous les codes Premium sont débloqués : ce cadeau n'a donc pas été utilisé, et quelqu'un d'autre peut en profiter."
+        "desc": "Premium est actif sur votre compte et tous les codes Premium sont débloqués : ce cadeau n'a donc pas été utilisé, et quelqu'un d'autre peut en profiter."
       },
       "rateLimited": {
         "title": "Trop de tentatives incorrectes",
@@ -1734,7 +1812,7 @@
     "card": {
       "guest": "Inscription gratuite : un code Premium offert",
       "use": "Utilisez votre clé dorée",
-      "upsell": "Clé gratuite utilisée. Passez à Premium pour tout révéler",
+      "upsell": "Clé gratuite utilisée. Passez à Premium à vie pour tout révéler",
       "badge": "Votre clé dorée"
     },
     "confirm": {
@@ -1794,6 +1872,78 @@
       "loading": "Chargement du code…",
       "inboxTitle": "La clé de votre boîte mail est utilisée",
       "inboxDesc": "Votre adresse e-mail a déjà utilisé sa clé dorée depuis un autre compte. Une seule clé par boîte mail."
+    }
+  },
+  "pricing": {
+    "format": "{{dzd}} DA ({{usd}} $)",
+    "dzd": "{{dzd}} DA",
+    "usd": "({{usd}} $)",
+    "oneTime": "Paiement unique · Premium à vie",
+    "productName": "CODpromo Premium à vie",
+    "launchBadge": "Prix de lancement",
+    "regularWas": "Prix normal",
+    "seatsAria": "Places restantes au prix de lancement : {{left}} sur {{total}}",
+    "terms": "Conditions et remboursement",
+    "perks": {
+      "all": "Tous les codes Premium actuels et à venir",
+      "noRenewal": "Sans abonnement, sans renouvellement, sans prélèvement ultérieur",
+      "refund": "Remboursement intégral sous 7 jours si vous n'avez révélé aucun code Premium"
+    },
+    "error": "Impossible de charger le prix",
+    "retry": "Réessayer",
+    "seatsLeft_zero": "Plus aucune place au prix de lancement",
+    "seatsLeft_one": "Plus que {{n}} place au prix de lancement",
+    "seatsLeft_two": "Plus que {{n}} places au prix de lancement",
+    "seatsLeft_few": "Plus que {{n}} places au prix de lancement",
+    "seatsLeft_many": "Plus que {{n}} places au prix de lancement",
+    "seatsLeft_other": "Plus que {{n}} places au prix de lancement",
+    "testBadge": "Prix de test"
+  },
+  "terms": {
+    "title": "Conditions et politique de remboursement",
+    "intro": "Cette page explique ce que signifie Premium à vie sur CODpromo, comment le payer et quand vous pouvez être remboursé.",
+    "s1Title": "Ce que signifie « à vie »",
+    "s1Desc": "Premium à vie signifie l'accès à tous les codes Premium actuels et à venir tant que la plateforme CODpromo fonctionne. Vous payez une seule fois, sans abonnement ni renouvellement automatique.",
+    "s2Title": "Ce que nous ne garantissons pas",
+    "s2Desc": "Les codes Premium sont fournis par des entreprises partenaires, et leur valeur peut changer ou prendre fin à tout moment. Nous ne garantissons aucun code ni aucune entreprise en particulier.",
+    "s3Title": "Prix",
+    "s3Desc": "Le prix est fixé au début du paiement, et le prix affiché à ce moment est celui que vous payez.",
+    "s3DescLaunch": "Le prix de lancement est de {{launch}} pour les {{seats}} premiers membres, puis le prix passe automatiquement à {{regular}}. Le prix affiché au début du paiement est celui que vous payez.",
+    "s3DescRegular": "Le prix actuel est de {{regular}}, en un seul paiement. Le prix affiché au début du paiement est celui que vous payez.",
+    "s4Title": "Politique de remboursement",
+    "s4Desc": "Vous pouvez être intégralement remboursé dans les 7 jours suivant l'achat, à condition de n'avoir révélé aucun code Premium depuis. Le remboursement retire Premium de votre compte.",
+    "s4Items": [
+      "Envoyez votre demande de remboursement à {{email}} depuis l'adresse de votre compte.",
+      "Nous vous remboursons via le moyen de paiement utilisé.",
+      "Après 7 jours, ou dès qu'un code Premium a été révélé, aucun remboursement n'est possible."
+    ],
+    "s5Title": "Moyens de paiement",
+    "s5Desc": "Carte internationale (Visa / Mastercard via Stripe), carte algérienne CIB / Edahabia (via SlickPay et SATIM), PayPal, et Google Play dans l'application. Nous ne conservons jamais vos données de carte.",
+    "contactDesc": "Pour toute question sur Premium ou pour demander un remboursement, écrivez-nous à :"
+  },
+  "premiumFaq": {
+    "title": "Questions sur Premium à vie",
+    "sub": "Un seul paiement, sans abonnement. Voici ce que les vendeurs demandent avant de payer.",
+    "lifetime": {
+      "q": "Que signifie Premium « à vie » ?",
+      "a": "L'accès à tous les codes Premium actuels et à venir tant que la plateforme CODpromo fonctionne. Nous ne garantissons aucun code ni aucune entreprise en particulier, car les partenaires peuvent modifier leurs offres."
+    },
+    "price": {
+      "q": "Combien coûte Premium ?",
+      "aLaunch": "Le prix de lancement est de {{launch}} pour les {{seats}} premiers membres, et il reste {{left}} places. Ensuite, le prix passe à {{regular}}. Vous ne payez qu'une fois.",
+      "aRegular": "{{regular}}, en un seul paiement, sans abonnement ni renouvellement."
+    },
+    "renewal": {
+      "q": "Le paiement se renouvelle-t-il automatiquement ?",
+      "a": "Non. Vous payez une fois, sans renouvellement ni prélèvement ultérieur sur votre carte."
+    },
+    "refund": {
+      "q": "Puis-je être remboursé ?",
+      "a": "Oui, dans les 7 jours suivant l'achat si vous n'avez révélé aucun code Premium depuis."
+    },
+    "methods": {
+      "q": "Comment payer ?",
+      "a": "Par carte internationale (Visa / Mastercard), carte algérienne CIB / Edahabia, PayPal, ou Google Play dans l'application."
     }
   }
 }

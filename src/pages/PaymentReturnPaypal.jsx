@@ -15,7 +15,6 @@ export default function PaymentReturnPaypal() {
   const { t } = useTranslation();
   const [params] = useSearchParams();
   const [state, setState] = useState("checking"); // checking | success | failed | error
-  const [days, setDays] = useState(null);
   const [reason, setReason] = useState(null);
   const ranRef = useRef(false);
   const mountedRef = useRef(true);
@@ -47,7 +46,6 @@ export default function PaymentReturnPaypal() {
         if (!mountedRef.current) return;
 
         if (res?.completed) {
-          setDays(res.days);
           setState("success");
           refreshProfile?.();
           sessionStorage.removeItem("codpromo:paypal-order");
@@ -75,7 +73,7 @@ export default function PaymentReturnPaypal() {
           {t("payment.return.successTitle")}
         </h1>
         <p className="mt-2 text-[14px] leading-relaxed text-[var(--text-soft)]">
-          {days ? t("payment.return.successDaysDesc", { days }) : t("payment.return.successDesc")} {t("payment.return.enjoy")}
+          {t("payment.return.successDesc")} {t("payment.return.enjoy")}
         </p>
         <Link
           to="/"

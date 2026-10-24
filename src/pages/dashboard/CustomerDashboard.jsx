@@ -17,6 +17,10 @@ import GiftConfetti from "../../components/gift/GiftConfetti.jsx";
 import { useAuth } from "../../lib/auth.jsx";
 import { usePremium } from "../../lib/premium.jsx";
 import { giftDaysLeft } from "../../lib/gifts.js";
+import { fetchMyPurchase } from "../../lib/billing.js";
+import { usePricing } from "../../lib/pricing.jsx";
+import LifetimePrice from "../../components/pricing/LifetimePrice.jsx";
+import SeatsMeter from "../../components/pricing/SeatsMeter.jsx";
 import { fetchFavoritesWithCompany, addFavorite, removeFavorite } from "../../lib/favorites.js";
 import { fetchRecentCopies, countCopiedCodes, logCodeCopy, COPY_EVENT } from "../../lib/copies.js";
 import { countMyVotes } from "../../lib/account.js";
@@ -25,7 +29,7 @@ import { loadHeaderOffers, useSharedStats } from "../../components/header/header
 import { offersPath } from "../../lib/seo.js";
 
 const NEW_OFFERS = 6;
-// بانر الاشتراك يبان كي تبقى 7 أيام (أو أقل) في الهدية
+// بانر الدفعة الوحدة يبان كي تبقى 7 أيام (أو أقل) في الهدية
 const GIFT_ENDING_DAYS = 7;
 
 /**
@@ -55,6 +59,17 @@ export default function CustomerDashboard() {
   const giftToastTimer = useRef(null);
 
   const kind = isLifetime ? "lifetime" : isPremiumActive ? "premium" : isGift ? "gift" : "free";
+  const pricing = usePricing();
+  // تاريخ الشراء (Premium مدى الحياة) — من purchases، المستخدم يقرا مشترياتو برك
+  const [purchase, setPurchase] = useState(null);
+  useEffect(() => {
+    if (kind !== "lifetime" || profile?.is_admin) return;
+    let active = true;
+    fetchMyPurchase(user.id).then((p) => active && setPurchase(p));
+    return () => {
+      active = false;
+    };
+  }, [kind, user.id, profile?.is_admin]);
   const giftLeft = isGift ? giftDaysLeft(gift) : null;
   const giftEnding = isGift && giftLeft <= GIFT_ENDING_DAYS;
   const fmtDay = (d) => new Date(d).toLocaleDateString(lang, { day: "numeric", month: "long", year: "numeric" });
@@ -175,9 +190,9 @@ export default function CustomerDashboard() {
             </Link>
           </div>
         )}
-        {/* هدية Premium: 7 أيام قبل النهاية → عرض الاشتراك المدفوع */}
+        {/* هدية Premium: 7 أيام قبل النهاية → الدفعة الوحدة (Premium مدى الحياة) + عدّاد مقاعد الإطلاق */}
         {giftEnding && (
-          <div className="order-0 flex flex-col gap-3 rounded-[var(--radius-card)] border border-[#f0c63c]/40 bg-[linear-gradient(90deg,rgba(240,198,60,0.13),rgba(240,198,60,0.04))] px-5 py-4 sm:flex-row sm:items-center sm:justify-between lg:col-span-12">
+          <div className="order-0 grid gap-4 rounded-[var(--radius-card)] border border-[#f0c63c]/40 bg-[linear-gradient(90deg,rgba(240,198,60,0.13),rgba(240,198,60,0.04))] px-5 py-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center lg:col-span-12">
             <div className="flex items-start gap-3">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-[#1d1403]" style={{ background: "linear-gradient(135deg, #ffe486, #cf9a1e)" }}>
                 <Hourglass size={19} />
@@ -187,14 +202,23 @@ export default function CustomerDashboard() {
                 <p className="mt-0.5 text-[13px] leading-relaxed text-[var(--text-soft)]">{t("dashboard.gift.endingDesc")}</p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setModal("pay")}
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[13.5px] font-extrabold text-[#1d1403] transition-transform hover:scale-[1.02]"
-              style={{ background: "linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e)" }}
-            >
-              <Crown size={16} /> {t("dashboard.gift.endingCta")}
-            </button>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-x-6">
+              {pricing && (
+                <div>
+                  <p className="text-[12px] font-extrabold text-[#ffe486]">{t("pricing.oneTime")}</p>
+                  <LifetimePrice pricing={pricing} size="md" className="mt-1" />
+                </div>
+              )}
+              <SeatsMeter pricing={pricing} className="sm:w-[190px]" />
+              <button
+                type="button"
+                onClick={() => setModal("home")}
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[13.5px] font-extrabold text-[#1d1403] transition-transform hover:scale-[1.02]"
+                style={{ background: "linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e)" }}
+              >
+                <Crown size={16} /> {t("dashboard.gift.endingCta")}
+              </button>
+            </div>
           </div>
         )}
         <div className="order-3 lg:order-none lg:col-span-7">
@@ -205,6 +229,7 @@ export default function CustomerDashboard() {
             kind={kind}
             profile={profile}
             gift={gift}
+            purchase={purchase}
             stats={stats}
             onOpenPremium={() => setModal("home")}
             onOpenStork={() => setModal("stork")}

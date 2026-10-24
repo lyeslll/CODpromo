@@ -4,17 +4,12 @@
 //  الأمان متعدّد الطبقات:
 //   1) التحقق من webhook_signature المرسَل.
 //   2) ربط الفاتورة بمستخدم حقيقي عبر جدولنا slickpay_invoices.
-//   3) إعادة التحقق من الحالة عبر GET /users/invoices/{id} بمفتاحنا السري
-//      (لا نثق بحقل completed في جسم الإشعار وحده — هذا يمنع التزوير).
+//   3) إعادة التحقق من الحالة والمبلغ عبر GET /users/invoices/{id} بمفتاحنا السري
+//      (لا نثق بجسم الإشعار وحده — هذا يمنع التزوير)، والمبلغ لازم يطابق الفاتورة المحفوظة.
 //  بلا verify_jwt (SlickPay لا يرسل JWT) — انظر config.toml.
 // ============================================================
-import {
-  SLICKPAY_BASE,
-  json,
-  slickpayHeaders,
-  adminClient,
-  activatePremium,
-} from "../_shared/slickpay.ts";
+import { adminClient, json } from "../_shared/lifetime.ts";
+import { activateInvoice, fetchInvoice, INVOICE_COLUMNS, type InvoiceRow } from "../_shared/slickpay.ts";
 
 Deno.serve(async (req) => {
   try {
@@ -32,28 +27,23 @@ Deno.serve(async (req) => {
       return json({ error: "invalid signature" }, 401);
     }
 
-    // 2) استخرج معرّف الفاتورة (من الجسم أو الميتاداتا)
+    // 2) استخرج معرّف الفاتورة
     const invoiceId = String(body?.id ?? body?.data?.id ?? "");
     if (!invoiceId) return json({ error: "missing invoice id" }, 400);
 
-    // 3) ابحث عن الفاتورة في جدولنا (الربط الموثوق بالمستخدم والباقة)
+    // 3) الفاتورة في جدولنا (الربط الموثوق بالمستخدم والمبلغ و tier)
     const admin = adminClient();
     const { data: invoice } = await admin
       .from("slickpay_invoices")
-      .select("invoice_id, user_id, plan_type, status")
+      .select(INVOICE_COLUMNS)
       .eq("invoice_id", invoiceId)
       .maybeSingle();
     if (!invoice) return json({ error: "unknown invoice" }, 404);
 
     // 4) إعادة التحقق الموثوق من SlickPay بمفتاحنا السري
-    const verifyRes = await fetch(`${SLICKPAY_BASE}/users/invoices/${invoiceId}`, {
-      headers: slickpayHeaders(),
-    });
-    const verify = await verifyRes.json().catch(() => ({}));
-    const completed = verify?.completed === 1 || verify?.data?.completed === 1;
-
-    if (completed) {
-      await activatePremium(admin, invoice);
+    const remote = await fetchInvoice(invoiceId);
+    if (remote.completed) {
+      await activateInvoice(admin, invoice as InvoiceRow, remote.amount);
     } else {
       // فشل/إلغاء — علّم الفاتورة (لا نلمس Premium)
       await admin

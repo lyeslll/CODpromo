@@ -1,46 +1,45 @@
 // ============================================================
 //  CODpromo — Edge Function: paypal-create-order
-//  ينشئ طلب دفع PayPal (لمرة واحدة بالدولار) لباقة Premium مختارة،
-//  ويعيد رابط موافقة PayPal لتوجيه المستخدم. المفتاح السري في secrets فقط.
+//  ينشئ طلب PayPal (دفعة وحدة بالدولار) = Premium مدى الحياة، ويعيد رابط موافقة PayPal.
+//  المبلغ (سعر الإطلاق ولا العادي) يتقرّر هنا من pricing_settings. المفتاح السري في secrets فقط.
 // ============================================================
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
-  PLANS,
-  PAYPAL_BASE,
-  corsHeaders,
-  json,
   adminClient,
-  getAccessToken,
-} from "../_shared/paypal.ts";
+  alreadyPremium,
+  authUser,
+  corsHeaders,
+  getPricing,
+  json,
+  PRODUCT_LABEL,
+  siteUrl,
+  usdFor,
+} from "../_shared/lifetime.ts";
+import { PAYPAL_BASE, getAccessToken } from "../_shared/paypal.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    // 1) تحقّق من هوية المستخدم عبر JWT
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return json({ error: "unauthorized" }, 401);
-
-    const userClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } },
-    );
-    const {
-      data: { user },
-    } = await userClient.auth.getUser();
+    // 1) هوية المستخدم عبر JWT
+    const user = await authUser(req);
     if (!user) return json({ error: "unauthorized" }, 401);
 
-    // 2) تحقّق من الباقة (المبلغ والمدة من الخادم فقط)
-    const { plan } = await req.json().catch(() => ({}));
-    const cfg = PLANS[plan as string];
-    if (!cfg) return json({ error: "باقة غير صالحة" }, 400);
+    // واجهة قديمة (باقات شهر/فصل/سنة): مرفوضة باش ما يتخلّصش حتى واحد بسعر ما شافوش
+    const body = await req.json().catch(() => ({}));
+    if (body?.plan) return json({ error: "تم تحديث نظام الدفع — حدّث الصفحة", code: "legacy_ui" }, 409);
+
+    const admin = adminClient();
+    if (await alreadyPremium(admin, user.id)) return json({ error: "already_premium" }, 409);
+
+    // 2) السعر من الخادم
+    const pricing = await getPricing(admin, user.id);
+    const tier = pricing.tier;
+    const amount = usdFor(pricing, tier);
+    const value = amount.toFixed(2);
 
     // 3) أنشئ طلب PayPal
     const token = await getAccessToken();
-    const siteUrl =
-      Deno.env.get("SITE_URL") || req.headers.get("origin") || "http://localhost:5173";
-
+    const site = siteUrl(req);
     const orderRes = await fetch(`${PAYPAL_BASE}/v2/checkout/orders`, {
       method: "POST",
       headers: {
@@ -51,8 +50,8 @@ Deno.serve(async (req) => {
         intent: "CAPTURE",
         purchase_units: [
           {
-            amount: { currency_code: "USD", value: cfg.amount },
-            description: cfg.label,
+            amount: { currency_code: "USD", value },
+            description: PRODUCT_LABEL,
             custom_id: user.id,
           },
         ],
@@ -60,8 +59,8 @@ Deno.serve(async (req) => {
           brand_name: "CODpromo",
           user_action: "PAY_NOW",
           shipping_preference: "NO_SHIPPING",
-          return_url: `${siteUrl}/payment-return-paypal`,
-          cancel_url: `${siteUrl}/payment-cancel`,
+          return_url: `${site}/payment-return-paypal`,
+          cancel_url: `${site}/payment-cancel`,
         },
       }),
     });
@@ -75,17 +74,18 @@ Deno.serve(async (req) => {
       return json({ error: order?.message || "تعذّر إنشاء طلب الدفع" }, 400);
     }
 
-    // 4) احفظ الطلب (ربط موثوق: order → user + plan) عبر service role
-    const admin = adminClient();
-    await admin.from("paypal_orders").insert({
+    // 4) الربط الموثوق: الطلب → الحساب + tier + المبلغ المنتظر. بلاه ما نعطيوش رابط الدفع.
+    const { error: insErr } = await admin.from("paypal_orders").insert({
       order_id: order.id,
       user_id: user.id,
-      plan_type: plan,
-      amount_usd: Number(cfg.amount),
+      plan_type: "lifetime",
+      tier,
+      amount_usd: Number(value),
       status: "pending",
     });
+    if (insErr) return json({ error: "تعذّر حفظ الطلب" }, 500);
 
-    return json({ url: approve, order_id: order.id });
+    return json({ lifetime: true, url: approve, order_id: order.id });
   } catch (e) {
     return json({ error: (e as Error).message }, 400);
   }

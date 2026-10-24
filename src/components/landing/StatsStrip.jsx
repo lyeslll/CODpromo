@@ -3,6 +3,7 @@ import { animate, useInView, useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { formatNumber } from "../../lib/values.js";
 import { premiumMultiplier } from "../../lib/siteStats.js";
+import { usePricing } from "../../lib/pricing.jsx";
 
 /** رقم يعدّ تصاعدياً مرّة واحدة حين يظهر في الشاشة. */
 function CountUp({ value, lang, prefix = "", run }) {
@@ -36,7 +37,8 @@ export default function StatsStrip({ stats }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
 
-  const multiplier = premiumMultiplier(stats?.premiumUnlockValueUsd);
+  const pricing = usePricing();
+  const multiplier = premiumMultiplier(stats?.premiumUnlockValueUsd, pricing?.usd);
   const cells = [
     stats?.totalSavingsDzd != null && {
       key: "savings",

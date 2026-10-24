@@ -60,6 +60,8 @@ import NocodePage from "../components/admin/v2/NocodePage.jsx";
 import NocodeEditor from "../components/admin/v2/NocodeEditor.jsx";
 import GiftsPage from "../components/admin/v2/GiftsPage.jsx";
 import FreeKeyPage from "../components/admin/v2/FreeKeyPage.jsx";
+import SalesPage from "../components/admin/v2/SalesPage.jsx";
+import PricingPage from "../components/admin/v2/PricingPage.jsx";
 import { setCompanyFreeReveal } from "../lib/freeKey.js";
 import { Glass, PageHeader, Skeleton, EmptyState, LIME_BG } from "../components/admin/v2/ui.jsx";
 import { fetchCompanyPrivate, saveCompanyPrivate } from "../lib/adminStats.js";
@@ -721,6 +723,9 @@ function Dashboard({ onLock }) {
         <Route path="gifts" element={<GiftsPage notify={notify} />} />
         {/* المفتاح الذهبي — كود Premium واحد مجاناً لكل حساب (ما يعطيش Premium) */}
         <Route path="free-key" element={<FreeKeyPage notify={notify} />} />
+        {/* Premium مدى الحياة — المبيعات (purchases + أهلية الاسترداد) والأسعار (pricing_settings) */}
+        <Route path="sales" element={<SalesPage notify={notify} />} />
+        <Route path="pricing" element={<PricingPage notify={notify} />} />
         <Route
           path="site-stats"
           element={

@@ -12,9 +12,10 @@ import { useCategories } from "../../lib/categories.jsx";
 import { activeCategories, countByCategory } from "../../lib/offerFilters.js";
 import { categoryName, categoryRecordSlug } from "../../lib/slug.js";
 import { categoriesPath, homePath, offersLink, offersPath, partnersPath } from "../../lib/seo.js";
-import { DZ_PLANS, fmtUSD } from "../../lib/plans.js";
-import { monthlyUsdPrice } from "../../lib/siteStats.js";
 import { formatNumber } from "../../lib/values.js";
+import { usePricing } from "../../lib/pricing.jsx";
+import LifetimePrice from "../pricing/LifetimePrice.jsx";
+import SeatsMeter from "../pricing/SeatsMeter.jsx";
 import { useHeaderOffers, userDisplay } from "./headerData.js";
 import GooglePlayBadge from "../app/GooglePlayBadge.jsx";
 import { useAppTarget } from "../../lib/appInstall.js";
@@ -99,8 +100,7 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
   const chips = activeCategories(categories);
   const counts = offers.length ? countByCategory(offers, chips) : null;
   const { name, initial } = userDisplay(user, t("nav.account"));
-  const usd = monthlyUsdPrice();
-  const dzd = DZ_PLANS.find((p) => p.key === "month")?.price ?? null;
+  const pricing = usePricing();
 
   const clip = (r) => (geo ? `circle(${r}px at ${geo.x}px ${geo.y}px)` : undefined);
   const reveal = reduce
@@ -198,13 +198,11 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
                     <span className="mt-0.5 block text-[13px] font-medium text-[var(--text-soft)]">{hasPremium ? t("hero.ctaMember") : t("nav.premiumSub")}</span>
                   </span>
                 </div>
-                {!hasPremium && usd != null && (
+                {!hasPremium && pricing && (
                   <div className="relative mt-4">
-                    <p className="text-[14px] font-semibold text-[var(--text-soft)]">
-                      {t("compare.priceFrom")} <bdi className="text-[28px] font-black leading-none text-[#ffe486] [font-family:Inter,sans-serif]">{fmtUSD(usd)}</bdi>{" "}
-                      {t("compare.perMonth")}
-                    </p>
-                    {dzd != null && <p className="mt-1 text-[12.5px] font-medium text-[var(--color-mute)]">{t("compare.orDzd", { price: formatNumber(dzd, lang) })}</p>}
+                    <p className="text-[12.5px] font-extrabold text-[#ffe486]">{t("pricing.oneTime")}</p>
+                    <LifetimePrice pricing={pricing} size="md" className="mt-1.5" />
+                    <SeatsMeter pricing={pricing} className="mt-3" />
                   </div>
                 )}
               </div>

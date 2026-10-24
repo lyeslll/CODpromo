@@ -7,26 +7,26 @@ import MiniCoupon from "./MiniCoupon.jsx";
 import SectionHead from "./SectionHead.jsx";
 import GoldBurst from "../GoldBurst.jsx";
 import { offersLink } from "../../lib/seo.js";
-import { USD_PLANS, DZ_PLANS, fmtUSD } from "../../lib/plans.js";
-import { premiumMultiplier, monthlyUsdPrice } from "../../lib/siteStats.js";
+import { premiumMultiplier } from "../../lib/siteStats.js";
 import { formatNumber } from "../../lib/values.js";
+import { usePricing } from "../../lib/pricing.jsx";
+import LifetimePrice from "../pricing/LifetimePrice.jsx";
+import SeatsMeter from "../pricing/SeatsMeter.jsx";
 
 /**
  * 5.7 — عادي مقابل Premium: نفس العرض جنباً إلى جنب (مجاني / ذهبي).
- * السعر من باقات الاشتراك الموجودة (plans.js)، والقيمة من site_stats،
- * والمضاعف = القيمة ÷ سعر الشهر (يُخفى إن نقصت قيمة).
+ * السعر = الدفعة الوحدة (pricing_settings عبر usePricing: الإطلاق مشطوب فوقو العادي + العدّاد)،
+ * والقيمة من site_stats، والمضاعف = القيمة ÷ السعر الحالي بالدولار (يُخفى إن نقصت قيمة).
  */
 export default function PremiumCompare({ company, stats, onOpenPremium, isPremiumActive }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const [burst, setBurst] = useState(0);
+  const pricing = usePricing();
   if (!company) return null;
 
-  const usd = monthlyUsdPrice();
-  const dzd = DZ_PLANS.find((p) => p.key === "month")?.price ?? null;
   const unlock = stats?.premiumUnlockValueUsd ?? null;
-  const multiplier = premiumMultiplier(unlock, usd);
-  const yearUsd = USD_PLANS.find((p) => p.key === "year")?.price ?? null;
+  const multiplier = premiumMultiplier(unlock, pricing?.usd);
 
   return (
     <section className="relative overflow-hidden py-24 sm:py-28">
@@ -51,19 +51,9 @@ export default function PremiumCompare({ company, stats, onOpenPremium, isPremiu
           {/* السعر مقابل القيمة */}
           <div className="flex flex-col justify-between rounded-[var(--radius-card)] border border-[#f0c63c]/35 bg-[linear-gradient(160deg,rgba(240,198,60,0.12),rgba(240,198,60,0.02))] p-6">
             <div>
-              {usd != null && (
-                <p className="text-[15px] font-semibold text-[var(--text-soft)]">
-                  {t("compare.priceFrom")}{" "}
-                  <bdi className="text-[30px] font-black text-[#ffe486] [font-family:Inter,sans-serif]">{fmtUSD(usd)}</bdi>{" "}
-                  {t("compare.perMonth")}
-                </p>
-              )}
-              {dzd != null && (
-                <p className="mt-1 text-[13.5px] font-medium text-[var(--color-mute)]">
-                  {t("compare.orDzd", { price: formatNumber(dzd, lang) })}
-                </p>
-              )}
-              {yearUsd != null && <p className="mt-1 text-[13px] text-[var(--color-mute)]">{t("compare.yearly", { price: fmtUSD(yearUsd) })}</p>}
+              <p className="text-[14px] font-extrabold text-[#ffe486]">{t("pricing.oneTime")}</p>
+              <LifetimePrice pricing={pricing} size="md" className="mt-2" />
+              <SeatsMeter pricing={pricing} className="mt-4" />
 
               {unlock != null && (
                 <div className="mt-6 border-t border-dashed border-[#f0c63c]/30 pt-5">

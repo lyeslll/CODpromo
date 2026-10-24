@@ -6,7 +6,6 @@
 // ============================================================
 
 import { supabase } from "./supabaseClient.js";
-import { USD_PLANS } from "./plans.js";
 
 export const SITE_STAT_FIELDS = [
   "total_savings_dzd",
@@ -60,11 +59,11 @@ export async function updateSiteStats(values) {
   return data[0];
 }
 
-/** سعر الاشتراك الشهري بالدولار — من باقات الدفع الموجودة (plans.js)، لا يُكتب يدوياً. */
-export const monthlyUsdPrice = () => USD_PLANS.find((p) => p.key === "month")?.price ?? null;
-
-/** مضاعف Premium = قيمة الخصومات التي يفتحها ÷ سعر الشهر. null إن نقصت قيمة. */
-export function premiumMultiplier(unlockValueUsd, price = monthlyUsdPrice()) {
+/**
+ * مضاعف Premium = قيمة الخصومات التي يفتحها ÷ سعر الدفعة الوحدة الحالي بالدولار
+ * (usePricing().usd — سعر الإطلاق ولا العادي). null إن نقصت قيمة.
+ */
+export function premiumMultiplier(unlockValueUsd, price) {
   if (!unlockValueUsd || !price) return null;
   const x = Math.floor(unlockValueUsd / price);
   return x >= 1 ? x : null;

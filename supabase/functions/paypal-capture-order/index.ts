@@ -1,35 +1,24 @@
 // ============================================================
 //  CODpromo — Edge Function: paypal-capture-order
-//  يلتقط الدفع بعد موافقة المستخدم على PayPal، يتأكد أن الطلب يخصّه،
-//  وعند COMPLETED يفعّل Premium للمدة الصحيحة. الالتقاط بمفتاحنا السري
-//  هو المصدر الموثوق (لا حاجة لـ webhook).
+//  يلتقط الدفع بعد موافقة المستخدم على PayPal، يتأكد أن الطلب يخصّه، وعند COMPLETED
+//  (والمبلغ والعملة مطابقين للطلب المحفوظ) يسجّل الشراء ويفعّل Premium مدى الحياة.
+//  الالتقاط بمفتاحنا السري هو المصدر الموثوق. الاسترداد → paypal-webhook.
 // ============================================================
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { adminClient, authUser, corsHeaders, json } from "../_shared/lifetime.ts";
 import {
-  PLANS,
   PAYPAL_BASE,
-  corsHeaders,
-  json,
-  adminClient,
+  activateOrder,
+  completedCapture,
   getAccessToken,
-  activatePremium,
+  ORDER_COLUMNS,
+  type OrderRow,
 } from "../_shared/paypal.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return json({ error: "unauthorized" }, 401);
-
-    const userClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } },
-    );
-    const {
-      data: { user },
-    } = await userClient.auth.getUser();
+    const user = await authUser(req);
     if (!user) return json({ error: "unauthorized" }, 401);
 
     const { order_id } = await req.json().catch(() => ({}));
@@ -39,16 +28,14 @@ Deno.serve(async (req) => {
     const admin = adminClient();
     const { data: order } = await admin
       .from("paypal_orders")
-      .select("order_id, user_id, plan_type, status")
+      .select(ORDER_COLUMNS)
       .eq("order_id", String(order_id))
       .maybeSingle();
-    if (!order || order.user_id !== user.id) {
-      return json({ error: "not found" }, 404);
-    }
+    if (!order || order.user_id !== user.id) return json({ error: "not found" }, 404);
 
     // التقط الدفع
     const token = await getAccessToken();
-    const capRes = await fetch(`${PAYPAL_BASE}/v2/checkout/orders/${order_id}/capture`, {
+    const capRes = await fetch(`${PAYPAL_BASE}/v2/checkout/orders/${encodeURIComponent(String(order_id))}/capture`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -56,22 +43,24 @@ Deno.serve(async (req) => {
       },
     });
     const capData = await capRes.json().catch(() => ({}));
-    let completed = capData?.status === "COMPLETED";
+    let capture = capData?.status === "COMPLETED" ? completedCapture(capData) : null;
     // سبب الفشل المختصر من PayPal (issue) — يُعرض للمستخدم كي لا يفشل بصمت
     let reason = capData?.details?.[0]?.issue || capData?.name || null;
 
     // قد يكون التُقط مسبقاً (إعادة تحميل صفحة العودة) → تحقّق بحالة الطلب الفعلية
-    if (!completed) {
-      const getRes = await fetch(`${PAYPAL_BASE}/v2/checkout/orders/${order_id}`, {
+    if (!capture) {
+      const getRes = await fetch(`${PAYPAL_BASE}/v2/checkout/orders/${encodeURIComponent(String(order_id))}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const getData = await getRes.json().catch(() => ({}));
-      completed = getData?.status === "COMPLETED";
+      if (getData?.status === "COMPLETED") capture = completedCapture(getData);
     }
 
-    if (completed) {
-      reason = null;
-      await activatePremium(admin, order);
+    let completed = false;
+    if (capture) {
+      const r = await activateOrder(admin, order as OrderRow, capture);
+      completed = r === "granted" || r === "duplicate";
+      reason = completed ? null : r;
     } else {
       // علّم الطلب كفاشل (لا نلمس Premium)
       await admin
@@ -81,12 +70,7 @@ Deno.serve(async (req) => {
         .eq("status", "pending");
     }
 
-    return json({
-      completed,
-      plan_type: order.plan_type,
-      days: PLANS[order.plan_type]?.days ?? null,
-      reason,
-    });
+    return json({ completed, lifetime: completed, reason });
   } catch (e) {
     return json({ error: (e as Error).message }, 400);
   }

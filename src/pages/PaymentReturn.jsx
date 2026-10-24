@@ -14,7 +14,6 @@ export default function PaymentReturn() {
   const { user, loading: authLoading, refreshProfile } = useAuth();
   const { t } = useTranslation();
   const [state, setState] = useState("checking"); // checking | success | failed | error
-  const [days, setDays] = useState(null);
   const triesRef = useRef(0);
   const ranRef = useRef(false);
   const mountedRef = useRef(true);
@@ -50,7 +49,6 @@ export default function PaymentReturn() {
         if (!mountedRef.current) return;
 
         if (res?.completed) {
-          setDays(res.days);
           setState("success");
           refreshProfile?.();
           sessionStorage.removeItem("codpromo:slickpay-invoice");
@@ -86,7 +84,7 @@ export default function PaymentReturn() {
           {t("payment.return.successTitle")}
         </h1>
         <p className="mt-2 text-[14px] leading-relaxed text-[var(--text-soft)]">
-          {days ? t("payment.return.successDaysDesc", { days }) : t("payment.return.successDesc")} {t("payment.return.enjoy")}
+          {t("payment.return.successDesc")} {t("payment.return.enjoy")}
         </p>
         <Link
           to="/"

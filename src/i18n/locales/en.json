@@ -40,9 +40,9 @@
     "tagline": "Cut your costs. Multiply your profits.",
     "value": {
       "free": "Free for everyone",
-      "unlock": "Just ${{price}} unlocks +${{value}} in Premium discounts",
-      "unlockShort": "Unlock Premium for just ${{price}}",
-      "unlockStrip": "${{price}} unlocks +${{value}}",
+      "unlock": "One payment of {{price}} unlocks +${{value}} in Premium discounts for life",
+      "unlockShort": "Lifetime Premium for one payment: {{price}}",
+      "unlockStrip": "{{price}} once unlocks +${{value}}",
       "multiplierAria": "Premium is worth {{x}} times its price"
     },
     "titleLine1": "One platform…",
@@ -86,7 +86,7 @@
     "allOffers": "All deals",
     "toggleHint": "Switch between Standard and Premium to see the difference",
     "offersCount": "{{count}} deals",
-    "premiumBanner": "You're viewing Premium deals — subscribe or redeem a Stork code to reveal the codes",
+    "premiumBanner": "You're viewing Premium deals — get Lifetime Premium or redeem a Stork code to reveal the codes",
     "premiumUnlocked": "Premium is active — every exclusive code is unlocked for you. Enjoy the best discounts.",
     "normalInfo": "You're viewing standard deals — switch to Premium to reveal the exclusive codes.",
     "openPremium": "Unlock Premium",
@@ -176,7 +176,8 @@
       "code": "Code",
       "promo": "promo"
     },
-    "commission": "Some links may earn us a commission at no extra cost to you."
+    "commission": "Some links may earn us a commission at no extra cost to you.",
+    "terms": "Terms & refunds"
   },
   "accountDeletion": {
     "title": "CODpromo Account Deletion",
@@ -240,54 +241,35 @@
     "back": "Back",
     "doneTitle": "Premium activated! 👑",
     "doneDesc": "Every Premium code is unlocked — enjoy the biggest discounts.",
-    "alreadyTitle": "You're already Premium 👑",
-    "alreadyDesc": "Your subscription is active and every exclusive code is unlocked — no need to subscribe again.",
-    "manageHint": "To manage or cancel your subscription: via Google Play if you subscribed in the app, or on the website if you subscribed on the web.",
+    "alreadyTitle": "You're a Premium member 👑",
+    "alreadyDesc": "Premium is active on your account and every exclusive code is unlocked — no payment needed.",
     "alreadyClose": "Got it",
     "titles": {
-      "homeH": "Unlock Premium deals",
-      "homeS": "Bigger discounts and exclusive codes",
+      "homeH": "Lifetime Premium",
+      "homeS": "Pay once and keep Premium codes unlocked for good",
       "payH": "Choose a payment method",
-      "payS": "Pay securely and activate Premium instantly",
-      "stripeH": "International card — pick a plan",
-      "stripeS": "Auto-renewing subscription in USD — cancel anytime",
-      "slickpayH": "Algerian card — pick a plan",
-      "slickpayS": "Pay with CIB / Edahabia via SATIM and activate Premium",
-      "paypalH": "PayPal — pick a plan",
-      "paypalS": "Pay once and activate Premium for the chosen period",
       "storkH": "Team Stork membership",
-      "storkS": "Enter your code to unlock every perk",
-      "playH": "Pay with Google Play",
-      "playS": "Pay securely with your Google Play account"
+      "storkS": "Enter your code to unlock every perk"
     },
     "methods": {
       "stripeName": "International card",
-      "stripeDesc": "Visa / Mastercard · $10/month",
+      "stripeDesc": "Visa / Mastercard in USD",
       "slickpayName": "Algerian card",
       "slickpayDesc": "CIB / Edahabia via SATIM",
       "paypalName": "PayPal",
       "paypalDesc": "Pay with your PayPal account in USD",
       "playName": "Google Play",
-      "playDesc": "Pay with your Google Play account",
-      "soon": "Soon"
+      "playDesc": "Pay with your Google Play account"
     },
-    "subscribeBtn": "Subscribe for $10/mo",
     "storkMemberBtn": "I'm a Stork member",
-    "benefit": "With Premium you get <0>bigger discounts</0> and <1>exclusive codes</1> you won't find in the free version.",
     "paySecure": "Secure payment — we never store your card details",
-    "stripeBtn": "Subscribe via Stripe",
-    "stripeNote": "Auto-renews for the plan duration — cancel anytime",
-    "slickpayBtn": "Pay via SATIM",
-    "slickpayNote": "One payment by Algerian card — activates Premium for the chosen plan",
-    "paypalBtn": "Pay with PayPal",
-    "paypalNote": "One-time payment — activates Premium for the chosen plan",
-    "playBtn": "Pay with Google Play",
-    "playNote": "Billed and renewed through your Google Play account",
     "playErr": {
       "unavailable": "Google Play payment isn't available right now",
       "cancelled": "Payment was cancelled",
       "verify": "Couldn't confirm the payment, please try again",
-      "generic": "Something went wrong during payment, please try again"
+      "generic": "Something went wrong during payment, please try again",
+      "priceChanged": "The price changed before your purchase was confirmed, so Google Play will refund you automatically. Reopen this window and buy at the new price.",
+      "pending": "Your Google Play payment is pending. Premium activates once it completes."
     },
     "storkLabel": "Your Stork code",
     "storkPlaceholder": "Enter your Stork code",
@@ -301,16 +283,15 @@
       "invalid": "Invalid code",
       "used": "This code has already been used",
       "activate": "Couldn't activate the code",
-      "generic": "Couldn't activate the code"
+      "generic": "Couldn't activate the code",
+      "lifetime": "Your account already has Lifetime Premium, so the code wasn't used and someone else can still use it."
     },
-    "plans": {
-      "month": "Month",
-      "quarter": "3 months",
-      "year": "Year",
-      "badgePopular": "Most popular",
-      "badgeBest": "Best value"
-    },
-    "lifetime": "Lifetime Premium"
+    "lifetime": "Lifetime Premium",
+    "playPrice": "Google Play price: {{price}}",
+    "errors": {
+      "already": "Premium is already active on your account — no new payment needed.",
+      "outdated": "Payments were just updated. Refresh the page and try again."
+    }
   },
   "auth": {
     "or": "or",
@@ -422,18 +403,15 @@
       "yourPlan": "Your plan",
       "yourPlanFree": "Your plan: Regular",
       "free": "Regular",
-      "plan_month": "Monthly Premium",
-      "plan_quarter": "3-month Premium",
-      "plan_year": "Yearly Premium",
       "endsOn": "Ends on",
       "noEnd": "No end date",
       "paidWith": "Payment method",
       "forever": "Every Premium code stays open for you",
-      "daysLeft": "Days left in your plan",
-      "perMonth": "per month",
+      "daysLeft": "Days left on your Premium",
       "openPremium": "Open Premium",
       "storkQ": "Member of the Stork community?",
-      "storkCta": "Activate Premium free with your code"
+      "storkCta": "Activate Premium free with your code",
+      "purchasedOn": "Purchased on"
     },
     "stats": {
       "copied": "codes copied",
@@ -487,8 +465,8 @@
       "from": "A gift from Ilyes Derradji",
       "daysLeft": "Days left in your gift",
       "endingTitle": "Your gift ends in {{duration}}",
-      "endingDesc": "Subscribe to Premium to keep the stronger codes after your gift ends.",
-      "endingCta": "Subscribe to Premium"
+      "endingDesc": "Get Lifetime Premium with one payment to keep the stronger codes after your gift ends.",
+      "endingCta": "Get Lifetime Premium"
     }
   },
   "payment": {
@@ -496,9 +474,9 @@
     "success": {
       "activeTitle": "Premium activated! 👑",
       "receivedTitle": "Payment received",
-      "activeDesc": "Your subscription is now active — enjoy the biggest discounts and exclusive codes.",
-      "confirming": "Confirming your subscription…",
-      "pending": "Payment successful. Activation may take a minute — refresh the page shortly."
+      "activeDesc": "Lifetime Premium is active on your account — enjoy the biggest discounts and exclusive codes.",
+      "confirming": "Confirming your payment…",
+      "pending": "Payment successful. Activating Premium may take a minute — refresh the page shortly."
     },
     "cancel": {
       "title": "Payment cancelled",
@@ -506,8 +484,7 @@
     },
     "return": {
       "successTitle": "Premium activated! 👑",
-      "successDesc": "Your subscription is now active.",
-      "successDaysDesc": "Your subscription is now active for {{days}} days.",
+      "successDesc": "Lifetime Premium is active on your account.",
       "enjoy": "Enjoy the biggest discounts.",
       "checkingTitle": "Confirming your payment",
       "checkingSlickpay": "Checking your transaction status…",
@@ -578,7 +555,7 @@
         }
       },
       "autoHint": "Empty = counted from the database (currently {{value}}).",
-      "multiplierPreview": "Multiplier on the page: ×{{x}} (value ÷ monthly price ${{price}})",
+      "multiplierPreview": "Multiplier on the page: ×{{x}} (value ÷ current price ${{price}})",
       "multiplierHidden": "Multiplier hidden: enter the value to show it.",
       "clear": "Clear field (automatic)",
       "save": "Save numbers",
@@ -594,7 +571,8 @@
         "close": "Close",
         "loadFailed": "Couldn't load the data",
         "loading": "Loading…",
-        "retry": "Try again"
+        "retry": "Try again",
+        "refresh": "Refresh"
       },
       "nav": {
         "menu": "Admin menu",
@@ -609,7 +587,8 @@
           "home": "Home",
           "content": "Content",
           "people": "Users",
-          "settings": "Settings"
+          "settings": "Settings",
+          "sales": "Sales"
         },
         "overview": "Overview",
         "companies": "Companies",
@@ -624,7 +603,9 @@
         "featured": "Featured offers",
         "nocode": "No-code deals",
         "gifts": "Gifts",
-        "freeKey": "Golden key"
+        "freeKey": "Golden key",
+        "sales": "Sales",
+        "pricing": "Pricing"
       },
       "range": {
         "label": "Period",
@@ -708,7 +689,8 @@
         "planTypes": {
           "month": "Month",
           "quarter": "3 months",
-          "year": "Year"
+          "year": "Year",
+          "lifetime": "Lifetime"
         },
         "provider": "Payment method",
         "company": "Company",
@@ -754,14 +736,16 @@
         "siteStatsSub": "Numbers shown on the homepage",
         "seoSub": "Search titles and descriptions for company pages",
         "giftsSub": "Links that give free Premium for a set period, separate from payments and Stork.",
-        "freeKeySub": "One free Premium code per account, once. It doesn't grant Premium and isn't counted in subscribers or revenue."
+        "freeKeySub": "One free Premium code per account, once. It doesn't grant Premium and isn't counted in members or sales.",
+        "salesSub": "Lifetime Premium purchases across every gateway. Gifts, the golden key and admin accounts aren't counted.",
+        "pricingSub": "Launch price, regular price and number of launch seats. The price is set on the server when each payment starts."
       },
       "premium": {
         "members": "Premium members",
         "tabActive": "Active",
         "tabExpired": "Expired",
         "emptyActive": "No active Premium members right now.",
-        "emptyExpired": "No expired subscriptions.",
+        "emptyExpired": "No expired memberships.",
         "col": {
           "member": "Member",
           "method": "Payment method",
@@ -779,7 +763,8 @@
         },
         "noEnd": "No end date",
         "viaStork": "Members via Stork code",
-        "noStorkUsed": "No Stork code used yet."
+        "noStorkUsed": "No Stork code used yet.",
+        "lifetimeCell": "Lifetime"
       },
       "stork": {
         "activePremium": "Active Premium",
@@ -1078,9 +1063,9 @@
           "today": "Reveals today",
           "week": "Last 7 days",
           "total": "All reveals",
-          "converted": "Went paid Premium after the key"
+          "converted": "Bought Premium after the key"
         },
-        "convertedNote": "From SlickPay and PayPal invoices and Google Play purchases after the reveal date. Stripe keeps no payment date here, so only its currently active subscriptions count.",
+        "convertedNote": "A Lifetime Premium purchase (any gateway, not refunded) after the reveal date.",
         "chart": "Reveals per day (30 days)",
         "top": "Most revealed companies",
         "unit": "reveals",
@@ -1109,6 +1094,103 @@
         "tableOff": "Not available for the golden key, click to turn on",
         "tableNoOffer": "No Premium offer: the golden key doesn't work on this company",
         "switchLabel": "Available for the golden key"
+      },
+      "pricing": {
+        "saved": "Prices saved",
+        "tier": {
+          "launch": "Launch price",
+          "regular": "Regular price",
+          "test": "Test"
+        },
+        "kpi": {
+          "tier": "Price shown now",
+          "sold": "Launch seats sold",
+          "left": "Seats left",
+          "closed": "Launch price ended"
+        },
+        "stillOpen": "Still open",
+        "formTitle": "Edit prices",
+        "formHint": "Applies to every new payment right away. Anyone who started paying before the change pays the price they saw.",
+        "fields": {
+          "launch_price_dzd": "Launch price (DZD)",
+          "launch_price_usd": "Launch price ($)",
+          "regular_price_dzd": "Regular price (DZD)",
+          "regular_price_usd": "Regular price ($)",
+          "launch_seats": "Number of launch seats"
+        },
+        "invalid": "Every price must be above zero, and the seat count zero or more.",
+        "noteStripe": "Stripe and PayPal use the USD price from here directly. If it doesn't match the Price saved in Stripe, the new amount is created on the same product.",
+        "notePlay": "Google Play: Play Console sets the price. If you change the USD price, change the price of codpromo_lifetime_launch and codpromo_lifetime there too.",
+        "save": "Save prices",
+        "updatedAt": "Last changed: {{date}}",
+        "previewTitle": "Preview as on the site",
+        "previewHint": "This is how the price appears in the Premium window, the comparison section and the footer.",
+        "test": {
+          "title": "Test price",
+          "hint": "A small amount for one account, for 30 minutes. It's set on the server for that account only; the purchase is recorded as a test (tier = test) and never counts in sales or launch seats. For Google Play, use License testing accounts: their purchases are free and are recorded as tests too.",
+          "email": "Account email",
+          "dzd": "Amount (DZD)",
+          "usd": "Amount ($)",
+          "start": "Start 30 minutes",
+          "stop": "Stop",
+          "started": "Test price active for {{email}} for 30 minutes",
+          "alreadyPremium": "The price is set for {{email}}, but this account already has Premium, so the server will refuse the payment. Use a regular account.",
+          "notFound": "No account with this email",
+          "invalid": "Amount: at least 50 DZD and $0.50, and no more than the regular price",
+          "stopped": "Test price stopped for {{email}}",
+          "amount": "{{dzd}} DZD · ${{usd}}",
+          "left": "{{time}} left"
+        }
+      },
+      "sales": {
+        "dzd": "{{n}} DZD",
+        "usd": "${{n}}",
+        "kpi": {
+          "buyers": "Buyers",
+          "revenueDzd": "Revenue in DZD",
+          "revenueUsd": "Revenue in USD",
+          "seats": "Launch seats left",
+          "refunded": "Refunded",
+          "afterGift": "Bought after a gift",
+          "afterKey": "Bought after the golden key"
+        },
+        "afterGiftNote": "Accounts that used a Premium gift, then bought after the gift's activation date.",
+        "afterKeyNote": "Accounts that revealed a code with the golden key, then bought after the reveal date.",
+        "launchOver": "Launch over",
+        "chart": "Purchases — last 30 days",
+        "byProvider": "By gateway",
+        "provider": {
+          "stripe": "Stripe (international card)",
+          "slickpay": "SlickPay (Algerian card)",
+          "paypal": "PayPal",
+          "google_play": "Google Play"
+        },
+        "excludedNote": "Non-refunded only, without test purchases. Gifts and the golden key never appear here, and admin accounts aren't counted.",
+        "listTitle": "Purchases",
+        "refundRule": "Refunds: within 7 days of purchase, if the buyer hasn't revealed any new Premium code since buying.",
+        "filterLabel": "Filter purchases",
+        "filter": {
+          "all": "All",
+          "active": "Active",
+          "eligible": "Refund eligible",
+          "refunded": "Refunded"
+        },
+        "status": {
+          "refunded": "Refunded on {{date}}",
+          "eligible": "Refund eligible ({{days}} days left)",
+          "revealed": "Not eligible: revealed Premium codes ({{n}}), first on {{date}}",
+          "expired": "Refund window over (7 days)"
+        },
+        "revoke": "Remove Premium after refund",
+        "revokeConfirm": "Did you refund {{name}} through {{provider}}? Premium will be removed from this account right away, and this can't be undone.",
+        "revoked": "Premium removed and refund recorded",
+        "revokeAlready": "This purchase was already recorded as refunded",
+        "autoHint": "Premium is normally removed automatically when you refund from the Stripe or PayPal dashboard.",
+        "emptyTitle": "No purchases yet",
+        "emptyDesc": "Every Lifetime Premium payment from every gateway shows up here.",
+        "deletedUser": "Deleted account",
+        "adminTag": "Admin (not counted)",
+        "more": "Show more"
       }
     }
   },
@@ -1129,13 +1211,13 @@
     },
     "home": {
       "title": "CODpromo | Promo codes for cash-on-delivery sellers",
-      "description": "Promo codes, coupons and cashback on shipping, store platforms, ads, payment cards and ERP for cash-on-delivery sellers in Algeria and the Arab world. Free, and every code is checked by hand."
+      "description": "Promo codes, coupons and cashback on shipping, store platforms, ads, payment cards and ERP for cash-on-delivery sellers in Algeria and the Arab world. Free, every code checked by hand, and Lifetime Premium for one payment."
     }
   },
   "stats": {
     "label": "CODpromo in numbers",
     "free": "Free",
-    "freeSub": "Regular offers, no subscription and no account",
+    "freeSub": "Regular offers are free, no account needed",
     "savings": "Total discount value",
     "codes": "active codes",
     "partners": "partner companies",
@@ -1189,7 +1271,7 @@
       },
       "premium-badge": {
         "title": "Premium badge",
-        "desc": "Marks the stronger offers reserved for members."
+        "desc": "Marks the stronger offers reserved for Premium members."
       },
       "code": {
         "title": "The code and copy button",
@@ -1205,12 +1287,8 @@
     "title": "One offer, two levels",
     "sub": "Regular is free for everyone. Premium unlocks a stronger code from the same company.",
     "free": "Free",
-    "priceFrom": "From",
-    "perMonth": "a month",
-    "orDzd": "or {{price}} DZD with an Algerian card",
-    "yearly": "or {{price}} for a full year",
     "unlockLabel": "Discount value Premium unlocks",
-    "multiplierLabel": "what Premium is worth vs. its monthly price",
+    "multiplierLabel": "what Premium is worth vs. its price",
     "seePremium": "See Premium offers"
   },
   "catGrid": {
@@ -1267,7 +1345,7 @@
     "f1Title": "Every offer in one place",
     "f1Desc": "Discounts, coupons and cashback on the services your business pays for. Copy any code in one tap before you pay.",
     "f2Title": "Premium through Google Play",
-    "f2Desc": "Subscribe to Premium right from your Google Play account, inside the app.",
+    "f2Desc": "Get Lifetime Premium right from your Google Play account, inside the app.",
     "f3Title": "Always up to date, full screen",
     "f3Desc": "New offers show up as soon as they’re published, with no app update and no browser bar.",
     "badgeAlt": "Get it on Google Play",
@@ -1288,7 +1366,7 @@
       "type": "Offer type",
       "typeSub": "The color follows the type across the site",
       "free": "Regular offer (free)",
-      "freeSub": "Shown to every visitor, no subscription",
+      "freeSub": "Shown to every visitor, for free",
       "premium": "Premium offer",
       "premiumSub": "Shown to Premium members instead of the regular offer",
       "private": "Internal info",
@@ -1628,7 +1706,7 @@
     "doneTitle": "Premium is active on your account",
     "doneDesc": "Your gift is valid until {{date}}. Every Premium code is now unlocked for you.",
     "toAccount": "Go to my account",
-    "subscribe": "Subscribe to Premium",
+    "subscribe": "Get Lifetime Premium",
     "browse": "Browse offers",
     "retry": "Try again",
     "tagSub": "Premium",
@@ -1647,7 +1725,7 @@
       },
       "ended": {
         "title": "Your gift has ended",
-        "desc": "Your Premium gift period is over. Subscribe to keep Premium codes unlocked."
+        "desc": "Your Premium gift period is over. Get Lifetime Premium with one payment to keep Premium codes unlocked."
       },
       "invalid": {
         "title": "This gift link isn't valid",
@@ -1671,11 +1749,11 @@
       },
       "already": {
         "title": "You've already received a gift",
-        "desc": "Each account can get one Premium gift. Subscribe to get Premium again."
+        "desc": "Each account can get one Premium gift. Get Lifetime Premium with one payment."
       },
       "hasPremium": {
         "title": "You already have Premium",
-        "desc": "Your subscription is active and every Premium code is unlocked, so this gift wasn't used and someone else can still enjoy it."
+        "desc": "Premium is active on your account and every Premium code is unlocked, so this gift wasn't used and someone else can still enjoy it."
       },
       "rateLimited": {
         "title": "Too many incorrect attempts",
@@ -1734,7 +1812,7 @@
     "card": {
       "guest": "Sign up free and reveal one Premium code on us",
       "use": "Use your golden key",
-      "upsell": "Free key used. Go Premium to reveal them all",
+      "upsell": "Free key used. Get Lifetime Premium to reveal them all",
       "badge": "Your golden key"
     },
     "confirm": {
@@ -1794,6 +1872,78 @@
       "loading": "Loading the code…",
       "inboxTitle": "Your inbox's key is used",
       "inboxDesc": "Your email already used its golden key from another account. Each inbox gets one key."
+    }
+  },
+  "pricing": {
+    "format": "{{dzd}} DZD (${{usd}})",
+    "dzd": "{{dzd}} DZD",
+    "usd": "(${{usd}})",
+    "oneTime": "One payment · Lifetime Premium",
+    "productName": "CODpromo Lifetime Premium",
+    "launchBadge": "Launch price",
+    "regularWas": "Regular price",
+    "seatsAria": "Launch seats left: {{left}} of {{total}}",
+    "terms": "Terms & refund policy",
+    "perks": {
+      "all": "Every current and future Premium code",
+      "noRenewal": "No subscription, no renewal, no later charge",
+      "refund": "Full refund within 7 days if you haven't revealed any Premium code"
+    },
+    "error": "Couldn't load the price",
+    "retry": "Try again",
+    "seatsLeft_zero": "No launch seats left",
+    "seatsLeft_one": "{{n}} launch seat left",
+    "seatsLeft_two": "{{n}} launch seats left",
+    "seatsLeft_few": "{{n}} launch seats left",
+    "seatsLeft_many": "{{n}} launch seats left",
+    "seatsLeft_other": "{{n}} launch seats left",
+    "testBadge": "Test price"
+  },
+  "terms": {
+    "title": "Terms & refund policy",
+    "intro": "This page explains what Lifetime Premium means on CODpromo, how you pay for it, and when you can get a refund.",
+    "s1Title": "What “lifetime” means",
+    "s1Desc": "Lifetime Premium means access to every current and future Premium code for as long as the CODpromo platform operates. You pay once, with no subscription and no automatic renewal.",
+    "s2Title": "What we don't guarantee",
+    "s2Desc": "Premium codes come from partner companies, and their value can change or end at any time. We don't guarantee any specific code or company.",
+    "s3Title": "Price",
+    "s3Desc": "The price is set when you start paying, and the price shown then is the price you pay.",
+    "s3DescLaunch": "The launch price is {{launch}} for the first {{seats}} members, then the price becomes {{regular}} automatically. The price shown when you start paying is the price you pay.",
+    "s3DescRegular": "The current price is {{regular}}, paid once. The price shown when you start paying is the price you pay.",
+    "s4Title": "Refund policy",
+    "s4Desc": "You can get a full refund within 7 days of purchase, as long as you haven't revealed any Premium code since buying. A refund removes Premium from your account.",
+    "s4Items": [
+      "Email your refund request to {{email}} from the address on your account.",
+      "We refund you through the same payment method you used.",
+      "After 7 days, or once you've revealed any Premium code, no refund is possible."
+    ],
+    "s5Title": "Payment methods",
+    "s5Desc": "International card (Visa / Mastercard via Stripe), Algerian CIB / Edahabia card (via SlickPay and SATIM), PayPal, and Google Play inside the app. We never store your card details.",
+    "contactDesc": "For any question about Premium or to request a refund, email us at:"
+  },
+  "premiumFaq": {
+    "title": "Lifetime Premium questions",
+    "sub": "One payment, no subscription. Here's what sellers ask before paying.",
+    "lifetime": {
+      "q": "What does “Lifetime” Premium mean?",
+      "a": "Access to every current and future Premium code for as long as the CODpromo platform operates. We don't guarantee any specific code or company, since partners can change their offers."
+    },
+    "price": {
+      "q": "How much is Premium?",
+      "aLaunch": "The launch price is {{launch}} for the first {{seats}} members, with {{left}} seats left. After that the price is {{regular}}. You pay only once.",
+      "aRegular": "{{regular}}, paid once, with no subscription or renewal."
+    },
+    "renewal": {
+      "q": "Does the payment renew automatically?",
+      "a": "No. You pay once, and there's no renewal or later charge on your card."
+    },
+    "refund": {
+      "q": "Can I get a refund?",
+      "a": "Yes, within 7 days of purchase if you haven't revealed any Premium code since buying."
+    },
+    "methods": {
+      "q": "How can I pay?",
+      "a": "With an international card (Visa / Mastercard), an Algerian CIB / Edahabia card, PayPal, or Google Play inside the app."
     }
   }
 }

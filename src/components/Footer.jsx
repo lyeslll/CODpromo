@@ -259,6 +259,7 @@ export default function Footer({ onPremium, showCta = true }) {
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5">
               <span>© {year} CODpromo</span>
               <Link to="/privacy" className="font-medium transition-colors hover:text-[var(--accent-text)]">{t("footer.privacy")}</Link>
+              <Link to="/terms" className="font-medium transition-colors hover:text-[var(--accent-text)]">{t("footer.terms")}</Link>
               <Link to="/account-deletion" className="font-medium transition-colors hover:text-[var(--accent-text)]">{t("footer.accountDeletion")}</Link>
             </div>
             <div className="flex items-center gap-5">

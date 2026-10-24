@@ -16,7 +16,8 @@ export async function redeemStork(code) {
 
   if (data === "ok") return { ok: true };
   // خريطة حالات الخادم → مفاتيح ترجمة معروفة (غير المعروف → verify)
-  const known = { invalid: "invalid", used: "used", enter: "enter" };
+  // lifetime: حساب Premium مدى الحياة — الكود ما يتحرقش (يبقى لشخص آخر)
+  const known = { invalid: "invalid", used: "used", enter: "enter", lifetime: "lifetime" };
   return { ok: false, errorKey: known[data] || "verify" };
 }
 

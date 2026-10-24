@@ -15,11 +15,11 @@ import { supabase } from "./supabaseClient.js";
 // طريقة الدفع المعتمدة من Google Play Billing
 const PLAY_METHOD = "https://play.google.com/billing";
 
-// خريطة مفاتيح الباقات → معرّفات المنتجات في Google Play Console (بالضبط)
+// السعر (tier من pricing_public) → منتوج يتشرا مرة وحدة في Google Play Console (بالضبط).
+// التطبيق يعرض المنتوج اللي يطابق السعر الحالي؛ الخادم يتحقق منو (verify-play-purchase).
 export const PLAY_PRODUCT_IDS = {
-  month: "premium_monthly",
-  quarter: "premium_quarterly",
-  year: "premium_yearly",
+  launch: "codpromo_lifetime_launch",
+  regular: "codpromo_lifetime",
 };
 
 // كل معرّفات المنتجات (للاستعلام عن الأسعار دفعة واحدة)
@@ -48,8 +48,8 @@ async function getService() {
 }
 
 // ----------------------------------------------------------------------------
-// جلب تفاصيل/أسعار المنتجات الثلاثة (للعرض فقط). يرجع خريطة:
-//   { month: {price, currency, raw}, quarter: {...}, year: {...} }
+// جلب تفاصيل/أسعار المنتوجين (للعرض فقط). يرجع خريطة:
+//   { launch: {price, currency, raw}, regular: {...} }
 // إن لم يتوفّر Play أو فشل الجلب → {} (لا أثر).
 // ----------------------------------------------------------------------------
 export async function getPlayDetails() {
@@ -99,18 +99,18 @@ function formatMoney(value, currency) {
 }
 
 // ----------------------------------------------------------------------------
-// شراء باقة عبر Google Play Billing.
-//   planKey: "month" | "quarter" | "year"
+// شراء Premium مدى الحياة عبر Google Play Billing.
+//   tier: "launch" | "regular" (السعر الحالي من pricing_public)
 //   onVerified: دالة تُستدعى بعد تأكيد الخادم (عادةً refreshProfile)
 // يرجع: { ok: true } عند النجاح، أو { ok: false, errorKey } عند الفشل/الإلغاء.
 // errorKey يُترجَم في الواجهة عبر premium.playErr.<key> (لا نصوص hardcoded هنا).
 // ----------------------------------------------------------------------------
-export async function purchasePlay(planKey, { onVerified } = {}) {
+export async function purchasePlay(tier, { onVerified } = {}) {
   if (!isPlayBillingSupported() || typeof PaymentRequest === "undefined") {
     return { ok: false, errorKey: "unavailable" };
   }
 
-  const sku = PLAY_PRODUCT_IDS[planKey];
+  const sku = PLAY_PRODUCT_IDS[tier];
   if (!sku) return { ok: false, errorKey: "unavailable" };
 
   let paymentResponse;
@@ -147,7 +147,8 @@ export async function purchasePlay(planKey, { onVerified } = {}) {
 
     if (error || !data?.ok) {
       await paymentResponse.complete("fail");
-      return { ok: false, errorKey: "verify" };
+      // منتوج الإطلاق بعد ما تسكّرت المقاعد: Google يرجّع المبلغ وحدو (الشراء ما تقرّش)
+      return { ok: false, errorKey: data?.error === "price_changed" ? "priceChanged" : data?.pending ? "pending" : "verify" };
     }
 
     // نجح: حدّث الملف الشخصي ثم أكمل ورقة الدفع بنجاح.
@@ -161,5 +162,31 @@ export async function purchasePlay(planKey, { onVerified } = {}) {
       /* تجاهل آمن */
     }
     return { ok: false, errorKey: "generic" };
+  }
+}
+
+// ----------------------------------------------------------------------------
+// مزامنة مشتريات Play اللي ما تأكّدتش عندنا (مثلاً انقطع الاتصال بعد الدفع):
+// كل شراء لمنتوجاتنا يتبعث لـ verify-play-purchase (idempotent: التسجيل + الإقرار).
+// بلا هاد الخطوة، شراء ما تقرّش في 3 أيام يرجّعو Google وحدو. يرجع true إذا تفعّل Premium.
+// ----------------------------------------------------------------------------
+export async function syncPlayPurchases({ onVerified } = {}) {
+  const service = await getService();
+  if (!service?.listPurchases) return false;
+  try {
+    const ours = new Set(ALL_PRODUCT_IDS);
+    const items = (await service.listPurchases()) || [];
+    let granted = false;
+    for (const p of items) {
+      if (!ours.has(p.itemId) || !p.purchaseToken) continue;
+      const { data } = await supabase.functions.invoke("verify-play-purchase", {
+        body: { purchaseToken: p.purchaseToken, productId: p.itemId },
+      });
+      if (data?.ok) granted = true;
+    }
+    if (granted) await onVerified?.();
+    return granted;
+  } catch {
+    return false;
   }
 }

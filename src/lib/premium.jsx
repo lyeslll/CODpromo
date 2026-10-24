@@ -25,8 +25,11 @@ const write = (v) => {
 export const isPremiumProfile = (p) =>
   !!(p?.is_premium && (!p.premium_until || new Date(p.premium_until) > new Date()));
 
-// حساب الأدمن = Premium مدى الحياة (نفس قاعدة الخادم has_premium_access). لا اشتراك يُكتب في profiles.
-export const isLifetimeProfile = (p) => p?.is_admin === true;
+// Premium مدى الحياة (نفس قاعدة الخادم has_premium_access): الأدمن، أو اللي شرى بالدفعة الوحدة
+// (plan_type = 'lifetime' بلا تاريخ نهاية — الحقلين محميين من العميل بـ protect_premium_columns).
+export const isAdminProfile = (p) => p?.is_admin === true;
+export const isLifetimeProfile = (p) =>
+  isAdminProfile(p) || (p?.is_premium === true && p?.plan_type === "lifetime" && !p?.premium_until);
 
 // أقصى مهلة لـ setTimeout (~24 يوماً)
 const MAX_TIMEOUT = 2147483647;

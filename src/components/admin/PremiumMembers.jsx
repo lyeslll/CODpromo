@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { Crown, CreditCard, Landmark, Wallet, KeyRound, CalendarDays, Mail, Smartphone, Clock } from "lucide-react";
-import { USD_PLANS, fmtUSD, DZ_PLANS, fmtDZ } from "../../lib/plans.js";
 import { isActivePremium } from "../../lib/admin.js";
 import { Segmented, Skeleton, fmtDate, useAdminT } from "./v2/ui.jsx";
 
@@ -11,16 +10,6 @@ const METHOD = {
   google_play: { icon: Smartphone, color: "#34a853" },
 };
 
-// المبلغ حسب الباقة وطريقة الدفع (المصدر: plans.js للعرض)
-function amountFor(p) {
-  if (!p.plan_type) return "—";
-  if (p.payment_provider === "slickpay") {
-    const pl = DZ_PLANS.find((x) => x.key === p.plan_type);
-    return pl ? fmtDZ(pl.price) : "—";
-  }
-  const pl = USD_PLANS.find((x) => x.key === p.plan_type);
-  return pl ? fmtUSD(pl.price) : "—";
-}
 
 /**
  * أعضاء Premium: تبويب "فعّال" (حسب قاعدة has_premium_access، بلا الأدمن) وتبويب "منتهي".
@@ -104,7 +93,7 @@ export default function PremiumMembers({ members = [], loading, codes = [] }) {
                         )}
                       </Td>
                       <Td>{p.plan_type ? t(`users.planTypes.${p.plan_type}`, { defaultValue: p.plan_type }) : "—"}</Td>
-                      <Td className="font-bold text-white">{amountFor(p)}</Td>
+                      <Td className="font-bold text-white">{p.plan_type === "lifetime" ? t("premium.lifetimeCell") : "—"}</Td>
                       <Td>
                         <span className="inline-flex items-center gap-1 text-[var(--text-softer)]">
                           {tab === "active" ? <CalendarDays size={13} /> : <Clock size={13} />}

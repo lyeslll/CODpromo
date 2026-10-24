@@ -1,17 +1,18 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Crown, Infinity as InfinityIcon, KeyRound, CalendarClock, CreditCard, Gift } from "lucide-react";
+import { Crown, Infinity as InfinityIcon, KeyRound, CalendarClock, CreditCard, Gift, ShoppingBag } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { offersLink } from "../../../lib/seo.js";
-import { monthlyUsdPrice, premiumMultiplier } from "../../../lib/siteStats.js";
-import { fmtUSD } from "../../../lib/plans.js";
+import { premiumMultiplier } from "../../../lib/siteStats.js";
 import { formatNumber } from "../../../lib/values.js";
+import { usePricing } from "../../../lib/pricing.jsx";
+import LifetimePrice from "../../pricing/LifetimePrice.jsx";
+import SeatsMeter from "../../pricing/SeatsMeter.jsx";
 
 const GOLD_SOFT = "#ffe486";
 const GOLD = "#f0c63c";
 const GOLD_DEEP = "#cf9a1e";
 const GOLD_BG = `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD} 55%, ${GOLD_DEEP})`;
-const PLAN_DAYS = { month: 30, quarter: 90, year: 365 };
 const PROVIDER_KEY = { stripe: "stripe", slickpay: "slickpay", paypal: "paypal", google_play: "play" };
 const DAY = 86400000;
 
@@ -23,36 +24,32 @@ const ticketVars = {
 
 /**
  * بطاقة الخطة = تذكرة ذهبية.
- *  - Premium / مدى الحياة: نوع الخطة، تاريخ الانتهاء، دائرة الأيام الباقية، طريقة الدفع (من profiles).
+ *  - مدى الحياة (شراء ولا أدمن): "Premium مدى الحياة" بلا تاريخ نهاية + تاريخ الشراء وطريقة الدفع (purchases).
+ *  - Premium بمدّة (Stork): تاريخ الانتهاء ودائرة الأيام الباقية.
  *  - هدية (kind="gift"): "Premium هدية" + نهاية الهدية والأيام الباقية (من gift_redemptions عبر my_gift).
- *  - عادي: كوبون ترقية بالسعر (plans.js) والمضاعف (site_stats) + زر يفتح نافذة Premium، وتحته تفعيل كود Stork
+ *  - عادي: كوبون ترقية بالدفعة الوحدة (pricing_settings + العدّاد) والمضاعف (site_stats) + زر يفتح نافذة Premium، وتحته تفعيل كود Stork
  *    وخانة "هل لديك كود هدية؟" (giftField).
  */
-export default function PlanPass({ kind, profile, gift, stats, onOpenPremium, onOpenStork, giftField }) {
+export default function PlanPass({ kind, profile, gift, purchase, stats, onOpenPremium, onOpenStork, giftField }) {
   if (kind === "free") return <UpgradeCoupon stats={stats} onOpenPremium={onOpenPremium} onOpenStork={onOpenStork} giftField={giftField} />;
   if (kind === "gift" && gift) return <MemberPass gift={gift} />;
-  return <MemberPass lifetime={kind === "lifetime"} profile={profile} />;
+  return <MemberPass lifetime={kind === "lifetime"} profile={profile} purchase={purchase} />;
 }
 
-function MemberPass({ lifetime, profile, gift }) {
+function MemberPass({ lifetime, profile, gift, purchase }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const rawUntil = gift ? gift.premium_until : profile?.premium_until;
   const until = rawUntil ? new Date(rawUntil) : null;
   const endless = !gift && (lifetime || !until);
   const daysLeft = endless ? null : Math.max(0, Math.ceil((until - Date.now()) / DAY));
-  const total = gift ? Math.max(gift.duration_days || 0, daysLeft || 0, 1) : PLAN_DAYS[profile?.plan_type] || Math.max(daysLeft || 0, 30);
+  const total = gift ? Math.max(gift.duration_days || 0, daysLeft || 0, 1) : Math.max(daysLeft || 0, 30);
   const ratio = endless ? 1 : Math.min(1, (daysLeft || 0) / total);
-  const providerKey = gift ? null : PROVIDER_KEY[profile?.payment_provider];
+  const providerKey = gift ? null : PROVIDER_KEY[purchase?.provider || profile?.payment_provider];
   const Icon = gift ? Gift : Crown;
+  const fmtDate = (d) => new Date(d).toLocaleDateString(lang, { day: "numeric", month: "long", year: "numeric" });
 
-  const title = gift
-    ? t("dashboard.gift.title")
-    : lifetime
-      ? t("premium.lifetime")
-      : profile?.plan_type && PLAN_DAYS[profile.plan_type]
-        ? t(`dashboard.plan.plan_${profile.plan_type}`)
-        : t("premiumToggle.premium");
+  const title = gift ? t("dashboard.gift.title") : lifetime ? t("premium.lifetime") : t("premiumToggle.premium");
 
   return (
     <div className="ticket ticket-premium flex h-full flex-col" style={ticketVars}>
@@ -71,9 +68,14 @@ function MemberPass({ lifetime, profile, gift }) {
         </div>
         <dl className="mt-5 grid gap-2.5 text-[13.5px]">
           <Row icon={CalendarClock} label={t("dashboard.plan.endsOn")}>
-            {endless ? t("dashboard.plan.noEnd") : until.toLocaleDateString(lang, { day: "numeric", month: "long", year: "numeric" })}
+            {endless ? t("dashboard.plan.noEnd") : fmtDate(until)}
           </Row>
-          {!lifetime && providerKey && (
+          {purchase?.purchased_at && (
+            <Row icon={ShoppingBag} label={t("dashboard.plan.purchasedOn")}>
+              {fmtDate(purchase.purchased_at)}
+            </Row>
+          )}
+          {providerKey && (purchase || !lifetime) && (
             <Row icon={CreditCard} label={t("dashboard.plan.paidWith")}>
               {t(`premium.methods.${providerKey}Name`)}
             </Row>
@@ -157,8 +159,8 @@ function DaysRing({ ratio, label, lang }) {
 function UpgradeCoupon({ stats, onOpenPremium, onOpenStork, giftField }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
-  const usd = monthlyUsdPrice();
-  const multiplier = premiumMultiplier(stats?.premiumUnlockValueUsd ?? null, usd);
+  const pricing = usePricing();
+  const multiplier = premiumMultiplier(stats?.premiumUnlockValueUsd ?? null, pricing?.usd);
 
   return (
     <div className="flex h-full flex-col gap-3">
@@ -172,13 +174,14 @@ function UpgradeCoupon({ stats, onOpenPremium, onOpenStork, giftField }) {
               </h2>
               <p className="mt-1 text-[13px] leading-relaxed text-[var(--text-soft)]">{t("dashboard.customer.upgradeDesc")}</p>
             </div>
-            {usd != null && (
-              <div className="shrink-0 text-end">
-                <span className="text-[26px] font-black leading-none text-[var(--text)]">{fmtUSD(usd)}</span>
-                <span className="block text-[12px] font-bold text-[var(--color-mute)]">{t("dashboard.plan.perMonth")}</span>
-              </div>
-            )}
           </div>
+          {pricing && (
+            <div className="mt-4">
+              <p className="text-[12.5px] font-extrabold" style={{ color: GOLD_SOFT }}>{t("pricing.oneTime")}</p>
+              <LifetimePrice pricing={pricing} size="md" className="mt-1.5" />
+              <SeatsMeter pricing={pricing} className="mt-3" />
+            </div>
+          )}
           {multiplier && (
             <div className="mt-4 flex items-end gap-2.5">
               <span className="text-[40px] font-black leading-none tabular-nums" style={{ color: GOLD_SOFT }}>

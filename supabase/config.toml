@@ -29,3 +29,7 @@ verify_jwt = true
 # تحقّق Google Play (داخل تطبيق TWA) — يتطلّب جلسة مستخدم (JWT)
 [functions.verify-play-purchase]
 verify_jwt = true
+
+# استرداد PayPal → Premium يتنحّى. PayPal لا يرسل JWT؛ الأمان عبر verify-webhook-signature
+[functions.paypal-webhook]
+verify_jwt = false

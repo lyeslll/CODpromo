@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useRef } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { MotionConfig } from "framer-motion";
 import { AuthProvider, useAuth } from "./lib/auth.jsx";
@@ -6,6 +6,7 @@ import { syncEmailLang } from "./lib/account.js";
 import { PremiumProvider, usePremium } from "./lib/premium.jsx";
 import { PricingProvider } from "./lib/pricing.jsx";
 import { FreeKeyProvider } from "./lib/freeKeyContext.jsx";
+import { KeysProvider } from "./lib/keysContext.jsx";
 import { offersLink } from "./lib/seo.js";
 import { CategoriesProvider } from "./lib/categories.jsx";
 import { VoteStatsProvider } from "./lib/voteStats.jsx";
@@ -18,6 +19,7 @@ import CursorGlow from "./components/CursorGlow.jsx";
 import { reloadIfUpdatePending } from "./lib/swAutoReload.js";
 import AppBanner from "./components/app/AppBanner.jsx";
 import GiftResume from "./components/gift/GiftResume.jsx";
+import { useKeys } from "./lib/keysContext.jsx";
 
 // باقي الصفحات تُحمَّل عند زيارتها فقط (حزمة الصفحة الرئيسية أخفّ)
 const StorePage = lazy(() => import("./pages/StorePage.jsx"));
@@ -42,6 +44,23 @@ const Terms = lazy(() => import("./pages/Terms.jsx"));
 const AccountDeletion = lazy(() => import("./pages/AccountDeletion.jsx"));
 const GoPage = lazy(() => import("./pages/GoPage.jsx"));
 const GiftPage = lazy(() => import("./pages/GiftPage.jsx"));
+const KeysReturn = lazy(() => import("./pages/KeysReturn.jsx"));
+const KeysPanel = lazy(() => import("./components/keys/KeysPanel.jsx"));
+
+/** لوحة المفاتيح (العدّاد في الهيدر / الداشبورد): تتحمّل غير من أول فتح، ومن بعد تبقى (حركة السكير). */
+function KeysPanelHost() {
+  const { panelOpen } = useKeys();
+  const [used, setUsed] = useState(false);
+  useEffect(() => {
+    if (panelOpen) setUsed(true);
+  }, [panelOpen]);
+  if (!used && !panelOpen) return null;
+  return (
+    <Suspense fallback={null}>
+      <KeysPanel />
+    </Suspense>
+  );
+}
 const NotFound = lazy(() => import("./pages/NotFound.jsx"));
 
 /** مؤشّر تحميل الصفحة (نفس حلقة شاشة البداية). */
@@ -159,12 +178,14 @@ export default function App() {
       <AuthProvider>
         <PremiumProvider>
           <FreeKeyProvider>
+          <KeysProvider>
           <CategoriesProvider>
           <VoteStatsProvider>
           <ScrollVisibilityProvider>
           <RouteLangSync />
           <EmailLangSync />
           <GiftResume />
+          <KeysPanelHost />
           <AppBanner />
           <Suspense fallback={<PageFallback />}>
           <Routes>
@@ -214,6 +235,8 @@ export default function App() {
           <Route path="/payment-cancel" element={<PaymentCancel />} />
           <Route path="/payment-return" element={<PaymentReturn />} />
           <Route path="/payment-return-paypal" element={<PaymentReturnPaypal />} />
+          {/* الرجوع بعد شراء مفاتيح ماسية (noindex، ماشي في الـ sitemap) */}
+          <Route path="/keys/return" element={<KeysReturn />} />
           <Route path="/privacy" element={<Privacy />} />
           {/* الشروط: "مدى الحياة" + قاعدة الاسترداد (رابط في الفوتر وفي نافذة الدفع) */}
           <Route path="/terms" element={<Terms />} />
@@ -248,6 +271,7 @@ export default function App() {
           </ScrollVisibilityProvider>
           </VoteStatsProvider>
           </CategoriesProvider>
+          </KeysProvider>
           </FreeKeyProvider>
         </PremiumProvider>
       </AuthProvider>

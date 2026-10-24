@@ -11,6 +11,7 @@ import CategoriesMega from "./header/CategoriesMega.jsx";
 import QuickSearch from "./header/QuickSearch.jsx";
 import MobileMenu from "./header/MobileMenu.jsx";
 import AccountMenu from "./header/AccountMenu.jsx";
+import KeysCounter from "./keys/KeysCounter.jsx";
 import { loadHeaderOffers, useHeaderOffers, useHoverMenu, useOffersCount, userDisplay } from "./header/headerData.js";
 import { useAuth } from "../lib/auth.jsx";
 import { useCategories } from "../lib/categories.jsx";
@@ -252,6 +253,8 @@ export default function Navbar() {
             </button>
 
             <LanguageSwitcher />
+            {/* عدّاد المفاتيح (الذهبي + الماسي) — نفس ارتفاع الأزرار، يحلّ لوحة الرصيد */}
+            <KeysCounter />
             <PremiumNavButton onOpen={openPremium} />
 
             {user ? (
@@ -280,7 +283,8 @@ export default function Navbar() {
           </div>
 
           {/* ===== الهاتف: زر Premium صغير + زر القائمة (يبقى ابناً مباشراً للكبسولة لقواعد وضع التطبيق) ===== */}
-          <div className="me-2 ms-auto lg:hidden">
+          <div className="me-2 ms-auto flex items-center gap-1.5 lg:hidden">
+            <KeysCounter compact />
             <PremiumNavButton onOpen={openPremium} compact />
           </div>
           <button

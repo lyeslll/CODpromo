@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -22,20 +22,12 @@ import CopyToast from "../components/CopyToast.jsx";
 import LandingHero from "../components/landing/LandingHero.jsx";
 import StatsStrip from "../components/landing/StatsStrip.jsx";
 import FeaturedSection from "../components/featured/FeaturedSection.jsx";
-import NameStory from "../components/landing/NameStory.jsx";
-import Pillars from "../components/landing/Pillars.jsx";
-import CardAnatomy from "../components/landing/CardAnatomy.jsx";
-import PremiumCompare from "../components/landing/PremiumCompare.jsx";
-import GoldenKeySection from "../components/freekey/GoldenKeySection.jsx";
-import CategoryGrid from "../components/landing/CategoryGrid.jsx";
-import HowSteps from "../components/landing/HowSteps.jsx";
-import TrustSection from "../components/landing/TrustSection.jsx";
-import SampleOffers from "../components/landing/SampleOffers.jsx";
-import AppDownload from "../components/landing/AppDownload.jsx";
-import NocodeSection from "../components/nocode/NocodeSection.jsx";
-import PremiumFaq, { premiumFaqItems } from "../components/landing/PremiumFaq.jsx";
+import { premiumFaqItems } from "../components/landing/PremiumFaq.jsx";
 import { usePricing } from "../lib/pricing.jsx";
 import { useAndroidApp } from "../lib/androidApp.js";
+
+// الأقسام تحت أول شاشة: chunk وحدو يتحمّل مباشرة بعد أول رسم (شوف HomeBelow.jsx)
+const HomeBelow = lazy(() => import("../components/landing/HomeBelow.jsx"));
 
 // ============================================================
 //  الصفحة الرئيسية = صفحة تعريف (landing) لتجّار الدفع عند الاستلام.
@@ -67,7 +59,8 @@ export default function Home() {
       .then((data) => active && setCompanies(Array.isArray(data) ? data : []))
       .catch(() => active && setCompanies([]))
       .finally(() => active && setLoading(false));
-    fetchSiteStats().then((s) => active && setSiteStats(s));
+    // فشل = {} (ماشي null): الأقسام تبطّل الانتظار وتخبّي الأرقام بلا ما تبقى فارغة
+    fetchSiteStats().then((s) => active && setSiteStats(s || {}));
     return () => {
       active = false;
     };
@@ -80,6 +73,8 @@ export default function Home() {
 
   const cats = useMemo(() => activeCategories(categories), [categories]);
   const counts = useMemo(() => countByCategory(companies, cats), [companies, cats]);
+  const [belowReady, setBelowReady] = useState(false);
+  const markBelowReady = useCallback(() => setBelowReady(true), []);
 
   // روابط #how و #categories (من الهيدر أو روابط قديمة) — نمرّر بعد ظهور القسم
   useEffect(() => {
@@ -87,7 +82,7 @@ export default function Home() {
     if (!id || id === "stores") return;
     const tmr = setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
     return () => clearTimeout(tmr);
-  }, [location.hash, location.key, cats.length, loading]);
+  }, [location.hash, location.key, cats.length, loading, belowReady]);
 
   // نفس العرض الحقيقي للكوبون السحري يُستعمل في مقارنة عادي/Premium
   const heroOffer = useMemo(() => pickHeroOffer(companies, voteStats), [companies, voteStats]);
@@ -193,34 +188,27 @@ export default function Home() {
           unlocked={unlocked}
           onUnlock={goPremium}
         />
-        <NameStory />
-        <Pillars companies={companies} voteStats={voteStats} />
-        <CardAnatomy
-          company={anatomyCompany}
-          isFavorite={anatomyCompany ? favorites.includes(anatomyCompany.id) : false}
-          onToggleFav={toggleFav}
-          onCopy={handleCopy}
-          unlocked={unlocked}
-          onUnlock={goPremium}
-        />
-        <PremiumCompare company={compareCompany} stats={siteStats} onOpenPremium={goPremium} isPremiumActive={hasPremium} />
-        <GoldenKeySection companies={companies} preferred={compareCompany} onOpenPremium={goPremium} />
-        <CategoryGrid categories={cats} counts={counts} />
-        <HowSteps />
-        <TrustSection companies={companies} voteStats={voteStats} />
-        <SampleOffers
-          companies={companies}
-          exclude={featuredIds}
-          voteStats={voteStats}
-          favorites={favorites}
-          onToggleFav={toggleFav}
-          onCopy={handleCopy}
-          unlocked={unlocked}
-          onUnlock={goPremium}
-        />
-        <NocodeSection unlocked={unlocked} onUnlock={goPremium} />
-        <AppDownload />
-        <PremiumFaq pricing={pricing} />
+        {/* مكان محجوز طويل (تحت الشاشة) حتى يوصل الـ chunk — الفوتر ما يطلعش للفوق */}
+        <Suspense fallback={<div aria-hidden className="min-h-[260vh]" />}>
+          <HomeBelow
+            companies={companies}
+            voteStats={voteStats}
+            cats={cats}
+            counts={counts}
+            siteStats={siteStats}
+            anatomyCompany={anatomyCompany}
+            compareCompany={compareCompany}
+            featuredIds={featuredIds}
+            favorites={favorites}
+            toggleFav={toggleFav}
+            handleCopy={handleCopy}
+            unlocked={unlocked}
+            goPremium={goPremium}
+            hasPremium={hasPremium}
+            pricing={pricing}
+            onReady={markBelowReady}
+          />
+        </Suspense>
       </main>
 
       <Footer />

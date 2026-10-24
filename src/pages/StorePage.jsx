@@ -191,7 +191,7 @@ export default function StorePage({ lang = "ar" }) {
           <span className="pointer-events-none absolute inset-0 opacity-[0.06]" style={{ background: `radial-gradient(120% 60% at 50% 0%, ${accent}, transparent 60%)` }} />
 
           <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start">
-            <CompanyLogo logo={company.logo} name={company.name} size={96} accent={accent} className="!rounded-2xl" />
+            <CompanyLogo logo={company.logo} bg={company.logo_bg} name={company.name} size={96} accent={accent} className="!rounded-2xl" />
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2.5">
                 <h1 className="text-[26px] font-black leading-tight tracking-tight sm:text-[32px]">{company.name}</h1>
@@ -322,7 +322,7 @@ function SimilarCard({ company, lang }) {
       to={to}
       className="group flex flex-col items-center gap-2.5 rounded-2xl border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] p-4 text-center transition-colors hover:border-[var(--color-lime)]/40"
     >
-      <CompanyLogo logo={company.logo} name={company.name} size={52} accent={meta.color} />
+      <CompanyLogo logo={company.logo} bg={company.logo_bg} name={company.name} size={52} accent={meta.color} />
       <span className="line-clamp-1 text-[13.5px] font-extrabold text-[var(--text)]">{company.name}</span>
       {discount && (
         <span className="text-[13px] font-black" style={{ color: meta.color }}>{discount}</span>

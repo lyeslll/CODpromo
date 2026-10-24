@@ -74,7 +74,7 @@ export default function CompanyTable({ companies, loading, editingId, onEdit, on
                     editingId === c.id ? "bg-[var(--color-lime)]/[0.06]" : "hover:bg-white/[0.02]"
                   }`}
                 >
-                  <CompanyLogo logo={c.logo} name={c.name} size={44} accent={meta.color} />
+                  <CompanyLogo logo={c.logo} bg={c.logo_bg} name={c.name} size={44} accent={meta.color} />
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">

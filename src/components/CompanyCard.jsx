@@ -13,6 +13,7 @@ import { hasPremiumOffer } from "../lib/premiumOffer.js";
 import { useFreeKey } from "../lib/freeKeyContext.jsx";
 import { setPendingFreeKey } from "../lib/freeKey.js";
 import { isImageUrl } from "./CompanyLogo.jsx";
+import { cachedTone, detectTone, logoSrc, logoSrcSet, tileStyle } from "../lib/logoImage.js";
 import CodeVote from "./CodeVote.jsx";
 import { GlowSpot, useCardGlow } from "./CardGlow.jsx";
 import FreeKeyDialog from "./freekey/FreeKeyDialog.jsx";
@@ -303,7 +304,7 @@ export default function CompanyCard({
         <div className="relative flex items-start justify-between gap-2">
           {linkToStore ? (
             <Link to={storeHref} className="group/link flex min-w-0 items-center gap-3">
-              <CardLogo logo={company.logo} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
+              <CardLogo logo={company.logo} bg={company.logo_bg} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
               <div className="min-w-0">
                 <h3 className="truncate text-[17px] font-extrabold text-[var(--text)] transition-colors group-hover/link:text-[var(--accent-text)]">{company.name}</h3>
                 <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">{category}</p>
@@ -311,7 +312,7 @@ export default function CompanyCard({
             </Link>
           ) : (
             <div className="flex min-w-0 items-center gap-3">
-              <CardLogo logo={company.logo} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
+              <CardLogo logo={company.logo} bg={company.logo_bg} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
               <div className="min-w-0">
                 <h3 className="truncate text-[17px] font-extrabold text-[var(--text)]">{company.name}</h3>
                 <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">{category}</p>
@@ -533,7 +534,7 @@ function FrozenTicket({ company, index, isFavorite, onToggleFav, linkToStore, st
   const head = (
     <>
       <div className="shrink-0 opacity-60 grayscale">
-        <CardLogo logo={company.logo} name={company.name} accent={FROZEN} glow="rgba(0,0,0,0)" premium={false} />
+        <CardLogo logo={company.logo} bg={company.logo_bg} name={company.name} accent={FROZEN} glow="rgba(0,0,0,0)" premium={false} />
       </div>
       <div className="min-w-0">
         <h3 className="truncate text-[17px] font-extrabold text-[var(--text-soft)]">{company.name}</h3>
@@ -951,22 +952,46 @@ function AnimatedDiscount({ value, color, glow }) {
 }
 
 /* ===== لوجو البطاقة ===== */
-function CardLogo({ logo, name, accent, glow, premium }) {
-  const [errored, setErrored] = useState(false);
-  const showImage = isImageUrl(logo) && !errored;
+function CardLogo({ logo, name, accent, glow, premium, bg = null }) {
+  // 0 = النسخة المصغّرة (WebP بحجم البطاقة)، 1 = الملف الأصلي، 2 = فشل → الحرف
+  const [fail, setFail] = useState(0);
+  const showImage = isImageUrl(logo) && fail < 2;
   const showEmoji = !showImage && logo && !isImageUrl(logo);
   const letter = (name || "؟").trim().charAt(0);
+  const [tone, setTone] = useState(() => (showImage && !bg ? cachedTone(logo) : undefined));
+  useEffect(() => setFail(0), [logo]);
+  useEffect(() => {
+    if (!showImage || bg || cachedTone(logo)) return;
+    let alive = true;
+    detectTone(logo).then((t) => alive && setTone(t));
+    return () => {
+      alive = false;
+    };
+  }, [logo, bg, showImage]);
+  const tile = showImage ? tileStyle(bg, tone ?? cachedTone(logo)) : null;
+  const pad = tile ? Math.round(64 * tile.pad) : 0;
 
   return (
     <div
       className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-xl transition-transform duration-300 group-hover:scale-105"
       style={{
-        background: showImage ? "transparent" : "linear-gradient(150deg, #1c1c20, #141417)",
+        background: showImage ? tile.background : "linear-gradient(150deg, #1c1c20, #141417)",
         boxShadow: `0 6px 18px -10px ${glow}`,
+        padding: pad,
       }}
     >
       {showImage ? (
-        <img src={logo} alt={name || "logo"} loading="lazy" onError={() => setErrored(true)} className="h-full w-full object-cover" />
+        <img
+          src={fail ? logo : logoSrc(logo, 128)}
+          srcSet={fail ? undefined : logoSrcSet(logo, 64)}
+          width={64}
+          height={64}
+          alt={name || "logo"}
+          loading="lazy"
+          decoding="async"
+          onError={() => setFail((n) => n + 1)}
+          className={`h-full w-full ${pad ? "object-contain" : "object-cover"}`}
+        />
       ) : showEmoji ? (
         <span style={{ fontSize: 30, lineHeight: 1 }}>{logo}</span>
       ) : (

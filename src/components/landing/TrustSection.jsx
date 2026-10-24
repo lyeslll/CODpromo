@@ -6,6 +6,7 @@ import SectionHead from "./SectionHead.jsx";
 import { offersLink, storePath } from "../../lib/seo.js";
 import { companySlug } from "../../lib/slug.js";
 import { isImageUrl } from "../CompanyLogo.jsx";
+import { logoSrc } from "../../lib/logoImage.js";
 import { formatNumber } from "../../lib/values.js";
 
 /**
@@ -58,7 +59,7 @@ export default function TrustSection({ companies, voteStats }) {
                   title={c.name}
                   className="flex h-16 shrink-0 items-center gap-3 rounded-2xl border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] pe-5 ps-2 transition-colors hover:border-[var(--color-lime)]/40"
                 >
-                  <img src={c.logo} alt="" loading="lazy" className="h-12 w-12 rounded-xl object-cover" />
+                  <img src={logoSrc(c.logo, 96)} alt="" width={48} height={48} loading="lazy" decoding="async" className="h-12 w-12 rounded-xl object-cover" />
                   <span className="whitespace-nowrap text-[14px] font-extrabold text-[var(--text-softer)]">{c.name}</span>
                 </Link>
               ))}

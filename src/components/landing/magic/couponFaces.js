@@ -3,6 +3,7 @@
 //  الرسم بخطوط الصفحة نفسها (Tajawal / Inter) فيبقى تشكيل العربية صحيحاً.
 //  الأبعاد: 1024×640 بكسل ↔ 3.2×2.0 وحدة في المشهد (1 وحدة = 320 بكسل).
 // ============================================================
+import { logoSrc } from "../../../lib/logoImage.js";
 
 export const COUPON = { W: 3.2, H: 2.0, R: 0.16, NOTCH: 0.15, STUB: 0.64 };
 export const TEX_W = 1024;
@@ -381,7 +382,7 @@ export function drawBack(ctx, f, { lang, labels, value }) {
 export async function loadLogoBitmap(url) {
   if (!url || !/^https?:\/\//i.test(url)) return null;
   try {
-    const res = await fetch(url, { mode: "cors" });
+    const res = await fetch(logoSrc(url, 256), { mode: "cors" });
     if (!res.ok) return null;
     const blob = await res.blob();
     if ("createImageBitmap" in window) return await createImageBitmap(blob);

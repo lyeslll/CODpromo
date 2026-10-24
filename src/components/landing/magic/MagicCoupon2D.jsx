@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { parseVal, withNum } from "../../../lib/values.js";
 import { getTypeMeta, TYPE_META } from "../../../lib/types.js";
 import { isImageUrl } from "../../CompanyLogo.jsx";
+import { logoSrc } from "../../../lib/logoImage.js";
 import { GlowSpot, useCardGlow } from "../../CardGlow.jsx";
 
 const GOLD_SOFT = "#ffe486";
@@ -42,7 +43,7 @@ function Logo({ src, name, color }) {
   return (
     <span className="grid aspect-square w-[12cqw] shrink-0 place-items-center overflow-hidden rounded-[2.6cqw]" style={{ background: img ? "#fff" : "#18181c" }}>
       {img ? (
-        <img src={src} alt="" onError={() => setErr(true)} className="h-full w-full object-cover" />
+        <img src={logoSrc(src, 128)} alt="" decoding="async" onError={() => setErr(true)} className="h-full w-full object-cover" />
       ) : (
         <span className="text-[5.5cqw] font-black" style={{ color }}>
           {(name || "C").trim().charAt(0)}

@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowDown, Crown, Gift, KeyRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { ensureLang } from "../i18n/index.js";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import Seo from "../components/Seo.jsx";
@@ -128,7 +129,10 @@ export default function PremiumPage({ lang = "ar" }) {
   // (api/prerender.js، فيها جواب الويب). Google وزوار المتصفح يلقاوها كاملة.
   useEffect(() => {
     if (appMode !== "app") return;
-    stripServerFaqQuestions(["ar", "en", "fr"].map((l) => i18n.getFixedT(l)("premiumFaq.methods.q")));
+    // en / fr تتحمّل غير كي تلزم (i18n/index.js) → نحمّلوهم قبل ما نقارنو النصوص
+    Promise.all(["en", "fr"].map(ensureLang))
+      .catch(() => {})
+      .then(() => stripServerFaqQuestions(["ar", "en", "fr"].map((l) => i18n.getFixedT(l)("premiumFaq.methods.q"))));
   }, [appMode, i18n]);
 
   // SEO: Product (السعر الحقيقي بالدولار والدينار) + FAQPage (نفس الأسئلة الظاهرة؛ في التطبيق بلا طرق الدفع) + Breadcrumb

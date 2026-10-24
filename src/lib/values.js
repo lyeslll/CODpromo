@@ -22,9 +22,14 @@ export function withNum(parsed, n) {
 const NUMBER_LOCALES = { ar: "en-US", en: "en-US", fr: "fr-FR" };
 
 /** تنسيق رقم كبير حسب لغة العرض (فواصل الآلاف). */
+// Intl.NumberFormat غالي في الإنشاء (كان يتصنع في كل نداء: ~40ms في تحميل /offers بـ CPU ×4) → واحد لكل لغة
+const NUMBER_FORMATS = new Map();
 export function formatNumber(n, lang) {
   try {
-    return new Intl.NumberFormat(NUMBER_LOCALES[lang] || "en-US", { maximumFractionDigits: 0 }).format(n);
+    const locale = NUMBER_LOCALES[lang] || "en-US";
+    let f = NUMBER_FORMATS.get(locale);
+    if (!f) NUMBER_FORMATS.set(locale, (f = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 })));
+    return f.format(n);
   } catch {
     return String(Math.round(n));
   }

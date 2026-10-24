@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -14,17 +14,22 @@ function Word({ code, className = "", style }) {
   const aRef = useRef(null);
   const bRef = useRef(null);
   const [w, setW] = useState(null);
-  useLayoutEffect(() => {
+  // القياس في ResizeObserver برك (يتنادى بعد ما المتصفح يكمّل التخطيط، ومرة أولى كي نبداو نراقبو) —
+  // قياس مباشر وقت التركيب كان يفرض تخطيط الصفحة كاملة في كل صفحة (~200ms بـ CPU ×4). الكلمة تحت بزاف.
+  useEffect(() => {
     const measure = () => {
       const fw = aRef.current?.offsetWidth || 0;
       const tw = bRef.current?.offsetWidth || 0;
-      if (fw && tw) setW({ from: fw, to: tw });
+      if (fw && tw) setW((p) => (p && p.from === fw && p.to === tw ? p : { from: fw, to: tw }));
     };
-    measure();
-    document.fonts?.ready?.then(measure);
-    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
-    if (ro && aRef.current) ro.observe(aRef.current);
-    return () => ro?.disconnect();
+    if (typeof ResizeObserver === "undefined") {
+      measure();
+      return undefined;
+    }
+    const ro = new ResizeObserver(measure);
+    if (aRef.current) ro.observe(aRef.current);
+    if (bRef.current) ro.observe(bRef.current);
+    return () => ro.disconnect();
   }, [from, to]);
   const ease = "cubic-bezier(0.16, 1, 0.3, 1)";
   const part = (on) => ({

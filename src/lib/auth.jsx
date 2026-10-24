@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { supabase } from "./supabaseClient.js";
 
 const AuthContext = createContext({
@@ -25,11 +25,14 @@ export function AuthProvider({ children }) {
       setLoading(false);
     });
 
+    // تجديد التوكن (كي يرجع المستخدم للتبويب مثلاً) يبعث نفس المستخدم في كائن جديد: نخلّيو نفس
+    // الكائن إذا ما تبدّل والو، باش ما يتعاودش جلب الملف وما تتحطّش شاشة التحميل فوق الفورمات.
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
-      setUser(newSession?.user ?? null);
+      const next = newSession?.user ?? null;
+      setUser((prev) => (prev && next && prev.id === next.id && JSON.stringify(prev) === JSON.stringify(next) ? prev : next));
     });
 
     return () => {
@@ -44,23 +47,28 @@ export function AuthProvider({ children }) {
     return data || null;
   };
 
+  // الملف يتجاب من جديد غير كي يتبدّل الحساب (ماشي مع كل تجديد للتوكن ولا تبديل في الميتاداتا)
+  const uid = user?.id ?? null;
+  const loadedFor = useRef(null);
   useEffect(() => {
     let active = true;
-    if (!user) {
+    if (!uid) {
+      loadedFor.current = null;
       setProfile(null);
       setProfileLoaded(false);
       return;
     }
-    setProfileLoaded(false);
-    loadProfile(user.id).then((p) => {
+    if (loadedFor.current !== uid) setProfileLoaded(false);
+    loadProfile(uid).then((p) => {
       if (!active) return;
+      loadedFor.current = uid;
       setProfile(p);
       setProfileLoaded(true);
     });
     return () => {
       active = false;
     };
-  }, [user]);
+  }, [uid]);
 
   const value = {
     user,

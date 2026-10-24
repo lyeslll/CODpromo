@@ -31,6 +31,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 - **الويب:** Vercel ينشر وحدو بعد الـ push. `vercel.json`: كل المسارات → `index.html` (SPA)، ما عدا `/sitemap.xml` → `api/sitemap.js`، و `/offers` و `/partners` و `/premium` و `/store/:slug` و `/category/:slug` (بـ ar/en/fr) → `api/prerender.js` (meta + JSON-LD للـ bots). `api/prerender.js` يقرا نصوص `/offers` من `src/i18n/locales` (مضمّنة عبر `functions.includeFiles`). `/.well-known/assetlinks.json` مستثنى (لتطبيق Android)، و `/api/*` حتى هو (الـ catch-all ما يمسّهمش؛ `/api/og?slug=` = صورة المشاركة لكل شركة، Vercel Edge + `@vercel/og`، نص لاتيني برك). `/fonts/*` cache سنة (immutable).
 - **التصميم الجديد راه على `main`** (merge `redesign-home` في `54d5ce0`، أكتوبر 2026). الفرع `redesign-home` والـ tag باقين — ممنوع تحذفهم.
 - **نقطة الرجوع:** الـ tag **`pre-redesign`** (`dc53f2e`) = آخر `main` قبل التصميم الجديد. للرجوع: `git revert -m 1 54d5ce0` ثم `git push` (عادي، بلا force) — ماشي `reset --hard`.
+- **جولة الهاتف وصفحات الشركات** (الفرع `mobile-ux-round`، 24 أكتوبر 2026) مدموجة في `main` بـ merge عادي. الرجوع: `git revert -m 1 <commit الدمج>` ثم `git push` (بلا force). القاعدة (phase34 → phase36) تبقى: متوافقة مع الكود القديم، وكل وحدة عندها ملف رجوع.
 - **Edge Functions:** ما تنشرش مع Vercel. `supabase functions deploy <name> --project-ref uulcgvdsqivgkiulurhk` (و `translate-company` و `send-email` مع `--no-verify-jwt`).
 - **SQL على production:** `npx supabase db query --linked -f <file.sql>` (الـ CLI مربوط بالمشروع).
 

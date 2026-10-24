@@ -143,11 +143,12 @@ function buildHead({ lang, title, description, canonical, image, alternates, jso
 function inject(template, { lang, title, description, headExtra, body = "" }) {
   let html = template;
   // المحتوى في الـ HTML (للزواحف): React يبدّلو وقت يتركّب (نفس المحتوى)، وشاشة #boot تغطيه قبلها.
-  if (body) html = html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
-  html = html.replace(/<html[^>]*>/i, `<html lang="${lang}" dir="${dirOf(lang)}">`);
-  html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${esc(title)}</title>`);
-  html = html.replace(/<meta\s+name="description"[\s\S]*?\/>/i, `<meta name="description" content="${esc(description)}"/>`);
-  html = html.replace(/<\/head>/i, `${headExtra}</head>`);
+  // دوال (ماشي نص) في replace: "$&" ولا "$`" في نص شركة كانو ينسخو أجزاء من القالب
+  if (body) html = html.replace(/<div id="root"><\/div>/i, () => `<div id="root">${body}</div>`);
+  html = html.replace(/<html[^>]*>/i, () => `<html lang="${lang}" dir="${dirOf(lang)}">`);
+  html = html.replace(/<title>[\s\S]*?<\/title>/i, () => `<title>${esc(title)}</title>`);
+  html = html.replace(/<meta\s+name="description"[\s\S]*?\/>/i, () => `<meta name="description" content="${esc(description)}"/>`);
+  html = html.replace(/<\/head>/i, () => `${headExtra}</head>`);
   return html;
 }
 

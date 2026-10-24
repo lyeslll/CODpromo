@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Check, Crown, Loader2, LayoutDashboard, RefreshCw, LogIn } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -8,6 +8,8 @@ import GiftConfetti from "../gift/GiftConfetti.jsx";
 import { useAuth } from "../../lib/auth.jsx";
 import { isLifetimeProfile } from "../../lib/premium.jsx";
 import { fetchMyPurchase } from "../../lib/billing.js";
+import { usePricing } from "../../lib/pricing.jsx";
+import { useLocale } from "../../lib/locale.jsx";
 import { offersLink } from "../../lib/seo.js";
 
 const GOLD_SOFT = "#ffe486";
@@ -19,8 +21,28 @@ const METHOD_KEY = { stripe: "stripe", slickpay: "slickpay", paypal: "paypal", g
 const POLL_MS = 2000;
 const POLL_TRIES = 12;
 
+// معاينة بلا دفع: /payment-success?demo=1 (ولا slickpay | stripe | paypal | google_play | pending، + &lang=ar|en|fr).
+// روابط preview تاع Vercel (VERCEL_ENV=preview → __PURCHASE_DEMO__ في vite.config.js) و npm run dev برك.
+// في build الإنتاج DEMO = false وهاد الكود يتنحّى من الحزمة. ما يقرا ولا يكتب والو في القاعدة.
+const DEMO = import.meta.env.DEV || __PURCHASE_DEMO__;
+const DEMO_METHODS = ["slickpay", "stripe", "paypal", "google_play"];
+
+/** شراء تجريبي بالسعر الحالي (pricing_public): الدينار لـ SlickPay و Google Play، الدولار لـ Stripe و PayPal. */
+function demoPurchase(kind, pricing) {
+  const provider = DEMO_METHODS.includes(kind) ? kind : "slickpay";
+  const usd = provider === "stripe" || provider === "paypal";
+  return {
+    provider,
+    amount: (usd ? pricing?.usd : pricing?.dzd) ?? "",
+    currency: usd ? "USD" : "DZD",
+    tier: pricing?.tier === "test" ? "test" : "launch",
+    purchased_at: new Date().toISOString(),
+  };
+}
+
 /** "9,900 دج" / "39$" / "0.50$" (سعر التجربة) — نفس كتابة الأسعار في الموقع. */
 function formatAmount(t, lang, amount, currency) {
+  if (amount == null || amount === "") return "";
   const n = Number(amount);
   if (!Number.isFinite(n)) return "";
   const digits = Number.isInteger(n) ? 0 : 2;
@@ -45,8 +67,29 @@ export default function PurchaseSuccess() {
   const [purchase, setPurchase] = useState(null);
   const [fire, setFire] = useState(0);
   const [round, setRound] = useState(0);
+  const [params] = useSearchParams();
+  const demo = DEMO ? params.get("demo") : null;
+  const pricing = usePricing();
+  const { setLang } = useLocale();
+
+  // المعاينة: اللغة من الرابط (&lang=en)، ثم "نؤكّد دفعتك" لحظة، ثم النجاح (ولا "قيد التأكيد")
+  useEffect(() => {
+    if (!demo) return;
+    const l = params.get("lang");
+    if (l) setLang(l);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demo]);
 
   useEffect(() => {
+    if (demo) {
+      setState("confirming");
+      const timer = setTimeout(() => {
+        if (demo === "pending") return setState("pending");
+        setState("done");
+        setFire((n) => n + 1);
+      }, 1400);
+      return () => clearTimeout(timer);
+    }
     if (authLoading) return;
     if (!user) {
       setState("guest");
@@ -79,7 +122,7 @@ export default function PurchaseSuccess() {
       clearTimeout(timer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authLoading, user?.id, round]);
+  }, [authLoading, user?.id, round, demo]);
 
   const offersTo = offersLink(lang, { mode: "premium" });
 
@@ -126,12 +169,13 @@ export default function PurchaseSuccess() {
     );
   }
 
-  const rows = purchase
+  const shown = DEMO && demo ? demoPurchase(demo, pricing) : purchase;
+  const rows = shown
     ? [
         [t("purchase.plan"), t("purchase.planV")],
-        [t("purchase.amount"), formatAmount(t, lang, purchase.amount, purchase.currency), purchase.tier === "test" ? t("purchase.testTag") : null],
-        [t("purchase.method"), METHOD_KEY[purchase.provider] ? t(`premium.methods.${METHOD_KEY[purchase.provider]}Name`) : purchase.provider],
-        [t("purchase.date"), new Date(purchase.purchased_at).toLocaleDateString(lang, { day: "numeric", month: "long", year: "numeric" })],
+        [t("purchase.amount"), formatAmount(t, lang, shown.amount, shown.currency), shown.tier === "test" ? t("purchase.testTag") : null],
+        [t("purchase.method"), METHOD_KEY[shown.provider] ? t(`premium.methods.${METHOD_KEY[shown.provider]}Name`) : shown.provider],
+        [t("purchase.date"), new Date(shown.purchased_at).toLocaleDateString(lang, { day: "numeric", month: "long", year: "numeric" })],
       ]
     : null;
 

@@ -2221,7 +2221,7 @@
         "durationV": "À vie",
         "activation": "Activation",
         "activationV": "Immédiate",
-        "seats": "Places de lancement",
+        "seats": "Places restantes",
         "seatsV": "{{left}} sur {{total}}"
       }
     },

@@ -2221,7 +2221,7 @@
         "durationV": "For life",
         "activation": "Activation",
         "activationV": "Instant",
-        "seats": "Launch seats",
+        "seats": "Seats left",
         "seatsV": "{{left}} of {{total}}"
       }
     },

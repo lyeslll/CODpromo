@@ -2221,7 +2221,7 @@
         "durationV": "مدى الحياة",
         "activation": "التفعيل",
         "activationV": "فوري",
-        "seats": "مقاعد الإطلاق",
+        "seats": "المقاعد المتبقية",
         "seatsV": "{{left}} من {{total}}"
       }
     },

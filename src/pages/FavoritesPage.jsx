@@ -13,7 +13,7 @@ import { favoritesUrl } from "../lib/seo.js";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import CompanyCard from "../components/CompanyCard.jsx";
-import PremiumModal from "../components/PremiumModal.jsx";
+import { useGoPremium } from "../lib/goPremium.js";
 import Seo from "../components/Seo.jsx";
 
 // ============================================================
@@ -28,7 +28,7 @@ export default function FavoritesPage({ lang = "ar" }) {
   const [items, setItems] = useState([]); // [{ company_id, companies }]
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
-  const [premiumModal, setPremiumModal] = useState(false);
+  const goPremium = useGoPremium();
   const toastTimer = useRef(null);
 
   // ملاحظة: لغة/اتجاه الواجهة تُضبط مركزياً في RouteLangSync (App.jsx) من المسار.
@@ -71,7 +71,7 @@ export default function FavoritesPage({ lang = "ar" }) {
     <div className="min-h-screen bg-[var(--color-ink)] text-[var(--text)]">
       {/* صفحة خاصة بالمستخدم: noindex، وبلا hreflang (غير مفهرسة) */}
       <Seo lang={lang} title={`${t("favorites.title")} | CODpromo`} canonical={canonical} noindex />
-      <Navbar onPremium={() => setPremiumModal(true)} />
+      <Navbar />
 
       <main className="mx-auto max-w-6xl px-4 pb-10 pt-[112px] sm:pt-[120px]">
         <header className="mb-6">
@@ -107,7 +107,7 @@ export default function FavoritesPage({ lang = "ar" }) {
                   onCopy={handleCopy}
                   premium={false}
                   unlocked={unlocked}
-                  onUnlock={() => setPremiumModal(true)}
+                  onUnlock={goPremium}
                 />
               ))}
             </AnimatePresence>
@@ -115,7 +115,7 @@ export default function FavoritesPage({ lang = "ar" }) {
         )}
       </main>
 
-      <Footer onPremium={() => setPremiumModal(true)} />
+      <Footer />
 
       <AnimatePresence>
         {toast && (
@@ -135,8 +135,6 @@ export default function FavoritesPage({ lang = "ar" }) {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <PremiumModal open={premiumModal} onClose={() => setPremiumModal(false)} />
     </div>
   );
 }

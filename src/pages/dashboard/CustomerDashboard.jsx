@@ -13,6 +13,7 @@ import GrowCards from "../../components/dashboard/customer/GrowCards.jsx";
 import SettingsPanel from "../../components/dashboard/customer/SettingsPanel.jsx";
 import CompanyCard from "../../components/CompanyCard.jsx";
 import PremiumModal from "../../components/PremiumModal.jsx";
+import { useGoPremium } from "../../lib/goPremium.js";
 import GiftConfetti from "../../components/gift/GiftConfetti.jsx";
 import { useAuth } from "../../lib/auth.jsx";
 import { usePremium } from "../../lib/premium.jsx";
@@ -51,7 +52,9 @@ export default function CustomerDashboard() {
   const [copiedCount, setCopiedCount] = useState(null);
   const [votes, setVotes] = useState(null);
   const [allOffers, setAllOffers] = useState([]);
-  const [modal, setModal] = useState(null); // null | "home" | "stork" | "pay"
+  // نافذة Premium هنا غير لـ "أنا عضو Stork"؛ الترقية = صفحة /premium
+  const [modal, setModal] = useState(null); // null | "stork"
+  const goPremium = useGoPremium();
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
   const [celebrate, setCelebrate] = useState(0);
@@ -169,7 +172,7 @@ export default function CustomerDashboard() {
     onCopy: handleCardCopy,
     premium: hasPremium && c.supports_premium !== false,
     unlocked,
-    onUnlock: () => setModal("home"),
+    onUnlock: goPremium,
   });
 
   return (
@@ -212,7 +215,7 @@ export default function CustomerDashboard() {
               <SeatsMeter pricing={pricing} className="sm:w-[190px]" />
               <button
                 type="button"
-                onClick={() => setModal("home")}
+                onClick={goPremium}
                 className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[13.5px] font-extrabold text-[#1d1403] transition-transform hover:scale-[1.02]"
                 style={{ background: "linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e)" }}
               >
@@ -231,7 +234,7 @@ export default function CustomerDashboard() {
             gift={gift}
             purchase={purchase}
             stats={stats}
-            onOpenPremium={() => setModal("home")}
+            onOpenPremium={goPremium}
             onOpenStork={() => setModal("stork")}
             // هدية وحدة لكل حساب في حياتو: الخانة تبان غير لحساب ما خذاش هدية من قبل
             giftField={premiumReady && !gift ? <GiftCodeField onRedeemed={onGiftRedeemed} /> : null}
@@ -242,7 +245,7 @@ export default function CustomerDashboard() {
           <FreeKeyCard onCopied={showToast} />
         </div>
         <div className="order-2 lg:order-none lg:col-span-7">
-          <RecentCopies rows={copies} loading={copiesLoading} premiumActive={hasPremium} onCopy={copyAgain} onUnlock={() => setModal("home")} />
+          <RecentCopies rows={copies} loading={copiesLoading} premiumActive={hasPremium} onCopy={copyAgain} onUnlock={goPremium} />
         </div>
         <div className="order-6 lg:order-none lg:col-span-5 lg:self-start">
           <GrowCards />
@@ -333,7 +336,7 @@ export default function CustomerDashboard() {
       </AnimatePresence>
 
       <GiftConfetti fire={celebrate} />
-      <PremiumModal open={modal !== null} initialStep={modal || "home"} onClose={() => setModal(null)} />
+      <PremiumModal open={modal !== null} initialStep="stork" onClose={() => setModal(null)} />
     </DashboardShell>
   );
 }

@@ -1,0 +1,120 @@
+{
+  "common": {
+    "tagline": "Réductions · Coupons · Cashback",
+    "hi": "Bonjour {{name}},",
+    "hiNoName": "Bonjour,",
+    "footer": "Vous recevez cet e-mail car vous avez un compte CODpromo.",
+    "footerAuth": "Si vous n'avez pas demandé cet e-mail, ignorez-le : rien ne changera sur votre compte.",
+    "contact": "Une question ? Écrivez-nous à",
+    "linkFallback": "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
+    "terms": "Conditions et remboursement",
+    "linkNote": "Ce lien est valable pour une durée limitée et ne s'utilise qu'une fois."
+  },
+  "methods": {
+    "stripe": "Carte internationale (Visa / Mastercard)",
+    "slickpay": "Carte algérienne (CIB / Edahabia)",
+    "paypal": "PayPal",
+    "google_play": "Google Play"
+  },
+  "confirmation": {
+    "subject": "Confirmez votre e-mail pour activer votre compte CODpromo",
+    "preheader": "Plus qu'une étape : confirmez votre e-mail et ouvrez votre compte.",
+    "title": "Confirmez votre e-mail",
+    "body": "Merci de votre inscription à CODpromo. Touchez le bouton pour confirmer votre e-mail et activer votre compte, puis commencez à copier des codes promo pour votre activité.",
+    "cta": "Confirmer l'e-mail"
+  },
+  "recovery": {
+    "subject": "Réinitialisez votre mot de passe CODpromo",
+    "preheader": "Vous avez demandé un nouveau mot de passe ? Le lien est à l'intérieur.",
+    "title": "Réinitialiser le mot de passe",
+    "body": "Nous avons reçu une demande de réinitialisation du mot de passe du compte {{email}}. Touchez le bouton pour choisir un nouveau mot de passe.",
+    "cta": "Choisir un nouveau mot de passe"
+  },
+  "email_change": {
+    "subject": "Confirmez votre nouvel e-mail CODpromo",
+    "preheader": "Dernière étape pour changer l'e-mail de votre compte.",
+    "title": "Confirmer le changement d'e-mail",
+    "body": "Vous avez demandé à changer l'e-mail de votre compte de {{email}} vers {{newEmail}}. Touchez le bouton pour confirmer.",
+    "cta": "Confirmer le changement",
+    "note": "Si vous n'avez pas demandé ce changement, ignorez cet e-mail et changez votre mot de passe par précaution."
+  },
+  "magic_link": {
+    "subject": "Votre lien de connexion CODpromo",
+    "preheader": "Connectez-vous à votre compte en une touche.",
+    "title": "Votre lien de connexion",
+    "body": "Touchez le bouton pour vous connecter à votre compte CODpromo sans mot de passe.",
+    "cta": "Me connecter"
+  },
+  "invite": {
+    "subject": "Vous êtes invité sur CODpromo",
+    "preheader": "Créez votre compte et commencez.",
+    "title": "Vous avez une invitation sur CODpromo",
+    "body": "Vous êtes invité à créer un compte CODpromo, la plateforme de codes promo pour les vendeurs en paiement à la livraison. Touchez le bouton pour accepter.",
+    "cta": "Accepter l'invitation"
+  },
+  "reauthentication": {
+    "subject": "Votre code de vérification CODpromo",
+    "preheader": "Utilisez ce code pour confirmer l'opération.",
+    "title": "Code de vérification",
+    "body": "Utilisez le code suivant pour confirmer l'opération sur votre compte :",
+    "note": "Ne partagez jamais ce code. Personne chez CODpromo ne vous le demandera."
+  },
+  "welcome": {
+    "subject": "Bienvenue sur CODpromo, votre compte est prêt",
+    "preheader": "Des codes promo pour les vendeurs en paiement à la livraison, au même endroit.",
+    "title": "Votre compte est prêt",
+    "body": "Vous avez confirmé votre e-mail : votre compte CODpromo est prêt. Vous y trouverez des codes promo, coupons et cashback chez les sociétés de livraison, plateformes et outils dont votre activité dépend.",
+    "keyTitle": "Votre clé dorée vous attend",
+    "keyBody": "Chaque compte reçoit une clé dorée gratuite : choisissez l'entreprise qui vous intéresse, révélez son code Premium, et il reste révélé pour vous.",
+    "keyCta": "Utiliser ma clé dorée",
+    "nowTitle": "Ce que vous pouvez faire maintenant",
+    "now1": "Copiez n'importe quel code normal gratuitement et utilisez-le chez l'entreprise.",
+    "now2": "Enregistrez les entreprises qui vous intéressent dans vos favoris.",
+    "now3": "Votez pour un code après l'avoir essayé, pour que les autres sachent qu'il fonctionne.",
+    "cta": "Voir les offres",
+    "companyTitle": "Le compte de votre entreprise est prêt",
+    "companyBody": "Vous avez confirmé votre e-mail : le compte CODpromo de votre entreprise est prêt. Ajoutez vos offres depuis votre tableau de bord ; nous les vérifions avant de les publier auprès des vendeurs en paiement à la livraison.",
+    "companyCta": "Ajouter l'offre de votre entreprise"
+  },
+  "purchase": {
+    "subject": "Achat confirmé : Premium à vie",
+    "preheader": "Premium est actif sur votre compte. Le récapitulatif est à l'intérieur.",
+    "title": "Premium est actif sur votre compte",
+    "body": "Merci de votre confiance. Vous avez payé une fois : tous les codes Premium de CODpromo vous sont ouverts, ainsi que tout ce qui sera ajouté.",
+    "summary": "Récapitulatif de l'achat",
+    "plan": "Formule",
+    "planV": "Premium à vie",
+    "amount": "Montant",
+    "method": "Moyen de paiement",
+    "date": "Date",
+    "testTag": "Prix de test",
+    "howTitle": "Comment révéler votre premier code",
+    "step1": "Ouvrez les offres en mode Premium.",
+    "step2": "Grattez le code doré sur la carte.",
+    "step3": "Copiez-le et utilisez-le chez l'entreprise.",
+    "cta": "Ouvrir les offres Premium",
+    "refundTitle": "Politique de remboursement",
+    "refundBody": "Vous pouvez demander un remboursement complet dans les 7 jours suivant l'achat (jusqu'au {{date}}), à condition de n'avoir révélé aucun code Premium depuis. Envoyez votre demande depuis cette adresse à {{email}}."
+  },
+  "revoked": {
+    "subject": "Remboursement effectué : Premium retiré de votre compte",
+    "preheader": "Nous vous avons remboursé, et votre compte est revenu en mode normal.",
+    "title": "Remboursement effectué",
+    "body": "Nous avons traité votre remboursement, et Premium à vie a été retiré de votre compte. Votre compte reste ouvert, et tous les codes normaux restent gratuits pour vous.",
+    "summary": "Détails du remboursement",
+    "amount": "Montant remboursé",
+    "method": "Moyen de paiement",
+    "date": "Date du remboursement",
+    "note": "Le montant peut mettre quelques jours à apparaître selon votre moyen de paiement. Vous pouvez revenir à Premium à tout moment.",
+    "cta": "Voir les offres"
+  },
+  "gift": {
+    "subject": "Votre cadeau est arrivé : Premium jusqu'au {{date}}",
+    "preheader": "Tous les codes Premium vous sont ouverts.",
+    "title": "Premium offert sur votre compte",
+    "body": "Vous avez activé un cadeau Premium sur votre compte : tous les codes Premium vous sont maintenant ouverts.",
+    "ends": "Se termine le",
+    "cta": "Ouvrir les offres Premium",
+    "note": "À la fin du cadeau, votre compte revient automatiquement en mode normal, sans aucun paiement. Vous pouvez rendre Premium permanent en un seul paiement depuis la page Premium."
+  }
+}

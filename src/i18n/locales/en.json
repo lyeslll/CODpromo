@@ -239,9 +239,9 @@
   "premium": {
     "close": "Close",
     "back": "Back",
-    "doneTitle": "Premium activated! 👑",
+    "doneTitle": "Premium activated",
     "doneDesc": "Every Premium code is unlocked — enjoy the biggest discounts.",
-    "alreadyTitle": "You're a Premium member 👑",
+    "alreadyTitle": "You are a Premium member",
     "alreadyDesc": "Premium is active on your account and every exclusive code is unlocked — no payment needed.",
     "alreadyClose": "Got it",
     "titles": {
@@ -472,7 +472,7 @@
   "payment": {
     "back": "Back to site",
     "success": {
-      "activeTitle": "Premium activated! 👑",
+      "activeTitle": "Premium activated",
       "receivedTitle": "Payment received",
       "activeDesc": "Lifetime Premium is active on your account — enjoy the biggest discounts and exclusive codes.",
       "confirming": "Confirming your payment…",
@@ -483,7 +483,7 @@
       "desc": "Nothing was charged. You can try again anytime."
     },
     "return": {
-      "successTitle": "Premium activated! 👑",
+      "successTitle": "Premium activated",
       "successDesc": "Lifetime Premium is active on your account.",
       "enjoy": "Enjoy the biggest discounts.",
       "checkingTitle": "Confirming your payment",
@@ -1947,5 +1947,185 @@
       "a": "With an international card (Visa / Mastercard), an Algerian CIB / Edahabia card, PayPal, or Google Play inside the app.",
       "aApp": "Inside the Android app, you pay through Google Play only, with your Google Play account."
     }
+  },
+  "premiumPage": {
+    "seo": {
+      "title": "CODpromo Premium for life: the strongest discount codes, one payment",
+      "description": "Unlock the strongest code at the delivery companies, platforms, tools and payment cards cash-on-delivery sellers rely on. One payment, no subscription, 7-day refund guarantee.",
+      "productDesc": "Lifetime access to every Premium code on CODpromo with one payment, no subscription and no renewal."
+    },
+    "breadcrumb": "Premium",
+    "companies_zero": "{{n}} companies",
+    "companies_one": "{{n}} company",
+    "companies_two": "{{n}} companies",
+    "companies_few": "{{n}} companies",
+    "companies_many": "{{n}} companies",
+    "companies_other": "{{n}} companies",
+    "hero": {
+      "launchPill": "Launch price is open",
+      "title": "The strongest code at every company, unlocked for life",
+      "sub": "Premium reveals the strongest code at {{companies}} cash-on-delivery sellers rely on: delivery, platforms, tools and payment cards. You pay once, and never again.",
+      "subLoading": "Premium reveals the strongest code at the companies cash-on-delivery sellers rely on: delivery, platforms, tools and payment cards. You pay once, and never again.",
+      "cta": "Get Premium",
+      "seeDiff": "See the difference",
+      "assurance": "One payment, no renewal, and a full refund within 7 days if you don't reveal any Premium code.",
+      "memberPill": "You're a Premium member",
+      "memberTitle": "Premium is active on your account",
+      "memberLifetime": "For life: every Premium code is open to you now, plus everything added later.",
+      "memberUntil": "Active until {{date}}. Every Premium code is open to you.",
+      "memberCta": "Open Premium offers",
+      "giftPill": "Gift Premium until {{date}}",
+      "giftTitle": "Make Premium yours for life",
+      "giftSub": "Your gift ends on {{date}}. Pay once to keep Premium open after that, with no subscription.",
+      "giftCta": "Make it lifetime"
+    },
+    "pass": {
+      "label": "CODpromo Premium pass",
+      "lifetime": "For life",
+      "holder": "Holder",
+      "holderGuest": "You",
+      "reach": "with a stronger code",
+      "oneTime": "One payment",
+      "active": "Active"
+    },
+    "compare": {
+      "title": "Same company, stronger code",
+      "sub": "Real offers live on CODpromo right now. The regular code is free for everyone; Premium reveals the stronger code at the same company.",
+      "colCompany": "Company",
+      "colFree": "Regular",
+      "colPremium": "Premium",
+      "more": "Show all companies ({{n}})",
+      "less": "Show less",
+      "frozen_zero": "",
+      "frozen_one": "{{n}} company has no Premium code yet: it shows locked in grey, and its regular code stays open to everyone.",
+      "frozen_two": "{{n}} companies have no Premium code yet: they show locked in grey, and their regular codes stay open to everyone.",
+      "frozen_few": "{{n}} companies have no Premium code yet: they show locked in grey, and their regular codes stay open to everyone.",
+      "frozen_many": "{{n}} companies have no Premium code yet: they show locked in grey, and their regular codes stay open to everyone.",
+      "frozen_other": "{{n}} companies have no Premium code yet: they show locked in grey, and their regular codes stay open to everyone."
+    },
+    "partners": {
+      "title": "Companies with a Premium code",
+      "sub": "Companies cash-on-delivery sellers use every day. The list keeps growing, and every new company opens to you at no extra cost."
+    },
+    "how": {
+      "title": "How Premium works",
+      "sub": "Three steps, and the first one happens only once.",
+      "s1": {
+        "t": "Pay once",
+        "d": "Premium turns on for your account as soon as the payment is confirmed. No subscription, no renewal."
+      },
+      "s2": {
+        "t": "Reveal the gold code",
+        "d": "In Premium mode, scratch the gold code on any card to see it in full."
+      },
+      "s3": {
+        "t": "Copy it and save",
+        "d": "Copy the code and use it at the company. Every new Premium code opens to you automatically."
+      },
+      "scratch": "Scratch here",
+      "copied": "Copied",
+      "paid": "Paid"
+    },
+    "price": {
+      "title": "One price, paid once",
+      "subLaunch": "Launch price for the first {{seats}} members only, then the price rises to {{regular}} automatically.",
+      "subRegular": "You pay once, and Premium stays open to you for as long as CODpromo runs.",
+      "perks": {
+        "all": "Every current and future Premium code",
+        "nocode": "The stronger version of no-code deals",
+        "noRenewal": "No subscription, no renewal, no later charge",
+        "refund": "Full refund within 7 days if you don't reveal any Premium code"
+      },
+      "facts": {
+        "type": "Payment",
+        "typeV": "One time",
+        "duration": "Duration",
+        "durationV": "For life",
+        "activation": "Activation",
+        "activationV": "Instant",
+        "seats": "Launch seats",
+        "seatsV": "{{left}} of {{total}}"
+      }
+    },
+    "guarantee": {
+      "title": "7-day guarantee",
+      "desc": "If you don't reveal any Premium code within 7 days of buying, we refund the full amount through the same payment method. Just email us from your account address."
+    },
+    "faq": {
+      "title": "Questions before you buy",
+      "sub": "Can't find your answer? Email contact@codpromo.com.",
+      "account": {
+        "q": "Do I need an account?",
+        "a": "Yes. Premium is tied to your CODpromo account, so it's active on any device you sign in from."
+      },
+      "frozen": {
+        "q": "What if a company has no Premium code?",
+        "a": "Its card shows locked in grey in Premium mode, and its regular code stays open to you. When the company adds a Premium code, it opens to you automatically."
+      },
+      "newCodes": {
+        "q": "Do I pay again when new codes are added?",
+        "a": "No. Every Premium code added later opens to you at no extra cost."
+      },
+      "goldenKey": {
+        "q": "I have the golden key. What's the difference?",
+        "a": "The golden key reveals the Premium code of one company you choose, once per account. Premium opens the codes of every company, today and in the future."
+      },
+      "stork": {
+        "q": "I'm a Stork community member. Do I pay?",
+        "a": "No need. Tap “I'm a Stork member” and enter your code to turn on Premium for 30 days."
+      }
+    },
+    "final": {
+      "title": "Start saving on your next order",
+      "sub": "Pay once, and reveal every Premium code today and everything added later."
+    },
+    "sticky": {
+      "label": "Premium for life"
+    }
+  },
+  "checkout": {
+    "title": "Complete your purchase",
+    "methodsLabel": "Choose a payment method",
+    "dzd": "In DZD",
+    "usd": "In USD",
+    "secure": "Payment happens directly with the payment provider. We don't store your card details.",
+    "refund": "Full refund within 7 days if you don't reveal any Premium code.",
+    "redirecting": "Taking you to the payment page…",
+    "accountTitle": "Create your account first",
+    "accountDesc": "Premium is tied to your account so you have it on every device. Create a free account or sign in, then come back here to pay.",
+    "accountSignup": "Create a free account",
+    "accountLogin": "I have an account, sign in",
+    "storkDoneTitle": "Premium is active",
+    "storkDoneDesc": "Your Stork code is active on your account. Every Premium code is open to you now.",
+    "toOffers": "Open Premium offers"
+  },
+  "purchase": {
+    "confirmingTitle": "Confirming your payment",
+    "confirmingDesc": "Premium will be active on your account in a moment.",
+    "title": "Welcome to Premium",
+    "sub": "Lifetime Premium is active on your account. Every Premium code is open to you now.",
+    "pendingTitle": "Payment received, activation being confirmed",
+    "pendingDesc": "Confirmation can take a minute. Refresh the page shortly, or open your account.",
+    "loginDesc": "Sign in to see your purchase summary and start revealing codes.",
+    "login": "Sign in",
+    "retry": "Refresh",
+    "summary": "Purchase summary",
+    "plan": "Plan",
+    "planV": "Premium for life",
+    "amount": "Amount",
+    "method": "Payment method",
+    "date": "Date",
+    "testTag": "Test price",
+    "nextTitle": "Next step: reveal your first code",
+    "steps": {
+      "s1": "Open the offers in Premium mode",
+      "s2": "Scratch the gold code on the card",
+      "s3": "Copy it and use it at the company"
+    },
+    "cta": "Open Premium offers",
+    "account": "My account",
+    "refundNote": "You can ask for a refund within 7 days as long as you haven't revealed any Premium code.",
+    "failBack": "Back to Premium",
+    "usd": "${{usd}}"
   }
 }

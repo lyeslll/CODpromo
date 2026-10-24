@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogIn, LogOut, UserPlus, Menu, X, Search, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Logo from "./Logo.jsx";
 import LanguageSwitcher from "./LanguageSwitcher.jsx";
-import PremiumModal from "./PremiumModal.jsx";
+import { useGoPremium } from "../lib/goPremium.js";
 import PremiumNavButton from "./header/PremiumNavButton.jsx";
 import CategoriesMega from "./header/CategoriesMega.jsx";
 import QuickSearch from "./header/QuickSearch.jsx";
@@ -49,10 +48,10 @@ function Underline() {
   );
 }
 
-export default function Navbar({ onPremium }) {
+export default function Navbar() {
   const [open, setOpen] = useState(false); // قائمة الهاتف
   const [searchOpen, setSearchOpen] = useState(false);
-  const [premiumOpen, setPremiumOpen] = useState(false);
+  const goPremium = useGoPremium();
   const [hoverKey, setHoverKey] = useState(null);
   const [megaFocus, setMegaFocus] = useState(false);
   const mega = useHoverMenu();
@@ -129,11 +128,10 @@ export default function Navbar({ onPremium }) {
     navigate("/");
   };
 
-  // نفس نافذة Premium الموجودة: نافذة الصفحة إن مرّرتها (onPremium)، وإلا نسخة الهيدر
+  // زر Premium (الهيدر وقائمة الهاتف) → صفحة البيع /premium
   const openPremium = () => {
     setOpen(false);
-    if (onPremium) onPremium();
-    else setPremiumOpen(true);
+    goPremium();
   };
 
   const { name, initial } = userDisplay(user, t("nav.account"));
@@ -348,7 +346,6 @@ export default function Navbar({ onPremium }) {
         offersCount={offersCount}
       />
       <QuickSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
-      {!onPremium && createPortal(<PremiumModal open={premiumOpen} onClose={() => setPremiumOpen(false)} />, document.body)}
     </motion.header>
   );
 }

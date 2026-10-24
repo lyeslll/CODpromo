@@ -1,0 +1,120 @@
+{
+  "common": {
+    "tagline": "Discounts · Coupons · Cashback",
+    "hi": "Hi {{name}},",
+    "hiNoName": "Hi,",
+    "footer": "You're receiving this email because you have a CODpromo account.",
+    "footerAuth": "If you didn't ask for this email, you can safely ignore it. Nothing will change on your account.",
+    "contact": "Questions? Email us at",
+    "linkFallback": "If the button doesn't work, copy this link into your browser:",
+    "terms": "Terms & refund policy",
+    "linkNote": "This link works for a limited time and can be used only once."
+  },
+  "methods": {
+    "stripe": "International card (Visa / Mastercard)",
+    "slickpay": "Algerian card (CIB / Edahabia)",
+    "paypal": "PayPal",
+    "google_play": "Google Play"
+  },
+  "confirmation": {
+    "subject": "Confirm your email to activate your CODpromo account",
+    "preheader": "One step to go: confirm your email and open your account.",
+    "title": "Confirm your email",
+    "body": "Thanks for signing up to CODpromo. Tap the button to confirm your email and activate your account, then start copying discount codes for your business.",
+    "cta": "Confirm email"
+  },
+  "recovery": {
+    "subject": "Reset your CODpromo password",
+    "preheader": "Asked for a new password? The link is inside.",
+    "title": "Reset your password",
+    "body": "We received a request to reset the password for {{email}}. Tap the button to choose a new password.",
+    "cta": "Choose a new password"
+  },
+  "email_change": {
+    "subject": "Confirm your new CODpromo email",
+    "preheader": "One last step to change your account email.",
+    "title": "Confirm your email change",
+    "body": "You asked to change your account email from {{email}} to {{newEmail}}. Tap the button to confirm the change.",
+    "cta": "Confirm the change",
+    "note": "If you didn't ask for this change, ignore this email and change your password to be safe."
+  },
+  "magic_link": {
+    "subject": "Your CODpromo sign-in link",
+    "preheader": "Sign in to your account in one tap.",
+    "title": "Your sign-in link",
+    "body": "Tap the button to sign in to your CODpromo account without a password.",
+    "cta": "Sign in to my account"
+  },
+  "invite": {
+    "subject": "You're invited to CODpromo",
+    "preheader": "Create your account and get started.",
+    "title": "You have an invitation to CODpromo",
+    "body": "You've been invited to create a CODpromo account, the discount code platform for cash-on-delivery sellers. Tap the button to accept.",
+    "cta": "Accept the invitation"
+  },
+  "reauthentication": {
+    "subject": "Your CODpromo verification code",
+    "preheader": "Use this code to confirm the action.",
+    "title": "Verification code",
+    "body": "Use the following code to confirm the action on your account:",
+    "note": "Never share this code. No one at CODpromo will ever ask you for it."
+  },
+  "welcome": {
+    "subject": "Welcome to CODpromo, your account is ready",
+    "preheader": "Discount codes for cash-on-delivery sellers, in one place.",
+    "title": "Your account is ready",
+    "body": "You've confirmed your email, and your CODpromo account is ready. Here you'll find discount codes, coupons and cashback at the delivery companies, platforms and tools your business relies on.",
+    "keyTitle": "Your golden key is waiting",
+    "keyBody": "Every account gets one free golden key: pick the company you care about, reveal its Premium code, and it stays revealed for you.",
+    "keyCta": "Use my golden key",
+    "nowTitle": "What you can do now",
+    "now1": "Copy any regular code for free and use it at the company.",
+    "now2": "Save the companies you care about to your favorites.",
+    "now3": "Vote on a code after you try it, so others know it works.",
+    "cta": "Browse offers",
+    "companyTitle": "Your company account is ready",
+    "companyBody": "You've confirmed your email, and your company's CODpromo account is ready. Add your offers from your dashboard, and we'll review them before publishing them to cash-on-delivery sellers.",
+    "companyCta": "Add your company's offer"
+  },
+  "purchase": {
+    "subject": "Your purchase is confirmed: Premium for life",
+    "preheader": "Premium is active on your account. Your purchase summary is inside.",
+    "title": "Premium is active on your account",
+    "body": "Thank you. You paid once, and every Premium code on CODpromo is open to you now, plus everything added later.",
+    "summary": "Purchase summary",
+    "plan": "Plan",
+    "planV": "Premium for life",
+    "amount": "Amount",
+    "method": "Payment method",
+    "date": "Date",
+    "testTag": "Test price",
+    "howTitle": "How to reveal your first code",
+    "step1": "Open the offers in Premium mode.",
+    "step2": "Scratch the gold code on the card.",
+    "step3": "Copy it and use it at the company.",
+    "cta": "Open Premium offers",
+    "refundTitle": "Refund policy",
+    "refundBody": "You can ask for a full refund within 7 days of buying (until {{date}}), as long as you haven't revealed any Premium code since. Send your request from this email address to {{email}}."
+  },
+  "revoked": {
+    "subject": "Refund processed and Premium removed from your account",
+    "preheader": "We refunded you, and your account is back to regular.",
+    "title": "Refund processed",
+    "body": "We processed your refund, and lifetime Premium has been removed from your account. Your account stays open, and every regular code is still free for you.",
+    "summary": "Refund details",
+    "amount": "Amount refunded",
+    "method": "Payment method",
+    "date": "Refund date",
+    "note": "The money can take a few days to appear, depending on your payment method. You can come back to Premium any time.",
+    "cta": "Browse offers"
+  },
+  "gift": {
+    "subject": "Your gift has arrived: Premium until {{date}}",
+    "preheader": "Every Premium code is open to you now.",
+    "title": "Gift Premium on your account",
+    "body": "You activated a Premium gift on your account, and every Premium code is now open to you.",
+    "ends": "Ends on",
+    "cta": "Open Premium offers",
+    "note": "When the gift ends, your account goes back to regular automatically, with no charge. You can make Premium permanent with one payment from the Premium page."
+  }
+}

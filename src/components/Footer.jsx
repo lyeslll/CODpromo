@@ -1,10 +1,9 @@
 import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { Building2, ChevronDown, Crown, Mail, Smartphone } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import Logo from "./Logo.jsx";
-import PremiumModal from "./PremiumModal.jsx";
+import { useGoPremium } from "../lib/goPremium.js";
 import IlyesSignature from "./IlyesSignature.jsx";
 import GooglePlayBadge from "./app/GooglePlayBadge.jsx";
 import FooterCta from "./footer/FooterCta.jsx";
@@ -99,16 +98,15 @@ function FooterCol({ id, title, desktop, children }) {
 /**
  * الفوتر: الـ CTA الكوبون فوقه، ثم البراند + النشرة، أعمدة الروابط (accordion على الهاتف)،
  * التطبيق + تابعنا، كلمة CODpromo الضخمة، والسطر الأخير مع توقيع Ilyes Derradji.
- * onPremium: نافذة Premium الخاصة بالصفحة — وإلا يفتح الفوتر نسخته (نفس النافذة).
+ * أزرار Premium فيه توصّل لصفحة البيع /premium.
  */
 /** showCta=false يخفي كوبون «افتح العروض / Premium» فوق الفوتر (صفحة الشركات لها CTA خاص بها). */
-export default function Footer({ onPremium, showCta = true }) {
+export default function Footer({ showCta = true }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const year = new Date().getFullYear();
   const desktop = useIsDesktop();
-  const [premiumOpen, setPremiumOpen] = useState(false);
-  const openPremium = onPremium || (() => setPremiumOpen(true));
+  const openPremium = useGoPremium();
 
   // أهم الفئات: العروض تُجلب فقط حين يقترب الزائر من الفوتر (نفس ذاكرة الهيدر)
   // وظهور الـ CTA أو الفوتر (على الهاتف يختفي زر الرجوع العائم حتى لا يغطّي أزرارهما)
@@ -273,7 +271,6 @@ export default function Footer({ onPremium, showCta = true }) {
       </footer>
 
       <BackToTop footerVisible={visible} />
-      {!onPremium && createPortal(<PremiumModal open={premiumOpen} onClose={() => setPremiumOpen(false)} />, document.body)}
     </>
   );
 }

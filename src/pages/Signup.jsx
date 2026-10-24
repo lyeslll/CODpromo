@@ -21,6 +21,7 @@ import { Field, Divider } from "./Login.jsx";
 import { useAuth } from "../lib/auth.jsx";
 import { pendingGiftPath } from "../lib/gifts.js";
 import { pendingFreeKeyPath } from "../lib/freeKey.js";
+import { pendingPremiumPath } from "../lib/goPremium.js";
 
 const TYPES = [
   { key: "customer", icon: User },
@@ -39,7 +40,7 @@ function signupErrorKey(msg = "") {
 
 export default function Signup() {
   const { signUp, signInWithGoogle } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   // ?type=company (رابط "أضف عروض شركتك" في الفوتر) يختار حساب الشركة مسبقاً
@@ -77,12 +78,14 @@ export default function Signup() {
           full_name: companyName.trim(),
           phone: phone.trim(),
           website: website.trim(),
+          lang: i18n.language,
         }
-      : { account_type: "customer", full_name: fullName.trim() };
+      : { account_type: "customer", full_name: fullName.trim(), lang: i18n.language };
 
     setLoading(true);
-    // جا من رابط هدية: رابط تفعيل الإيميل يرجّعو لصفحة الهدية؛ جا من بطاقة (المفتاح الذهبي): لنفس البطاقة
-    const giftNext = pendingGiftPath() || pendingFreeKeyPath();
+    // جا من رابط هدية: رابط تفعيل الإيميل يرجّعو لصفحة الهدية؛ جا من بطاقة (المفتاح الذهبي): لنفس البطاقة؛
+    // جا من زر الشراء في /premium: يرجع لصفحة Premium والنافذة تتحلّ. lang = لغة إيميلات الحساب (التأكيد، الترحيب…)
+    const giftNext = pendingGiftPath() || pendingFreeKeyPath() || pendingPremiumPath();
     const { data, error } = await signUp(email.trim(), password, metadata, giftNext);
     setLoading(false);
     if (error) return setError(t(`auth.signup.${signupErrorKey(error.message)}`));
@@ -93,7 +96,7 @@ export default function Signup() {
   const google = async () => {
     setError("");
     setGoogleLoading(true);
-    const { error } = await signInWithGoogle(pendingGiftPath() || pendingFreeKeyPath());
+    const { error } = await signInWithGoogle(pendingGiftPath() || pendingFreeKeyPath() || pendingPremiumPath());
     if (error) {
       setGoogleLoading(false);
       setError(t(`auth.signup.${signupErrorKey(error.message)}`));

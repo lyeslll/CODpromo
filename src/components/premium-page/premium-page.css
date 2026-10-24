@@ -1,0 +1,125 @@
+/* ======================================================================
+   صفحة Premium (/premium) — البطاقة الذهبية (GoldenPass) والأجزاء الخاصة بالصفحة.
+   الكمبيوتر (مؤثرات كاملة): CSS 3D (perspective + rotateX/Y من متغيّرات --rx/--ry يكتبها
+   الماوس عبر rAF) + لمعة هولوغرام تتبع المؤشر + طفو خفيف. بلا WebGL.
+   الهاتف / جهاز ضعيف / prefers-reduced-motion: نفس البطاقة ثابتة بلا transform ولا filter.
+   ====================================================================== */
+
+.gpass-stage {
+  --rx: 0deg;
+  --ry: 0deg;
+  --mx: 50%;
+  --my: 30%;
+  --sheen: 0;
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+}
+
+/* ظلّ ذهبي ثابت تحت البطاقة (بلا filter: box-shadow على عنصر منفصل) */
+.gpass-glow {
+  position: absolute;
+  inset: 12% 8% -6% 8%;
+  border-radius: 40px;
+  background: radial-gradient(60% 55% at 50% 60%, rgba(240, 198, 60, 0.32), transparent 72%);
+  pointer-events: none;
+}
+
+.gpass-fx {
+  /* ميلان الراحة: البطاقة تبان 3D حتى بلا ماوس، ووجهها نحو النص */
+  --rx: 7deg;
+  --ry: -12deg;
+  perspective: 1100px;
+}
+[dir="rtl"] .gpass-fx {
+  --ry: 12deg;
+}
+@media (min-width: 1024px) {
+  .gpass-stage {
+    max-width: 400px;
+  }
+}
+.gpass-fx .gpass-float {
+  transform-style: preserve-3d;
+  animation: gpass-float 7s ease-in-out infinite;
+}
+.gpass-fx .gpass-tilt {
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform 0.6s var(--ease-out-expo);
+  will-change: transform;
+}
+.gpass-fx.is-tracking .gpass-tilt {
+  transition: transform 0.12s linear;
+}
+/* الختم الذهبي يطفو قدّام البطاقة (عمق حقيقي خارج الـ mask) */
+.gpass-fx .gpass-seal {
+  transform: translateZ(70px);
+}
+.gpass-fx .gpass-plate {
+  transform: translateZ(-40px) scale(1.04);
+}
+
+/* لمعة هولوغرام داخل الجزء العلوي: تتبع المؤشر في الكمبيوتر برك */
+.gpass-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--sheen);
+  transition: opacity 0.4s ease;
+  background:
+    radial-gradient(38% 46% at var(--mx) var(--my), rgba(255, 244, 194, 0.28), transparent 70%),
+    linear-gradient(
+      115deg,
+      transparent 20%,
+      rgba(255, 228, 134, 0.12) 38%,
+      rgba(186, 230, 253, 0.1) 46%,
+      rgba(255, 228, 134, 0.12) 54%,
+      transparent 72%
+    );
+  mix-blend-mode: screen;
+}
+
+/* الكتابة الذهبية الكبيرة (مدى الحياة) */
+.gpass-gold-text {
+  background: linear-gradient(135deg, #fff4c2 0%, #ffe486 30%, #f0c63c 62%, #cf9a1e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes gpass-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gpass-fx .gpass-float {
+    animation: none;
+  }
+  .gpass-fx .gpass-tilt {
+    transform: none;
+  }
+}
+
+/* شريط الخدش في "كيف يعمل" (رسم ثابت) */
+.pp-foil {
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0 2px, transparent 2px 7px),
+    linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e);
+}
+
+/* الشريط العائم: في الهاتف فوق شريط التنقّل السفلي (يتبعو كي يتخبّى)، في الكمبيوتر ثابت تحت */
+.pp-sticky {
+  transform: translateY(var(--pp-sticky-y, 0px));
+}
+@media (min-width: 768px) {
+  .pp-sticky {
+    transform: none;
+  }
+}

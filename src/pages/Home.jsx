@@ -16,7 +16,7 @@ import { useFeaturedRows, joinFeatured } from "../lib/featured.js";
 import Navbar from "../components/Navbar.jsx";
 import Footer, { SOCIALS } from "../components/Footer.jsx";
 import Seo from "../components/Seo.jsx";
-import PremiumModal from "../components/PremiumModal.jsx";
+import { useGoPremium } from "../lib/goPremium.js";
 import EmailPopup from "../components/EmailPopup.jsx";
 import CopyToast from "../components/CopyToast.jsx";
 import LandingHero from "../components/landing/LandingHero.jsx";
@@ -53,9 +53,8 @@ export default function Home() {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [siteStats, setSiteStats] = useState(null);
-  const [premiumModal, setPremiumModal] = useState(false);
+  const goPremium = useGoPremium();
   const { favorites, toggleFav, handleCopy, toast } = useOfferActions(setCompanies);
-  const openPremium = () => setPremiumModal(true);
 
   // الروابط القديمة لقسم العروض في الرئيسية (/#stores) تتحوّل لصفحة /offers
   useEffect(() => {
@@ -170,7 +169,7 @@ export default function Home() {
         alternates={buildAlternates("home")}
         jsonLd={jsonLd}
       />
-      <Navbar onPremium={openPremium} />
+      <Navbar />
 
       <main>
         <LandingHero
@@ -181,7 +180,7 @@ export default function Home() {
           byId={byId}
           counts={counts}
           stats={siteStats}
-          onOpenPremium={openPremium}
+          onOpenPremium={goPremium}
           isPremiumActive={hasPremium}
         />
         <StatsStrip stats={siteStats} />
@@ -191,7 +190,7 @@ export default function Home() {
           onToggleFav={toggleFav}
           onCopy={handleCopy}
           unlocked={unlocked}
-          onUnlock={openPremium}
+          onUnlock={goPremium}
         />
         <NameStory />
         <Pillars companies={companies} voteStats={voteStats} />
@@ -201,10 +200,10 @@ export default function Home() {
           onToggleFav={toggleFav}
           onCopy={handleCopy}
           unlocked={unlocked}
-          onUnlock={openPremium}
+          onUnlock={goPremium}
         />
-        <PremiumCompare company={compareCompany} stats={siteStats} onOpenPremium={openPremium} isPremiumActive={hasPremium} />
-        <GoldenKeySection companies={companies} preferred={compareCompany} onOpenPremium={openPremium} />
+        <PremiumCompare company={compareCompany} stats={siteStats} onOpenPremium={goPremium} isPremiumActive={hasPremium} />
+        <GoldenKeySection companies={companies} preferred={compareCompany} onOpenPremium={goPremium} />
         <CategoryGrid categories={cats} counts={counts} />
         <HowSteps />
         <TrustSection companies={companies} voteStats={voteStats} />
@@ -216,16 +215,15 @@ export default function Home() {
           onToggleFav={toggleFav}
           onCopy={handleCopy}
           unlocked={unlocked}
-          onUnlock={openPremium}
+          onUnlock={goPremium}
         />
-        <NocodeSection unlocked={unlocked} onUnlock={openPremium} />
+        <NocodeSection unlocked={unlocked} onUnlock={goPremium} />
         <AppDownload />
         <PremiumFaq pricing={pricing} />
       </main>
 
-      <Footer onPremium={openPremium} />
+      <Footer />
       <CopyToast code={toast} />
-      <PremiumModal open={premiumModal} onClose={() => setPremiumModal(false)} />
       <EmailPopup />
     </div>
   );

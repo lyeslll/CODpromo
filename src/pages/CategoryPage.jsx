@@ -20,7 +20,7 @@ import {
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import CompanyCard from "../components/CompanyCard.jsx";
-import PremiumModal from "../components/PremiumModal.jsx";
+import { useGoPremium } from "../lib/goPremium.js";
 import Seo from "../components/Seo.jsx";
 import Breadcrumbs from "../components/seo/Breadcrumbs.jsx";
 
@@ -36,7 +36,7 @@ export default function CategoryPage({ lang = "ar" }) {
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState([]);
   const [toast, setToast] = useState(null);
-  const [premiumModal, setPremiumModal] = useState(false);
+  const goPremium = useGoPremium();
   const toastTimer = useRef(null);
 
   // ملاحظة: لغة/اتجاه الواجهة تُضبط مركزياً في RouteLangSync (App.jsx) من المسار.
@@ -157,7 +157,7 @@ export default function CategoryPage({ lang = "ar" }) {
         alternates={buildAlternates("category", slug)}
         jsonLd={jsonLd}
       />
-      <Navbar onPremium={() => setPremiumModal(true)} />
+      <Navbar />
 
       <main className="mx-auto max-w-6xl px-4 pb-10 pt-[96px] sm:pt-[104px]">
         <Breadcrumbs
@@ -198,14 +198,14 @@ export default function CategoryPage({ lang = "ar" }) {
                 onCopy={handleCopy}
                 premium={false}
                 unlocked={unlocked}
-                onUnlock={() => setPremiumModal(true)}
+                onUnlock={goPremium}
               />
             ))}
           </AnimatePresence>
         </div>
       </main>
 
-      <Footer onPremium={() => setPremiumModal(true)} />
+      <Footer />
 
       <AnimatePresence>
         {toast && (
@@ -225,8 +225,6 @@ export default function CategoryPage({ lang = "ar" }) {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <PremiumModal open={premiumModal} onClose={() => setPremiumModal(false)} />
     </div>
   );
 }

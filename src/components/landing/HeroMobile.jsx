@@ -354,7 +354,7 @@ export default function HeroMobile({
                 tabIndex={i >= chips.length ? -1 : 0}
                 className="whitespace-nowrap rounded-full border border-[var(--color-ink-line)] bg-[var(--fill)] px-3.5 py-1.5 text-[12.5px] font-bold text-[var(--text-softer)]"
               >
-                {categoryName(cat, lang)}
+                <bdi>{categoryName(cat, lang)}</bdi>
                 <span className="ms-1.5 text-[11px] font-semibold text-[var(--color-mute)]">{counts[cat.id]}</span>
               </Link>
             ))}

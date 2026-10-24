@@ -171,7 +171,7 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, ori
                               }`}
                             >
                               {icon ? <span aria-hidden>{icon}</span> : <Tag size={13} className="text-[var(--accent-text)]" />}
-                              {categoryName(c, lang)}
+                              <bdi>{categoryName(c, lang)}</bdi>
                               {n != null && <span className="text-[11.5px] font-extrabold tabular-nums text-[var(--color-mute)] [font-family:Inter,sans-serif]">{n}</span>}
                             </Link>
                           );

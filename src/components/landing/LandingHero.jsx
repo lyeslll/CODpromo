@@ -372,7 +372,7 @@ export default function LandingHero({ companies, loading, voteStats, categories,
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-grid" />
         <div
-          className="absolute left-1/2 top-[-12%] h-[460px] w-[760px] -translate-x-1/2 rounded-full blur-[120px]"
+          className="absolute left-1/2 top-[-60px] h-[460px] w-[760px] -translate-x-1/2 rounded-full blur-[120px]"
           style={{ background: "radial-gradient(circle, rgba(166,240,0,0.2), transparent 62%)" }}
         />
         <motion.div
@@ -497,7 +497,7 @@ export default function LandingHero({ companies, loading, voteStats, categories,
                         className="pointer-events-auto block whitespace-nowrap rounded-full border border-[var(--color-ink-line)] bg-[var(--elev)]/80 px-3.5 py-1.5 text-[12.5px] font-bold text-[var(--text-softer)] backdrop-blur transition-colors hover:border-[var(--color-lime)]/50 hover:text-[var(--text)] motion-safe:animate-[float-slow_9s_ease-in-out_infinite]"
                         style={{ animationDelay: `${i * -2.2}s` }}
                       >
-                        {categoryName(cat, lang)}
+                        <bdi>{categoryName(cat, lang)}</bdi>
                         <span className="ms-1.5 text-[11px] font-semibold text-[var(--color-mute)]">{counts[cat.id]}</span>
                       </Link>
                     </motion.div>
@@ -572,7 +572,7 @@ export default function LandingHero({ companies, loading, voteStats, categories,
                     tabIndex={i >= chips.length ? -1 : 0}
                     className="whitespace-nowrap rounded-full border border-[var(--color-ink-line)] bg-[var(--fill)] px-3.5 py-1.5 text-[12.5px] font-bold text-[var(--text-softer)]"
                   >
-                    {categoryName(cat, lang)}
+                    <bdi>{categoryName(cat, lang)}</bdi>
                     <span className="ms-1.5 text-[11px] font-semibold text-[var(--color-mute)]">{counts[cat.id]}</span>
                   </Link>
                 ))}

@@ -20,7 +20,7 @@ const FeaturedShowcase = lazy(() => import("./FeaturedShowcase.jsx"));
  * items: [{ company, label }] بالترتيب. مبدّل عادي/Premium يجعل كل الوظائف متاحة.
  * الموبايل (أقل من 1024px أو لمس): شريط سحب خفيف بلا مؤثرات، ولا يُحمَّل الـ 3D أصلاً.
  */
-export default function FeaturedSection({ items, favorites, onToggleFav, onCopy, unlocked, onUnlock }) {
+export default function FeaturedSection({ items, favorites, onToggleFav, onCopy, unlocked, onUnlock, pending = false }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const [mode, setMode] = useState("normal");
@@ -54,6 +54,18 @@ export default function FeaturedSection({ items, favorites, onToggleFav, onCopy,
     return () => io.disconnect();
   }, [has, near, mobile]);
 
+  // البيانات مازالت جاية: نفس القسم بنفس الطول تقريباً (بلاه يدخل ~800px فوق قسم القصة ويدفع الصفحة)
+  if (!has && pending) {
+    return (
+      <section aria-hidden className="relative mx-auto max-w-6xl px-4 pb-6 pt-24 sm:pt-28">
+        <SectionHead center title={t("featured.title")} sub={t("featured.sub")} />
+        <div className="mt-8 flex justify-center">
+          <div className="h-11 w-56 rounded-full border border-[var(--color-ink-line)] bg-[var(--fill)]" />
+        </div>
+        <div className="mx-auto mt-6 h-[560px] w-full max-w-[400px] animate-pulse rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)] lg:h-[640px] lg:max-w-none lg:bg-transparent lg:border-transparent" />
+      </section>
+    );
+  }
   if (!has) return null;
 
   const changeMode = (m) => {

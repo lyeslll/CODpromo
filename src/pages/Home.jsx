@@ -186,6 +186,7 @@ export default function Home() {
         <StatsStrip stats={siteStats} />
         <FeaturedSection
           items={featured}
+          pending={featuredRows === null || (featuredRows.length > 0 && loading)}
           favorites={favorites}
           onToggleFav={toggleFav}
           onCopy={handleCopy}

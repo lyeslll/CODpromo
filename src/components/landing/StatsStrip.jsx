@@ -50,6 +50,9 @@ export default function StatsStrip({ stats }) {
     stats?.partnersCount != null && { key: "partners", value: stats.partnersCount, label: t("stats.partners") },
     multiplier && { key: "multiplier", value: multiplier, prefix: "×", label: t("stats.multiplier"), gold: true },
   ].filter(Boolean);
+  // قبل ما توصل الأرقام: 3 خانات فارغة بنفس الحجم (بلاها الشريط يكبر من خانة لـ 4 ويدفع الصفحة)
+  const loading = stats == null;
+  const shown = loading ? [{ key: "s1", ph: true }, { key: "s2", ph: true }, { key: "s3", ph: true }] : cells;
 
   return (
     <section ref={ref} aria-label={t("stats.label")} className="relative mx-auto max-w-6xl px-4">
@@ -61,13 +64,19 @@ export default function StatsStrip({ stats }) {
         {/* مجاني: الوعد الأول قبل أي رقم */}
         <div
           className={`flex basis-full flex-col justify-center gap-1 border-s border-t border-dashed border-[var(--color-ink-line)] px-6 py-5 ${
-            cells.length ? "md:shrink-0 md:basis-[23%]" : ""
+            shown.length ? "md:shrink-0 md:basis-[23%]" : ""
           }`}
         >
           <span className="text-[30px] font-black leading-none text-[var(--accent-text)] sm:text-[34px]">{t("stats.free")}</span>
           <span className="text-[13px] font-medium leading-snug text-[var(--text-soft)]">{t("stats.freeSub")}</span>
         </div>
-        {cells.map((c) => (
+        {shown.map((c) =>
+          c.ph ? (
+            <div key={c.key} aria-hidden className="flex min-w-0 flex-[1_1_50%] flex-col justify-center gap-2 border-s border-t border-dashed border-[var(--color-ink-line)] px-6 py-5 md:flex-[1_1_0%]">
+              <span className="h-[28px] w-20 animate-pulse rounded-md bg-[var(--fill-strong)] sm:h-[34px]" />
+              <span className="h-[16px] w-28 rounded bg-[var(--fill)]" />
+            </div>
+          ) : (
           <div
             key={c.key}
             className="relative flex min-w-0 flex-[1_1_50%] flex-col justify-center gap-1 border-s border-t border-dashed border-[var(--color-ink-line)] px-6 py-5 md:flex-[1_1_0%]"
@@ -84,7 +93,8 @@ export default function StatsStrip({ stats }) {
             </span>
             <span className="text-[13px] font-medium text-[var(--text-soft)]">{c.label}</span>
           </div>
-        ))}
+          )
+        )}
         </div>
       </div>
     </section>

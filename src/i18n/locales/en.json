@@ -122,7 +122,7 @@
   "card": {
     "hot": "Trending",
     "addFav": "Add to favorites",
-    "premiumDiscount": "Premium discount",
+    "premiumDiscount": "Premium value",
     "offerValue": "Deal value",
     "premiumCode": "Premium code",
     "code": "Code",
@@ -133,7 +133,9 @@
     "unlockPremium": "Unlock Premium deals",
     "premiumBadge": "PREMIUM",
     "frozen": "No Premium offer for this company",
-    "showNormal": "See the regular offer"
+    "showNormal": "See the regular offer",
+    "unlockCode": "Unlock code",
+    "revealAll": "Reveal code & link"
   },
   "vote": {
     "question": "Did this code work for you?",
@@ -234,7 +236,9 @@
     "close": "Close",
     "errEmail": "Please enter a valid email",
     "errConsent": "Please agree to receive deals to continue",
-    "errGeneric": "Couldn't subscribe, please try again later"
+    "errGeneric": "Couldn't subscribe, please try again later",
+    "emailLabel": "Your e-mail",
+    "emailPh": "Your e-mail address"
   },
   "premium": {
     "close": "Close",
@@ -2038,7 +2042,8 @@
       "giftPill": "Gift Premium until {{date}}",
       "giftTitle": "Make Premium yours for life",
       "giftSub": "Your gift ends on {{date}}. Pay once to keep Premium open after that, with no subscription.",
-      "giftCta": "Make it lifetime"
+      "giftCta": "Make it lifetime",
+      "priceNote": "One payment · lifetime"
     },
     "pass": {
       "label": "CODpromo Premium pass",

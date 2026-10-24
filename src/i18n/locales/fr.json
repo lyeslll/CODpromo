@@ -122,7 +122,7 @@
   "card": {
     "hot": "Tendance",
     "addFav": "Ajouter aux favoris",
-    "premiumDiscount": "Réduction Premium",
+    "premiumDiscount": "Valeur Premium",
     "offerValue": "Valeur de l'offre",
     "premiumCode": "Code Premium",
     "code": "Code",
@@ -133,7 +133,9 @@
     "unlockPremium": "Débloquer les offres Premium",
     "premiumBadge": "PREMIUM",
     "frozen": "Aucune offre Premium pour cette entreprise",
-    "showNormal": "Voir l'offre normale"
+    "showNormal": "Voir l'offre normale",
+    "unlockCode": "Débloquer",
+    "revealAll": "Révéler code et lien"
   },
   "vote": {
     "question": "Ce code a-t-il fonctionné pour vous ?",
@@ -234,7 +236,9 @@
     "close": "Fermer",
     "errEmail": "Veuillez saisir un e-mail valide",
     "errConsent": "Veuillez accepter de recevoir les offres pour continuer",
-    "errGeneric": "Inscription impossible, réessayez plus tard"
+    "errGeneric": "Inscription impossible, réessayez plus tard",
+    "emailLabel": "Votre e-mail",
+    "emailPh": "Votre adresse e-mail"
   },
   "premium": {
     "close": "Fermer",
@@ -2038,7 +2042,8 @@
       "giftPill": "Premium offert jusqu'au {{date}}",
       "giftTitle": "Gardez Premium à vie",
       "giftSub": "Votre cadeau se termine le {{date}}. Payez une fois pour garder Premium ensuite, sans abonnement.",
-      "giftCta": "Passer à vie"
+      "giftCta": "Passer à vie",
+      "priceNote": "Un seul paiement · à vie"
     },
     "pass": {
       "label": "Carte CODpromo Premium",

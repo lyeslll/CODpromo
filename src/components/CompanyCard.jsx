@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock, Undo2, Key } from "lucide-react";
+import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock, Undo2, Key, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getTypeMeta, getTypeKey } from "../lib/types.js";
 import { companySlug, companyCategoryRecord, categoryName } from "../lib/slug.js";
@@ -216,6 +216,7 @@ export default function CompanyCard({
     let code = company.code;
     let copiedPremium = false;
     if (premium) {
+      setRevealed(true); // النسخ = كشف (بلا ما يبقى الغطاء فوق الكود المنسوخ)
       const d = await ensurePremium();
       code = d?.premium_code || company.code;
       copiedPremium = !!d?.premium_code;
@@ -308,7 +309,7 @@ export default function CompanyCard({
               <CardLogo logo={company.logo} bg={company.logo_bg} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
               <div className="min-w-0">
                 <h3 className="truncate text-[17px] font-extrabold text-[var(--text)] transition-colors group-hover/link:text-[var(--accent-text)]">{company.name}</h3>
-                <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">{category}</p>
+                <p className={`mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)] ${premium ? "pe-11" : ""}`}>{category}</p>
               </div>
             </Link>
           ) : (
@@ -316,7 +317,7 @@ export default function CompanyCard({
               <CardLogo logo={company.logo} bg={company.logo_bg} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
               <div className="min-w-0">
                 <h3 className="truncate text-[17px] font-extrabold text-[var(--text)]">{company.name}</h3>
-                <p className="mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)]">{category}</p>
+                <p className={`mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)] ${premium ? "pe-11" : ""}`}>{category}</p>
               </div>
             </div>
           )}
@@ -332,7 +333,7 @@ export default function CompanyCard({
               onClick={() => onToggleFav(company.id)}
               aria-label={t("card.addFav")}
               aria-pressed={!!isFavorite}
-              className="grid h-8 w-8 place-items-center rounded-full border border-[var(--color-ink-line)] bg-[var(--fill)] transition-colors hover:bg-[var(--fill-strong)]"
+              className="relative grid h-8 w-8 place-items-center rounded-full border border-[var(--color-ink-line)] bg-[var(--fill)] transition-colors before:absolute before:-inset-1.5 before:content-[''] hover:bg-[var(--fill-strong)]"
             >
               <Heart size={15} className={isFavorite ? "fill-red-500 text-red-500" : "text-[var(--color-mute)]"} />
             </button>
@@ -401,7 +402,7 @@ export default function CompanyCard({
             data-part="copy"
             onClick={handleCopy}
             whileTap={{ scale: 0.94 }}
-            className="relative grid w-[120px] shrink-0 place-items-center overflow-hidden rounded-xl px-4 text-[14px] font-extrabold text-[#0a0a0a]"
+            className="relative grid min-w-[120px] shrink-0 place-items-center overflow-hidden whitespace-nowrap rounded-xl px-3.5 text-[14px] font-extrabold text-[#0a0a0a]"
             style={{
               background: copied
                 ? "linear-gradient(135deg, #34d399, #10b981)"
@@ -418,7 +419,16 @@ export default function CompanyCard({
                 </motion.span>
               ) : (
                 <motion.span key="copy" initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -14, opacity: 0 }} transition={{ duration: 0.2 }} className="flex items-center gap-1.5">
-                  <Copy size={15} /> {t("card.copy")}
+                  {/* كود Premium مقفول: الزر ما ينسخش — يكشف (المفتاح الذهبي / Premium) */}
+                  {premium && !canSee ? (
+                    <>
+                      <Lock size={15} /> {t("card.unlockCode")}
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={15} /> {t("card.copy")}
+                    </>
+                  )}
                 </motion.span>
               )}
             </AnimatePresence>
@@ -434,6 +444,19 @@ export default function CompanyCard({
           keyCta ? (
             // المفتاح الذهبي بلاصة زر الزيارة المقفول (نفس الارتفاع: الشبكة ما تقفزش)
             <KeyCta kind={keyCta} label={t(`freeKey.card.${keyCta}`)} onClick={keyAction} />
+          ) : canSee ? (
+            // عضو Premium قبل الخدش: زر فعّال يكشف الكود والرابط (بلا قفل — الكود مفتوح لك)
+            <motion.button
+              type="button"
+              data-part="visit"
+              onClick={onScratchReveal}
+              whileTap={{ scale: 0.98 }}
+              className="relative mt-2.5 flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold text-[var(--text)]"
+              style={{ borderColor: `${accent}66`, background: `${accent}14` }}
+            >
+              <Sparkles size={15} style={{ color: accent }} />
+              {t("card.revealAll")}
+            </motion.button>
           ) : (
             <div
               data-part="visit"
@@ -649,8 +672,8 @@ function ScratchLayer({ t, unlocked, accent = GOLD, onReveal, onUnlock, lockLabe
         className="absolute inset-0 flex cursor-pointer select-none items-center justify-center gap-1.5 overflow-hidden rounded-xl"
         style={METAL_BG}
       >
-        <Lock size={13} className="text-[#4a4f58]" />
-        <span className="text-[11.5px] font-extrabold text-[#4a4f58]">{t("card.premiumCode")}</span>
+        <Lock size={13} className="text-[#2f333a]" />
+        <span className="text-[12px] font-extrabold text-[#2f333a]">{t("card.premiumCode")}</span>
       </button>
     );
   }
@@ -923,8 +946,8 @@ function ScratchCanvas({ accent = GOLD, onReveal }) {
       {/* الأيقونة + النص كعنصر DOM (pointer-events:none) — نفس markup زر القفل العادي
           بالضبط فيرث Tajawal ونفس الحجم/السماكة/اللون، فيتطابق المظهر تماماً. */}
       <div className="pointer-events-none absolute inset-0 flex select-none items-center justify-center gap-1.5">
-        <Lock size={13} className="text-[#4a4f58]" />
-        <span className="text-[11.5px] font-extrabold text-[#4a4f58]">{t("card.scratchReveal")}</span>
+        <Sparkles size={14} className="text-[#2f333a]" />
+        <span className="text-[12.5px] font-extrabold text-[#2f333a]">{t("card.scratchReveal")}</span>
       </div>
       <canvas ref={partRef} className="pointer-events-none absolute inset-0 h-full w-full" />
       {/* لمعة ذهبية احتفالية عند الكشف */}

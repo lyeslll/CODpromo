@@ -122,18 +122,20 @@
   "card": {
     "hot": "رائج",
     "addFav": "إضافة للمفضلة",
-    "premiumDiscount": "خصم Premium",
+    "premiumDiscount": "قيمة Premium",
     "offerValue": "قيمة العرض",
     "premiumCode": "كود Premium",
     "code": "الكود",
     "copy": "نسخ الكود",
     "copied": "تم النسخ",
     "visit": "زيارة الموقع",
-    "scratchReveal": "امسح للكشف",
+    "scratchReveal": "اخدش لكشف كودك",
     "unlockPremium": "افتح خصومات Premium",
     "premiumBadge": "PREMIUM",
     "frozen": "لا يوجد عرض Premium لهذه الشركة",
-    "showNormal": "شاهد العرض العادي"
+    "showNormal": "شاهد العرض العادي",
+    "unlockCode": "اكشف الكود",
+    "revealAll": "اكشف الكود والرابط"
   },
   "vote": {
     "question": "هل نجح هذا الكود معك؟",
@@ -234,7 +236,9 @@
     "close": "إغلاق",
     "errEmail": "أدخل بريداً صحيحاً",
     "errConsent": "يرجى الموافقة على استلام العروض للمتابعة",
-    "errGeneric": "تعذّر الاشتراك، حاول لاحقاً"
+    "errGeneric": "تعذّر الاشتراك، حاول لاحقاً",
+    "emailLabel": "بريدك الإلكتروني",
+    "emailPh": "بريدك الإلكتروني"
   },
   "premium": {
     "close": "إغلاق",
@@ -2038,7 +2042,8 @@
       "giftPill": "Premium هدية حتى {{date}}",
       "giftTitle": "اجعل Premium لك مدى الحياة",
       "giftSub": "هديتك تنتهي في {{date}}. ادفع مرة واحدة ليبقى Premium مفتوحاً لك بعدها، بلا اشتراك.",
-      "giftCta": "اجعله مدى الحياة"
+      "giftCta": "اجعله مدى الحياة",
+      "priceNote": "دفعة واحدة · مدى الحياة"
     },
     "pass": {
       "label": "بطاقة CODpromo Premium",

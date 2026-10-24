@@ -674,7 +674,8 @@
         "pending_two": "{{count}} demandes en attente",
         "pending_few": "{{count}} demandes en attente",
         "pending_many": "{{count}} demandes en attente",
-        "pending_other": "{{count}} demandes en attente"
+        "pending_other": "{{count}} demandes en attente",
+        "keys": "Clés diamant"
       },
       "range": {
         "label": "Période",
@@ -837,7 +838,8 @@
         "requestsSub_two": "{{count}} demandes à examiner",
         "requestsSub_few": "{{count}} demandes à examiner",
         "requestsSub_many": "{{count}} demandes à examiner",
-        "requestsSub_other": "{{count}} demandes à examiner"
+        "requestsSub_other": "{{count}} demandes à examiner",
+        "keysSub": "Clés payantes : chacune ouvre le code Premium d’une entreprise à vie. Ventes hors tests et comptes admin."
       },
       "premium": {
         "members": "Membres Premium",
@@ -1310,6 +1312,129 @@
         "show": "Afficher",
         "hiddenOk": "Note masquée",
         "shown": "Note de nouveau visible"
+      },
+      "keys": {
+        "ordersTitle": "Commandes de clés",
+        "refundRule": "Remboursement : clés non utilisées sous 7 jours, sauf si déduites de Premium. Remboursez via la passerelle puis enregistrez ici (Stripe et PayPal le font automatiquement).",
+        "filter": {
+          "all": "Toutes",
+          "eligible": "Remboursables",
+          "refunded": "Remboursées",
+          "pending": "Non finalisées"
+        },
+        "emptyOrders": "Aucune commande de clés",
+        "emptyOrdersDesc": "Chaque achat de pack de clés, toutes passerelles, apparaît ici.",
+        "status": {
+          "refunded": "Remboursée le {{date}} ({{amount}})",
+          "pending": "Paiement non finalisé",
+          "failed": "Paiement échoué",
+          "eligible": "Éligible : {{n}} clé(s) non utilisée(s) = {{amount}} (jusqu’au {{date}})",
+          "not_found": "Introuvable",
+          "not_paid": "Paiement non finalisé",
+          "all_used": "Toutes les clés utilisées",
+          "in_premium": "Déduit de Premium ({{n}} non utilisée(s))",
+          "premium_pending": "Paiement Premium avec crédit en cours (24 h)",
+          "expired": "Délai de remboursement dépassé ({{n}} non utilisée(s))",
+          "refunded_reason": "Remboursée"
+        },
+        "typeBadge": "Clés ×{{n}}",
+        "refund": "Enregistrer le remboursement",
+        "refundConfirm": "Avez-vous remboursé {{amount}} à {{name}} via {{provider}} ? Les clés non utilisées ({{n}}) seront retirées du compte immédiatement.",
+        "refundNotEligible": "Attention : cette commande est hors politique de remboursement.",
+        "refundRes": {
+          "refunded": "Remboursement enregistré, {{n}} clé(s) retirée(s)",
+          "already": "Commande déjà remboursée",
+          "all_used": "Aucune clé non utilisée",
+          "not_found": "Commande introuvable"
+        },
+        "autoHint": "Les clés sont généralement retirées automatiquement lors d’un remboursement depuis Stripe ou PayPal.",
+        "salesLine": "Clés diamant",
+        "salesOrders": "{{n}} commandes · {{k}} clés vendues",
+        "kindLabel": "Type d’achat",
+        "kind": {
+          "premium": "Premium",
+          "keys": "Clés"
+        },
+        "creditBadge": "Crédit −{{amount}}",
+        "kpi": {
+          "sold": "Clés vendues",
+          "used": "Clés utilisées",
+          "gifted": "Clés offertes",
+          "outstanding": "Solde non utilisé",
+          "revenueDzd": "Revenus (DZD)",
+          "revenueUsd": "Revenus (USD)",
+          "buyers": "Acheteurs",
+          "upgraded": "Clés puis Premium"
+        },
+        "kpiNote": {
+          "orders": "{{n}} commandes",
+          "removed": "Retirées par remboursement : {{n}}",
+          "tests": "Achats de test (non comptés) : {{n}}",
+          "upgraded": "Un achat Premium non remboursé après la première commande de clés, ou une activation complète par crédit."
+        },
+        "chartSold": "Clés vendues — 30 derniers jours",
+        "chartUsed": "Clés utilisées — 30 derniers jours",
+        "accountsTitle": "Solde par compte",
+        "accountsHint": "Cliquez sur un compte pour voir son historique.",
+        "search": "Rechercher par e-mail ou nom",
+        "emptyAccounts": "Aucun compte",
+        "emptyAccountsDesc": "Chaque compte ayant acheté, utilisé ou reçu des clés apparaît ici.",
+        "col": {
+          "bought": "Achetées : {{n}}",
+          "used": "Utilisées : {{n}}",
+          "gifted": "Offertes : {{n}}",
+          "removed": "Retirées : {{n}}"
+        },
+        "giftTitle": "Offrir des clés",
+        "giftHint": "À n’importe quel compte par e-mail, de 1 à 20 clés, avec un motif (admins seulement). Le compte reçoit un e-mail dans sa langue.",
+        "giftEmail": "E-mail du compte",
+        "giftCount": "Nombre de clés",
+        "giftReason": "Motif",
+        "giftSubmit": "Offrir les clés",
+        "giftDone": "{{n}} clés offertes à {{email}} (solde : {{balance}})",
+        "giftPremiumNote": "Note : ce compte a Premium, il n’a pas besoin des clés pour l’instant.",
+        "giftNoUser": "Aucun compte avec cet e-mail",
+        "creditTitle": "Premium avec crédit",
+        "creditHint": "Achats Premium avec crédit de clés déduit, et activations complètes par crédit (sans paiement).",
+        "creditEmpty": "Rien pour l’instant",
+        "creditFull": "Activation complète par crédit",
+        "creditCheckout": "{{provider}} · reste payé {{due}}",
+        "creditUsed": "Crédit utilisé {{amount}}",
+        "creditApplied": "Appliqué",
+        "creditOpen": "Non finalisé",
+        "creditRevoked": "Annulé",
+        "revokeUpgrade": "Annuler l’activation",
+        "revokeUpgradeConfirm": "Annuler l’activation Premium par crédit pour {{email}} ? Le compte redevient normal s’il n’a pas d’autre achat Premium. (Surtout pour les tests)",
+        "revokeUpgradeRes": {
+          "revoked": "Activation annulée",
+          "not_found": "Introuvable ou déjà annulé"
+        },
+        "historyTitle": "Historique des clés",
+        "locked": "Codes encore verrouillés",
+        "historyCredit": "Crédit Premium : {{paid}} (paie {{due}})",
+        "kindLabels": {
+          "purchase": "Achat",
+          "use": "Utilisation",
+          "gift": "Cadeau",
+          "refund": "Remboursement"
+        },
+        "reason": "Motif : {{note}}",
+        "packsTitle": "Packs de clés diamant",
+        "packsHint": "Le prix est fixé côté serveur à chaque paiement. Pas de pack d’une seule clé (2 minimum).",
+        "packName": "Pack de {{n}} clés",
+        "packActive": "Visible",
+        "packFields": {
+          "keys": "Clés",
+          "price_dzd": "Prix (DZD)",
+          "price_usd": "Prix ($)"
+        },
+        "packRatio": "Selon le ratio Premium : {{usd}} $",
+        "packPlay": "Google Play : produit {{id}} (consommable) — changez aussi son prix dans la Play Console.",
+        "packInvalid": "Au moins 2 clés, 50 DZD et 0,50 $.",
+        "packSave": "Enregistrer",
+        "packSaved": "Pack enregistré",
+        "packNoteTest": "Le prix de test (ci-dessus) s’applique aussi aux clés : même montant pour chaque pack pour ce compte, enregistré comme test.",
+        "packNoteLimit": "On ne vend jamais plus de clés que de codes encore verrouillés sur le compte."
       }
     }
   },
@@ -2448,5 +2573,198 @@
     "offers": "Voir les offres",
     "home": "Accueil",
     "categories": "Ou parcourir par catégorie"
+  },
+  "keys": {
+    "close": "Fermer",
+    "demo": "Données de démo",
+    "count_zero": "{{count}} clé diamant",
+    "count_one": "{{count}} clé diamant",
+    "count_two": "{{count}} clés diamant",
+    "count_few": "{{count}} clés diamant",
+    "count_many": "{{count}} clés diamant",
+    "count_other": "{{count}} clés diamant",
+    "counter": {
+      "aria_zero": "Vos clés : {{count}} clé diamant, clé dorée {{golden}}",
+      "aria_one": "Vos clés : {{count}} clé diamant, clé dorée {{golden}}",
+      "aria_two": "Vos clés : {{count}} clés diamant, clé dorée {{golden}}",
+      "aria_few": "Vos clés : {{count}} clés diamant, clé dorée {{golden}}",
+      "aria_many": "Vos clés : {{count}} clés diamant, clé dorée {{golden}}",
+      "aria_other": "Vos clés : {{count}} clés diamant, clé dorée {{golden}}",
+      "goldenOn": "disponible",
+      "goldenUsed": "utilisée",
+      "goldenOff": "indisponible"
+    },
+    "panel": {
+      "title": "Vos clés",
+      "balance": "Vos clés diamant",
+      "golden": "Clé dorée",
+      "goldenOn": "Disponible : révèle un code Premium gratuitement",
+      "goldenUsed": "Utilisée pour {{company}}",
+      "goldenUsedGeneric": "Vous avez utilisé votre clé dorée",
+      "buy": "Acheter des clés",
+      "open": "Codes verrouillés",
+      "history": "Historique de vos clés",
+      "empty": "Aucune activité pour l’instant.",
+      "rules": "Chaque clé diamant ouvre le code Premium d’une entreprise, et il reste ouvert pour vous à vie. Les clés n’expirent jamais, et celles non utilisées sont remboursables sous 7 jours."
+    },
+    "credit": {
+      "line": "Vous avez payé {{paid}} en clés : Premium à vie ne vous coûte plus que {{due}}.",
+      "covered": "Vous avez payé {{paid}} en clés, ce qui couvre tout le prix de Premium à vie.",
+      "cta": "Obtenir Premium au nouveau prix",
+      "activate": "Activer Premium avec votre crédit",
+      "row": "Crédit clés diamant",
+      "pay": "Vous payez",
+      "method": "Crédit clés diamant",
+      "changed": "Votre crédit a changé. Rouvrez la fenêtre pour voir le prix actuel."
+    },
+    "history": {
+      "purchase_zero": "Achat de {{count}} clé diamant",
+      "purchase_one": "Achat de {{count}} clé diamant",
+      "purchase_two": "Achat de {{count}} clés diamant",
+      "purchase_few": "Achat de {{count}} clés diamant",
+      "purchase_many": "Achat de {{count}} clés diamant",
+      "purchase_other": "Achat de {{count}} clés diamant",
+      "gift": "Cadeau de CODpromo",
+      "refund": "Clés non utilisées remboursées",
+      "use": "Code Premium ouvert",
+      "useCompany": "Code de {{company}} ouvert"
+    },
+    "card": {
+      "open": "Ouvrir avec une clé diamant",
+      "badge": "Votre clé diamant",
+      "gain": "Normal {{normal}}, Premium {{premium}}"
+    },
+    "confirm": {
+      "title": "Utiliser une clé diamant ?",
+      "body": "Elle ouvre le code Premium de {{company}} sur votre compte à vie, même si l’entreprise change de code.",
+      "after_zero": "Il vous restera {{count}} clé diamant",
+      "after_one": "Il vous restera {{count}} clé diamant",
+      "after_two": "Il vous restera {{count}} clés diamant",
+      "after_few": "Il vous restera {{count}} clés diamant",
+      "after_many": "Il vous restera {{count}} clés diamant",
+      "after_other": "Il vous restera {{count}} clés diamant",
+      "note": "Ce code reste visible pour vous, sans grattage, et les autres entreprises restent verrouillées.",
+      "yes": "Oui, ouvrir le code",
+      "no": "Pas maintenant",
+      "busy": "Ouverture…",
+      "golden": "Ou utilisez votre clé dorée gratuite"
+    },
+    "err": {
+      "noKeys": "Il ne vous reste plus de clés diamant. Achetez un pack sur la page Premium.",
+      "hasPremium": "Vous avez déjà Premium : tous les codes Premium vous sont ouverts.",
+      "unavailable": "Cette entreprise n’a pas d’offre Premium pour le moment.",
+      "auth": "Connectez-vous d’abord pour utiliser vos clés.",
+      "network": "Connexion impossible. Réessayez."
+    },
+    "chooser": {
+      "title": "Ouvrir ce code",
+      "how": "Choisissez comment l’ouvrir",
+      "golden": "Votre clé dorée",
+      "goldenDesc": "Gratuite, une fois par compte",
+      "buy": "Clés diamant",
+      "buyDesc_zero": "{{count}} clé pour {{price}}",
+      "buyDesc_one": "{{count}} clé pour {{price}}",
+      "buyDesc_two": "{{count}} clés pour {{price}}",
+      "buyDesc_few": "{{count}} clés pour {{price}}",
+      "buyDesc_many": "{{count}} clés pour {{price}}",
+      "buyDesc_other": "{{count}} clés pour {{price}}",
+      "buyDescPlain": "Chaque clé ouvre le code d’une entreprise à vie",
+      "buyLimit": "Vous avez déjà autant de clés que de codes verrouillés",
+      "premium": "Premium à vie",
+      "premiumDesc": "Tous les codes Premium, un seul paiement de {{price}}",
+      "premiumDescPlain": "Tous les codes Premium, un seul paiement"
+    },
+    "buy": {
+      "title": "Acheter des clés diamant",
+      "accountTitle": "Créez d’abord votre compte",
+      "accountDesc": "Les clés sont ajoutées à votre compte et restent à vous à vie. Créez un compte gratuit ou connectez-vous, puis vous revenez directement à ce pack.",
+      "forever": "Un seul paiement · les clés n’expirent jamais",
+      "refund": "Les clés non utilisées sont remboursables sous 7 jours après l’achat, sauf si leur prix a été déduit de Premium.",
+      "demoNote": "Aperçu : aucun paiement réel."
+    },
+    "buyErr": {
+      "hasPremium": "Vous avez déjà Premium : tous les codes Premium vous sont ouverts. Pas besoin de clés.",
+      "limit_zero": "Il reste {{count}} code verrouillé sur votre compte, et ce pack est plus grand.",
+      "limit_one": "Il reste {{count}} code verrouillé sur votre compte, et ce pack est plus grand.",
+      "limit_two": "Il reste {{count}} codes verrouillés sur votre compte, et ce pack est plus grand.",
+      "limit_few": "Il reste {{count}} codes verrouillés sur votre compte, et ce pack est plus grand.",
+      "limit_many": "Il reste {{count}} codes verrouillés sur votre compte, et ce pack est plus grand.",
+      "limit_other": "Il reste {{count}} codes verrouillés sur votre compte, et ce pack est plus grand.",
+      "inactive": "Ce pack n’est pas disponible pour le moment. Actualisez la page.",
+      "outdated": "Le prix a changé. Actualisez la page et réessayez.",
+      "generic": "Impossible de lancer le paiement. Réessayez."
+    },
+    "playErr": {
+      "cancelled": "Vous avez annulé le paiement.",
+      "unavailable": "Le paiement Google Play n’est pas disponible pour le moment.",
+      "verify": "Impossible de confirmer l’achat. Si vous avez été débité, vos clés seront ajoutées en rouvrant cette page.",
+      "pending": "Le paiement est en attente chez Google Play. Vos clés seront ajoutées une fois confirmé.",
+      "generic": "Une erreur est survenue. Réessayez."
+    },
+    "section": {
+      "pill": "Clés diamant",
+      "title": "Pas besoin de tous les codes ? Ouvrez seulement ceux qu’il vous faut.",
+      "sub": "Chaque clé diamant ouvre le code Premium d’une entreprise de votre choix, et il reste ouvert pour vous à vie, même si l’entreprise change de code.",
+      "perKey": "Soit {{price}} par clé",
+      "buy": "Acheter ce pack",
+      "limit_zero": "Il ne reste que {{count}} code verrouillé sur votre compte.",
+      "limit_one": "Il ne reste que {{count}} code verrouillé sur votre compte.",
+      "limit_two": "Il ne reste que {{count}} codes verrouillés sur votre compte.",
+      "limit_few": "Il ne reste que {{count}} codes verrouillés sur votre compte.",
+      "limit_many": "Il ne reste que {{count}} codes verrouillés sur votre compte.",
+      "limit_other": "Il ne reste que {{count}} codes verrouillés sur votre compte.",
+      "lockedLeft_zero": "Vous pouvez ouvrir encore {{n}} code avec des clés.",
+      "lockedLeft_one": "Vous pouvez ouvrir encore {{n}} code avec des clés.",
+      "lockedLeft_two": "Vous pouvez ouvrir encore {{n}} codes avec des clés.",
+      "lockedLeft_few": "Vous pouvez ouvrir encore {{n}} codes avec des clés.",
+      "lockedLeft_many": "Vous pouvez ouvrir encore {{n}} codes avec des clés.",
+      "lockedLeft_other": "Vous pouvez ouvrir encore {{n}} codes avec des clés.",
+      "rule1": "Une clé = le code Premium d’une entreprise, ouvert pour vous à vie.",
+      "rule2": "Les clés n’expirent jamais : utilisez-les quand vous voulez.",
+      "rule3": "Les clés non utilisées sont remboursables sous 7 jours.",
+      "fair": "Tout ce que vous payez en clés est déduit du prix de Premium à vie si vous passez à Premium plus tard, sans limite de durée."
+    },
+    "ret": {
+      "seoTitle": "Vos clés diamant",
+      "title": "Vos clés diamant sont prêtes",
+      "sub_zero": "{{count}} clé diamant a été ajoutée à votre compte. Utilisez-la pour ouvrir le code qu’il vous faut.",
+      "sub_one": "{{count}} clé diamant a été ajoutée à votre compte. Utilisez-la pour ouvrir le code qu’il vous faut.",
+      "sub_two": "{{count}} clés diamant ont été ajoutées à votre compte. Utilisez-les pour ouvrir les codes qu’il vous faut.",
+      "sub_few": "{{count}} clés diamant ont été ajoutées à votre compte. Utilisez-les pour ouvrir les codes qu’il vous faut.",
+      "sub_many": "{{count}} clés diamant ont été ajoutées à votre compte. Utilisez-les pour ouvrir les codes qu’il vous faut.",
+      "sub_other": "{{count}} clés diamant ont été ajoutées à votre compte. Utilisez-les pour ouvrir les codes qu’il vous faut.",
+      "subPlain": "Vos clés diamant ont été ajoutées à votre compte.",
+      "checkingTitle": "Confirmation de votre paiement…",
+      "checkingDesc": "Un instant, ne fermez pas cette page.",
+      "pendingTitle": "Paiement reçu, confirmation en cours",
+      "pendingDesc": "La confirmation peut prendre un peu de temps. Vos clés seront ajoutées automatiquement ; vous pouvez actualiser dans un instant.",
+      "failDesc": "Le paiement n’a pas abouti et rien n’a été débité pour les clés. Vous pouvez réessayer.",
+      "backToKeys": "Retour aux clés",
+      "steps": {
+        "s1": "Ouvrez les offres en mode Premium.",
+        "s2": "Sur un code verrouillé, appuyez sur « Ouvrir avec une clé diamant ».",
+        "s3": "Confirmez, grattez le code, puis copiez-le."
+      },
+      "cta": "Ouvrir les codes",
+      "history": "Solde et historique",
+      "premiumTitle": "Ce que vous avez payé compte pour Premium"
+    },
+    "dash": {
+      "title": "Clés diamant",
+      "has_zero": "Vous avez {{count}} clé diamant",
+      "has_one": "Vous avez {{count}} clé diamant",
+      "has_two": "Vous avez {{count}} clés diamant",
+      "has_few": "Vous avez {{count}} clés diamant",
+      "has_many": "Vous avez {{count}} clés diamant",
+      "has_other": "Vous avez {{count}} clés diamant",
+      "none": "Ouvrez seulement les codes qu’il vous faut, une clé par entreprise.",
+      "opened_zero": "{{count}} entreprise ouverte",
+      "opened_one": "{{count}} entreprise ouverte",
+      "opened_two": "{{count}} entreprises ouvertes",
+      "opened_few": "{{count}} entreprises ouvertes",
+      "opened_many": "{{count}} entreprises ouvertes",
+      "opened_other": "{{count}} entreprises ouvertes",
+      "history": "Historique"
+    }
   }
 }

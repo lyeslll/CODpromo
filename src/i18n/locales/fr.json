@@ -2322,5 +2322,13 @@
     "similarTitle": "Entreprises similaires",
     "similarAll": "Toutes les entreprises {{category}}",
     "moreIn": "Plus dans {{category}}"
+  },
+  "notFound": {
+    "kicker": "Ce lien n’est plus valide",
+    "title": "Page introuvable",
+    "desc": "Le lien a peut-être changé ou l’offre est terminée. Toutes les offres actuelles sont sur la page des offres.",
+    "offers": "Voir les offres",
+    "home": "Accueil",
+    "categories": "Ou parcourir par catégorie"
   }
 }

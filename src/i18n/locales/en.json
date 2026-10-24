@@ -2322,5 +2322,13 @@
     "similarTitle": "Similar companies",
     "similarAll": "All {{category}} companies",
     "moreIn": "More in {{category}}"
+  },
+  "notFound": {
+    "kicker": "This link is no longer valid",
+    "title": "Page not found",
+    "desc": "The link may have changed or the offer may have ended. Every current offer is on the offers page.",
+    "offers": "Browse offers",
+    "home": "Home",
+    "categories": "Or browse by category"
   }
 }

@@ -16,6 +16,7 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { storeKind, storeSteps, storeFaq, similarStores, storeSeoTitle, storeSeoDescription, storeJsonLd, locText, storeHasPremium, RATING_MIN_AVG } from "../src/lib/storeContent.js";
 
 const SITE_URL = "https://codpromo.com";
 const SITE_NAME = "CODpromo";
@@ -42,7 +43,11 @@ const COMPANY_PUBLIC_COLUMNS =
   "discount_en,discount_fr,premium_discount_en,premium_discount_fr," +
   "slug,seo_title,seo_title_en,seo_title_fr," +
   "seo_description,seo_description_en,seo_description_fr," +
-  "seo_keywords,seo_keywords_en,seo_keywords_fr";
+  "seo_keywords,seo_keywords_en,seo_keywords_fr," +
+  "has_premium_code,premium_description,premium_description_en,premium_description_fr," +
+  "store_kind,code_checked_at,logo_bg,about,about_en,about_fr,features,features_en,features_fr,usage_steps,usage_steps_en,usage_steps_fr";
+// للقوائم (شركات مشابهة / الفئة): خفيفة
+const COMPANY_LIST_COLUMNS = "id,slug,name,type,category_id,status,discount,discount_en,discount_fr,created_at";
 
 function slugify(v) {
   return String(v || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-{2,}/g, "-").replace(/^-+|-+$/g, "");
@@ -51,38 +56,10 @@ function loc(obj, field, lang) {
   if (!obj) return "";
   return (lang !== "ar" && obj[`${field}_${lang}`]) || obj[field] || "";
 }
-function monthYear(lang) {
-  try {
-    return new Intl.DateTimeFormat(lang === "ar" ? "ar" : lang, { month: "long", year: "numeric" }).format(new Date());
-  } catch {
-    return String(new Date().getFullYear());
-  }
-}
 function esc(s) {
   return String(s == null ? "" : s).replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
 }
 
-function storeTitle(c, lang) {
-  const custom = loc(c, "seo_title", lang);
-  if (custom) return custom;
-  const name = c.name || SITE_NAME;
-  const d = loc(c, "discount", lang);
-  const my = monthYear(lang);
-  if (lang === "en") return `${name} Promo Code ${my}${d ? ` — ${d} Off` : ""} | ${SITE_NAME}`;
-  if (lang === "fr") return `Code Promo ${name} ${my}${d ? ` — ${d} de réduction` : ""} | ${SITE_NAME}`;
-  return `كود خصم ${name} ${my}${d ? ` - خصم ${d}` : ""} | ${SITE_NAME}`;
-}
-function storeDescription(c, lang) {
-  const custom = loc(c, "seo_description", lang);
-  if (custom) return custom;
-  const desc = loc(c, "description", lang);
-  if (desc) return desc.length > 300 ? `${desc.slice(0, 297)}…` : desc;
-  const name = c.name || SITE_NAME;
-  const d = loc(c, "discount", lang);
-  if (lang === "en") return `Get the latest ${name} promo codes and coupons${d ? ` — save ${d}` : ""}. Verified working discount codes on ${SITE_NAME}.`;
-  if (lang === "fr") return `Obtenez les derniers codes promo et coupons ${name}${d ? ` — économisez ${d}` : ""}. Codes de réduction vérifiés sur ${SITE_NAME}.`;
-  return `أحدث أكواد خصم وكوبونات ${name}${d ? ` — وفّر ${d}` : ""}. أكواد مفعّلة ومجرّبة على ${SITE_NAME}.`;
-}
 function categoryTitle(label, lang) {
   if (lang === "en") return `${label} Promo Codes & Coupons | ${SITE_NAME}`;
   if (lang === "fr") return `Codes Promo & Coupons ${label} | ${SITE_NAME}`;
@@ -162,8 +139,10 @@ function buildHead({ lang, title, description, canonical, image, alternates, jso
   return out;
 }
 
-function inject(template, { lang, title, description, headExtra }) {
+function inject(template, { lang, title, description, headExtra, body = "" }) {
   let html = template;
+  // المحتوى في الـ HTML (للزواحف): React يبدّلو وقت يتركّب (نفس المحتوى)، وشاشة #boot تغطيه قبلها.
+  if (body) html = html.replace(/<div id="root"><\/div>/i, `<div id="root">${body}</div>`);
   html = html.replace(/<html[^>]*>/i, `<html lang="${lang}" dir="${dirOf(lang)}">`);
   html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${esc(title)}</title>`);
   html = html.replace(/<meta\s+name="description"[\s\S]*?\/>/i, `<meta name="description" content="${esc(description)}"/>`);
@@ -192,35 +171,46 @@ export default async function handler(req, res) {
 
   try {
     if (type === "store") {
-      const data = await fetchJson(
-        `${SUPABASE_URL}/rest/v1/companies?slug=eq.${encodeURIComponent(slug)}&select=${COMPANY_PUBLIC_COLUMNS},company_faqs(*)`
-      );
+      const [data, all] = await Promise.all([
+        fetchJson(`${SUPABASE_URL}/rest/v1/companies?slug=eq.${encodeURIComponent(slug)}&select=${COMPANY_PUBLIC_COLUMNS},company_faqs(*)`),
+        fetchJson(`${SUPABASE_URL}/rest/v1/companies?select=${COMPANY_LIST_COLUMNS}&order=created_at.desc`),
+      ]);
       const c = Array.isArray(data) ? data[0] : null;
       if (!c) return serveTemplate(res, template);
 
-      const title = storeTitle(c, lang);
-      const description = storeDescription(c, lang);
+      const L = locale(lang) || locale("ar");
+      const t = makeT(L, locale("ar"));
+      const [cats, rating] = await Promise.all([
+        c.category_id ? fetchJson(`${SUPABASE_URL}/rest/v1/categories?id=eq.${c.category_id}&select=slug,name_ar,name_en,name_fr`) : null,
+        postJson(`${SUPABASE_URL}/rest/v1/rpc/company_rating_summary`, { p_company_id: c.id }),
+      ]);
+      const cat = Array.isArray(cats) ? cats[0] : null;
+      const catSlug = cat?.slug || slugify(c.category_en) || slugify(c.category);
+      const catLabel = cat ? (lang !== "ar" && cat[`name_${lang}`]) || cat.name_ar : loc(c, "category", lang);
+      const kind = storeKind(c, catSlug);
+      const { steps } = storeSteps(c, { t, lang, kind });
+      if (Array.isArray(c.company_faqs)) c.company_faqs.sort((x, y) => (x.sort_order ?? 0) - (y.sort_order ?? 0) || x.id - y.id);
+      const faq = storeFaq(c, { t, lang, steps, adminFaqs: c.company_faqs });
+      const similar = similarStores(c, Array.isArray(all) ? all : [], 8);
+
+      const title = storeSeoTitle(c, lang);
+      const description = storeSeoDescription(c, lang);
       const image = /^https?:\/\//i.test(c.logo || "") ? c.logo : DEFAULT_OG_IMAGE;
       const canonical = storeUrl(c.slug, lang);
       const alternates = ["ar", "en", "fr"].map((l) => ({ lang: l, url: storeUrl(c.slug, l) }));
-      const catLabel = loc(c, "category", lang);
-      const jsonLd = [
-        { "@context": "https://schema.org", "@type": "Organization", name: c.name, url: canonical, description, ...(/^https?:\/\//i.test(c.logo || "") ? { logo: c.logo } : {}), ...(c.link ? { sameAs: [c.link] } : {}) },
-        { "@context": "https://schema.org", "@type": "Offer", name: title, description, url: canonical, ...(catLabel ? { category: catLabel } : {}), seller: { "@type": "Organization", name: c.name }, availability: "https://schema.org/InStock" },
-        faqLdOf(c.company_faqs, lang),
-        breadcrumbOf([
-          { name: SITE_NAME, url: `${SITE_URL}${prefix(lang)}/` },
-          { name: c.name, url: canonical },
-        ]),
-      ];
+      const home = { name: L.store?.breadcrumbHome || SITE_NAME, url: `${SITE_URL}${prefix(lang)}/` };
+      const crumbs = [home, ...(catLabel && cat ? [{ name: catLabel, url: categoryUrl(catSlug, lang) }] : []), { name: c.name, url: canonical }];
+      const jsonLd = storeJsonLd(c, { lang, url: canonical, faq, rating, breadcrumb: crumbs });
+      const body = storeBody({ c, lang, t, L, catLabel, catUrl: cat ? categoryUrl(catSlug, lang) : null, crumbs, steps, faq, similar, rating });
       const headExtra = buildHead({ lang, title, description, canonical, image, alternates, jsonLd });
-      return serveTemplate(res, inject(template, { lang, title, description, headExtra }));
+      return serveTemplate(res, inject(template, { lang, title, description, headExtra, body }));
     }
 
     if (type === "category") {
       let label = "";
       let count = 0;
       let descText = "";
+      let catCompanies = [];
 
       // المصدر الحقيقي: سجلّ الفئة من جدول categories حسب slug
       const cats = await fetchJson(
@@ -233,9 +223,10 @@ export default async function handler(req, res) {
         descText = (lang !== "ar" && cat[`description_${lang}`]) || cat.description_ar || "";
         // العدّ بـ category_id (المصدر)، مع fallback للنص العربي القديم
         const linked = await fetchJson(
-          `${SUPABASE_URL}/rest/v1/companies?category_id=eq.${cat.id}&select=id`
+          `${SUPABASE_URL}/rest/v1/companies?category_id=eq.${cat.id}&select=${COMPANY_LIST_COLUMNS}&order=created_at.desc`
         );
         count = Array.isArray(linked) ? linked.length : 0;
+        catCompanies = Array.isArray(linked) ? linked.filter((x) => x.slug) : [];
         if (count === 0 && cat.name_ar) {
           const legacy = await fetchJson(
             `${SUPABASE_URL}/rest/v1/companies?category=eq.${encodeURIComponent(cat.name_ar)}&select=id`
@@ -268,7 +259,13 @@ export default async function handler(req, res) {
         ]),
       ];
       const headExtra = buildHead({ lang, title, description, canonical, image: DEFAULT_OG_IMAGE, alternates, jsonLd });
-      return serveTemplate(res, inject(template, { lang, title, description, headExtra }));
+      // الفئة تربط لشركاتها في الـ HTML (روابط داخلية للسيو)
+      const body = catCompanies.length
+        ? `<main dir="${dirOf(lang)}" style="${BODY_STYLE}"><h1>${esc(title.replace(/ \| CODpromo$/, ""))}</h1>${descText ? `<p>${esc(descText)}</p>` : ""}<ul>${catCompanies
+            .map((x) => `<li><a href="${storeUrl(x.slug, lang)}">${esc(x.name)}</a>${loc(x, "discount", lang) ? ` — ${esc(loc(x, "discount", lang))}` : ""}</li>`)
+            .join("")}</ul></main>`
+        : "";
+      return serveTemplate(res, inject(template, { lang, title, description, headExtra, body }));
     }
 
     if (type === "offers") {
@@ -400,13 +397,62 @@ export default async function handler(req, res) {
   }
 }
 
-function faqLdOf(faqs, lang) {
-  const list = (faqs || [])
-    .map((f) => ({ q: (lang !== "ar" && f[`question_${lang}`]) || f.question, a: (lang !== "ar" && f[`answer_${lang}`]) || f.answer }))
-    .filter((f) => f.q && f.a);
-  if (!list.length) return null;
-  return { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: list.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) };
+/** t(key, vars) من ملفات الترجمة (fallback للعربية) — نفس صيغة i18next ({{x}} + _one/_other). */
+function makeT(L, AR) {
+  const get = (obj, key) => key.split(".").reduce((o, k) => (o == null ? o : o[k]), obj);
+  return (key, vars = {}) => {
+    let v = get(L, key) ?? get(AR, key);
+    if (v == null && vars.count != null) v = get(L, `${key}_${vars.count === 1 ? "one" : "other"}`) ?? get(AR, `${key}_other`);
+    return fill(v ?? "", vars);
+  };
 }
+
+async function postJson(url, body) {
+  try {
+    const r = await fetch(url, { method: "POST", headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    return r.ok ? r.json() : null;
+  } catch {
+    return null;
+  }
+}
+
+const BODY_STYLE = "max-width:960px;margin:0 auto;padding:110px 16px 40px;color:#c9c9cf;font-family:Tajawal,Inter,sans-serif;line-height:1.7";
+const TYPE_OF = { "تخفيض": "discount", "كوبون": "coupon", "كاش باك": "cashback" };
+
+/** صفحة الشركة كـ HTML بسيط (نفس النصوص اللي يعرضها React): العنوان، العروض، الخطوات، النبذة، الأسئلة، المشابهة. */
+function storeBody({ c, lang, t, L, catLabel, catUrl, crumbs, steps, faq, similar, rating }) {
+  const value = locText(c, "discount", lang);
+  const premium = storeHasPremium(c) ? locText(c, "premium_discount", lang) : "";
+  const about = locText(c, "about", lang);
+  const lines = (txt) => String(txt || "").split(/\r?\n/).map((x) => x.replace(/^\s*(?:[-–•*·]|\d+[.)-])\s*/, "").trim()).filter(Boolean);
+  const features = lines(locText(c, "features", lang));
+  const typeLabel = L.types?.[TYPE_OF[c.type] || "discount"] || "";
+  const n = Number(rating?.count) || 0;
+  let h = `<main dir="${dirOf(lang)}" style="${BODY_STYLE}">`;
+  h += `<nav aria-label="breadcrumb">${crumbs.map((x, i) => (i < crumbs.length - 1 ? `<a href="${esc(x.url)}">${esc(x.name)}</a> › ` : `<span>${esc(x.name)}</span>`)).join("")}</nav>`;
+  h += `<h1>${esc(c.name)}</h1><p>${esc(typeLabel)}${catLabel ? ` · ${catUrl ? `<a href="${esc(catUrl)}">${esc(catLabel)}</a>` : esc(catLabel)}` : ""}</p>`;
+  if (n >= RATING_MIN_AVG && rating?.avg != null) h += `<p>★ ${esc(rating.avg)} / 5 · ${esc(t("storePage.rating.count", { count: n }))}</p>`;
+  if (locText(c, "description", lang)) h += `<p>${esc(locText(c, "description", lang))}</p>`;
+  h += `<section><h2>${esc(t("storePage.offersTitle", { name: c.name }))}</h2>`;
+  if (value) h += `<p><strong>${esc(value)}</strong>${c.code ? ` — ${esc(t("storePage.codeLabel"))}: <code>${esc(c.code)}</code>` : ""}</p>`;
+  if (premium) h += `<p>${esc(t("storePage.premiumWith"))}: <strong>${esc(premium)}</strong>${locText(c, "premium_description", lang) ? ` — ${esc(locText(c, "premium_description", lang))}` : ""}</p>`;
+  h += `</section>`;
+  if (steps.length) h += `<section><h2>${esc(t("storePage.stepsTitle", { name: c.name }))}</h2><ol>${steps.map((st) => `<li>${st.title ? `<strong>${esc(st.title)}</strong>: ` : ""}${esc(st.desc)}</li>`).join("")}</ol></section>`;
+  if (about || features.length) {
+    h += `<section><h2>${esc(t("storePage.aboutTitle", { name: c.name }))}</h2>`;
+    h += lines(about).map((p) => `<p>${esc(p)}</p>`).join("");
+    if (features.length) h += `<ul>${features.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`;
+    h += `</section>`;
+  }
+  if (faq.length) h += `<section><h2>${esc(t("storePage.faq.title", { name: c.name }))}</h2>${faq.map((q) => `<h3>${esc(q.q)}</h3><p>${esc(q.a)}</p>`).join("")}</section>`;
+  if (similar.length) {
+    h += `<section><h2>${esc(t("storePage.similarTitle"))}</h2><ul>${similar
+      .map((x) => `<li><a href="${esc(storeUrl(x.slug, lang))}">${esc(x.name)}</a>${loc(x, "discount", lang) ? ` — ${esc(loc(x, "discount", lang))}` : ""}</li>`)
+      .join("")}</ul>${catUrl && catLabel ? `<p><a href="${esc(catUrl)}">${esc(t("storePage.similarAll", { category: catLabel }))}</a></p>` : ""}</section>`;
+  }
+  return h + "</main>";
+}
+
 function breadcrumbOf(items) {
   return { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: items.map((it, i) => ({ "@type": "ListItem", position: i + 1, name: it.name, item: it.url })) };
 }

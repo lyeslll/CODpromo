@@ -55,10 +55,13 @@ function urlNode(loc, urlFor, lastmod) {
 export default async function handler(req, res) {
   try {
     const sbHeaders = { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` };
-    const r = await fetch(
-      `${SUPABASE_URL}/rest/v1/companies?select=slug,category,category_en,created_at&order=created_at.desc`,
+    // code_checked_at (phase34): آخر تحقق من الكود = آخر تبديل حقيقي في الصفحة. بلاه (قاعدة قديمة) نرجعو للقديم.
+    let r = await fetch(
+      `${SUPABASE_URL}/rest/v1/companies?select=slug,category,category_en,created_at,code_checked_at&order=created_at.desc`,
       { headers: sbHeaders }
     );
+    if (!r.ok)
+      r = await fetch(`${SUPABASE_URL}/rest/v1/companies?select=slug,category,category_en,created_at&order=created_at.desc`, { headers: sbHeaders });
     const companies = r.ok ? await r.json() : [];
 
     // الفئات من الجدول (المصدر الحقيقي) — المفعّلة فقط
@@ -114,7 +117,8 @@ export default async function handler(req, res) {
     // صفحات الشركات
     for (const c of companies) {
       if (!c.slug) continue;
-      const lastmod = c.created_at ? new Date(c.created_at).toISOString() : null;
+      const times = [c.created_at, c.code_checked_at].filter(Boolean).map((d) => new Date(d).getTime()).filter((n) => !Number.isNaN(n));
+      const lastmod = times.length ? new Date(Math.max(...times)).toISOString() : null;
       for (const lang of LANGS) {
         nodes.push(urlNode(storeUrl(c.slug, lang), (l) => storeUrl(c.slug, l), lastmod));
       }

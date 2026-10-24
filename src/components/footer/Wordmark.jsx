@@ -1,35 +1,65 @@
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-const EASE = [0.16, 1, 0.3, 1];
-
-/** الكلمة نفسها: C ثابتة، و "OD" ⇄ "ode" تنزلق، و "promo" تتحرك بسلاسة مع تغيّر العرض. */
+/**
+ * الكلمة نفسها: C ثابتة، و "OD" ⇄ "ode" تنزلق، و "promo" تتحرك بسلاسة مع تغيّر العرض.
+ * قبل: الجزء الوسطاني كان overflow-hidden ويصغر تحت عرض نصّو → الحرف الرابع ("e" تاع Code) يتقصّ في
+ * الهاتف وفي بعض المتصفحات. دروك: عرضو يتقاس (بعد ما يتحمّل الخط) ويتحرّك بـ CSS، والقصّ عمودي برك،
+ * والخط محسوب على "Code promo" (الأطول) باش الكلمة كاملة تدخل في الشاشة.
+ */
 function Word({ code, className = "", style }) {
   const { t } = useTranslation();
   const from = t("footer.word.cod");
   const to = t("footer.word.code");
+  const aRef = useRef(null);
+  const bRef = useRef(null);
+  const [w, setW] = useState(null);
+  useLayoutEffect(() => {
+    const measure = () => {
+      const fw = aRef.current?.offsetWidth || 0;
+      const tw = bRef.current?.offsetWidth || 0;
+      if (fw && tw) setW({ from: fw, to: tw });
+    };
+    measure();
+    document.fonts?.ready?.then(measure);
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    if (ro && aRef.current) ro.observe(aRef.current);
+    return () => ro?.disconnect();
+  }, [from, to]);
+  const ease = "cubic-bezier(0.16, 1, 0.3, 1)";
+  const part = (on) => ({
+    display: "inline-block",
+    position: on ? "relative" : "absolute",
+    insetInlineStart: 0,
+    top: on ? 0 : "0.08em", // الجزء المخبّي فوق نفس السطر (نفس الحشو تاع الحاوية)
+    transform: on ? "translateY(0)" : code ? "translateY(-75%)" : "translateY(75%)",
+    opacity: on ? 1 : 0,
+    transition: `transform 0.5s ${ease}, opacity 0.5s ${ease}`,
+  });
   return (
     <div
       className={`flex items-baseline justify-center whitespace-nowrap font-black leading-[0.86] tracking-[-0.05em] [font-family:Inter,sans-serif] ${className}`}
-      style={{ fontSize: "clamp(58px, 18.5vw, 290px)", ...style }}
+      style={{ fontSize: "clamp(44px, 15.5vw, 260px)", ...style }}
     >
-      <motion.span layout="position">{from.charAt(0)}</motion.span>
+      <span>{from.charAt(0)}</span>
       {/* مع "Code" تنفتح مسافة صغيرة قبل promo: "Code promo" */}
-      <motion.span layout className="relative inline-flex overflow-hidden py-[0.08em]" style={{ marginInlineEnd: code ? "0.2em" : 0 }}>
-        <AnimatePresence mode="popLayout" initial={false}>
-          <motion.span
-            key={code ? "to" : "from"}
-            initial={{ y: "75%", opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: "-75%", opacity: 0 }}
-            transition={{ duration: 0.5, ease: EASE }}
-          >
-            {(code ? to : from).slice(1)}
-          </motion.span>
-        </AnimatePresence>
-      </motion.span>
-      <motion.span layout="position">{t("footer.word.promo")}</motion.span>
+      <span
+        className="relative inline-block py-[0.08em]"
+        style={{
+          width: w ? (code ? w.to : w.from) : undefined,
+          marginInlineEnd: code ? "0.2em" : 0,
+          clipPath: "inset(0 -0.6em)",
+          transition: `width 0.5s ${ease}, margin 0.5s ${ease}`,
+        }}
+      >
+        <span ref={aRef} aria-hidden={code} style={part(!code)}>
+          {from.slice(1)}
+        </span>
+        <span ref={bRef} aria-hidden={!code} style={part(code)}>
+          {to.slice(1)}
+        </span>
+      </span>
+      <span>{t("footer.word.promo")}</span>
     </div>
   );
 }

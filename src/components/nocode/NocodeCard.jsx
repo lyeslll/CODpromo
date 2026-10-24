@@ -9,6 +9,7 @@ import { isImageUrl } from "../CompanyLogo.jsx";
 import { GlowSpot, useCardGlow } from "../CardGlow.jsx";
 import { useWaveValue, useCountText } from "../../lib/modeWave.jsx";
 import { logoSrc } from "../../lib/logoImage.js";
+import BidiText from "../BidiText.jsx";
 import "./nocode.css";
 
 // اللون الرابع: "بلا كود" (بنفسجي) — والذهبي لـ Premium، والرمادي للمجمّدة.
@@ -199,10 +200,16 @@ export default function NocodeCard({ deal, premium: premiumProp = false, unlocke
             </p>
             {condition && (
               <p className="gift-chip">
-                <span>{condition}</span>
+                <span>
+                  <BidiText text={condition} rtl={lang === "ar"} />
+                </span>
               </p>
             )}
-            {desc && <p className="gift-desc">{desc}</p>}
+            {desc && (
+              <p className="gift-desc">
+                <BidiText text={desc} rtl={lang === "ar"} />
+              </p>
+            )}
           </>
         )}
 

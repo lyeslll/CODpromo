@@ -570,6 +570,16 @@ body {
   }
 }
 
+/* /premium: وقت يبان شريط الشراء العائم، شريط التنقّل وزر الرجوع للأعلى يتنحّاو (الهاتف) */
+@media (max-width: 767px) {
+  body.sticky-buy-on .bottom-nav {
+    transform: translateY(135%) !important;
+  }
+  body.sticky-buy-on [data-btt-float] {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
 /* زر Premium الذهبي في الشريط السفلي: حلقة ذهبية خفيفة كي تكون في صفحات Premium */
 .bn-gold-on {
   box-shadow:

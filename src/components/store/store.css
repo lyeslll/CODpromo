@@ -1,0 +1,151 @@
+/* ============================================================
+   صفحة الشركة (/store/:slug) — التذكرة الكبيرة فوق، الخطوات، التقييم، الشريط الثابت (الهاتف)
+   نفس عائلة تذاكر الكوبون (.ticket في index.css). اللون --sa = لون نوع العرض.
+   ============================================================ */
+
+.store-hero .ticket-top,
+.store-hero .ticket-stub {
+  background: var(--color-ink-card);
+}
+.store-hero .ticket-top {
+  background:
+    radial-gradient(120% 70% at 50% -10%, var(--sa-soft), transparent 62%),
+    var(--color-ink-card);
+}
+
+/* القيمة الكبيرة: أرقام لاتينية بخط Inter ثقيل */
+.store-value {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--sa);
+  text-shadow: 0 0 34px var(--sa-glow);
+}
+
+/* خانة الكود (إطار متقطّع كيما الكوبون) */
+.store-code {
+  border: 1.5px dashed var(--sa-line);
+  background: var(--sa-faint);
+}
+.store-copy {
+  background: linear-gradient(135deg, var(--sa-hi), var(--sa));
+  color: #0a0a0a;
+  box-shadow: 0 10px 26px -12px var(--sa-glow);
+}
+.store-copy:focus-visible,
+.store-gold:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.store-gold {
+  border: 1px solid rgba(240, 198, 60, 0.38);
+  background: linear-gradient(100deg, rgba(240, 198, 60, 0.13), rgba(240, 198, 60, 0.04));
+}
+
+/* الخطوات: خط متقطّع يربط الأرقام (نفس خط التثقيب) */
+.store-steps {
+  counter-reset: step;
+}
+.store-step {
+  position: relative;
+}
+.store-step-num {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  background: linear-gradient(135deg, var(--sa-hi), var(--sa));
+}
+@media (max-width: 767px) {
+  .store-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 19px;
+    top: 46px;
+    bottom: -10px;
+    width: 2px;
+    background-image: linear-gradient(180deg, var(--sa-line) 55%, transparent 0);
+    background-size: 2px 9px;
+  }
+}
+@media (min-width: 768px) {
+  .store-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 19px;
+    inset-inline-start: 52px;
+    inset-inline-end: -14px;
+    height: 2px;
+    background-image: linear-gradient(90deg, var(--sa-line) 55%, transparent 0);
+    background-size: 9px 2px;
+  }
+}
+
+/* النجوم */
+.star-btn {
+  -webkit-tap-highlight-color: transparent;
+}
+.star-btn svg {
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.15s ease;
+}
+.star-btn[aria-checked="true"] svg,
+.star-btn.is-on svg {
+  color: #fbbf24;
+  fill: #fbbf24;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .star-btn:active svg {
+    transform: scale(0.86);
+  }
+  .star-btn.is-on svg {
+    transform: scale(1.06);
+  }
+}
+
+/* الأسئلة (details/summary — كل الأجوبة في الصفحة للـ SEO) */
+.store-faq summary {
+  list-style: none;
+  cursor: pointer;
+}
+.store-faq summary::-webkit-details-marker {
+  display: none;
+}
+.store-faq[open] .faq-chevron {
+  transform: rotate(180deg);
+}
+
+/* شركات مشابهة: شريط سحب في الهاتف */
+.similar-row {
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.similar-row::-webkit-scrollbar {
+  display: none;
+}
+.similar-row > * {
+  scroll-snap-align: start;
+}
+
+/* الشريط الثابت (الهاتف): فوق شريط التنقّل، وينزل لتحت كي يتخبّى الشريط */
+.store-sticky {
+  bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  transition:
+    bottom 0.3s ease,
+    transform 0.3s ease,
+    opacity 0.3s ease;
+}
+.store-sticky.nav-hidden {
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+}
+.store-sticky.off {
+  transform: translateY(140%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* الشريط الثابت ظاهر → زر "الرجوع للأعلى" العائم يتخبّى في الهاتف (ما يركبش فوق "انسخ الكود") */
+@media (max-width: 767px) {
+  body.has-store-sticky [data-btt-float] {
+    opacity: 0;
+    visibility: hidden;
+  }
+}

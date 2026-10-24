@@ -65,10 +65,14 @@ const LOGO_BGS = ["", "white", "dark", "transparent"];
 
 // ===================== مسودة تلقائية (localStorage) =====================
 // الفورم يتحفظ وحدو وأنت تكتب؛ كي ترجع (تبديل تبويب، إعادة تحميل، خروج بالغلط) يرجع كيما خليتو.
+// كود ورابط Premium (السرّ اللي نبيعوه) في sessionStorage برك: يبقاو في نفس التبويب، ويتمسحو كي يتسكّر.
 const DRAFT_PREFIX = "codpromo:company-draft:";
+const DRAFT_TTL_MS = 7 * 24 * 3600 * 1000;
+const DRAFT_SECRET = ["premium_code", "premium_url"];
 export function clearCompanyDraft(key) {
   try {
     localStorage.removeItem(DRAFT_PREFIX + key);
+    sessionStorage.removeItem(DRAFT_PREFIX + key);
   } catch {
     /* تجاهل */
   }
@@ -76,11 +80,24 @@ export function clearCompanyDraft(key) {
 function readDraft(key) {
   try {
     const d = JSON.parse(localStorage.getItem(DRAFT_PREFIX + key) || "null");
-    if (!d || !d.form || Date.now() - d.at > 14 * 24 * 3600 * 1000) return null;
-    return d;
+    if (!d || !d.form || Date.now() - d.at > DRAFT_TTL_MS) return null;
+    const secret = JSON.parse(sessionStorage.getItem(DRAFT_PREFIX + key) || "null");
+    return secret ? { ...d, form: { ...d.form, ...secret } } : d;
   } catch {
     return null;
   }
+}
+function writeDraft(key, form, priv) {
+  const pub = { ...form };
+  const secret = {};
+  for (const k of DRAFT_SECRET) {
+    if (k in pub) {
+      secret[k] = pub[k];
+      delete pub[k];
+    }
+  }
+  localStorage.setItem(DRAFT_PREFIX + key, JSON.stringify({ form: pub, priv, at: Date.now() }));
+  sessionStorage.setItem(DRAFT_PREFIX + key, JSON.stringify(secret));
 }
 const EMPTY_PRIVATE = { website_url: "", contact_name: "", whatsapp: "", email: "", commission_pct: "", affiliate_dashboard_url: "", affiliate_url: "", notes: "" };
 // قسم الشركة: نفس المفاتيح تقريباً + رسالة لنا (contact_email بدل email)
@@ -161,8 +178,8 @@ export default function CompanyOfferForm({
     const id = setTimeout(() => {
       const now = JSON.stringify({ form, priv });
       try {
-        if (now === baseline.current) localStorage.removeItem(DRAFT_PREFIX + draftKey);
-        else localStorage.setItem(DRAFT_PREFIX + draftKey, JSON.stringify({ form, priv, at: Date.now() }));
+        if (now === baseline.current) clearCompanyDraft(draftKey);
+        else writeDraft(draftKey, form, priv);
       } catch {
         /* تخزين ممتلئ / ممنوع: الفورم يبقى يخدم */
       }

@@ -12,7 +12,7 @@ import CompareLedger from "../components/premium-page/CompareLedger.jsx";
 import PartnerLogos from "../components/premium-page/PartnerLogos.jsx";
 import HowItWorks from "../components/premium-page/HowItWorks.jsx";
 import PriceSection from "../components/premium-page/PriceSection.jsx";
-import PremiumPageFaq, { premiumPageFaqItems } from "../components/premium-page/PremiumPageFaq.jsx";
+import PremiumPageFaq, { premiumPageFaqItems, stripServerFaqQuestions } from "../components/premium-page/PremiumPageFaq.jsx";
 import StickyBuy from "../components/premium-page/StickyBuy.jsx";
 import { useMobileFx } from "../components/featured/mobile.js";
 import { loadHeaderOffers, useSharedStats } from "../components/header/headerData.js";
@@ -124,9 +124,17 @@ export default function PremiumPage({ lang = "ar" }) {
   }, []);
   const stickyVisible = !member && scrolled && !heroCtaOn && !priceCtaOn && !finalOn && modal === null;
 
-  // SEO: Product (السعر الحقيقي بالدولار والدينار) + FAQPage (نفس الأسئلة الظاهرة) + Breadcrumb
+  // داخل التطبيق برك (نفس كشف androidApp.js): البيانات المخفية بلا سؤال طرق الدفع — حتى اللي حطّها الخادم
+  // (api/prerender.js، فيها جواب الويب). Google وزوار المتصفح يلقاوها كاملة.
+  useEffect(() => {
+    if (appMode !== "app") return;
+    stripServerFaqQuestions(["ar", "en", "fr"].map((l) => i18n.getFixedT(l)("premiumFaq.methods.q")));
+  }, [appMode, i18n]);
+
+  // SEO: Product (السعر الحقيقي بالدولار والدينار) + FAQPage (نفس الأسئلة الظاهرة؛ في التطبيق بلا طرق الدفع) + Breadcrumb
   const canonical = premiumUrl(lang);
   const faqItems = premiumPageFaqItems(t, lang, pricing, appMode, freeKeyStatus !== "off");
+  const ldFaqItems = appMode === "app" ? faqItems.filter((f) => f.k !== "methods") : faqItems;
   const jsonLd = [
     {
       "@context": "https://schema.org",
@@ -155,7 +163,7 @@ export default function PremiumPage({ lang = "ar" }) {
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      mainEntity: faqItems.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+      mainEntity: ldFaqItems.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
     },
     {
       "@context": "https://schema.org",

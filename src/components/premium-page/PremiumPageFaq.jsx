@@ -24,6 +24,25 @@ export function premiumPageFaqItems(t, lang, pricing, appMode, withGoldenKey) {
   return [...base, ...extra].sort((a, b) => order.indexOf(a.k) - order.indexOf(b.k));
 }
 
+/**
+ * داخل التطبيق برك: الأسئلة (بالنص، أي لغة) تتنحّى من FAQPage اللي حطّو الخادم في الصفحة (api/prerender.js —
+ * سكريبتات JSON-LD بلا data-rh تاع Helmet). فيه جواب الويب (أسماء البوابات)؛ Google في الموقع يلقاه كامل.
+ */
+export function stripServerFaqQuestions(names) {
+  for (const el of document.querySelectorAll('script[type="application/ld+json"]:not([data-rh])')) {
+    let ld;
+    try {
+      ld = JSON.parse(el.textContent);
+    } catch {
+      continue;
+    }
+    if (ld?.["@type"] !== "FAQPage" || !Array.isArray(ld.mainEntity)) continue;
+    const kept = ld.mainEntity.filter((q) => !names.includes(q?.name));
+    if (kept.length === ld.mainEntity.length) continue;
+    el.textContent = JSON.stringify({ ...ld, mainEntity: kept });
+  }
+}
+
 export default function PremiumPageFaq({ items }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(0);

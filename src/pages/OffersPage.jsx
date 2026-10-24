@@ -268,6 +268,13 @@ export default function OffersPage({ lang = "ar" }) {
       /* تجاهل آمن */
     }
   };
+  // التلميح كان يبقى حتى يسحب الزائر (كثير ما يسحبوش) ويغطّي "نسخ الكود": دروك يروح وحدو بعد 5 ثواني من ظهورو
+  useEffect(() => {
+    if (!showSwipeHint || !pastTop) return;
+    const id = setTimeout(dismissSwipeHint, 5000);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showSwipeHint, pastTop]);
 
   // ===== السحب الأفقي على القائمة (لمس فقط) للتبديل عادي ⇄ Premium =====
   // touch-action: pan-y → التمرير العمودي يبقى للمتصفح، والحركة الأفقية لنا.

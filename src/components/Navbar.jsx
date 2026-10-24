@@ -155,7 +155,9 @@ export default function Navbar() {
         {/* ===== الكبسولة (الهيدر) — لمسة تعريف خفيفة في الأعلى، زجاجية وأصغر قليلاً عند النزول ===== */}
         <div
           className={`nav-capsule relative flex items-center justify-between rounded-2xl border px-3.5 transition-all duration-300 sm:px-5 lg:px-4 xl:px-5 ${
-            scrolled
+            open
+              ? `border-[var(--color-ink-line)] bg-[var(--elev)] shadow-[0_10px_40px_-14px_rgba(0,0,0,0.65)] ${scrolled ? "py-1.5" : "py-2.5"}`
+              : scrolled
               ? "border-[var(--color-ink-line)] bg-[var(--elev)]/65 py-1.5 shadow-[0_10px_40px_-14px_rgba(0,0,0,0.65)] backdrop-blur-2xl backdrop-saturate-150"
               : "border-[var(--color-ink-line)]/40 bg-[var(--elev)]/25 py-2.5 shadow-[0_4px_24px_-18px_rgba(0,0,0,0.5)] backdrop-blur-md"
           }`}
@@ -342,6 +344,10 @@ export default function Navbar() {
         onClose={() => setOpen(false)}
         onPremium={openPremium}
         onLogout={logout}
+        onSearch={() => {
+          setOpen(false);
+          setSearchOpen(true);
+        }}
         originRef={menuBtnRef}
         offersCount={offersCount}
       />

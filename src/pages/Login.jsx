@@ -111,8 +111,9 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setShow((v) => !v)}
-              className="absolute end-3 top-1/2 -translate-y-1/2 text-[var(--color-mute)] hover:text-[var(--text)]"
-              tabIndex={-1}
+              className="absolute end-1 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-lg text-[var(--color-mute)] hover:text-[var(--text)]"
+              aria-label={t(show ? "dashboard.settings.hide" : "dashboard.settings.show")}
+              aria-pressed={show}
             >
               {show ? <EyeOff size={17} /> : <Eye size={17} />}
             </button>

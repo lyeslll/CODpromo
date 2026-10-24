@@ -349,7 +349,8 @@
       "errGeneric": "Impossible de créer le compte",
       "typeLabel": "Type de compte",
       "giftNote": "Votre cadeau est conservé : après la confirmation de votre e-mail, il s'active sur votre compte. S'il ne s'active pas automatiquement, rouvrez le lien du cadeau.",
-      "freeKeyNote": "Votre clé dorée est gardée : après la confirmation de votre e-mail, vous revenez directement aux offres pour l'utiliser."
+      "freeKeyNote": "Votre clé dorée est gardée : après la confirmation de votre e-mail, vous revenez directement aux offres pour l'utiliser.",
+      "companyEmailOnly": "Les comptes entreprise se créent avec un e-mail et un mot de passe, pour les relier aux informations de votre entreprise."
     },
     "forgot": {
       "title": "Réinitialiser le mot de passe",
@@ -359,7 +360,8 @@
       "email": "E-mail",
       "submit": "Envoyer le lien",
       "doneText": "Si <0>{{email}}</0> est enregistré, vous recevrez un e-mail avec un lien de réinitialisation.",
-      "errFail": "Impossible d'envoyer le lien"
+      "errFail": "Impossible d'envoyer le lien",
+      "errWait": "Nous venons de vous envoyer un lien. Attendez une minute avant de réessayer et vérifiez vos spams."
     },
     "reset": {
       "title": "Nouveau mot de passe",
@@ -379,7 +381,8 @@
       "invalidText": "Ouvrez le lien de réinitialisation directement depuis votre e-mail, ou demandez-en un nouveau.",
       "errShort": "Le mot de passe doit comporter au moins 6 caractères",
       "errMismatch": "Les mots de passe ne correspondent pas",
-      "errFail": "Impossible de mettre à jour le mot de passe"
+      "errFail": "Impossible de mettre à jour le mot de passe",
+      "errSame": "Choisissez un mot de passe différent de l’actuel."
     },
     "tooFast": "Un instant, puis réessayez."
   },

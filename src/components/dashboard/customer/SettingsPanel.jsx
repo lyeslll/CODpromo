@@ -148,8 +148,8 @@ function PasswordForm({ updatePassword }) {
           placeholder={t("auth.reset.newPassword")}
           aria-label={t("auth.reset.newPassword")}
           autoComplete="new-password"
-          className={`${inputCls} pe-11`}
-          dir="ltr"
+          className={`${inputCls} pe-11 ps-11`}
+          dir={pwd ? "ltr" : undefined}
         />
         <button
           type="button"
@@ -168,7 +168,7 @@ function PasswordForm({ updatePassword }) {
         aria-label={t("auth.reset.confirm")}
         autoComplete="new-password"
         className={inputCls}
-        dir="ltr"
+        dir={confirm ? "ltr" : undefined}
       />
       <button type="submit" disabled={busy || !pwd} className={saveCls} style={LIME_BG}>
         {busy && <Loader2 size={15} className="animate-spin" />} {t("dashboard.settings.savePassword")}

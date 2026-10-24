@@ -349,7 +349,8 @@
       "errGeneric": "Couldn't create the account",
       "typeLabel": "Account type",
       "giftNote": "Your gift is saved: once you confirm your email, it activates on your account. If it doesn't activate automatically, open the gift link again.",
-      "freeKeyNote": "Your golden key is saved: once you confirm your email, you'll go straight back to the offers to use it."
+      "freeKeyNote": "Your golden key is saved: once you confirm your email, you'll go straight back to the offers to use it.",
+      "companyEmailOnly": "Company accounts are created with an e-mail and password, so we can link them to your company details."
     },
     "forgot": {
       "title": "Reset your password",
@@ -359,7 +360,8 @@
       "email": "Email",
       "submit": "Send link",
       "doneText": "If <0>{{email}}</0> is registered, you'll receive an email with a password reset link.",
-      "errFail": "Couldn't send the link"
+      "errFail": "Couldn't send the link",
+      "errWait": "We just sent you a link. Wait a minute before trying again, and check your spam folder."
     },
     "reset": {
       "title": "New password",
@@ -379,7 +381,8 @@
       "invalidText": "Open the reset link straight from your email, or request a new one.",
       "errShort": "Password must be at least 6 characters",
       "errMismatch": "Passwords don't match",
-      "errFail": "Couldn't update the password"
+      "errFail": "Couldn't update the password",
+      "errSame": "Choose a password different from your current one."
     },
     "tooFast": "One moment, then try again."
   },

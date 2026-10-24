@@ -190,9 +190,17 @@ export default function Signup() {
         })}
       </div>
 
-      <GoogleButton onClick={google} loading={googleLoading} label={t("auth.signup.google")} />
-
-      <Divider />
+      {/* Google ما يبعثش نوع الحساب → حساب الشركة كان يتصنع "زبون". حساب الشركة بالبريد برك. */}
+      {isCompany ? (
+        <p className="rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-3.5 py-3 text-[13px] leading-relaxed text-[var(--text-soft)]">
+          {t("auth.signup.companyEmailOnly")}
+        </p>
+      ) : (
+        <>
+          <GoogleButton onClick={google} loading={googleLoading} label={t("auth.signup.google")} />
+          <Divider />
+        </>
+      )}
 
       <form onSubmit={submit} className="flex flex-col gap-4">
         {guard.trap}
@@ -268,17 +276,18 @@ export default function Signup() {
           <input
             type={show ? "text" : "password"}
             required
-            dir="ltr"
+            dir={password ? "ltr" : undefined}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t("auth.signup.passwordPh")}
-            className={`${authInputCls} ps-10 pe-10 text-left`}
+            className={`${authInputCls} ps-10 pe-10`}
           />
           <button
             type="button"
             onClick={() => setShow((v) => !v)}
-            className="absolute end-3 top-1/2 -translate-y-1/2 text-[var(--color-mute)] hover:text-[var(--text)]"
-            tabIndex={-1}
+            className="absolute end-1 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-lg text-[var(--color-mute)] hover:text-[var(--text)]"
+            aria-label={t(show ? "dashboard.settings.hide" : "dashboard.settings.show")}
+            aria-pressed={show}
           >
             {show ? <EyeOff size={17} /> : <Eye size={17} />}
           </button>

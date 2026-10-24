@@ -34,7 +34,10 @@ export default function ResetPassword() {
     setLoading(true);
     const { error } = await updatePassword(password);
     setLoading(false);
-    if (error) return setError(error.message || t("auth.reset.errFail"));
+    if (error) {
+      const m = error.message || "";
+      return setError(t(/different from the old/i.test(m) ? "auth.reset.errSame" : /weak|at least/i.test(m) ? "auth.reset.errShort" : "auth.reset.errFail"));
+    }
     setDone(true);
     setTimeout(() => navigate("/login"), 2200);
   };
@@ -90,17 +93,18 @@ export default function ResetPassword() {
           <input
             type={show ? "text" : "password"}
             required
-            dir="ltr"
+            dir={password ? "ltr" : undefined}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t("auth.reset.newPasswordPh")}
-            className={`${authInputCls} ps-10 pe-10 text-left`}
+            className={`${authInputCls} ps-10 pe-10`}
           />
           <button
             type="button"
             onClick={() => setShow((v) => !v)}
-            className="absolute end-3 top-1/2 -translate-y-1/2 text-[var(--color-mute)] hover:text-[var(--text)]"
-            tabIndex={-1}
+            className="absolute end-1 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-lg text-[var(--color-mute)] hover:text-[var(--text)]"
+            aria-label={t(show ? "dashboard.settings.hide" : "dashboard.settings.show")}
+            aria-pressed={show}
           >
             {show ? <EyeOff size={17} /> : <Eye size={17} />}
           </button>
@@ -110,11 +114,11 @@ export default function ResetPassword() {
           <input
             type={show ? "text" : "password"}
             required
-            dir="ltr"
+            dir={confirm ? "ltr" : undefined}
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             placeholder={t("auth.reset.confirmPh")}
-            className={`${authInputCls} ps-10 text-left`}
+            className={`${authInputCls} ps-10`}
           />
         </Field>
 

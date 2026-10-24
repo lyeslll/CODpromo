@@ -22,11 +22,14 @@ import {
 import { useTranslation } from "react-i18next";
 import { usePremium, isPremiumProfile, isLifetimeProfile } from "../lib/premium.jsx";
 import { useAuth } from "../lib/auth.jsx";
-import { usePricing, usePricingRefresh } from "../lib/pricing.jsx";
+import { usePricing, usePricingRefresh, formatPrice } from "../lib/pricing.jsx";
 import { startStripeCheckout, startPaypalCheckout, startSlickpayCheckout } from "../lib/billing.js";
 import { getPlayDetails, purchasePlay, syncPlayPurchases } from "../lib/playBilling.js";
 import { useAndroidApp } from "../lib/androidApp.js";
 import { setPendingPremium } from "../lib/goPremium.js";
+import { useKeys } from "../lib/keysContext.jsx";
+import { redeemPremiumWithCredit, startCreditCheckout } from "../lib/keys.js";
+import { formatMoney } from "./keys/money.js";
 import { offersLink } from "../lib/seo.js";
 import LifetimePrice from "./pricing/LifetimePrice.jsx";
 import SeatsMeter from "./pricing/SeatsMeter.jsx";
@@ -70,6 +73,8 @@ const isPhone = () => typeof window !== "undefined" && window.matchMedia("(max-w
  *  - زائر بلا حساب: خطوة "أنشئ حسابك أولاً" → التسجيل / الدخول ثم يرجع لـ /premium?checkout=1.
  *  - Google Play ناجح → صفحة النجاح الموحّدة (/payment-success?via=google_play).
  * initialStep: "home" (افتراضي) ولا "stork".
+ * النظام العادل (المفاتيح الماسية، الموقع برك): رصيد المفاتيح ينقص من السعر — الدفع بالباقي عبر
+ * premium-credit-checkout، ولا "فعّل بالرصيد" إذا يغطي السعر كامل. داخل التطبيق (ولا وقت الفحص) ما يبانش.
  */
 export default function PremiumModal({ open, onClose, initialStep = "home" }) {
   const { t, i18n } = useTranslation();
@@ -92,6 +97,10 @@ export default function PremiumModal({ open, onClose, initialStep = "home" }) {
   // "checking" = الفحص مازال (أقل من ثانيتين): حتى طريقة ما تبان باش ما تبانش الغالطة.
   const appMode = useAndroidApp();
   const playAvailable = appMode === "app";
+  const keys = useKeys();
+  // الرصيد اللي ينقص من Premium: الموقع برك، حساب عندو رصيد (الخادم يعاود يحسب عند الدفع)
+  const credit = appMode === "web" && user && keys.status === "ok" && keys.credit?.creditDzd > 0 ? keys.credit : null;
+  const [redeeming, setRedeeming] = useState(false);
   const [playDetails, setPlayDetails] = useState({});
 
   // أسعار Play المحلية (داخل التطبيق برك)
@@ -114,6 +123,8 @@ export default function PremiumModal({ open, onClose, initialStep = "home" }) {
     setSheet(isPhone());
     setPricingFailed(false);
     refreshPricing().then((p) => setPricingFailed(!p));
+    keys.refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialStep, refreshPricing]);
 
   // Escape يسكّر
@@ -170,11 +181,53 @@ export default function PremiumModal({ open, onClose, initialStep = "home" }) {
     setPaying(m.key);
     if (!(await stillFree())) return setPaying(null);
     try {
+      if (credit) {
+        // الرصيد تبدّل (مثلاً استرداد): بلا رصيد → الدفع العادي، يغطي كامل → "فعّل بالرصيد"
+        try {
+          await startCreditCheckout(m.key);
+          return;
+        } catch (e) {
+          if (e?.code === "covered") {
+            setPaying(null);
+            keys.refresh();
+            return;
+          }
+          if (e?.code !== "no_credit") throw e;
+        }
+      }
       await m.start();
     } catch (e) {
       setPaying(null);
       setPayError(payErrorText(e));
     }
+  };
+
+  // الرصيد يغطي Premium كامل: تفعيل بلا دفع (keys_premium_redeem يعاود يحسب في الخادم)
+  const redeemCredit = async () => {
+    setPayError("");
+    if (!user || redeeming) return;
+    setRedeeming(true);
+    if (keys.demo) {
+      close();
+      navigate("/payment-success?demo=credit&credit=1");
+      return;
+    }
+    let r = null;
+    try {
+      r = await redeemPremiumWithCredit();
+    } catch {
+      r = null;
+    }
+    setRedeeming(false);
+    if (r?.status === "ok") {
+      await refreshProfile?.();
+      keys.refresh();
+      close();
+      navigate("/payment-success?via=credit");
+      return;
+    }
+    keys.refresh();
+    setPayError(r?.status === "has_premium" ? t("premium.errors.already") : r?.status === "not_covered" ? t("keys.credit.changed") : t("premium.payError"));
   };
 
   // Google Play (داخل التطبيق فقط): المنتوج حسب السعر الحالي، والمنح خادمي عبر verify-play-purchase
@@ -367,7 +420,25 @@ export default function PremiumModal({ open, onClose, initialStep = "home" }) {
                         </div>
 
                         {pricing ? (
-                          <LifetimePrice pricing={pricing} size="md" className="mt-3" />
+                          <>
+                            <LifetimePrice pricing={pricing} size="md" className="mt-3" />
+                            {credit && (
+                              <dl className="mt-3 grid gap-1.5 border-t border-dashed border-[rgba(240,198,60,0.35)] pt-3 text-[13px]">
+                                <div className="flex items-center justify-between gap-3">
+                                  <dt className="font-bold text-[var(--text-soft)]">{t("keys.credit.row")}</dt>
+                                  <dd className="font-extrabold text-[#dbeeff]">
+                                    <bdi>−{formatMoney(t, i18n.language, credit.appliedDzd, "DZD")}</bdi>
+                                  </dd>
+                                </div>
+                                <div className="flex items-center justify-between gap-3">
+                                  <dt className="font-bold text-[var(--text-soft)]">{t("keys.credit.pay")}</dt>
+                                  <dd className="text-[16px] font-black" style={{ color: GOLD_SOFT }}>
+                                    <bdi>{credit.covered ? formatMoney(t, i18n.language, 0, "DZD") : formatPrice(t, i18n.language, credit.dueDzd, credit.dueUsd)}</bdi>
+                                  </dd>
+                                </div>
+                              </dl>
+                            )}
+                          </>
                         ) : pricingFailed ? (
                           <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-red-500/30 bg-red-500/[0.08] px-3.5 py-2.5">
                             <p className="text-[12.5px] font-semibold text-red-300">{t("pricing.error")}</p>
@@ -400,7 +471,18 @@ export default function PremiumModal({ open, onClose, initialStep = "home" }) {
 
                     <div className="flex flex-col gap-2" aria-busy={appMode === "checking"}>
                       {appMode === "checking" && <div aria-hidden className="h-[72px] animate-pulse rounded-2xl bg-[var(--fill-strong)]" />}
-                      {methods.map((m) => {
+                      {credit?.covered && (
+                        <button
+                          type="button"
+                          onClick={redeemCredit}
+                          disabled={redeeming}
+                          className="flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-4 text-[15.5px] font-extrabold text-[#1d1403] disabled:opacity-60"
+                          style={{ background: GOLD_BG }}
+                        >
+                          {redeeming ? <Loader2 size={18} className="animate-spin" /> : <Crown size={18} />} {t("keys.credit.activate")}
+                        </button>
+                      )}
+                      {!credit?.covered && methods.map((m) => {
                         const busy = paying === m.key;
                         const disabled = !pricing || (paying && !busy);
                         return (

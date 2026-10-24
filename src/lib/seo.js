@@ -5,6 +5,7 @@
 // ============================================================
 
 import { slugify } from "./slug.js";
+import { storeSeoTitle, storeSeoDescription, storeJsonLd } from "./storeContent.js";
 
 export const SITE_URL = "https://codpromo.com";
 export const SITE_NAME = "CODpromo";
@@ -91,33 +92,14 @@ export function monthYear(lang) {
 // ===================== عناوين وأوصاف الشركة =====================
 
 /** عنوان SEO لصفحة شركة: حقل الأدمن إن وُجد، وإلا قالب جذّاب تلقائي. */
-export function storeTitle(company, lang) {
-  const custom = loc(company, "seo_title", lang);
-  if (custom) return custom;
-  const name = company.name || SITE_NAME;
-  const discount = loc(company, "discount", lang);
-  const my = monthYear(lang);
-  if (lang === "en")
-    return `${name} Promo Code ${my}${discount ? ` — ${discount} Off` : ""} | ${SITE_NAME}`;
-  if (lang === "fr")
-    return `Code Promo ${name} ${my}${discount ? ` — ${discount} de réduction` : ""} | ${SITE_NAME}`;
-  return `كود خصم ${name} ${my}${discount ? ` - خصم ${discount}` : ""} | ${SITE_NAME}`;
-}
+/** عنوان SEO لصفحة شركة (نفس الدالة في api/prerender.js عبر storeContent.js). */
+export const storeTitle = (company, lang) => storeSeoTitle(company, lang);
 
-/** وصف SEO لصفحة شركة: حقل الأدمن، وإلا الوصف، وإلا قالب تلقائي. */
-export function storeDescription(company, lang) {
-  const custom = loc(company, "seo_description", lang);
-  if (custom) return custom;
-  const desc = loc(company, "description", lang);
-  if (desc) return desc.length > 300 ? `${desc.slice(0, 297)}…` : desc;
-  const name = company.name || SITE_NAME;
-  const discount = loc(company, "discount", lang);
-  if (lang === "en")
-    return `Get the latest ${name} promo codes and coupons${discount ? ` — save ${discount}` : ""}. Verified working discount codes on ${SITE_NAME}.`;
-  if (lang === "fr")
-    return `Obtenez les derniers codes promo et coupons ${name}${discount ? ` — économisez ${discount}` : ""}. Codes de réduction vérifiés sur ${SITE_NAME}.`;
-  return `أحدث أكواد خصم وكوبونات ${name}${discount ? ` — وفّر ${discount}` : ""}. أكواد مفعّلة ومجرّبة على ${SITE_NAME}.`;
-}
+/** وصف SEO لصفحة شركة: حقل الأدمن، وإلا الكود + القيمة + Premium + وصف العرض. */
+export const storeDescription = (company, lang) => storeSeoDescription(company, lang);
+
+/** JSON-LD كامل لصفحة شركة (Organization + العروض + FAQPage + Breadcrumb). */
+export const storeLd = (company, opts) => storeJsonLd(company, opts);
 
 export function storeKeywords(company, lang) {
   const custom = loc(company, "seo_keywords", lang);

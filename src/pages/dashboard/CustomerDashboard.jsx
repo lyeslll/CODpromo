@@ -67,14 +67,19 @@ export default function CustomerDashboard() {
   const fk = useFreeKey();
   // تاريخ الشراء (Premium مدى الحياة) — من purchases، المستخدم يقرا مشترياتو برك
   const [purchase, setPurchase] = useState(null);
+  const [purchaseFor, setPurchaseFor] = useState(null); // الحساب اللي تجاب شراؤه (ولا فشل) — بطاقة الخطة تكبر بسطرين
+  const needPurchase = kind === "lifetime" && !profile?.is_admin;
   useEffect(() => {
-    if (kind !== "lifetime" || profile?.is_admin) return;
+    if (!needPurchase) return;
     let active = true;
-    fetchMyPurchase(user.id).then((p) => active && setPurchase(p));
+    fetchMyPurchase(user.id)
+      .then((p) => active && setPurchase(p))
+      .catch(() => {})
+      .finally(() => active && setPurchaseFor(user.id));
     return () => {
       active = false;
     };
-  }, [kind, user.id, profile?.is_admin]);
+  }, [needPurchase, user.id]);
   const giftLeft = isGift ? giftDaysLeft(gift) : null;
   const giftEnding = isGift && giftLeft <= GIFT_ENDING_DAYS;
   const fmtDay = (d) => new Date(d).toLocaleDateString(lang, { day: "numeric", month: "long", year: "numeric" });
@@ -179,7 +184,7 @@ export default function CustomerDashboard() {
 
   // البطاقات تتبدّل كي توصل حالة Premium والسعر والمفتاح الذهبي (بطاقة الخطة تكبر ~260px) → هيكل واحد
   // حتى يكونو معروفين، ثم الصفحة كاملة مرة وحدة (بلا قفزات متتالية).
-  const ready = premiumReady && (hasPremium || pricing != null) && (hasPremium || fk.status !== "loading");
+  const ready = premiumReady && (hasPremium || pricing != null) && (hasPremium || fk.status !== "loading") && (!needPurchase || purchaseFor === user.id);
   if (!ready) {
     return (
       <DashboardShell badge={t("dashboard.customer.badge")} wide>

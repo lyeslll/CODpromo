@@ -87,6 +87,9 @@ Deno.serve(async (req) => {
       client_reference_id: user.id,
       // فرض الدولار لكل الزوّار بغضّ النظر عن موقعهم (تعطيل التسعير التكيّفي)
       currency: "usd",
+      // البطاقات برك (Apple Pay / Google Pay يبقاو، هوما بطاقات): الدفع يتأكّد في الحين والتفعيل فوري.
+      // طرق الدفع المتأخّرة (تحويل بنكي…) كانت تخلّي Premium يستنى async_payment_succeeded.
+      payment_method_types: ["card"],
       line_items: [lineItem],
       metadata: meta,
       payment_intent_data: { metadata: meta },

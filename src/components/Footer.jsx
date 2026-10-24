@@ -11,7 +11,7 @@ import Newsletter from "./footer/Newsletter.jsx";
 import Wordmark from "./footer/Wordmark.jsx";
 import BackToTop from "./footer/BackToTop.jsx";
 import { useHeaderOffers } from "./header/headerData.js";
-import { useAppTarget } from "../lib/appInstall.js";
+import { useAppTarget, IOS_APP_SOON } from "../lib/appInstall.js";
 import { useCategories } from "../lib/categories.jsx";
 import { activeCategories, countByCategory } from "../lib/offerFilters.js";
 import { categoryName, categoryRecordSlug } from "../lib/slug.js";
@@ -280,7 +280,8 @@ function FooterApp({ showQr }) {
   const { t } = useTranslation();
   const { inApp, platform } = useAppTarget();
   const [hot, setHot] = useState(false);
-  if (inApp) return null;
+  // iPhone: ما كاين حتى تطبيق نقترحوه حتى يقرب تطبيق iPhone (IOS_APP_SOON)
+  if (inApp || (platform === "ios" && !IOS_APP_SOON)) return null;
   return (
     <div>
       <span className="block text-[13px] font-extrabold text-[var(--text)]">{t("app.getApp")}</span>

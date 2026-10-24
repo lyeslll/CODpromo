@@ -10,6 +10,9 @@ import { isAndroidAppKnown } from "./androidApp.js";
 
 export const PLAY_URL = "https://play.google.com/store/apps/details?id=com.codpromo.twa";
 
+/** "قريباً على iPhone" (app.iosSoon): مخفي حتى يقرب تطبيق iPhone (قرار المالك، أكتوبر 2026) — true يرجّعو. */
+export const IOS_APP_SOON = false;
+
 /**
  * داخل تطبيق؟ → كل عناصر "حمّل التطبيق" تختفي.
  * - تطبيق Android (TWA): نفس كشف الدفع (androidApp.js: الـ referrer بالحزمة + علامة الجلسة).

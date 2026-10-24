@@ -19,7 +19,7 @@ import SeatsMeter from "../pricing/SeatsMeter.jsx";
 import { useHeaderOffers, userDisplay } from "./headerData.js";
 import GooglePlayBadge from "../app/GooglePlayBadge.jsx";
 import { useBackToClose } from "../../lib/useBackToClose.js";
-import { useAppTarget } from "../../lib/appInstall.js";
+import { useAppTarget, IOS_APP_SOON } from "../../lib/appInstall.js";
 
 const GOLD_BG = "linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e)";
 // ألوان تذكرة Premium (نفس متغيّرات .ticket في البطاقات)
@@ -292,7 +292,7 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, onS
             </motion.div>
 
             {/* تطبيق Android: شارة Google Play صغيرة (أو "قريباً على iPhone") — تختفي داخل التطبيق */}
-            {!app.inApp && (
+            {!app.inApp && !(app.platform === "ios" && !IOS_APP_SOON) && (
               <motion.div variants={itemVariants} className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-3 py-2">
                 <span className="text-[13.5px] font-bold text-[var(--text-softer)]">{t("app.getApp")}</span>
                 {app.platform === "ios" ? (

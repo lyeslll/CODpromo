@@ -8,7 +8,7 @@ import SectionHead from "./SectionHead.jsx";
 import GoldBurst from "../GoldBurst.jsx";
 import { offersLink } from "../../lib/seo.js";
 import { premiumMultiplier } from "../../lib/siteStats.js";
-import { formatNumber } from "../../lib/values.js";
+import { formatNumber, formatUsd } from "../../lib/values.js";
 import { usePricing } from "../../lib/pricing.jsx";
 import LifetimePrice from "../pricing/LifetimePrice.jsx";
 import SeatsMeter from "../pricing/SeatsMeter.jsx";
@@ -70,8 +70,8 @@ export default function PremiumCompare({ company, stats, onOpenPremium, isPremiu
               {unlock != null && (
                 <div className="mt-6 border-t border-dashed border-[#f0c63c]/30 pt-5">
                   <p className="text-[13.5px] font-semibold text-[var(--text-soft)]">{t("compare.unlockLabel")}</p>
-                  <bdi className="mt-1 block text-[34px] font-black leading-none text-[var(--text)] [font-family:Inter,sans-serif]">
-                    ${formatNumber(unlock, "en")}
+                  <bdi dir="ltr" className="mt-1 block text-start text-[34px] font-black leading-none text-[var(--text)] [font-family:Inter,sans-serif] rtl:text-end">
+                    {formatUsd(unlock, lang)}
                   </bdi>
                 </div>
               )}

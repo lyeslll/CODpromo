@@ -7,7 +7,7 @@ import LifetimePrice from "../pricing/LifetimePrice.jsx";
 import SeatsMeter from "../pricing/SeatsMeter.jsx";
 import { formatPrice } from "../../lib/pricing.jsx";
 import { premiumMultiplier } from "../../lib/siteStats.js";
-import { formatNumber } from "../../lib/values.js";
+import { formatNumber, formatUsd } from "../../lib/values.js";
 
 const GOLD_SOFT = "#ffe486";
 const GOLD = "#f0c63c";
@@ -137,7 +137,7 @@ const PriceSection = forwardRef(function PriceSection({ pricing, pricingReady, o
             {unlock != null && (
               <div className="rounded-[var(--radius-card)] border p-6" style={{ borderColor: "rgba(240,198,60,0.3)", background: "linear-gradient(160deg, rgba(240,198,60,0.1), rgba(240,198,60,0.02))" }}>
                 <p className="text-[13.5px] font-semibold text-[var(--text-soft)]">{t("compare.unlockLabel")}</p>
-                <bdi className="mt-2 block text-[40px] font-black leading-none text-[var(--text)] [font-family:Inter,sans-serif]">${formatNumber(unlock, "en")}</bdi>
+                <bdi dir="ltr" className="mt-2 block text-start text-[40px] font-black leading-none text-[var(--text)] [font-family:Inter,sans-serif] rtl:text-end">{formatUsd(unlock, lang)}</bdi>
                 {multiplier && (
                   <div className="mt-4 flex items-baseline gap-2.5 border-t border-dashed pt-4" style={{ borderColor: "rgba(240,198,60,0.25)" }}>
                     <bdi dir="ltr" className="text-[44px] font-black leading-none text-[#ffe486] [font-family:Inter,sans-serif]">

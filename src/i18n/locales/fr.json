@@ -1316,7 +1316,8 @@
     "free": "Gratuit",
     "unlockLabel": "Valeur des réductions débloquées par Premium",
     "multiplierLabel": "ce que vaut Premium face à son prix",
-    "seePremium": "Voir les offres Premium"
+    "seePremium": "Voir les offres Premium",
+    "memberNote": "Tous les codes Premium sont débloqués pour vous, dans toutes les entreprises."
   },
   "catGrid": {
     "title": "De quoi votre boutique a-t-elle besoin aujourd'hui ?",

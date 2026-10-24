@@ -51,9 +51,21 @@ export default function PremiumCompare({ company, stats, onOpenPremium, isPremiu
           {/* السعر مقابل القيمة */}
           <div className="flex flex-col justify-between rounded-[var(--radius-card)] border border-[#f0c63c]/35 bg-[linear-gradient(160deg,rgba(240,198,60,0.12),rgba(240,198,60,0.02))] p-6">
             <div>
-              <p className="text-[14px] font-extrabold text-[#ffe486]">{t("pricing.oneTime")}</p>
-              <LifetimePrice pricing={pricing} size="md" className="mt-2" />
-              <SeatsMeter pricing={pricing} className="mt-4" />
+              {/* العضو (مدفوع / هدية / أدمن) ما يشوفش السعر والمقاعد: Premium مفعّل عندو */}
+              {isPremiumActive ? (
+                <>
+                  <p className="flex items-center gap-2 text-[16px] font-black text-[#ffe486]">
+                    <Crown size={17} /> {t("premiumPage.hero.memberTitle")}
+                  </p>
+                  <p className="mt-2 text-[13.5px] leading-relaxed text-[var(--text-soft)]">{t("compare.memberNote")}</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-[14px] font-extrabold text-[#ffe486]">{t("pricing.oneTime")}</p>
+                  <LifetimePrice pricing={pricing} size="md" className="mt-2" />
+                  <SeatsMeter pricing={pricing} className="mt-4" />
+                </>
+              )}
 
               {unlock != null && (
                 <div className="mt-6 border-t border-dashed border-[#f0c63c]/30 pt-5">

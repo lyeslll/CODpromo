@@ -11,6 +11,7 @@
 //    /en/store/:slug     → ...lang=en...   (وكذلك fr، والفئات)
 //    /offers             → /api/prerender?type=offers&lang=ar   (وكذلك /en و/fr)
 //    /partners           → /api/prerender?type=partners&lang=ar (وكذلك /en و/fr)
+//    /premium            → /api/prerender?type=premium&lang=ar  (وكذلك /en و/fr)
 // ============================================================
 
 import { readFileSync } from "node:fs";
@@ -98,6 +99,12 @@ const storeUrl = (slug, l) => `${SITE_URL}${prefix(l)}/store/${slug}`;
 const categoryUrl = (slug, l) => `${SITE_URL}${prefix(l)}/category/${slug}`;
 const offersUrl = (l) => `${SITE_URL}${prefix(l)}/offers`;
 const partnersUrl = (l) => `${SITE_URL}${prefix(l)}/partners`;
+const premiumUrl = (l) => `${SITE_URL}${prefix(l)}/premium`;
+
+/** "{{x}}" → قيمة (نفس صيغة i18next في ملفات الترجمة). */
+const fill = (str, vars) => String(str || "").replace(/\{\{(\w+)\}\}/g, (_, k) => (vars[k] ?? ""));
+/** نفس formatNumber في الواجهة: العربية والإنجليزية 9,900 — الفرنسية 9 900. */
+const num = (n, l) => new Intl.NumberFormat(l === "fr" ? "fr-FR" : "en-US", { maximumFractionDigits: 0 }).format(n);
 
 // نصوص الصفحات العامة من ملفات الترجمة نفسها (src/i18n/locales — مضمّنة عبر
 // functions.includeFiles في vercel.json) حتى لا تتكرّر النصوص هنا.
@@ -121,10 +128,13 @@ function locale(lang) {
   return localeCache[lang];
 }
 
-async function getTemplate(host) {
+// cookie: روابط preview تاع Vercel محمية بالدخول → نمرّرو كوكي الزائر لنفس الـ host، وإلا يرجع
+// القالب صفحة دخول Vercel. القالب يتحفظ غير إذا هو index.html تاعنا (فيه #root).
+async function getTemplate(host, cookie) {
   if (templateCache[host]) return templateCache[host];
-  const r = await fetch(`https://${host}/index.html`);
+  const r = await fetch(`https://${host}/index.html`, cookie ? { headers: { cookie } } : undefined);
   const html = await r.text();
+  if (!r.ok || !html.includes('id="root"')) throw new Error("template");
   templateCache[host] = html;
   return html;
 }
@@ -173,7 +183,7 @@ export default async function handler(req, res) {
 
   let template;
   try {
-    template = await getTemplate(host);
+    template = await getTemplate(host, req.headers.cookie);
   } catch {
     // تعذّر جلب القالب — لا نكسر الصفحة: نُعيد توجيه بسيط لخدمة SPA.
     res.status(302).setHeader("Location", "/index.html");
@@ -317,6 +327,66 @@ export default async function handler(req, res) {
         breadcrumbOf([
           { name: L.store?.breadcrumbHome || SITE_NAME, url: `${SITE_URL}${prefix(lang)}/` },
           { name: P.breadcrumb || title, url: canonical },
+        ]),
+      ];
+      const headExtra = buildHead({ lang, title, description, canonical, image: DEFAULT_OG_IMAGE, alternates, jsonLd });
+      return serveTemplate(res, inject(template, { lang, title, description, headExtra }));
+    }
+
+    if (type === "premium") {
+      const L = locale(lang) || locale("ar");
+      const P = L?.premiumPage;
+      if (!P?.seo) return serveTemplate(res, template);
+      const title = P.seo.title;
+      const description = P.seo.description;
+      const canonical = premiumUrl(lang);
+      const alternates = ["ar", "en", "fr"].map((l) => ({ lang: l, url: premiumUrl(l) }));
+      // السعر الحقيقي (pricing_public) + هل المفتاح الذهبي شغّال — بلا أرقام في الكود
+      const [pr, ss] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/rpc/pricing_public`, {
+          method: "POST",
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" },
+          body: "{}",
+        }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+        fetchJson(`${SUPABASE_URL}/rest/v1/site_stats?select=free_key_enabled`).catch(() => null),
+      ]);
+      const price = (d, u) => fill(L.pricing?.format, { dzd: num(d, lang), usd: num(u, lang) });
+      const faqKeys = ["lifetime", "price", "account", "methods", "refund", "renewal", "frozen", "newCodes", ...(ss?.[0]?.free_key_enabled ? ["goldenKey"] : []), "stork"];
+      const faq = faqKeys
+        .map((k) => {
+          if (k === "price") {
+            if (!pr) return null;
+            const a = pr.tier === "launch" ? L.premiumFaq?.price?.aLaunch : L.premiumFaq?.price?.aRegular;
+            return { q: L.premiumFaq?.price?.q, a: fill(a, { launch: price(pr.launch_dzd, pr.launch_usd), regular: price(pr.regular_dzd, pr.regular_usd), seats: num(pr.seats_total, lang), left: num(pr.seats_left, lang) }) };
+          }
+          const f = L.premiumFaq?.[k] || P.faq?.[k];
+          return f ? { q: f.q, a: f.a } : null;
+        })
+        .filter((f) => f?.q && f?.a);
+      const jsonLd = [
+        {
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: L.pricing?.productName || title,
+          description: P.seo.productDesc || description,
+          image: DEFAULT_OG_IMAGE,
+          brand: { "@type": "Brand", name: SITE_NAME },
+          url: canonical,
+          ...(pr
+            ? {
+                offers: [
+                  { currency: "USD", price: pr.price_usd },
+                  { currency: "DZD", price: pr.price_dzd },
+                ].map((o) => ({ "@type": "Offer", price: String(o.price), priceCurrency: o.currency, availability: "https://schema.org/InStock", url: canonical, seller: { "@type": "Organization", name: SITE_NAME } })),
+              }
+            : {}),
+        },
+        ...(faq.length
+          ? [{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }]
+          : []),
+        breadcrumbOf([
+          { name: L.store?.breadcrumbHome || SITE_NAME, url: `${SITE_URL}${prefix(lang)}/` },
+          { name: P.breadcrumb || "Premium", url: canonical },
         ]),
       ];
       const headExtra = buildHead({ lang, title, description, canonical, image: DEFAULT_OG_IMAGE, alternates, jsonLd });

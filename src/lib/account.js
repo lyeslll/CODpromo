@@ -30,3 +30,9 @@ export function hasPasswordLogin(user) {
   if (Array.isArray(ids) && ids.length) return ids.some((i) => i.provider === "email");
   return user?.app_metadata?.provider === "email";
 }
+
+/** لغة إيميلات الحساب (التأكيد، الترحيب، الشراء…) = user_metadata.lang. يتحدّث كي تتبدّل لغة الواجهة. */
+export async function syncEmailLang(user, lang) {
+  if (!user || !["ar", "en", "fr"].includes(lang) || user.user_metadata?.lang === lang) return;
+  await supabase.auth.updateUser({ data: { lang } });
+}

@@ -4,6 +4,9 @@ import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
+  // معاينة صفحة النجاح بلا دفع (/payment-success?demo=…): روابط preview تاع Vercel برك.
+  // VERCEL_ENV = "preview" في build الـ preview؛ في الإنتاج (و build الـ iOS) false → الكود يتنحّى من الحزمة.
+  define: { __PURCHASE_DEMO__: JSON.stringify(process.env.VERCEL_ENV === "preview") },
   plugins: [
     react(),
     tailwindcss(),

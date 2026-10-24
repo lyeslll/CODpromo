@@ -33,3 +33,7 @@ verify_jwt = true
 # استرداد PayPal → Premium يتنحّى. PayPal لا يرسل JWT؛ الأمان عبر verify-webhook-signature
 [functions.paypal-webhook]
 verify_jwt = false
+
+# إيميلات المعاملات (phase33): تناديها القاعدة برك (pg_net) برأس x-email-secret، بلا JWT
+[functions.send-email]
+verify_jwt = false

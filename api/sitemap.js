@@ -28,6 +28,7 @@ const categoryUrl = (slug, lang) => `${SITE_URL}${prefix(lang)}/category/${slug}
 const categoriesUrl = (lang) => `${SITE_URL}${prefix(lang)}/categories`;
 const offersUrl = (lang) => `${SITE_URL}${prefix(lang)}/offers`;
 const partnersUrl = (lang) => `${SITE_URL}${prefix(lang)}/partners`;
+const premiumUrl = (lang) => `${SITE_URL}${prefix(lang)}/premium`;
 const homeUrl = (lang) => `${SITE_URL}${prefix(lang)}/`;
 
 function xmlEscape(s) {
@@ -82,6 +83,11 @@ export default async function handler(req, res) {
     // بوابة الشركات (/partners) بالثلاث لغات
     for (const lang of LANGS) {
       nodes.push(urlNode(partnersUrl(lang), (l) => partnersUrl(l), null));
+    }
+
+    // صفحة بيع Premium (/premium) بالثلاث لغات
+    for (const lang of LANGS) {
+      nodes.push(urlNode(premiumUrl(lang), (l) => premiumUrl(l), null));
     }
 
     // صفحة كل الفئات (/categories) بالثلاث لغات

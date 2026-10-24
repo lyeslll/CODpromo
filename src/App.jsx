@@ -1,7 +1,8 @@
-import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { MotionConfig } from "framer-motion";
-import { AuthProvider } from "./lib/auth.jsx";
+import { AuthProvider, useAuth } from "./lib/auth.jsx";
+import { syncEmailLang } from "./lib/account.js";
 import { PremiumProvider, usePremium } from "./lib/premium.jsx";
 import { PricingProvider } from "./lib/pricing.jsx";
 import { FreeKeyProvider } from "./lib/freeKeyContext.jsx";
@@ -25,6 +26,7 @@ const CategoriesPage = lazy(() => import("./pages/CategoriesPage.jsx"));
 const FavoritesPage = lazy(() => import("./pages/FavoritesPage.jsx"));
 const OffersPage = lazy(() => import("./pages/OffersPage.jsx"));
 const PartnersPage = lazy(() => import("./pages/PartnersPage.jsx"));
+const PremiumPage = lazy(() => import("./pages/PremiumPage.jsx"));
 const Admin = lazy(() => import("./pages/Admin.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
 const Signup = lazy(() => import("./pages/Signup.jsx"));
@@ -50,7 +52,7 @@ function PageFallback() {
   );
 }
 import BottomNav from "./components/BottomNav.jsx";
-import PremiumModal from "./components/PremiumModal.jsx";
+import { useGoPremium } from "./lib/goPremium.js";
 
 /** اللغة المقصودة من المسار: بادئة /en أو /fr، صفحات /store و/category و/offers بلا بادئة عربية، وإلا تبقى لغة المستخدم. */
 function langFromPath(pathname, current) {
@@ -62,7 +64,8 @@ function langFromPath(pathname, current) {
     pathname.startsWith("/categories") ||
     pathname.startsWith("/favorites") ||
     pathname.startsWith("/offers") ||
-    pathname.startsWith("/partners")
+    pathname.startsWith("/partners") ||
+    pathname.startsWith("/premium")
   )
     return "ar";
   return current;
@@ -97,8 +100,22 @@ function RouteLangSync() {
   return null;
 }
 
+/** لغة إيميلات الحساب تتبع لغة الواجهة (للمسجّل؛ مرة وحدة بعد كل تبديل، بلا ما نحبسو التنقّل). */
+function EmailLangSync() {
+  const { user } = useAuth();
+  const { lang } = useLocale();
+  const current = user?.user_metadata?.lang;
+  useEffect(() => {
+    if (!user || current === lang) return;
+    const id = setTimeout(() => syncEmailLang(user, lang).catch(() => {}), 1500);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, current, lang]);
+  return null;
+}
+
 /**
- * شريط التنقّل السفلي العام (هاتف فقط) + نافذة Premium التي يفتحها زره المركزي.
+ * شريط التنقّل السفلي العام (هاتف فقط): زره المركزي (التاج) يفتح صفحة Premium.
  * مخفي على لوحة الأدمن. يضيف صنفاً للـ body ليحجز مسافة سفلية للمحتوى (index.css).
  */
 function MobileBottomNav() {
@@ -106,11 +123,11 @@ function MobileBottomNav() {
   const navigate = useNavigate();
   const { lang } = useLocale();
   const { isGift } = usePremium();
-  const [premiumOpen, setPremiumOpen] = useState(false);
+  const goPremium = useGoPremium();
   // مخفي على لوحة الأدمن وعلى شاشتي التحويل /go والهدية /gift
   const enabled = !pathname.startsWith("/admin") && !pathname.startsWith("/go/") && !pathname.startsWith("/gift/");
-  // مول الهدية عضو Premium: التاج يفتح عروض Premium (كيما شارة الهيدر) بلاصة نافذة الاشتراك
-  const onPremium = () => (isGift ? navigate(offersLink(lang, { mode: "premium" })) : setPremiumOpen(true));
+  // مول الهدية عضو Premium: التاج يفتح عروض Premium (كيما شارة الهيدر) بلاصة صفحة الشراء
+  const onPremium = () => (isGift ? navigate(offersLink(lang, { mode: "premium" })) : goPremium());
 
   useEffect(() => {
     document.body.classList.toggle("has-bottom-nav", enabled);
@@ -118,12 +135,7 @@ function MobileBottomNav() {
   }, [enabled]);
 
   if (!enabled) return null;
-  return (
-    <>
-      <BottomNav onPremium={onPremium} />
-      <PremiumModal open={premiumOpen} onClose={() => setPremiumOpen(false)} />
-    </>
-  );
+  return <BottomNav onPremium={onPremium} />;
 }
 
 export default function App() {
@@ -150,6 +162,7 @@ export default function App() {
           <VoteStatsProvider>
           <ScrollVisibilityProvider>
           <RouteLangSync />
+          <EmailLangSync />
           <GiftResume />
           <AppBanner />
           <Suspense fallback={<PageFallback />}>
@@ -164,6 +177,10 @@ export default function App() {
           <Route path="/partners" element={<PartnersPage lang="ar" />} />
           <Route path="/en/partners" element={<PartnersPage lang="en" />} />
           <Route path="/fr/partners" element={<PartnersPage lang="fr" />} />
+          {/* صفحة بيع Premium: كل زر Premium في الموقع يوصّل هنا (نافذة الدفع تتحلّ منها) */}
+          <Route path="/premium" element={<PremiumPage lang="ar" />} />
+          <Route path="/en/premium" element={<PremiumPage lang="en" />} />
+          <Route path="/fr/premium" element={<PremiumPage lang="fr" />} />
 
           {/* صفحات الشركات (SEO) — العربية افتراضية، en/fr ببادئة لغة */}
           <Route path="/store/:slug" element={<StorePage lang="ar" />} />

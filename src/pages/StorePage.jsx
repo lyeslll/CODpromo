@@ -20,7 +20,7 @@ import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import CompanyCard from "../components/CompanyCard.jsx";
 import CompanyLogo from "../components/CompanyLogo.jsx";
-import PremiumModal from "../components/PremiumModal.jsx";
+import { useGoPremium } from "../lib/goPremium.js";
 import Seo from "../components/Seo.jsx";
 import Breadcrumbs from "../components/seo/Breadcrumbs.jsx";
 import ShareButtons from "../components/seo/ShareButtons.jsx";
@@ -39,7 +39,7 @@ export default function StorePage({ lang = "ar" }) {
   const [notFound, setNotFound] = useState(false);
   const [favorites, setFavorites] = useState([]);
   const [toast, setToast] = useState(null);
-  const [premiumModal, setPremiumModal] = useState(false);
+  const goPremium = useGoPremium();
   const toastTimer = useRef(null);
 
   // ملاحظة: لغة/اتجاه الواجهة تُضبط مركزياً في RouteLangSync (App.jsx) من المسار.
@@ -180,7 +180,7 @@ export default function StorePage({ lang = "ar" }) {
         alternates={buildAlternates("store", company.slug)}
         jsonLd={jsonLd}
       />
-      <Navbar onPremium={() => setPremiumModal(true)} />
+      <Navbar />
 
       <main className="mx-auto max-w-5xl px-4 pb-10 pt-[96px] sm:pt-[104px]">
         <Breadcrumbs items={breadcrumbItems} />
@@ -236,7 +236,7 @@ export default function StorePage({ lang = "ar" }) {
               onCopy={handleCopy}
               premium={false}
               unlocked={unlocked}
-              onUnlock={() => setPremiumModal(true)}
+              onUnlock={goPremium}
               linkToStore={false}
             />
             {supportsPremium && (
@@ -248,7 +248,7 @@ export default function StorePage({ lang = "ar" }) {
                 onCopy={handleCopy}
                 premium
                 unlocked={unlocked}
-                onUnlock={() => setPremiumModal(true)}
+                onUnlock={goPremium}
                 linkToStore={false}
               />
             )}
@@ -287,7 +287,7 @@ export default function StorePage({ lang = "ar" }) {
         )}
       </main>
 
-      <Footer onPremium={() => setPremiumModal(true)} />
+      <Footer />
 
       {/* توست النسخ */}
       <AnimatePresence>
@@ -308,8 +308,6 @@ export default function StorePage({ lang = "ar" }) {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <PremiumModal open={premiumModal} onClose={() => setPremiumModal(false)} />
     </div>
   );
 }

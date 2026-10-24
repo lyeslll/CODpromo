@@ -27,7 +27,7 @@ import Footer from "../components/Footer.jsx";
 import Seo from "../components/Seo.jsx";
 import CompanyCard from "../components/CompanyCard.jsx";
 import PremiumToggle from "../components/PremiumToggle.jsx";
-import PremiumModal from "../components/PremiumModal.jsx";
+import { useGoPremium } from "../lib/goPremium.js";
 import EmailPopup from "../components/EmailPopup.jsx";
 import CopyToast from "../components/CopyToast.jsx";
 import GoldBurst from "../components/GoldBurst.jsx";
@@ -71,7 +71,7 @@ export default function OffersPage({ lang = "ar" }) {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [premiumModal, setPremiumModal] = useState(false);
+  const goPremium = useGoPremium();
   const [burst, setBurst] = useState(0);
   const { favorites, toggleFav, handleCopy, toast } = useOfferActions(setCompanies);
 
@@ -349,7 +349,7 @@ export default function OffersPage({ lang = "ar" }) {
         alternates={buildAlternates("offers")}
         jsonLd={jsonLd}
       />
-      <Navbar onPremium={() => setPremiumModal(true)} />
+      <Navbar />
 
       {/* أمبيانس ذهبي ناعم يملأ الصفحة في وضع Premium */}
       <motion.div
@@ -453,7 +453,7 @@ export default function OffersPage({ lang = "ar" }) {
               mode={premiumView}
               unlocked={unlocked}
               onSwitchPremium={() => setMode("premium")}
-              onOpenPremium={() => setPremiumModal(true)}
+              onOpenPremium={goPremium}
             />
             )}
           </>
@@ -468,7 +468,7 @@ export default function OffersPage({ lang = "ar" }) {
             onToggleFav={toggleFav}
             onCopy={handleCopy}
             unlocked={unlocked}
-            onUnlock={() => setPremiumModal(true)}
+            onUnlock={goPremium}
             onShowNormal={() => setMode("normal")}
             onShowAll={() => updateParams({ featured: "1" })}
           />
@@ -525,7 +525,7 @@ export default function OffersPage({ lang = "ar" }) {
                     deal={d}
                     premium={isPremium}
                     unlocked={unlocked}
-                    onUnlock={() => setPremiumModal(true)}
+                    onUnlock={goPremium}
                     onShowNormal={() => setMode("normal")}
                   />
                 ))}
@@ -548,7 +548,7 @@ export default function OffersPage({ lang = "ar" }) {
                       onCopy={handleCopy}
                       premium={premium}
                       unlocked={unlocked}
-                      onUnlock={() => setPremiumModal(true)}
+                      onUnlock={goPremium}
                       onShowNormal={() => setMode("normal")}
                     />
                   );
@@ -571,7 +571,7 @@ export default function OffersPage({ lang = "ar" }) {
       </main>
       </ModeWaveContext.Provider>
 
-      <Footer onPremium={() => setPremiumModal(true)} />
+      <Footer />
 
       <FloatingModeSwitch
         visible={listInView && pastTop && switchable}
@@ -583,7 +583,6 @@ export default function OffersPage({ lang = "ar" }) {
       <DesktopModeSwitch visible={deskFloat} value={premiumView} onChange={setMode} layoutId="prem-pill-desk" />
 
       <CopyToast code={toast} />
-      <PremiumModal open={premiumModal} onClose={() => setPremiumModal(false)} />
       <EmailPopup />
     </div>
   );

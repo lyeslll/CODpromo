@@ -239,9 +239,9 @@
   "premium": {
     "close": "Fermer",
     "back": "Retour",
-    "doneTitle": "Premium activé ! 👑",
+    "doneTitle": "Premium activé",
     "doneDesc": "Tous les codes Premium sont débloqués — profitez des plus grosses réductions.",
-    "alreadyTitle": "Vous êtes membre Premium 👑",
+    "alreadyTitle": "Vous êtes membre Premium",
     "alreadyDesc": "Premium est actif sur votre compte et tous les codes exclusifs sont débloqués — aucun paiement nécessaire.",
     "alreadyClose": "Compris",
     "titles": {
@@ -436,7 +436,7 @@
     "grow": {
       "title": "Développez votre commerce",
       "ilyesDesc": "Du contenu pour apprendre l'e-commerce",
-      "storkTitle": "Communauté Stork",
+      "storkTitle": "Stork Community",
       "storkDesc": "La communauté e-commerce et son parcours payant.",
       "storkPerk": "Ses membres profitent de Premium gratuitement"
     },
@@ -472,7 +472,7 @@
   "payment": {
     "back": "Retour au site",
     "success": {
-      "activeTitle": "Premium activé ! 👑",
+      "activeTitle": "Premium activé",
       "receivedTitle": "Paiement reçu",
       "activeDesc": "Premium à vie est actif sur votre compte — profitez des plus grosses réductions et des codes exclusifs.",
       "confirming": "Confirmation de votre paiement…",
@@ -483,7 +483,7 @@
       "desc": "Aucun montant n'a été débité. Vous pouvez réessayer à tout moment."
     },
     "return": {
-      "successTitle": "Premium activé ! 👑",
+      "successTitle": "Premium activé",
       "successDesc": "Premium à vie est actif sur votre compte.",
       "enjoy": "Profitez des plus grosses réductions.",
       "checkingTitle": "Confirmation du paiement",
@@ -1947,5 +1947,185 @@
       "a": "Par carte internationale (Visa / Mastercard), carte algérienne CIB / Edahabia, PayPal, ou Google Play dans l'application.",
       "aApp": "Dans l'application Android, le paiement se fait uniquement via Google Play, avec votre compte Google Play."
     }
+  },
+  "premiumPage": {
+    "seo": {
+      "title": "CODpromo Premium à vie : les codes promo les plus forts, en un seul paiement",
+      "description": "Débloquez le code le plus fort chez les sociétés de livraison, plateformes, outils et cartes de paiement utilisés par les vendeurs en paiement à la livraison. Un seul paiement, sans abonnement, remboursement garanti 7 jours.",
+      "productDesc": "Accès à vie à tous les codes Premium de CODpromo en un seul paiement, sans abonnement ni renouvellement."
+    },
+    "breadcrumb": "Premium",
+    "companies_zero": "{{n}} entreprise",
+    "companies_one": "{{n}} entreprise",
+    "companies_two": "{{n}} entreprises",
+    "companies_few": "{{n}} entreprises",
+    "companies_many": "{{n}} entreprises",
+    "companies_other": "{{n}} entreprises",
+    "hero": {
+      "launchPill": "Le prix de lancement est ouvert",
+      "title": "Le code le plus fort de chaque entreprise, débloqué à vie",
+      "sub": "Premium vous révèle le code le plus fort chez {{companies}} utilisées par les vendeurs en paiement à la livraison : livraison, plateformes, outils et cartes de paiement. Vous payez une fois, et plus jamais.",
+      "subLoading": "Premium vous révèle le code le plus fort chez les entreprises utilisées par les vendeurs en paiement à la livraison : livraison, plateformes, outils et cartes de paiement. Vous payez une fois, et plus jamais.",
+      "cta": "Obtenir Premium",
+      "seeDiff": "Voir la différence",
+      "assurance": "Un seul paiement, sans renouvellement, et un remboursement complet sous 7 jours si vous ne révélez aucun code Premium.",
+      "memberPill": "Vous êtes membre Premium",
+      "memberTitle": "Premium est actif sur votre compte",
+      "memberLifetime": "À vie : tous les codes Premium vous sont ouverts, ainsi que tout ce qui sera ajouté.",
+      "memberUntil": "Actif jusqu'au {{date}}. Tous les codes Premium vous sont ouverts.",
+      "memberCta": "Ouvrir les offres Premium",
+      "giftPill": "Premium offert jusqu'au {{date}}",
+      "giftTitle": "Gardez Premium à vie",
+      "giftSub": "Votre cadeau se termine le {{date}}. Payez une fois pour garder Premium ensuite, sans abonnement.",
+      "giftCta": "Passer à vie"
+    },
+    "pass": {
+      "label": "Carte CODpromo Premium",
+      "lifetime": "À vie",
+      "holder": "Titulaire",
+      "holderGuest": "Vous",
+      "reach": "avec un code plus fort",
+      "oneTime": "Paiement unique",
+      "active": "Actif"
+    },
+    "compare": {
+      "title": "Même entreprise, code plus fort",
+      "sub": "De vraies offres publiées en ce moment sur CODpromo. Le code normal est gratuit pour tous ; Premium révèle le code plus fort de la même entreprise.",
+      "colCompany": "Entreprise",
+      "colFree": "Normal",
+      "colPremium": "Premium",
+      "more": "Voir toutes les entreprises ({{n}})",
+      "less": "Voir moins",
+      "frozen_zero": "",
+      "frozen_one": "{{n}} entreprise n'a pas encore de code Premium : elle apparaît verrouillée en gris, et son code normal reste ouvert à tous.",
+      "frozen_two": "{{n}} entreprises n'ont pas encore de code Premium : elles apparaissent verrouillées en gris, et leur code normal reste ouvert à tous.",
+      "frozen_few": "{{n}} entreprises n'ont pas encore de code Premium : elles apparaissent verrouillées en gris, et leur code normal reste ouvert à tous.",
+      "frozen_many": "{{n}} entreprises n'ont pas encore de code Premium : elles apparaissent verrouillées en gris, et leur code normal reste ouvert à tous.",
+      "frozen_other": "{{n}} entreprises n'ont pas encore de code Premium : elles apparaissent verrouillées en gris, et leur code normal reste ouvert à tous."
+    },
+    "partners": {
+      "title": "Les entreprises avec un code Premium",
+      "sub": "Des entreprises que les vendeurs en paiement à la livraison utilisent chaque jour. La liste s'agrandit, et chaque nouvelle entreprise vous est ouverte sans frais supplémentaires."
+    },
+    "how": {
+      "title": "Comment fonctionne Premium",
+      "sub": "Trois étapes, et la première n'a lieu qu'une fois.",
+      "s1": {
+        "t": "Payez une fois",
+        "d": "Premium s'active sur votre compte dès que le paiement est confirmé. Sans abonnement ni renouvellement."
+      },
+      "s2": {
+        "t": "Révélez le code doré",
+        "d": "En mode Premium, grattez le code doré sur n'importe quelle carte pour le voir en entier."
+      },
+      "s3": {
+        "t": "Copiez-le et économisez",
+        "d": "Copiez le code et utilisez-le chez l'entreprise. Chaque nouveau code Premium s'ouvre à vous automatiquement."
+      },
+      "scratch": "Grattez ici",
+      "copied": "Copié",
+      "paid": "Payé"
+    },
+    "price": {
+      "title": "Un seul prix, payé une fois",
+      "subLaunch": "Prix de lancement pour les {{seats}} premiers membres seulement, puis le prix passe automatiquement à {{regular}}.",
+      "subRegular": "Vous payez une fois, et Premium vous reste ouvert tant que CODpromo existe.",
+      "perks": {
+        "all": "Tous les codes Premium actuels et futurs",
+        "nocode": "La version la plus forte des offres sans code",
+        "noRenewal": "Sans abonnement, sans renouvellement, sans prélèvement ultérieur",
+        "refund": "Remboursement complet sous 7 jours si vous ne révélez aucun code Premium"
+      },
+      "facts": {
+        "type": "Paiement",
+        "typeV": "Unique",
+        "duration": "Durée",
+        "durationV": "À vie",
+        "activation": "Activation",
+        "activationV": "Immédiate",
+        "seats": "Places de lancement",
+        "seatsV": "{{left}} sur {{total}}"
+      }
+    },
+    "guarantee": {
+      "title": "Garantie 7 jours",
+      "desc": "Si vous ne révélez aucun code Premium dans les 7 jours suivant l'achat, nous vous remboursons intégralement via le même moyen de paiement. Il suffit de nous écrire depuis l'e-mail de votre compte."
+    },
+    "faq": {
+      "title": "Questions avant l'achat",
+      "sub": "Vous ne trouvez pas votre réponse ? Écrivez à contact@codpromo.com.",
+      "account": {
+        "q": "Ai-je besoin d'un compte ?",
+        "a": "Oui. Premium est lié à votre compte CODpromo : il est actif sur tous les appareils où vous vous connectez."
+      },
+      "frozen": {
+        "q": "Et si une entreprise n'a pas de code Premium ?",
+        "a": "Sa carte apparaît verrouillée en gris en mode Premium, et son code normal reste ouvert. Dès que l'entreprise ajoute un code Premium, il s'ouvre à vous automatiquement."
+      },
+      "newCodes": {
+        "q": "Dois-je repayer quand de nouveaux codes arrivent ?",
+        "a": "Non. Chaque code Premium ajouté plus tard s'ouvre à vous sans frais supplémentaires."
+      },
+      "goldenKey": {
+        "q": "J'ai la clé dorée. Quelle différence ?",
+        "a": "La clé dorée révèle le code Premium d'une seule entreprise de votre choix, une fois par compte. Premium ouvre les codes de toutes les entreprises, aujourd'hui et demain."
+      },
+      "stork": {
+        "q": "Je suis membre de la communauté Stork. Dois-je payer ?",
+        "a": "Inutile. Touchez « Je suis membre Stork » et saisissez votre code pour activer Premium pendant 30 jours."
+      }
+    },
+    "final": {
+      "title": "Commencez à économiser dès votre prochaine commande",
+      "sub": "Payez une fois, et révélez tous les codes Premium aujourd'hui et tout ce qui sera ajouté."
+    },
+    "sticky": {
+      "label": "Premium à vie"
+    }
+  },
+  "checkout": {
+    "title": "Finaliser l'achat",
+    "methodsLabel": "Choisissez un moyen de paiement",
+    "dzd": "En DZD",
+    "usd": "En USD",
+    "secure": "Le paiement se fait directement chez le prestataire de paiement. Nous ne conservons pas vos données de carte.",
+    "refund": "Remboursement complet sous 7 jours si vous ne révélez aucun code Premium.",
+    "redirecting": "Redirection vers la page de paiement…",
+    "accountTitle": "Créez d'abord votre compte",
+    "accountDesc": "Premium est lié à votre compte pour le retrouver sur tous vos appareils. Créez un compte gratuit ou connectez-vous, puis revenez ici pour payer.",
+    "accountSignup": "Créer un compte gratuit",
+    "accountLogin": "J'ai un compte, me connecter",
+    "storkDoneTitle": "Premium est actif",
+    "storkDoneDesc": "Votre code Stork est actif sur votre compte. Tous les codes Premium vous sont ouverts.",
+    "toOffers": "Ouvrir les offres Premium"
+  },
+  "purchase": {
+    "confirmingTitle": "Confirmation de votre paiement",
+    "confirmingDesc": "Premium sera actif sur votre compte dans un instant.",
+    "title": "Bienvenue dans Premium",
+    "sub": "Premium à vie est actif sur votre compte. Tous les codes Premium vous sont ouverts.",
+    "pendingTitle": "Paiement reçu, activation en cours de confirmation",
+    "pendingDesc": "La confirmation peut prendre une minute. Actualisez la page dans un instant, ou ouvrez votre compte.",
+    "loginDesc": "Connectez-vous pour voir le récapitulatif et commencer à révéler les codes.",
+    "login": "Se connecter",
+    "retry": "Actualiser",
+    "summary": "Récapitulatif de l'achat",
+    "plan": "Formule",
+    "planV": "Premium à vie",
+    "amount": "Montant",
+    "method": "Moyen de paiement",
+    "date": "Date",
+    "testTag": "Prix de test",
+    "nextTitle": "Étape suivante : révélez votre premier code",
+    "steps": {
+      "s1": "Ouvrez les offres en mode Premium",
+      "s2": "Grattez le code doré sur la carte",
+      "s3": "Copiez-le et utilisez-le chez l'entreprise"
+    },
+    "cta": "Ouvrir les offres Premium",
+    "account": "Mon compte",
+    "refundNote": "Vous pouvez demander un remboursement sous 7 jours tant que vous n'avez révélé aucun code Premium.",
+    "failBack": "Retour à Premium",
+    "usd": "{{usd}} $"
   }
 }

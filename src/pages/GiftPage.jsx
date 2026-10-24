@@ -5,7 +5,7 @@ import { Crown, Gift, Loader2, LogIn, RotateCw, UserPlus, Check, LayoutDashboard
 import { useTranslation } from "react-i18next";
 import Logo from "../components/Logo.jsx";
 import Seo from "../components/Seo.jsx";
-import PremiumModal from "../components/PremiumModal.jsx";
+import { useGoPremium } from "../lib/goPremium.js";
 import GiftBox from "../components/gift/GiftBox.jsx";
 import GiftConfetti from "../components/gift/GiftConfetti.jsx";
 import { useAuth } from "../lib/auth.jsx";
@@ -76,7 +76,7 @@ export default function GiftPage() {
   const [phase, setPhase] = useState("loading"); // loading | ready | opening | opened | error
   const [celebrate, setCelebrate] = useState(0);
   const [attempt, setAttempt] = useState(0);
-  const [modal, setModal] = useState(false);
+  const goPremium = useGoPremium();
   // تفعيل تلقائي جاري { code, promise }: يصمد لإعادة تشغيل الـ effect (ما يتبعثش مرتين)
   const autoRun = useRef(null);
 
@@ -251,7 +251,7 @@ export default function GiftPage() {
     } else if (key === "already" || key === "ended") {
       actions = (
         <>
-          <button type="button" onClick={() => setModal(true)} className={gold} style={GOLD_BG}>
+          <button type="button" onClick={goPremium} className={gold} style={GOLD_BG}>
             <Crown size={18} /> {t("gift.subscribe")}
           </button>
           <Link to="/dashboard" className={ghost}>
@@ -320,7 +320,6 @@ export default function GiftPage() {
       </main>
 
       <GiftConfetti fire={celebrate} />
-      <PremiumModal open={modal} initialStep="pay" onClose={() => setModal(false)} />
     </div>
   );
 }

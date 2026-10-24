@@ -1,18 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Crown, Loader2, Check, XCircle } from "lucide-react";
+import { Crown, Loader2, XCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Shell } from "./PaymentSuccess.jsx";
+import PaymentShell, { StatusBadge } from "../components/payment/PaymentShell.jsx";
+import PurchaseSuccess from "../components/payment/PurchaseSuccess.jsx";
+import { premiumPath } from "../lib/seo.js";
 import { useAuth } from "../lib/auth.jsx";
 import { capturePaypalOrder } from "../lib/billing.js";
-
-const GOLD_SOFT = "#ffe486";
-const GOLD_DEEP = "#cf9a1e";
 
 // صفحة العودة من PayPal — تلتقط الطلب وتعرض النتيجة.
 export default function PaymentReturnPaypal() {
   const { loading: authLoading, refreshProfile } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [params] = useSearchParams();
   const [state, setState] = useState("checking"); // checking | success | failed | error
   const [reason, setReason] = useState(null);
@@ -60,76 +59,46 @@ export default function PaymentReturnPaypal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading]);
 
-  if (state === "success") {
-    return (
-      <Shell>
-        <span
-          className="grid h-16 w-16 place-items-center rounded-2xl text-[#0a0a0a]"
-          style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
-        >
-          <Check size={32} strokeWidth={3} />
-        </span>
-        <h1 className="mt-5 text-[24px] font-black tracking-tight text-[var(--text)]">
-          {t("payment.return.successTitle")}
-        </h1>
-        <p className="mt-2 text-[14px] leading-relaxed text-[var(--text-soft)]">
-          {t("payment.return.successDesc")} {t("payment.return.enjoy")}
-        </p>
-        <Link
-          to="/"
-          className="mt-6 inline-flex items-center justify-center rounded-xl px-6 py-3 text-[15px] font-extrabold text-[#0a0a0a]"
-          style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
-        >
-          {t("payment.back")}
-        </Link>
-      </Shell>
-    );
-  }
+  // نجاح: نفس صفحة النجاح الموحّدة (ملخص الشراء + الخطوة الجاية)
+  if (state === "success") return <PurchaseSuccess />;
 
   if (state === "checking") {
     return (
-      <Shell>
-        <span
-          className="grid h-16 w-16 place-items-center rounded-2xl text-[#0a0a0a]"
-          style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}
-        >
-          <Crown size={30} />
-        </span>
-        <h1 className="mt-5 text-[24px] font-black tracking-tight text-[var(--text)]">
-          {t("payment.return.checkingTitle")}
-        </h1>
-        <p className="mt-2 inline-flex items-center gap-2 text-[14px] text-[var(--text-soft)]">
-          <Loader2 size={16} className="animate-spin" /> {t("payment.return.checkingPaypal")}
+      <PaymentShell>
+        <StatusBadge>
+          <Loader2 size={28} className="animate-spin" />
+        </StatusBadge>
+        <h1 className="mt-6 text-[24px] font-black tracking-tight">{t("payment.return.checkingTitle")}</h1>
+        <p className="mt-2 text-[15px] text-[var(--text-soft)]" aria-live="polite">
+          {t("payment.return.checkingPaypal")}
         </p>
-      </Shell>
+      </PaymentShell>
     );
   }
 
+  // failed أو error
   return (
-    <Shell>
-      <span
-        className="grid h-16 w-16 place-items-center rounded-2xl"
-        style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)" }}
-      >
+    <PaymentShell>
+      <StatusBadge tone="error">
         <XCircle size={30} className="text-red-400" />
-      </span>
-      <h1 className="mt-5 text-[24px] font-black tracking-tight text-[var(--text)]">
-        {t("payment.return.failTitle")}
-      </h1>
-      <p className="mt-2 text-[14px] leading-relaxed text-[var(--text-soft)]">
-        {reason === "COMPLIANCE_VIOLATION"
-          ? t("payment.return.failCompliance")
-          : t("payment.return.failPaypal")}
+      </StatusBadge>
+      <h1 className="mt-6 text-[24px] font-black tracking-tight">{t("payment.return.failTitle")}</h1>
+      <p className="mt-2 text-[15px] leading-relaxed text-[var(--text-soft)]">
+        {reason === "COMPLIANCE_VIOLATION" ? t("payment.return.failCompliance") : t("payment.return.failPaypal")}
       </p>
-      {reason && (
-        <p className="mt-2 font-mono text-[11px] text-[var(--color-mute)]">{t("payment.return.codeLabel", { code: reason })}</p>
-      )}
-      <Link
-        to="/"
-        className="mt-6 inline-flex items-center justify-center rounded-xl border border-[var(--color-ink-line)] bg-[var(--fill)] px-6 py-3 text-[15px] font-extrabold text-[var(--text)] transition-colors hover:bg-[var(--fill-strong)]"
-      >
-        {t("payment.back")}
-      </Link>
-    </Shell>
+      {reason && <p className="mt-2 font-mono text-[11px] text-[var(--color-mute)]">{t("payment.return.codeLabel", { code: reason })}</p>}
+      <div className="mt-7 flex w-full flex-col gap-2.5 sm:flex-row sm:justify-center">
+        <Link
+          to={premiumPath(i18n.language)}
+          className="inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-[15px] font-extrabold text-[#1d1403]"
+          style={{ background: "linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e)" }}
+        >
+          <Crown size={17} /> {t("purchase.failBack")}
+        </Link>
+        <Link to="/" className="inline-flex items-center justify-center rounded-2xl border border-[var(--color-ink-line)] px-6 py-3.5 text-[15px] font-bold text-[var(--text)] transition-colors hover:bg-[var(--fill)]">
+          {t("payment.back")}
+        </Link>
+      </div>
+    </PaymentShell>
   );
 }

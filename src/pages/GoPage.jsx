@@ -4,7 +4,7 @@ import { Loader2, Crown, ExternalLink, AlertCircle, RotateCw, Gift } from "lucid
 import { useTranslation } from "react-i18next";
 import Logo from "../components/Logo.jsx";
 import Seo from "../components/Seo.jsx";
-import PremiumModal from "../components/PremiumModal.jsx";
+import { useGoPremium } from "../lib/goPremium.js";
 import { useAuth } from "../lib/auth.jsx";
 import { usePremium } from "../lib/premium.jsx";
 import { goToDeal } from "../lib/nocode.js";
@@ -26,7 +26,7 @@ export default function GoPage() {
   const { unlocked, premiumReady } = usePremium();
   const [state, setState] = useState({ phase: "loading", name: "" });
   const [slow, setSlow] = useState(false);
-  const [modal, setModal] = useState(false);
+  const goPremium = useGoPremium();
   const [attempt, setAttempt] = useState(0);
   const urlRef = useRef(null);
 
@@ -37,7 +37,6 @@ export default function GoPage() {
     setSlow(false);
     if (premium && !unlocked) {
       setState({ phase: "premium", name: "" });
-      setModal(true);
       return;
     }
     setState({ phase: "loading", name: "" });
@@ -51,7 +50,6 @@ export default function GoPage() {
           window.location.replace(r.url);
         } else if (r.status === "premium_required") {
           setState({ phase: "premium", name: r.name || "" });
-          setModal(true);
         } else if (r.status === "no_premium") {
           setState({ phase: "no_premium", name: r.name || "" });
         } else {
@@ -105,7 +103,7 @@ export default function GoPage() {
         <div className="mt-7 flex flex-col gap-2.5">
           <button
             type="button"
-            onClick={() => setModal(true)}
+            onClick={goPremium}
             className={`${btn} text-[#0a0a0a]`}
             style={{ background: "linear-gradient(135deg, #ffe486, #cf9a1e)" }}
           >
@@ -171,7 +169,6 @@ export default function GoPage() {
         </div>
         <div className="mt-10">{body}</div>
       </main>
-      <PremiumModal open={modal} onClose={() => setModal(false)} />
     </div>
   );
 }

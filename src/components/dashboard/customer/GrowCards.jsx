@@ -1,7 +1,7 @@
-import { ExternalLink, Users, Crown } from "lucide-react";
+import { ExternalLink, Crown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-/** طوّر تجارتك: Ilyes Derradji (محتوى التعلّم) + مجتمع Stork (أعضاؤه يستفيدون من Premium مجاناً). */
+/** طوّر تجارتك: Ilyes Derradji (محتوى التعلّم) + Stork Community (اللوغو الحقيقي من stork.team؛ أعضاؤه يستفيدون من Premium مجاناً). */
 export default function GrowCards() {
   const { t } = useTranslation();
   return (
@@ -30,8 +30,8 @@ export default function GrowCards() {
           rel="noopener noreferrer"
           className="group flex items-center gap-4 rounded-[var(--radius-card)] border border-[#f0c63c]/25 bg-[var(--color-ink-card)] p-4 transition-colors hover:border-[#f0c63c]/50 sm:p-5"
         >
-          <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[#f0c63c]/10 text-[#ffe486]">
-            <Users size={24} />
+          <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[#f0c63c]/10">
+            <img src="/brand/stork.png" alt="" width={160} height={160} className="h-10 w-10" loading="lazy" decoding="async" />
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-[15px] font-extrabold text-[var(--text)]">{t("dashboard.grow.storkTitle")}</span>

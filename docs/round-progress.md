@@ -12,6 +12,8 @@
 - [x] تصليحات الفحص (P0 كاملين، P1 كاملين ما عدا إرسال النشرة — الجولة الجاية)
 - [x] الفحص الأخير (`.audit/after`) + Lighthouse بعد + مقارنة HTML (`.audit/compare.html`)
 - [x] /security-review (بلا ثغرة) + agent يهاجم (4 نقاط صغيرة → phase34b + prerender)
+- [x] نظرة ثانية بعيون جديدة على صور الهاتف → 7 نقاط (P0/P1) تصلّحو ومجرّبين
+- [x] npm run build نظيف، القاعدة: 0 تقييم تجربة، 0 حساب مؤقت
 - [ ] push + preview + التقرير
 
 ## تمّ (commits صغار، `git log --oneline main..mobile-ux-round`)

@@ -20,3 +20,6 @@ supabase/.branches
 .DS_Store
 *.local
 Thumbs.db
+
+# local UX audit (screenshots, reports, builds) — never committed
+.audit/

@@ -43,6 +43,7 @@ import {
   updateCategory,
   deleteCategory,
   getPremiumCode,
+  fetchCompanyPageFields,
 } from "../lib/supabase.js";
 import { fetchAllProfiles, fetchAllRequests, fetchPremiumProfiles, isActivePremium } from "../lib/admin.js";
 import { publishRequest, rejectRequest } from "../lib/requests.js";
@@ -50,7 +51,7 @@ import { fetchSubscribers } from "../lib/subscribers.js";
 import { fetchStorkCodes, addStorkCode, deleteStorkCode } from "../lib/stork.js";
 import { ADMIN_PIN, ADMIN_SESSION_KEY } from "../lib/config.js";
 import Logo from "../components/Logo.jsx";
-import CompanyOfferForm from "../components/offer-form/CompanyOfferForm.jsx";
+import CompanyOfferForm, { clearCompanyDraft } from "../components/offer-form/CompanyOfferForm.jsx";
 import CompanyTable from "../components/admin/CompanyTable.jsx";
 import AdminShell from "../components/admin/v2/AdminShell.jsx";
 import OverviewPage from "../components/admin/v2/OverviewPage.jsx";
@@ -422,6 +423,7 @@ function Dashboard({ onLock }) {
         setCompanies((prev) => prev.map((c) => (c.id === saved.id ? { ...c, free_reveal_enabled: wantFree } : c)));
       }
       if (priv && saved?.id) await saveCompanyPrivate(saved.id, priv);
+      clearCompanyDraft(id ? String(id) : "new");
       notify("success", id ? tc("companies.saved") : tc("companies.added"));
       navigate("/admin/companies");
     } catch (e) {
@@ -540,6 +542,7 @@ function Dashboard({ onLock }) {
       if (priv) await saveCompanyPrivate(saved.id, priv);
       await publishRequest(req.id, saved.id);
       setRequests((prev) => prev.map((r) => (r.id === req.id ? { ...r, status: "accepted", company_id: saved.id, rejection_reason: null } : r)));
+      clearCompanyDraft(`req-${req.id}`);
       notify("success", tc("req.published", { name: saved.name }));
       navigate("/admin/requests");
     } catch (e) {
@@ -803,7 +806,7 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
   const isNew = !id;
   const company = isNew ? null : companies.find((c) => String(c.id) === id);
   // كود/رابط Premium + المعلومات الداخلية: تُجلب خادمياً (غير موجودة في الجلب العام)
-  const [extra, setExtra] = useState(isNew ? { premiumLoaded: true, priv: null } : null);
+  const [extra, setExtra] = useState(isNew ? { premiumLoaded: true, pageLoaded: true, priv: null } : null);
 
   useEffect(() => {
     if (isNew || !company) return;
@@ -812,9 +815,13 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
     Promise.all([
       getPremiumCode(company.id).then((d) => ({ ok: true, d }), () => ({ ok: false })),
       fetchCompanyPrivate(company.id).catch(() => null),
-    ]).then(([pc, priv]) => {
+      fetchCompanyPageFields(company.id).then((d) => ({ ok: true, d }), () => ({ ok: false })),
+    ]).then(([pc, priv, page]) => {
       if (!active) return;
-      setExtra({ premiumLoaded: pc.ok, premium_code: pc.d?.premium_code || "", premium_url: pc.d?.premium_url || "", priv });
+      setExtra({
+        premiumLoaded: pc.ok, premium_code: pc.d?.premium_code || "", premium_url: pc.d?.premium_url || "", priv,
+        pageLoaded: page.ok, page: page.d || {},
+      });
     });
     return () => {
       active = false;
@@ -851,12 +858,14 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
         <CompanyOfferForm
           key={company?.id || "new"}
           lang="ar"
-          initial={isNew ? null : { ...company, premium_code: extra.premium_code, premium_url: extra.premium_url }}
+          initial={isNew ? null : { ...company, ...extra.page, premium_code: extra.premium_code, premium_url: extra.premium_url }}
           privateInitial={extra.priv}
           categories={categories}
           submitting={submitting}
           showPrivate
           freeRevealSwitch
+          pageFields
+          draftKey={isNew ? "new" : String(company.id)}
           onCreateCategory={onCreateCategory}
           onCancel={() => navigate("/admin/companies")}
           onSubmit={(form, priv) => {
@@ -865,6 +874,12 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
             if (!extra.premiumLoaded) {
               delete payload.premium_code;
               delete payload.premium_url;
+            }
+            // نفس الشي لنصوص صفحة الشركة
+            if (!extra.pageLoaded) {
+              delete payload.about;
+              delete payload.features;
+              delete payload.usage_steps;
             }
             onSave(isNew ? null : company.id, payload, priv);
           }}
@@ -952,6 +967,9 @@ function RequestReviewPage({ requests, loading, categories, submitting, onPublis
         categories={categories}
         submitting={submitting}
         showPrivate
+        // طلب تعديل: الفورم ما فيهش نصوص الصفحة المحفوظة → ما نبعثوهمش (ما نمسحوهمش)
+        pageFields={req.request_type !== "edit"}
+        draftKey={`req-${req.id}`}
         onCreateCategory={onCreateCategory}
         submitLabel={tc("req.publish")}
         onSubmit={(form, priv) => onPublish(req, form, priv)}

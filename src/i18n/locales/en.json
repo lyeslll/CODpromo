@@ -1371,7 +1371,9 @@
       "premiumSub": "Shown to Premium members instead of the regular offer",
       "private": "Internal info",
       "privateSub": "Never shown on the site",
-      "adminOnly": "Admin only"
+      "adminOnly": "Admin only",
+      "page": "Company page",
+      "pageSub": "Shown on the company page (/store) and translated automatically. Only write real information from the official website."
     },
     "logo": {
       "upload": "Upload logo",
@@ -1403,7 +1405,14 @@
       "commission": "Platform commission (%)",
       "affiliate": "Referral / affiliate dashboard link",
       "notes": "Notes",
-      "freeReveal": "Available for the golden key"
+      "freeReveal": "Available for the golden key",
+      "storeKind": "Company type",
+      "checkedAt": "Code last checked",
+      "today": "Today",
+      "logoBg": "Logo tile background",
+      "about": "About the company",
+      "features": "Features",
+      "usageSteps": "Custom steps to use the code"
     },
     "h": {
       "name": "Example: YouCan",
@@ -1425,7 +1434,13 @@
       "affiliate": "Dashboard link only, no password",
       "notes": "Anything useful: deal terms, renewal date…",
       "websitePartner": "Example: https://youcan.shop",
-      "freeReveal": "Each account can reveal one Premium code for free, once. Works only if the company has a Premium code."
+      "freeReveal": "Each account can reveal one Premium code for free, once. Works only if the company has a Premium code.",
+      "storeKind": "Sets the how-to steps and rating tags. “Automatic” follows the category.",
+      "checkedAt": "Shown under the code as “Code last checked”. Update it whenever you test the code.",
+      "logoBg": "“Automatic” reads the image edges. Choose “As is” for a cropped logo with its own background.",
+      "about": "Two short paragraphs: what the company offers and to whom.",
+      "features": "One feature per line.",
+      "usageSteps": "One step per line. Leave empty to show automatic steps based on the offer and company type."
     },
     "types": {
       "discount": "Discount",
@@ -1478,6 +1493,37 @@
       "fMessage": "Message to us",
       "hMessage": "Anything else you'd like us to know before publishing",
       "hCategory": "Pick the category closest to your service; we'll adjust it with you during review if needed."
+    },
+    "kinds": {
+      "auto": "Automatic (from category)",
+      "platform": "Store platform / ERP",
+      "delivery": "Delivery",
+      "store": "Store",
+      "tool": "Tool (subscription)",
+      "payment": "Payment",
+      "service": "Service"
+    },
+    "logoBg": {
+      "auto": "Automatic",
+      "white": "White",
+      "dark": "Dark",
+      "transparent": "As is"
+    },
+    "draft": {
+      "restored": "We restored an unsaved draft ({{time}}).",
+      "discard": "Discard draft"
+    },
+    "cropper": {
+      "title": "Crop the logo",
+      "hint": "Drag to move the image",
+      "zoom": "Zoom",
+      "bg": "Background",
+      "bg_transparent": "Transparent",
+      "bg_white": "White",
+      "bg_dark": "Dark",
+      "bg_custom": "Color",
+      "apply": "Use this logo",
+      "note": "Saved as a light 512×512 WebP square."
     }
   },
   "partners": {

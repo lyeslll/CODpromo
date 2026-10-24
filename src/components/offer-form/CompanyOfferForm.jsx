@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ImagePlus, Loader2, X, Tag, Ticket, Wallet, Plus, Save, Crown, Sparkles, AlertTriangle, Lock, Building2, Gift, Wand2, Check, Handshake, ShieldAlert } from "lucide-react";
 import CompanyLogo from "../CompanyLogo.jsx";
 import CompanyCard from "../CompanyCard.jsx";
+import LogoCropper from "./LogoCropper.jsx";
 import { uploadLogo } from "../../lib/supabase.js";
 import { getTypeMeta } from "../../lib/types.js";
 import { parseVal } from "../../lib/values.js";
@@ -50,7 +51,37 @@ const EMPTY = {
   premium_url: "",
   premium_description: "",
   supports_premium: true,
+  // صفحة الشركة (phase34، الأدمن برك): النبذة، المميزات، الخطوات الخاصة، النوع، آخر تحقق، خلفية اللوغو
+  about: "",
+  features: "",
+  usage_steps: "",
+  store_kind: "",
+  code_checked_at: "",
+  logo_bg: "",
 };
+const PAGE_FIELDS = ["about", "features", "usage_steps", "store_kind", "code_checked_at", "logo_bg"];
+const KINDS = ["platform", "delivery", "store", "tool", "payment", "service"];
+const LOGO_BGS = ["", "white", "dark", "transparent"];
+
+// ===================== مسودة تلقائية (localStorage) =====================
+// الفورم يتحفظ وحدو وأنت تكتب؛ كي ترجع (تبديل تبويب، إعادة تحميل، خروج بالغلط) يرجع كيما خليتو.
+const DRAFT_PREFIX = "codpromo:company-draft:";
+export function clearCompanyDraft(key) {
+  try {
+    localStorage.removeItem(DRAFT_PREFIX + key);
+  } catch {
+    /* تجاهل */
+  }
+}
+function readDraft(key) {
+  try {
+    const d = JSON.parse(localStorage.getItem(DRAFT_PREFIX + key) || "null");
+    if (!d || !d.form || Date.now() - d.at > 14 * 24 * 3600 * 1000) return null;
+    return d;
+  } catch {
+    return null;
+  }
+}
 const EMPTY_PRIVATE = { website_url: "", contact_name: "", whatsapp: "", email: "", commission_pct: "", affiliate_dashboard_url: "", affiliate_url: "", notes: "" };
 // قسم الشركة: نفس المفاتيح تقريباً + رسالة لنا (contact_email بدل email)
 const EMPTY_CONTACT = { website_url: "", contact_name: "", whatsapp: "", contact_email: "", affiliate_url: "", affiliate_dashboard_url: "", commission_pct: "", message: "" };
@@ -91,6 +122,8 @@ export default function CompanyOfferForm({
   submitLabel,
   lang,
   freeRevealSwitch = false,
+  pageFields = false,
+  draftKey = null,
 }) {
   const partner = mode === "partner";
   const [freeReveal, setFreeReveal] = useState(() => initial?.free_reveal_enabled !== false);
@@ -106,7 +139,43 @@ export default function CompanyOfferForm({
   const [touched, setTouched] = useState(false);
   const [previewMode, setPreviewMode] = useState("normal");
   const [catDialog, setCatDialog] = useState(false);
+  const [cropFile, setCropFile] = useState(null);
   const fileRef = useRef(null);
+
+  // المسودة: كي تتحلّ الصفحة نرجّعو آخر نسخة ما تحفظتش (إذا تختلف على المحفوظ)
+  const [draftAt, setDraftAt] = useState(null);
+  const baseline = useRef(null);
+  useEffect(() => {
+    baseline.current = JSON.stringify({ form, priv });
+    if (!draftKey) return;
+    const d = readDraft(draftKey);
+    if (d && JSON.stringify({ form: { ...form, ...d.form }, priv: { ...priv, ...d.priv } }) !== baseline.current) {
+      setForm((f) => ({ ...f, ...d.form }));
+      if (d.priv) setPriv((p) => ({ ...p, ...d.priv }));
+      setDraftAt(d.at);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftKey]);
+  useEffect(() => {
+    if (!draftKey) return;
+    const id = setTimeout(() => {
+      const now = JSON.stringify({ form, priv });
+      try {
+        if (now === baseline.current) localStorage.removeItem(DRAFT_PREFIX + draftKey);
+        else localStorage.setItem(DRAFT_PREFIX + draftKey, JSON.stringify({ form, priv, at: Date.now() }));
+      } catch {
+        /* تخزين ممتلئ / ممنوع: الفورم يبقى يخدم */
+      }
+    }, 500);
+    return () => clearTimeout(id);
+  }, [form, priv, draftKey]);
+  const discardDraft = () => {
+    clearCompanyDraft(draftKey);
+    const b = JSON.parse(baseline.current);
+    setForm(b.form);
+    setPriv(b.priv);
+    setDraftAt(null);
+  };
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e?.target ? e.target.value : e }));
   const setP = (k) => (e) => setPriv((p) => ({ ...p, [k]: e.target.value }));
@@ -118,22 +187,28 @@ export default function CompanyOfferForm({
     [categories, formLang] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  const handleFile = async (e) => {
+  // اختيار ملف → أداة القصّ (تكبير، تحريك، خلفية) → WebP مربّع 512px صغير → الرفع
+  const handleFile = (e) => {
     const file = e.target.files?.[0];
+    if (fileRef.current) fileRef.current.value = "";
     if (!file) return;
     if (!file.type.startsWith("image/")) return setUploadErr(t("errors.image"));
     if (partner && !["image/png", "image/jpeg", "image/webp"].includes(file.type)) return setUploadErr(t("errors.logoType"));
-    if (partner && file.size > 1024 * 1024) return setUploadErr(t("errors.logoSize"));
     setUploadErr("");
+    setCropFile(file);
+  };
+  const uploadCropped = async (file) => {
+    setCropFile(null);
+    if (partner && file.size > 1024 * 1024) return setUploadErr(t("errors.logoSize"));
     setUploading(true);
     try {
       const url = await (uploadLogoProp || uploadLogo)(file);
-      setForm((f) => ({ ...f, logo: url }));
+      // الخلفية والإطار راهم داخل الصورة → تتعرض كيما هي (بلا حشو إضافي)
+      setForm((f) => ({ ...f, logo: url, logo_bg: "transparent" }));
     } catch (err) {
       setUploadErr(err.message === "logo_type" ? t("errors.logoType") : err.message === "logo_size" ? t("errors.logoSize") : err.message);
     } finally {
       setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
     }
   };
 
@@ -165,6 +240,9 @@ export default function CompanyOfferForm({
       category: selected ? selected.name_ar || "" : "",
       ...(freeRevealSwitch && !partner ? { free_reveal_enabled: freeReveal } : {}),
     };
+    // خانات صفحة الشركة: للأدمن برك (الشركة ما تبعثهمش)، والتاريخ كامل (ISO) ولا فارغ
+    if (!pageFields || partner) for (const k of PAGE_FIELDS) delete company[k];
+    else company.code_checked_at = form.code_checked_at ? new Date(`${form.code_checked_at}T12:00:00Z`).toISOString() : "";
     onSubmit(company, showPrivate || partner ? priv : null);
   };
 
@@ -194,10 +272,21 @@ export default function CompanyOfferForm({
   return (
     <form onSubmit={submit} noValidate className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
       <div className="flex min-w-0 flex-col gap-5">
+        {/* مسودة رجعت (تبديل تبويب / إعادة تحميل) */}
+        {draftAt && (
+          <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--color-lime)]/30 bg-[var(--color-lime)]/[0.07] px-4 py-3">
+            <p className="text-[13px] font-bold text-[var(--text-softer)]">
+              {t("draft.restored", { time: new Date(draftAt).toLocaleString(formLang === "ar" ? "ar-DZ-u-nu-latn" : formLang, { dateStyle: "short", timeStyle: "short" }) })}
+            </p>
+            <button type="button" onClick={discardDraft} className="min-h-[40px] rounded-xl border border-white/[0.1] px-3.5 text-[12.5px] font-bold text-[#c9c9cf] hover:bg-white/[0.05]">
+              {t("draft.discard")}
+            </button>
+          </div>
+        )}
         {/* 1) الشركة */}
         <Section icon={Building2} title={t("s.company")} sub={t("s.companySub")}>
           <div className="flex flex-wrap items-center gap-4">
-            <CompanyLogo logo={form.logo} name={form.name} size={72} accent={meta.color} />
+            <CompanyLogo logo={form.logo} name={form.name} size={72} accent={meta.color} bg={form.logo_bg || null} />
             <div className="min-w-0 flex-1">
               <input ref={fileRef} type="file" accept={logoAccept} onChange={handleFile} className="hidden" id="cof-logo" />
               <div className="flex flex-wrap items-center gap-2">
@@ -342,6 +431,64 @@ export default function CompanyOfferForm({
           </p>
         </section>
 
+        {/* 4ب) صفحة الشركة (/store): النوع، آخر تحقق، خلفية اللوغو، النبذة، المميزات، الخطوات — تُترجَم وحدها */}
+        {pageFields && !partner && (
+          <Section icon={Building2} title={t("s.page")} sub={t("s.pageSub")}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t("f.storeKind")} hint={t("h.storeKind")}>
+                {(p) => (
+                  <select {...p} value={form.store_kind || ""} onChange={set("store_kind")} className={`${inputCls} cursor-pointer`}>
+                    <option value="" className="bg-[#0b0b0d]">{t("kinds.auto")}</option>
+                    {KINDS.map((k) => (
+                      <option key={k} value={k} className="bg-[#0b0b0d]">
+                        {t(`kinds.${k}`)}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </Field>
+              <Field label={t("f.checkedAt")} hint={t("h.checkedAt")}>
+                {(p) => (
+                  <div className="flex gap-2">
+                    <input {...p} type="date" value={form.code_checked_at || ""} max={new Date().toISOString().slice(0, 10)} onChange={set("code_checked_at")} className={inputCls} dir="ltr" />
+                    <button type="button" onClick={() => setForm((f) => ({ ...f, code_checked_at: new Date().toISOString().slice(0, 10) }))} className="shrink-0 rounded-xl border border-white/[0.08] px-3 text-[13px] font-bold text-[var(--color-lime)] hover:bg-white/[0.05]">
+                      {t("f.today")}
+                    </button>
+                  </div>
+                )}
+              </Field>
+              <Field label={t("f.logoBg")} hint={t("h.logoBg")} className="sm:col-span-2">
+                {() => (
+                  <div role="radiogroup" aria-label={t("f.logoBg")} className="flex flex-wrap gap-2">
+                    {LOGO_BGS.map((v) => (
+                      <button
+                        key={v || "auto"}
+                        type="button"
+                        role="radio"
+                        aria-checked={(form.logo_bg || "") === v}
+                        onClick={() => setForm((f) => ({ ...f, logo_bg: v }))}
+                        className={`flex min-h-[40px] items-center gap-2 rounded-xl border px-3 text-[12.5px] font-bold ${(form.logo_bg || "") === v ? "border-[var(--color-lime)] text-white" : "border-white/[0.08] text-[#a1a1aa]"}`}
+                      >
+                        <CompanyLogo logo={form.logo} name={form.name} size={26} bg={v || null} />
+                        {t(`logoBg.${v || "auto"}`)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </Field>
+              <Field label={t("f.about")} hint={t("h.about")} className="sm:col-span-2">
+                {(p) => <textarea {...p} value={form.about} onChange={set("about")} rows={4} maxLength={4000} className={`${inputCls} resize-y`} dir="auto" />}
+              </Field>
+              <Field label={t("f.features")} hint={t("h.features")}>
+                {(p) => <textarea {...p} value={form.features} onChange={set("features")} rows={5} maxLength={3000} className={`${inputCls} resize-y`} dir="auto" />}
+              </Field>
+              <Field label={t("f.usageSteps")} hint={t("h.usageSteps")}>
+                {(p) => <textarea {...p} value={form.usage_steps} onChange={set("usage_steps")} rows={5} maxLength={3000} className={`${inputCls} resize-y`} dir="auto" />}
+              </Field>
+            </div>
+          </Section>
+        )}
+
         {/* 5) معلومات داخلية */}
         {showPrivate && (
           <Section icon={Lock} title={t("s.private")} sub={t("s.privateSub")} badge={t("s.adminOnly")}>
@@ -469,6 +616,7 @@ export default function CompanyOfferForm({
         </p>
       </aside>
 
+      {cropFile && <LogoCropper file={cropFile} t={t} dir={formLang === "ar" ? "rtl" : "ltr"} onCancel={() => setCropFile(null)} onDone={uploadCropped} />}
       <AnimatePresence>
         {catDialog && (
           <NewCategoryDialog
@@ -489,6 +637,7 @@ export default function CompanyOfferForm({
 function initForm(initial, categories) {
   const base = { ...EMPTY };
   for (const k of Object.keys(EMPTY)) if (initial?.[k] != null) base[k] = initial[k];
+  if (base.code_checked_at) base.code_checked_at = String(base.code_checked_at).slice(0, 10);
   if (!base.category_id && initial?.category) {
     const match = categories.find((c) => c.name_ar === initial.category);
     if (match) base.category_id = match.id;

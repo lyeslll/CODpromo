@@ -1371,7 +1371,9 @@
       "premiumSub": "Remplace l'offre classique pour les membres Premium",
       "private": "Infos internes",
       "privateSub": "Jamais affichées sur le site",
-      "adminOnly": "Admin uniquement"
+      "adminOnly": "Admin uniquement",
+      "page": "Page de l’entreprise",
+      "pageSub": "Affiché sur la page de l’entreprise (/store) et traduit automatiquement. N’écrivez que des informations réelles tirées du site officiel."
     },
     "logo": {
       "upload": "Importer un logo",
@@ -1403,7 +1405,14 @@
       "commission": "Commission de la plateforme (%)",
       "affiliate": "Lien du tableau de bord d'affiliation",
       "notes": "Notes",
-      "freeReveal": "Disponible pour la clé dorée"
+      "freeReveal": "Disponible pour la clé dorée",
+      "storeKind": "Type d’entreprise",
+      "checkedAt": "Code vérifié le",
+      "today": "Aujourd’hui",
+      "logoBg": "Fond du logo",
+      "about": "À propos de l’entreprise",
+      "features": "Points forts",
+      "usageSteps": "Étapes propres pour utiliser le code"
     },
     "h": {
       "name": "Exemple : YouCan",
@@ -1425,7 +1434,13 @@
       "affiliate": "Uniquement le lien, sans mot de passe",
       "notes": "Toute info utile : conditions, date de renouvellement…",
       "websitePartner": "Exemple : https://youcan.shop",
-      "freeReveal": "Chaque compte peut révéler un code Premium gratuitement, une seule fois. Fonctionne uniquement si l'entreprise a un code Premium."
+      "freeReveal": "Chaque compte peut révéler un code Premium gratuitement, une seule fois. Fonctionne uniquement si l'entreprise a un code Premium.",
+      "storeKind": "Détermine les étapes d’utilisation et les tags de notation. « Automatique » suit la catégorie.",
+      "checkedAt": "Affiché sous le code : « Code vérifié le ». Mettez-le à jour à chaque test du code.",
+      "logoBg": "« Automatique » lit les bords de l’image. Choisissez « Tel quel » pour un logo recadré avec son propre fond.",
+      "about": "Deux courts paragraphes : ce que propose l’entreprise et pour qui.",
+      "features": "Un point fort par ligne.",
+      "usageSteps": "Une étape par ligne. Laissez vide pour afficher des étapes automatiques selon l’offre et le type d’entreprise."
     },
     "types": {
       "discount": "Réduction",
@@ -1478,6 +1493,37 @@
       "fMessage": "Message pour nous",
       "hMessage": "Toute information utile avant la publication",
       "hCategory": "Choisissez la catégorie la plus proche de votre service ; nous l'ajusterons avec vous si besoin."
+    },
+    "kinds": {
+      "auto": "Automatique (selon la catégorie)",
+      "platform": "Plateforme e-commerce / ERP",
+      "delivery": "Livraison",
+      "store": "Boutique",
+      "tool": "Outil (abonnement)",
+      "payment": "Paiement",
+      "service": "Service"
+    },
+    "logoBg": {
+      "auto": "Automatique",
+      "white": "Blanc",
+      "dark": "Sombre",
+      "transparent": "Tel quel"
+    },
+    "draft": {
+      "restored": "Nous avons restauré un brouillon non enregistré ({{time}}).",
+      "discard": "Ignorer le brouillon"
+    },
+    "cropper": {
+      "title": "Recadrer le logo",
+      "hint": "Glissez pour déplacer l’image",
+      "zoom": "Zoom",
+      "bg": "Fond",
+      "bg_transparent": "Transparent",
+      "bg_white": "Blanc",
+      "bg_dark": "Sombre",
+      "bg_custom": "Couleur",
+      "apply": "Utiliser ce logo",
+      "note": "Enregistré en carré WebP léger de 512×512."
     }
   },
   "partners": {

@@ -54,7 +54,9 @@ export default function StoreHero({
   const showAvg = rating && rating.count >= RATING_MIN_AVG && rating.avg != null;
 
   return (
-    <header className="store-hero grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)] lg:items-center lg:gap-10" style={accentVars(accent)}>
+    // grid-cols-[minmax(0,1fr)] في الهاتف: بلاه العمود يكبر قدّ أعرض محتوى (التذكرة) ويخرج من الحاشية،
+    // ويتبدّل عرضو كي يوصل الخط → الـ Hero كامل يقفز (CLS 0.16 في هاتف بطيء)
+    <header className="store-hero grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)] lg:items-center lg:gap-10" style={accentVars(accent)}>
       {/* الهوية */}
       <div className="min-w-0">
         <div className="flex items-center gap-4">

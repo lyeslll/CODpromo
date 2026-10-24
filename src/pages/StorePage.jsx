@@ -42,8 +42,8 @@ import "../components/store/store.css";
 export default function StorePage({ lang = "ar" }) {
   const { slug } = useParams();
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const { unlocked } = usePremium();
+  const { user, loading: authLoading } = useAuth();
+  const { unlocked, premiumReady } = usePremium();
   const fk = useFreeKey();
   const { stats: voteStats } = useVoteStats();
   const navigate = useNavigate();
@@ -161,7 +161,8 @@ export default function StorePage({ lang = "ar" }) {
   const similar = useMemo(() => similarStores(company, all, 8), [all, company]);
 
   // ===== حالات التحميل / عدم الوجود =====
-  if (loading) return <StoreSkeleton />;
+  // الـ Hero يتبدّل حسب الحالة (الكود المقفول للزائر ولا مكشوف للعضو) → الهيكل حتى نعرفوها، بلا قفزة
+  if (loading || authLoading || !premiumReady) return <StoreSkeleton />;
 
   if (notFound || !company) {
     return (

@@ -2,8 +2,9 @@ import { Component, Suspense, lazy, useCallback, useEffect, useMemo, useRef, use
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, Check, Crown, Hand } from "lucide-react";
-import { premiumMultiplier, monthlyUsdPrice } from "../../lib/siteStats.js";
+import { premiumMultiplier } from "../../lib/siteStats.js";
 import { formatNumber } from "../../lib/values.js";
+import { formatPrice, usePricing } from "../../lib/pricing.jsx";
 import { useTranslation } from "react-i18next";
 import { offersLink, offersPath } from "../../lib/seo.js";
 import { categoryName, categoryRecordSlug } from "../../lib/slug.js";
@@ -63,15 +64,15 @@ const CHIP_SLOTS = ["top-[2%] end-[-11%]", "top-[40%] end-[-15%]", "top-[78%] en
  */
 /**
  * مربع القيمة تحت أزرار الـ Hero: "مجاني للجميع" + ما يفتحه Premium مقابل سعره.
- * السعر من باقات الاشتراك (plans.js)، القيمة X من site_stats، والمضاعف N = X ÷ السعر.
+ * السعر = الدفعة الوحدة الحالية (pricing_settings)، القيمة X من site_stats، والمضاعف N = X ÷ السعر بالدولار.
  * إذا X فارغ: نكتفي بـ "مجاني للجميع" و"افتح Premium بـ …" بلا رقم ولا مضاعف.
  */
 function HeroValueBox({ stats, lang, t }) {
-  const price = monthlyUsdPrice();
-  if (price == null) return null;
+  const pricing = usePricing();
+  if (!pricing) return null;
   const unlock = stats?.premiumUnlockValueUsd ?? null;
-  const multiplier = premiumMultiplier(unlock, price);
-  const priceText = formatNumber(price, lang);
+  const multiplier = premiumMultiplier(unlock, pricing.usd);
+  const priceText = formatPrice(t, lang, pricing.dzd, pricing.usd);
 
   return (
     <div className="mt-7 flex max-w-xl flex-col gap-4 rounded-2xl border border-[#f0c63c]/35 bg-[linear-gradient(120deg,rgba(166,240,0,0.07),rgba(240,198,60,0.1))] p-4 sm:flex-row sm:items-center sm:gap-5 sm:p-5">

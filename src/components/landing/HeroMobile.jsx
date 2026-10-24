@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Check, Crown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import MagicCoupon2D from "./magic/MagicCoupon2D.jsx";
-import { premiumMultiplier, monthlyUsdPrice } from "../../lib/siteStats.js";
+import { premiumMultiplier } from "../../lib/siteStats.js";
 import { formatNumber } from "../../lib/values.js";
+import { formatPrice, usePricing } from "../../lib/pricing.jsx";
 import { offersLink, offersPath } from "../../lib/seo.js";
 import { categoryName, categoryRecordSlug } from "../../lib/slug.js";
 import "./hero-mobile.css";
@@ -99,11 +100,11 @@ function FitLabel({ children, max = 15, min = 12 }) {
 
 /** شريط القيمة (رقيق): مجاني للجميع · بـ السعر تفتح +القيمة — والمضاعف ×N بالذهبي على الجنب. نفس أرقام site_stats. */
 function HeroValueStrip({ stats, lang, t }) {
-  const price = monthlyUsdPrice();
-  if (price == null) return null;
+  const pricing = usePricing();
+  if (!pricing) return null;
   const unlock = stats?.premiumUnlockValueUsd ?? null;
-  const multiplier = premiumMultiplier(unlock, price);
-  const priceText = formatNumber(price, lang);
+  const multiplier = premiumMultiplier(unlock, pricing.usd);
+  const priceText = formatPrice(t, lang, pricing.dzd, pricing.usd);
   return (
     <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-[#f0c63c]/30 bg-[linear-gradient(120deg,rgba(166,240,0,0.06),rgba(240,198,60,0.09))] px-3.5 py-2.5">
       {/* كل جزء يبقى مجموع: إذا ما دخلش في سطر، يتقسم بين "مجاني للجميع" وجملة السعر */}

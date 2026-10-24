@@ -1,60 +1,51 @@
 // ============================================================
 //  CODpromo — Edge Function: stripe-webhook
-//  يستقبل أحداث Stripe (نجاح/تجديد/إلغاء) ويزامن حالة Premium في profiles.
-//  Stripe = مصدر الحقيقة. يتحقّق من توقيع الـ webhook قبل أي تحديث.
-//  ملاحظة: هذه الدالة بلا verify_jwt (Stripe لا يرسل JWT) — انظر config.toml.
+//  يستقبل أحداث Stripe للدفعة الوحدة (Premium مدى الحياة):
+//   - checkout.session.completed / async_payment_succeeded → تسجيل الشراء + Premium مدى الحياة
+//     (بعد التحقق: mode payment، مدفوع، USD، والمبلغ قبل الخصم = المبلغ اللي حدّدو الخادم).
+//   - charge.refunded (استرداد كامل) → refunded_at + Premium يتنحّى.
+//  يتحقّق من توقيع الـ webhook قبل أي حاجة. بلا verify_jwt (Stripe لا يرسل JWT) — انظر config.toml.
 // ============================================================
 import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { adminClient, grantLifetime, revokeLifetime, type Tier } from "../_shared/lifetime.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "", {
   httpClient: Stripe.createFetchHttpClient(),
 });
 // مزوّد تشفير غير متزامن للتحقق من التوقيع في بيئة Deno
 const cryptoProvider = Stripe.createSubtleCryptoProvider();
+const admin = adminClient();
 
-// عميل بصلاحيات كاملة لتجاوز RLS عند الكتابة من الخادم
-const admin = createClient(
-  Deno.env.get("SUPABASE_URL") ?? "",
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-);
+const ok = () =>
+  new Response(JSON.stringify({ received: true }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 
-/** يزامن حالة اشتراك Stripe إلى جدول profiles. */
-async function syncSubscription(
-  sub: Stripe.Subscription,
-  userIdHint?: string | null,
-  customerId?: string | null,
-) {
-  const active = ["active", "trialing"].includes(sub.status);
-  const premiumUntil = sub.current_period_end
-    ? new Date(sub.current_period_end * 1000).toISOString()
-    : null;
+/** يسجّل الشراء إذا الجلسة مدفوعة وكل الأرقام مطابقة. يرجّع سبب الرفض (للسجلّ) ولا null. */
+async function handleSession(s: Stripe.Checkout.Session): Promise<string | null> {
+  if (s.mode !== "payment" || s.metadata?.kind !== "lifetime") return "not lifetime";
+  // دفع متأخّر (unpaid): نستناو async_payment_succeeded
+  if (s.payment_status !== "paid" && s.payment_status !== "no_payment_required") return "not paid yet";
 
-  // حدّد صاحب الحساب: من الميتاداتا أولاً، وإلا عبر stripe_customer_id
-  let targetId = userIdHint || (sub.metadata?.supabase_user_id ?? null);
-  const cust = customerId ?? (sub.customer as string | null);
-  if (!targetId && cust) {
-    const { data } = await admin
-      .from("profiles")
-      .select("id")
-      .eq("stripe_customer_id", cust)
-      .maybeSingle();
-    targetId = data?.id ?? null;
-  }
-  if (!targetId) return;
+  const userId = s.metadata?.supabase_user_id || s.client_reference_id;
+  const tier = s.metadata?.tier as Tier | undefined;
+  const expected = Number(s.metadata?.expected_amount);
+  if (!userId || (tier !== "launch" && tier !== "regular") || !(expected > 0)) return "bad metadata";
+  if ((s.currency || "").toLowerCase() !== "usd") return "wrong currency";
+  if (s.amount_subtotal !== expected) return "amount mismatch";
 
-  await admin
-    .from("profiles")
-    .update({
-      is_premium: active,
-      premium_until: active ? premiumUntil : null,
-      subscription_status: sub.status,
-      stripe_customer_id: cust ?? undefined,
-      // الباقة من ميتاداتا الاشتراك (تُضبط عند الإنشاء)؛ undefined لا يكتب فوق القيمة
-      plan_type: sub.metadata?.plan_type ?? undefined,
-      payment_provider: "stripe",
-    })
-    .eq("id", targetId);
+  const paymentIntent = typeof s.payment_intent === "string" ? s.payment_intent : s.payment_intent?.id ?? null;
+  await grantLifetime(admin, {
+    provider: "stripe",
+    ref: s.id,
+    userId,
+    amount: (s.amount_total ?? 0) / 100, // المدفوع فعلاً (بعد كوبون الخصم إن وُجد)
+    currency: "USD",
+    tier,
+    paymentRef: paymentIntent,
+  });
+  return null;
 }
 
 Deno.serve(async (req) => {
@@ -71,50 +62,30 @@ Deno.serve(async (req) => {
       cryptoProvider,
     );
   } catch (err) {
-    return new Response(`signature verification failed: ${(err as Error).message}`, {
-      status: 400,
-    });
+    return new Response(`signature verification failed: ${(err as Error).message}`, { status: 400 });
   }
 
   try {
     switch (event.type) {
-      // إتمام الدفع لأول مرة
-      case "checkout.session.completed": {
-        const s = event.data.object as Stripe.Checkout.Session;
-        if (s.subscription) {
-          const sub = await stripe.subscriptions.retrieve(s.subscription as string);
-          await syncSubscription(
-            sub,
-            s.client_reference_id ?? s.metadata?.supabase_user_id,
-            s.customer as string,
-          );
+      case "checkout.session.completed":
+      case "checkout.session.async_payment_succeeded": {
+        const reason = await handleSession(event.data.object as Stripe.Checkout.Session);
+        if (reason && reason !== "not lifetime" && reason !== "not paid yet") {
+          console.error(`stripe-webhook: session ${(event.data.object as Stripe.Checkout.Session).id} rejected: ${reason}`);
         }
         break;
       }
-      // إنشاء/تحديث/إلغاء الاشتراك (تجديد، تغيير حالة، إلغاء)
-      case "customer.subscription.created":
-      case "customer.subscription.updated":
-      case "customer.subscription.deleted": {
-        const sub = event.data.object as Stripe.Subscription;
-        await syncSubscription(sub, sub.metadata?.supabase_user_id, sub.customer as string);
-        break;
-      }
-      // نجاح فاتورة التجديد الشهري
-      case "invoice.payment_succeeded": {
-        const inv = event.data.object as Stripe.Invoice;
-        if (inv.subscription) {
-          const sub = await stripe.subscriptions.retrieve(inv.subscription as string);
-          await syncSubscription(sub, sub.metadata?.supabase_user_id, sub.customer as string);
-        }
+      // استرداد: كامل برك (charge.refunded = true). الجزئي ما ينحّيش Premium.
+      case "charge.refunded": {
+        const ch = event.data.object as Stripe.Charge;
+        const pi = typeof ch.payment_intent === "string" ? ch.payment_intent : ch.payment_intent?.id;
+        if (ch.refunded && pi) await revokeLifetime(admin, "stripe", pi);
         break;
       }
     }
-
-    return new Response(JSON.stringify({ received: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return ok();
   } catch (e) {
+    // 500 → Stripe يعاود يبعث الحدث (التسجيل idempotent)
     return new Response(`handler error: ${(e as Error).message}`, { status: 500 });
   }
 });

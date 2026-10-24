@@ -33,6 +33,8 @@ import TrustSection from "../components/landing/TrustSection.jsx";
 import SampleOffers from "../components/landing/SampleOffers.jsx";
 import AppDownload from "../components/landing/AppDownload.jsx";
 import NocodeSection from "../components/nocode/NocodeSection.jsx";
+import PremiumFaq, { premiumFaqItems } from "../components/landing/PremiumFaq.jsx";
+import { usePricing } from "../lib/pricing.jsx";
 
 // ============================================================
 //  الصفحة الرئيسية = صفحة تعريف (landing) لتجّار الدفع عند الاستلام.
@@ -101,6 +103,8 @@ export default function Home() {
   }, [companies, voteStats]);
 
   // ===== السيو =====
+  const pricing = usePricing();
+  const faqItems = premiumFaqItems(t, lang, pricing);
   const jsonLd = [
     {
       "@context": "https://schema.org",
@@ -122,6 +126,35 @@ export default function Home() {
         target: { "@type": "EntryPoint", urlTemplate: `${offersUrl(lang)}?q={search_term_string}` },
         "query-input": "required name=search_term_string",
       },
+    },
+    // Premium مدى الحياة: دفعة واحدة بالسعر الحالي (إطلاق / عادي من pricing_settings)
+    ...(pricing
+      ? [
+          {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: t("pricing.productName"),
+            description: t("premiumFaq.lifetime.a"),
+            image: DEFAULT_OG_IMAGE,
+            brand: { "@type": "Brand", name: SITE_NAME },
+            offers: [
+              { currency: "USD", price: pricing.usd },
+              { currency: "DZD", price: pricing.dzd },
+            ].map((o) => ({
+              "@type": "Offer",
+              price: String(o.price),
+              priceCurrency: o.currency,
+              availability: "https://schema.org/InStock",
+              url: homeUrl(lang),
+              seller: { "@type": "Organization", name: SITE_NAME },
+            })),
+          },
+        ]
+      : []),
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqItems.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
     },
   ];
 
@@ -185,6 +218,7 @@ export default function Home() {
         />
         <NocodeSection unlocked={unlocked} onUnlock={openPremium} />
         <AppDownload />
+        <PremiumFaq pricing={pricing} />
       </main>
 
       <Footer onPremium={openPremium} />

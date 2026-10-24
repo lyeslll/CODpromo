@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-ro
 import { MotionConfig } from "framer-motion";
 import { AuthProvider } from "./lib/auth.jsx";
 import { PremiumProvider, usePremium } from "./lib/premium.jsx";
+import { PricingProvider } from "./lib/pricing.jsx";
 import { FreeKeyProvider } from "./lib/freeKeyContext.jsx";
 import { offersLink } from "./lib/seo.js";
 import { CategoriesProvider } from "./lib/categories.jsx";
@@ -35,6 +36,7 @@ const PaymentCancel = lazy(() => import("./pages/PaymentCancel.jsx"));
 const PaymentReturn = lazy(() => import("./pages/PaymentReturn.jsx"));
 const PaymentReturnPaypal = lazy(() => import("./pages/PaymentReturnPaypal.jsx"));
 const Privacy = lazy(() => import("./pages/Privacy.jsx"));
+const Terms = lazy(() => import("./pages/Terms.jsx"));
 const AccountDeletion = lazy(() => import("./pages/AccountDeletion.jsx"));
 const GoPage = lazy(() => import("./pages/GoPage.jsx"));
 const GiftPage = lazy(() => import("./pages/GiftPage.jsx"));
@@ -140,6 +142,7 @@ export default function App() {
     // reducedMotion="user": مع prefers-reduced-motion تتوقف حركات التحويل/الإزاحة في كل الموقع
     <MotionConfig reducedMotion="user">
     <BrowserRouter>
+      <PricingProvider>
       <AuthProvider>
         <PremiumProvider>
           <FreeKeyProvider>
@@ -190,6 +193,8 @@ export default function App() {
           <Route path="/payment-return" element={<PaymentReturn />} />
           <Route path="/payment-return-paypal" element={<PaymentReturnPaypal />} />
           <Route path="/privacy" element={<Privacy />} />
+          {/* الشروط: "مدى الحياة" + قاعدة الاسترداد (رابط في الفوتر وفي نافذة الدفع) */}
+          <Route path="/terms" element={<Terms />} />
           <Route path="/account-deletion" element={<AccountDeletion />} />
           {/* التحويل النظيف لعروض بلا كود (noindex + Disallow في robots.txt) */}
           <Route path="/go/:slug" element={<GoPage />} />
@@ -223,6 +228,7 @@ export default function App() {
           </FreeKeyProvider>
         </PremiumProvider>
       </AuthProvider>
+      </PricingProvider>
     </BrowserRouter>
     </MotionConfig>
   );

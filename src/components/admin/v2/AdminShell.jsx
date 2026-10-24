@@ -16,6 +16,8 @@ import {
   Gift,
   PartyPopper,
   Key,
+  Receipt,
+  Tag,
   Menu,
   X,
   PanelLeftClose,
@@ -48,6 +50,13 @@ export const NAV = [
       { key: "premium", path: "/admin/premium", icon: Crown },
       { key: "gifts", path: "/admin/gifts", icon: PartyPopper },
       { key: "freeKey", path: "/admin/free-key", icon: Key },
+    ],
+  },
+  {
+    group: "sales",
+    items: [
+      { key: "sales", path: "/admin/sales", icon: Receipt },
+      { key: "pricing", path: "/admin/pricing", icon: Tag },
     ],
   },
   {

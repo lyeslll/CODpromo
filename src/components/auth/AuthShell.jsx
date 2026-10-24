@@ -8,6 +8,7 @@ import LanguageSwitcher from "../LanguageSwitcher.jsx";
 import { MiniTicket } from "../app/AppPhone.jsx";
 import { useSharedStats } from "../header/headerData.js";
 import { premiumMultiplier } from "../../lib/siteStats.js";
+import { usePricing } from "../../lib/pricing.jsx";
 import { formatNumber } from "../../lib/values.js";
 
 // نمط حقول الإدخال المشترك في صفحات الحساب — ضوء ليموني خفيف حول الحقل أثناء الكتابة
@@ -54,7 +55,8 @@ function IdentityPanel() {
   const reduced = useReducedMotion();
   const ref = useRef(null);
   const stats = useSharedStats();
-  const multiplier = premiumMultiplier(stats?.premiumUnlockValueUsd ?? null);
+  const pricing = usePricing();
+  const multiplier = premiumMultiplier(stats?.premiumUnlockValueUsd ?? null, pricing?.usd);
   const numbers = [
     stats?.totalCodes != null && { key: "codes", value: formatNumber(stats.totalCodes, lang), label: t("stats.codes") },
     stats?.partnersCount != null && { key: "partners", value: formatNumber(stats.partnersCount, lang), label: t("stats.partners") },

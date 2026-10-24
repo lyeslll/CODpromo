@@ -1,40 +1,14 @@
 // ============================================================
-//  CODpromo — أدوات مشتركة لدوال PayPal
-//  الباقات (مصدر الحقيقة للأسعار والمدد — لا يُوثق بأي مبلغ من المتصفّح)
-//  دفع لمرة واحدة بالدولار، كل دفعة تفعّل Premium لمدتها.
+//  CODpromo — أدوات مشتركة لدوال PayPal (دفعة وحدة بالدولار = Premium مدى الحياة)
+//  المبلغ يتقرّر في الخادم (pricing_settings) ويتحفظ في paypal_orders مع tier.
+//  عند الالتقاط: الحالة COMPLETED + المبلغ والعملة تاع الـ capture لازم يطابقو الطلب المحفوظ.
 // ============================================================
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-export const PLANS: Record<string, { amount: string; days: number; label: string }> = {
-  month: { amount: "10.00", days: 30, label: "اشتراك Premium — شهر" },
-  quarter: { amount: "25.00", days: 90, label: "اشتراك Premium — 3 أشهر" },
-  year: { amount: "90.00", days: 365, label: "اشتراك Premium — سنة" },
-};
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { grantLifetime, sameAmount, type Tier } from "./lifetime.ts";
 
 // قاعدة عنوان PayPal: sandbox افتراضياً للأمان — بدّلها لـ live عبر secret
 export const PAYPAL_BASE =
   Deno.env.get("PAYPAL_BASE_URL") || "https://api-m.sandbox.paypal.com";
-
-export const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
-export function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
-
-export function adminClient(): SupabaseClient {
-  return createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-  );
-}
 
 // مصادقة OAuth2 مع PayPal للحصول على access token (المفتاح السري في secrets فقط)
 export async function getAccessToken(): Promise<string> {
@@ -56,24 +30,50 @@ export async function getAccessToken(): Promise<string> {
   return data.access_token as string;
 }
 
-/**
- * يفعّل Premium بعد تأكيد الدفع عند المزوّد (idempotent).
- * كلّش في معاملة وحدة عبر RPC activate_paid_premium (phase25، service_role فقط):
- * حجز الطلب (status ≠ completed) + منح Premium + حساب المدة في القاعدة.
- * طلبان متزامنان ما يمنحوش مرّتين، وإن فشل المنح ما يبقاش الطلب "completed" بلا Premium.
- */
-export async function activatePremium(
-  admin: SupabaseClient,
-  order: { order_id: string; user_id: string; plan_type: string; status: string },
-) {
-  if (order.status === "completed") return; // سبق تفعيلها
-  const plan = PLANS[order.plan_type];
-  if (!plan) return;
+export interface OrderRow {
+  order_id: string;
+  user_id: string;
+  amount_usd: number;
+  tier: Tier | null;
+  status: string;
+}
 
-  const { error } = await admin.rpc("activate_paid_premium", {
-    p_provider: "paypal",
-    p_ref: order.order_id,
-    p_days: plan.days,
+export const ORDER_COLUMNS = "order_id, user_id, amount_usd, tier, status";
+
+/** أول capture مكتمل في الطلب (من ردّ capture ولا GET order). */
+export function completedCapture(order: unknown) {
+  // deno-lint-ignore no-explicit-any
+  const units = (order as any)?.purchase_units ?? [];
+  for (const u of units) {
+    for (const c of u?.payments?.captures ?? []) {
+      if (c?.status === "COMPLETED") return c as { id: string; amount?: { currency_code?: string; value?: string } };
+    }
+  }
+  return null;
+}
+
+/**
+ * بعد ما PayPal يأكّد الدفع: المبلغ والعملة لازم يطابقو الطلب المحفوظ، ثم التسجيل والمنح (idempotent).
+ * يرجّع 'granted' | 'duplicate' | 'amount_mismatch' | 'legacy'.
+ */
+export async function activateOrder(
+  admin: SupabaseClient,
+  order: OrderRow,
+  capture: { id: string; amount?: { currency_code?: string; value?: string } },
+): Promise<string> {
+  // طلبات الاشتراكات القديمة (قبل الدفعة الوحدة) بلا tier: ما تعطيش مدى الحياة
+  if (order.tier !== "launch" && order.tier !== "regular") return "legacy";
+  if (capture.amount?.currency_code !== "USD" || !sameAmount(capture.amount?.value, order.amount_usd)) {
+    console.error(`paypal: order ${order.order_id} amount mismatch (${capture.amount?.value} ${capture.amount?.currency_code})`);
+    return "amount_mismatch";
+  }
+  return await grantLifetime(admin, {
+    provider: "paypal",
+    ref: order.order_id,
+    userId: order.user_id,
+    amount: Number(order.amount_usd),
+    currency: "USD",
+    tier: order.tier,
+    paymentRef: capture.id,
   });
-  if (error) throw new Error(error.message);
 }

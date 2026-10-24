@@ -4,17 +4,19 @@ import { ArrowLeft, Crown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { usePremium } from "../../lib/premium.jsx";
 import { offersLink, offersPath } from "../../lib/seo.js";
-import { fmtUSD } from "../../lib/plans.js";
-import { monthlyUsdPrice, premiumMultiplier } from "../../lib/siteStats.js";
+import { premiumMultiplier } from "../../lib/siteStats.js";
 import { formatNumber } from "../../lib/values.js";
+import { usePricing } from "../../lib/pricing.jsx";
 import { useSharedStats } from "../header/headerData.js";
+import LifetimePrice from "../pricing/LifetimePrice.jsx";
+import SeatsMeter from "../pricing/SeatsMeter.jsx";
 
 const GOLD_BG = "linear-gradient(135deg, #fff1b8, #ffe486 28%, #f0c63c 62%, #cf9a1e)";
 const INK = "#1d1403";
 
 /**
  * الـ CTA فوق الفوتر: كوبون واحد بجهتين يفرقهما خط مثقّب —
- * جهة عادية (افتح العروض) وجهة ذهبية (Premium: السعر + المضاعف ×N من site_stats).
+ * جهة عادية (افتح العروض) وجهة ذهبية (Premium مدى الحياة: الدفعة الوحدة + العدّاد + المضاعف ×N).
  * المشترك (ومول الهدية) يرى "عضو Premium" ورابط عروض Premium بدل زر الاشتراك.
  */
 export default function FooterCta({ onPremium, innerRef }) {
@@ -23,8 +25,8 @@ export default function FooterCta({ onPremium, innerRef }) {
   const navigate = useNavigate();
   const { hasPremium } = usePremium();
   const stats = useSharedStats();
-  const usd = monthlyUsdPrice();
-  const multiplier = premiumMultiplier(stats?.premiumUnlockValueUsd ?? null, usd);
+  const pricing = usePricing();
+  const multiplier = premiumMultiplier(stats?.premiumUnlockValueUsd ?? null, pricing?.usd);
 
   return (
     <section ref={innerRef} className="mx-auto max-w-6xl px-4 pb-4 pt-12">
@@ -69,14 +71,13 @@ export default function FooterCta({ onPremium, innerRef }) {
 
           {!hasPremium && (
             <div className="relative mt-6 flex flex-wrap items-end gap-x-8 gap-y-4">
-              {usd != null && (
-                <p className="text-[14px] font-bold" style={{ color: "rgba(29,20,3,0.75)" }}>
-                  {t("compare.priceFrom")}{" "}
-                  <bdi className="text-[34px] font-black leading-none [font-family:Inter,sans-serif]" style={{ color: INK }}>
-                    {fmtUSD(usd)}
-                  </bdi>{" "}
-                  {t("compare.perMonth")}
-                </p>
+              {pricing && (
+                <div>
+                  <p className="mb-1.5 text-[13px] font-extrabold" style={{ color: "rgba(29,20,3,0.75)" }}>
+                    {t("pricing.oneTime")}
+                  </p>
+                  <LifetimePrice pricing={pricing} size="md" tone="ink" />
+                </div>
               )}
               {multiplier && (
                 <div className="flex items-end gap-2">
@@ -90,6 +91,7 @@ export default function FooterCta({ onPremium, innerRef }) {
               )}
             </div>
           )}
+          {!hasPremium && <SeatsMeter pricing={pricing} tone="ink" className="relative mt-5 max-w-sm" />}
 
           <motion.button
             type="button"

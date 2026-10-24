@@ -5,9 +5,9 @@ import {
   fetchSiteStatsAdmin,
   updateSiteStats,
   premiumMultiplier,
-  monthlyUsdPrice,
   SITE_STAT_FIELDS,
 } from "../../lib/siteStats.js";
+import { usePricing } from "../../lib/pricing.jsx";
 
 // الخانات: auto = مفتاح قيمة العدّ التلقائي في الـ view (إن وُجد)
 const FIELDS = [
@@ -51,7 +51,7 @@ export default function SiteStatsManager({ notify }) {
     };
   }, [t]);
 
-  const price = monthlyUsdPrice();
+  const price = usePricing()?.usd ?? null;
   const multiplier = premiumMultiplier(Number(form.premium_unlock_value_usd) || 0, price);
 
   const save = async (e) => {

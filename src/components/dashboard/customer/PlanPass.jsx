@@ -184,9 +184,9 @@ function UpgradeCoupon({ stats, onOpenPremium, onOpenStork, giftField }) {
           )}
           {multiplier && (
             <div className="mt-4 flex items-end gap-2.5">
-              <span className="text-[40px] font-black leading-none tabular-nums" style={{ color: GOLD_SOFT }}>
+              <bdi dir="ltr" className="text-[40px] font-black leading-none tabular-nums" style={{ color: GOLD_SOFT }}>
                 ×{formatNumber(multiplier, "en")}
-              </span>
+              </bdi>
               <span className="pb-1 text-[12.5px] font-semibold leading-snug text-[var(--text-soft)]">{t("compare.multiplierLabel")}</span>
             </div>
           )}

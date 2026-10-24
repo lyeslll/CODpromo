@@ -5,11 +5,12 @@ import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../LanguageSwitcher.jsx";
 import { useAuth } from "../../lib/auth.jsx";
 import { useScrollDirection } from "../../lib/useScrollDirection.js";
+import Seo from "../Seo.jsx";
 
 /** إطار موحّد لصفحات الداشبورد (شريط علوي + حاوية محتوى) بنفس الهوية. */
 export default function DashboardShell({ badge, wide = false, children }) {
   const { user, signOut } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   // نفس سلوك التمرير للـ bottom bar: يختفي عند النزول، يظهر عند الصعود (موبايل؛ الحاسوب ثابت).
   const { hidden } = useScrollDirection();
@@ -23,6 +24,7 @@ export default function DashboardShell({ badge, wide = false, children }) {
 
   return (
     <div className="min-h-screen bg-[var(--color-ink)] text-[var(--text)]">
+      <Seo lang={i18n.language} title={`${t("nav.account")} | CODpromo`} noindex />
       <header
         className={`sticky top-0 z-40 border-b border-[var(--color-ink-line)] bg-[var(--elev)]/85 backdrop-blur-xl transition-transform duration-300 will-change-transform md:!translate-y-0 ${
           hidden ? "-translate-y-full" : "translate-y-0"

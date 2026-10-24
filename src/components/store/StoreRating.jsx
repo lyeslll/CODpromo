@@ -102,6 +102,8 @@ export default function StoreRating({ company, kind, summary, onSummary, lang })
                   </p>
                 </div>
               </div>
+              {/* التوزيع يجي من 5 تقييمات (phase34b) — قبلها المعدّل برك */}
+              {summary?.dist && (
               <ul className="mt-5 grid gap-1.5" aria-label={t("storePage.rating.title", { name })}>
                 {dist.map(({ s, n }) => (
                   <li key={s} className="flex items-center gap-2.5 text-[12px] font-bold text-[var(--color-mute)]">
@@ -113,6 +115,7 @@ export default function StoreRating({ company, kind, summary, onSummary, lang })
                   </li>
                 ))}
               </ul>
+              )}
               {topTags.length > 0 && (
                 <div className="mt-5 flex flex-wrap gap-2">
                   {topTags.map((x) => (

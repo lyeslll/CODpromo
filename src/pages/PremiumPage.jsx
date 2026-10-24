@@ -54,7 +54,10 @@ export default function PremiumPage({ lang = "ar" }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, profile, loading: authLoading } = useAuth();
-  const { isPremiumActive, isLifetime, isGift, gift } = usePremium();
+  const { isPremiumActive, isLifetime, isGift, gift, premiumReady } = usePremium();
+  // الـ Hero يتبدّل كامل حسب الحالة (زائر / عضو / هدية): قبل ما نعرفوها، بلاصتو محجوزة ومخفية — بلاها العضو يشوف
+  // نسخة الزائر (السعر وزر الشراء) ومن بعد تتبدّل قدّامو (CLS 0.37 في التطبيق). الزائر: فوري.
+  const heroPending = authLoading || !premiumReady;
   const pricing = usePricing();
   const refreshPricing = usePricingRefresh();
   const stats = useSharedStats();
@@ -222,7 +225,10 @@ export default function PremiumPage({ lang = "ar" }) {
           className="pointer-events-none absolute inset-0"
           style={{ background: "radial-gradient(50% 60% at 78% 30%, rgba(240,198,60,0.14), transparent 70%), radial-gradient(40% 40% at 10% 90%, rgba(240,198,60,0.05), transparent 70%)" }}
         />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 pt-[112px] sm:pt-[136px] lg:grid-cols-[1.08fr_0.92fr] lg:gap-16 lg:pb-24">
+        <div
+          aria-busy={heroPending || undefined}
+          className={`relative mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 pt-[112px] sm:pt-[136px] lg:grid-cols-[1.08fr_0.92fr] lg:gap-16 lg:pb-24 ${heroPending ? "invisible" : ""}`}
+        >
           <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
             {pill && (
               <span aria-hidden={pill.ghost || undefined} className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-extrabold ${pill.ghost ? "invisible" : ""}`} style={{ borderColor: "rgba(240,198,60,0.4)", color: GOLD_SOFT, background: "rgba(240,198,60,0.08)" }}>

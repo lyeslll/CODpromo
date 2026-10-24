@@ -101,7 +101,8 @@ function FitLabel({ children, max = 15, min = 12 }) {
 /** شريط القيمة (رقيق): مجاني للجميع · بـ السعر تفتح +القيمة — والمضاعف ×N بالذهبي على الجنب. نفس أرقام site_stats. */
 function HeroValueStrip({ stats, lang, t }) {
   const pricing = usePricing();
-  if (!pricing) return null;
+  // قبل ما يوصل السعر: نفس المكان فارغ (بلا قفزة كي يبان الشريط)
+  if (!pricing) return <div aria-hidden className="mt-3 h-[46px] rounded-2xl border border-[var(--color-ink-line)]/60" />;
   const unlock = stats?.premiumUnlockValueUsd ?? null;
   const multiplier = premiumMultiplier(unlock, pricing.usd);
   const priceText = formatPrice(t, lang, pricing.dzd, pricing.usd);
@@ -340,7 +341,8 @@ export default function HeroMobile({
 
       <HeroValueStrip stats={stats} lang={lang} t={t} />
 
-      {/* شرائح التصنيفات: شريط متحرك (تحت أول شاشة) */}
+      {/* شرائح التصنيفات: شريط متحرك (تحت أول شاشة) — مكانها محجوز قبل ما توصل الفئات */}
+      {chips.length === 0 && <div aria-hidden className="mt-6 h-[33px]" />}
       {chips.length > 0 && (
         <div className="marquee-wrap no-scrollbar relative -mx-4 mt-6 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
           <div className="marquee-track flex w-max gap-2 px-4" style={{ "--marquee-duration": "38s" }}>

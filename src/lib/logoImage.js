@@ -42,6 +42,17 @@ function saveCache() {
     /* تجاهل */
   }
 }
+// الخدمة تتأجّل لوقت الفراغ (ماشي وسط تحميل الصفحة): قراءة البكسلات + كتابة وحدة في localStorage لكل اللوغوهات
+const idle = (fn) => (typeof requestIdleCallback === "function" ? requestIdleCallback(fn, { timeout: 2000 }) : setTimeout(fn, 1));
+let saveQueued = false;
+function queueSave() {
+  if (saveQueued) return;
+  saveQueued = true;
+  idle(() => {
+    saveQueued = false;
+    saveCache();
+  });
+}
 
 /** النتيجة المحفوظة (متزامن) — undefined إذا ما تحسبتش بعد. */
 export function cachedTone(url) {
@@ -62,7 +73,7 @@ export function detectTone(url) {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.decoding = "async";
-    img.onload = () => {
+    img.onload = () => idle(() => {
       let tone = "full";
       try {
         const n = 24;
@@ -92,9 +103,9 @@ export function detectTone(url) {
         tone = "full";
       }
       loadCache()[url] = tone;
-      saveCache();
+      queueSave();
       resolve(tone);
-    };
+    });
     img.onerror = () => resolve("full");
     img.src = logoSrc(url, 24);
   });

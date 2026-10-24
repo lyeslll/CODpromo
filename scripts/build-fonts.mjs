@@ -1,8 +1,10 @@
 // Download the needed woff2 subsets from Google Fonts and write a self-hosted @font-face CSS.
+// usage: node scripts/build-fonts.mjs <google.css> (CSS from fonts.googleapis.com with a Chrome user-agent)
 // Keeps: Tajawal (arabic + latin), Inter (latin + latin-ext). Output: public/fonts/*.woff2 + src/assets/fonts/fonts.css
 import fs from "node:fs";
 import path from "node:path";
-const repo = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^/([A-Z]:)/, "$1")), "..");
+import { fileURLToPath } from "node:url";
+const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const css = fs.readFileSync(process.argv[2] || "google.css", "utf8");
 const blocks = [...css.matchAll(/\/\* ([a-z-]+) \*\/\s*@font-face\s*\{([\s\S]*?)\}/g)];
 const keep = { Tajawal: ["arabic", "latin"], Inter: ["latin", "latin-ext"] };

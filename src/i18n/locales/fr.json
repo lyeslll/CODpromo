@@ -812,7 +812,13 @@
         "sub_two": "{{count}} entreprises sur le site",
         "sub_few": "{{count}} entreprises sur le site",
         "sub_many": "{{count}} entreprises sur le site",
-        "sub_other": "{{count}} entreprises sur le site"
+        "sub_other": "{{count}} entreprises sur le site",
+        "hiddenBadge": "Masquée",
+        "visibleTitle": "Visible sur le site — cliquer pour masquer (non supprimée)",
+        "hiddenTitle": "Masquée du site — cliquer pour afficher",
+        "visibilityLabel": "Visibilité sur le site",
+        "hiddenDone": "{{name}} est maintenant masquée du site",
+        "shownDone": "{{name}} est de nouveau visible sur le site"
       },
       "pages": {
         "categoriesSub": "Organisez les catégories affichées sur le site",

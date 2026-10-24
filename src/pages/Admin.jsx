@@ -33,7 +33,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../lib/auth.jsx";
 
 import {
-  fetchCompanies,
+  fetchCompaniesAdmin,
   addCompany,
   updateCompany,
   deleteCompany,
@@ -282,7 +282,8 @@ function Dashboard({ onLock }) {
 
   const load = useCallback(() => {
     setLoading(true);
-    fetchCompanies()
+    // بهوية الأدمين: الشركات المخفية من الموقع (phase36) تبانلو هنا باش يقدر يرجّعها
+    fetchCompaniesAdmin()
       .then((d) => setCompanies(Array.isArray(d) ? d : []))
       .catch((e) => notify("error", e.message))
       .finally(() => setLoading(false));
@@ -509,6 +510,20 @@ function Dashboard({ onLock }) {
     }
   };
 
+  // إخفاء / إظهار شركة في الموقع (status: hidden / active) — الشركة ما تتمسحش (phase36)
+  const handleToggleHidden = async (id, hide) => {
+    const name = companies.find((c) => c.id === id)?.name || "";
+    const status = hide ? "hidden" : "active";
+    setCompanies((prev) => prev.map((c) => (c.id === id ? { ...c, status } : c)));
+    try {
+      await updateCompany(id, { status });
+      notify("success", tc(hide ? "companies.hiddenDone" : "companies.shownDone", { name }));
+    } catch (e) {
+      setCompanies((prev) => prev.map((c) => (c.id === id ? { ...c, status: hide ? "active" : "hidden" } : c)));
+      notify("error", e.message);
+    }
+  };
+
   // "متاح للمفتاح الذهبي" مباشرةً من الجدول (تحديث متفائل مع تراجع عند الفشل)
   const handleToggleFreeReveal = async (id, value) => {
     setCompanies((prev) => prev.map((c) => (c.id === id ? { ...c, free_reveal_enabled: value } : c)));
@@ -632,6 +647,7 @@ function Dashboard({ onLock }) {
                 onDelete={handleDelete}
                 onTogglePremium={handleTogglePremium}
                 onToggleFreeReveal={handleToggleFreeReveal}
+                onToggleHidden={handleToggleHidden}
               />
             </>
           }

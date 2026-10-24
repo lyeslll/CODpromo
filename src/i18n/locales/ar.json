@@ -812,7 +812,13 @@
         "sub_two": "شركتان في الموقع",
         "sub_few": "{{count}} شركات في الموقع",
         "sub_many": "{{count}} شركة في الموقع",
-        "sub_other": "{{count}} شركة في الموقع"
+        "sub_other": "{{count}} شركة في الموقع",
+        "hiddenBadge": "مخفية",
+        "visibleTitle": "ظاهرة في الموقع — اضغط للإخفاء (ما تتمسحش)",
+        "hiddenTitle": "مخفية من الموقع — اضغط للإظهار",
+        "visibilityLabel": "الظهور في الموقع",
+        "hiddenDone": "تخبّات {{name}} من الموقع",
+        "shownDone": "رجعت {{name}} تبان في الموقع"
       },
       "pages": {
         "categoriesSub": "رتّب الفئات التي تظهر في الموقع",

@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Pencil, Trash2, ExternalLink, Loader2, AlertTriangle, Search, Crown, Key } from "lucide-react";
+import { Pencil, Trash2, ExternalLink, Loader2, AlertTriangle, Search, Crown, Key, Eye, EyeOff } from "lucide-react";
 import CompanyLogo from "../CompanyLogo.jsx";
 import { getTypeMeta } from "../../lib/types.js";
 import { hasPremiumOffer } from "../../lib/premiumOffer.js";
 import { useAdminT } from "./v2/ui.jsx";
 
-export default function CompanyTable({ companies, loading, editingId, onEdit, onDelete, onTogglePremium, onToggleFreeReveal }) {
+export default function CompanyTable({ companies, loading, editingId, onEdit, onDelete, onTogglePremium, onToggleFreeReveal, onToggleHidden }) {
   const ta = useAdminT();
   const [q, setQ] = useState("");
   const [confirmId, setConfirmId] = useState(null);
@@ -78,7 +78,12 @@ export default function CompanyTable({ companies, loading, editingId, onEdit, on
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="truncate text-[14.5px] font-bold text-white">{c.name}</span>
+                      <span className={`truncate text-[14.5px] font-bold ${c.status === "hidden" ? "text-[var(--color-mute)] line-through" : "text-white"}`}>{c.name}</span>
+                      {c.status === "hidden" && (
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[10.5px] font-bold text-[var(--color-mute)]">
+                          <EyeOff size={11} /> {ta("companies.hiddenBadge")}
+                        </span>
+                      )}
                       <span
                         className="hidden shrink-0 rounded-md px-1.5 py-0.5 text-[10.5px] font-bold sm:inline"
                         style={{ background: `${meta.color}1a`, color: meta.color }}
@@ -182,6 +187,22 @@ export default function CompanyTable({ companies, loading, editingId, onEdit, on
                               style={{ insetInlineStart: c.free_reveal_enabled !== false ? 18 : 2 }}
                             />
                           </span>
+                        </button>
+                      )}
+                      {/* الظهور في الموقع: مخفية = ما تبانش للزوار (تبقى هنا وتقدر ترجّعها) */}
+                      {onToggleHidden && (
+                        <button
+                          onClick={() => onToggleHidden(c.id, c.status !== "hidden")}
+                          title={c.status === "hidden" ? ta("companies.hiddenTitle") : ta("companies.visibleTitle")}
+                          aria-label={ta("companies.visibilityLabel")}
+                          aria-pressed={c.status !== "hidden"}
+                          className={`grid h-9 w-9 place-items-center rounded-lg border transition-colors ${
+                            c.status === "hidden"
+                              ? "border-orange-400/40 text-orange-400 hover:bg-orange-400/10"
+                              : "border-[var(--color-ink-line)] text-[var(--color-mute)] hover:text-[var(--color-lime)]"
+                          }`}
+                        >
+                          {c.status === "hidden" ? <EyeOff size={15} /> : <Eye size={15} />}
                         </button>
                       )}
                       {c.link && (

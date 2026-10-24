@@ -93,6 +93,18 @@ export const STORE_PAGE_COLUMNS =
   ",about,about_en,about_fr,features,features_en,features_fr,usage_steps,usage_steps_en,usage_steps_fr";
 
 /** يجلب كل الشركات مرتبة من الأحدث للأقدم (بأعمدة آمنة بلا أكواد Premium). */
+/**
+ * الأدمين: نفس القائمة بهوية المستخدم — فيها حتى الشركات المخفية (status = 'hidden'، phase36:
+ * الزوار والمفتاح العام ما يشوفوهاش). بلا جلسة أدمين = نفس القائمة العامة.
+ */
+export async function fetchCompaniesAdmin() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?select=${COMPANY_PUBLIC_COLUMNS}&order=created_at.desc`, {
+    headers: await adminHeaders(),
+  });
+  if (!res.ok) throw new Error("فشل الاتصال بالخادم");
+  return res.json();
+}
+
 export async function fetchCompanies() {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/companies?select=${COMPANY_PUBLIC_COLUMNS}&order=created_at.desc`,

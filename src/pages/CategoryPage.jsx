@@ -8,6 +8,7 @@ import { fetchCompanies, trackClick } from "../lib/supabase.js";
 import { fetchFavoriteIds, addFavorite, removeFavorite } from "../lib/favorites.js";
 import { useAuth } from "../lib/auth.jsx";
 import { usePremium } from "../lib/premium.jsx";
+import { hasPremiumOffer } from "../lib/premiumOffer.js";
 import { useCategories } from "../lib/categories.jsx";
 import {
   findCategoryRecordBySlug, categoryName, categoryDesc, categorySlug,
@@ -28,7 +29,7 @@ export default function CategoryPage({ lang = "ar" }) {
   const { slug } = useParams();
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { unlocked } = usePremium();
+  const { unlocked, hasPremium } = usePremium();
   const { categories, loading: catsLoading } = useCategories();
   const navigate = useNavigate();
 
@@ -196,7 +197,7 @@ export default function CategoryPage({ lang = "ar" }) {
                 isFavorite={favorites.includes(c.id)}
                 onToggleFav={toggleFav}
                 onCopy={handleCopy}
-                premium={false}
+                premium={hasPremium && hasPremiumOffer(c)}
                 unlocked={unlocked}
                 onUnlock={goPremium}
               />

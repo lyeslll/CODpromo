@@ -62,7 +62,7 @@ const SWITCH_AFTER_PX = 80;
 // ============================================================
 export default function OffersPage({ lang = "ar" }) {
   const { t } = useTranslation();
-  const { unlocked } = usePremium();
+  const { unlocked, hasPremium } = usePremium();
   const { stats: voteStats } = useVoteStats();
   const { categories, byId } = useCategories();
   const reduceMotion = useReducedMotion();
@@ -78,7 +78,9 @@ export default function OffersPage({ lang = "ar" }) {
   // ===== حالة الفلاتر من الرابط (مصدر الحقيقة) =====
   const typeParam = TYPE_PARAMS[params.get("type")] ? params.get("type") : null;
   const categoryParam = params.get("category") || null;
-  const premiumView = params.get("mode") === "premium" ? "premium" : "normal";
+  // عضو Premium (مدفوع / هدية / أدمن) يفتح على عروض Premium مباشرة (اللي خلّص عليها)، ويقدر يرجع للعادي (?mode=normal)
+  const modeParam = params.get("mode");
+  const premiumView = modeParam === "premium" || (modeParam !== "normal" && hasPremium) ? "premium" : "normal";
   const kindParam = params.get("kind") === "nocode" ? "nocode" : "code";
   const nocode = kindParam === "nocode";
   const featuredParam = params.get("featured") === "1";
@@ -130,10 +132,10 @@ export default function OffersPage({ lang = "ar" }) {
       if (m === premiumView) return;
       beforeChange();
       if (m === "premium") setBurst((b) => b + 1);
-      updateParams({ mode: m === "premium" ? "premium" : null });
+      updateParams({ mode: m === "premium" ? (hasPremium ? null : "premium") : hasPremium ? "normal" : null });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [premiumView, updateParams]
+    [premiumView, updateParams, hasPremium]
   );
 
   // ===== تحميل البيانات =====

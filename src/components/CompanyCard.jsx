@@ -1,8 +1,8 @@
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock, Undo2, Key, Sparkles } from "lucide-react";
+import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock, Undo2, Key, Sparkles, ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getTypeMeta, getTypeKey } from "../lib/types.js";
 import { companySlug, companyCategoryRecord, categoryName } from "../lib/slug.js";
@@ -12,14 +12,24 @@ import { logCodeCopy, copySourceFromPath } from "../lib/copies.js";
 import { hasPremiumOffer } from "../lib/premiumOffer.js";
 import { useFreeKey } from "../lib/freeKeyContext.jsx";
 import { setPendingFreeKey } from "../lib/freeKey.js";
+import { useKeys } from "../lib/keysContext.jsx";
+import { premiumPath } from "../lib/seo.js";
 import { isImageUrl } from "./CompanyLogo.jsx";
 import { cachedTone, detectTone, logoSrc, logoSrcSet, tileStyle } from "../lib/logoImage.js";
 import CodeVote from "./CodeVote.jsx";
 import BidiText from "./BidiText.jsx";
 import { GlowSpot, useCardGlow } from "./CardGlow.jsx";
 import FreeKeyDialog from "./freekey/FreeKeyDialog.jsx";
+import { DiamondGlyph } from "./keys/DiamondKey.jsx";
+import { DIA_BG, DIA_DEEP, DIA_GLOW, DIA_INK, DIA_SOFT, PRISM } from "./keys/diamond.js";
 import GiftConfetti from "./gift/GiftConfetti.jsx";
 import { useWaveValue, useCountText } from "../lib/modeWave.jsx";
+
+// المفتاح الماسي: النوافذ والحركة يتحمّلو غير كي يلزمو (البطاقة في الحزمة الأولى تاع الرئيسية)
+const loadUnlockFx = () => import("./keys/DiamondUnlockFx.jsx");
+const KeyUnlockDialog = lazy(() => import("./keys/KeyUnlockDialog.jsx"));
+const KeyChooser = lazy(() => import("./keys/KeyChooser.jsx"));
+const DiamondUnlockFx = lazy(loadUnlockFx);
 
 // هوية Premium الذهبية
 const GOLD = "#f0c63c";
@@ -38,6 +48,9 @@ const GOLD_GLOW = "rgba(240,198,60,0.4)";
  * بلا نسخ ولا زيارة ولا خدش ولا نداء لـ RPC، مع رابط onShowNormal يرجّع الصفحة للوضع العادي.
  * المفتاح الذهبي (lib/freeKeyContext.jsx) في البطاقة المقفولة لغير المشترك: زائر → التسجيل،
  * مفتاح متاح → تأكيد ثم خدش، مفتاح مستعمل → الشركة اللي كشفها مكشوفة ديما والباقي نحو Premium.
+ * المفتاح الماسي (lib/keysContext.jsx، phase37) لنفس البطاقة المقفولة: عندو مفاتيح → "افتح بمفتاح ماسي" → تأكيد
+ * → حركة الفتح → نفس الخدش؛ الشركة المفتوحة بيه مكشوفة ديما. بلا مفاتيح → يختار (الذهبي / شراء مفاتيح / Premium).
+ * كل كود مقفول يبيّن الفرق (العادي ← Premium) باش يعرف واش يربح.
  * freeKey={false} = البطاقة كيما كانت (المعاينات وتشريح البطاقة).
  */
 export default function CompanyCard({
@@ -58,6 +71,7 @@ export default function CompanyCard({
   const navigate = useNavigate();
   const reduceMotion = useReducedMotion();
   const fk = useFreeKey();
+  const keys = useKeys();
   // موجة التبديل (lib/modeWave.jsx): البطاقة الظاهرة تلحق الوضع الجديد بعد تأخيرها، والباقي في الحين
   const premium = useWaveValue(premiumProp, `c${company.id}`);
   const { byId, categories } = useCategories();
@@ -97,11 +111,27 @@ export default function CompanyCard({
       : fk.status === "available"
       ? "use"
       : null;
-  const canSee = unlocked || keyOwned;
+  // ===== المفتاح الماسي: نفس الشروط + حساب عادي (ولا مول هدية انتهت) عندو حالة مفاتيح =====
+  //  diaOwned: فتحها بمفتاح ماسي → مكشوفة عندو للأبد (get_diamond_code). diaCta: عندو مفاتيح → "افتح بمفتاح ماسي".
+  const diaOn = freeKey && premium && hasPremiumOffer(company) && !unlocked && keys.status === "ok";
+  const diaOwned = diaOn && !keyOwned && keys.isOwned(company.id);
+  const diaCta = diaOn && !keyOwned && !diaOwned && keys.balance > 0;
+  const canSee = unlocked || keyOwned || diaOwned;
   const [keyScratch, setKeyScratch] = useState(false); // كشف جديد في هاد البطاقة: الخدش أولاً
   const [keyDialog, setKeyDialog] = useState(false);
+  const [diaDialog, setDiaDialog] = useState(false);
+  const [chooser, setChooser] = useState(false);
+  const [diaFx, setDiaFx] = useState(false); // حركة المفتاح الماسي فوق الخدش
+  // النوافذ تتركّب غير من أول فتح (عشرات البطاقات المقفولة في /offers)، ومن بعد تبقى باش حركة السكير تكمل
+  const diaMounted = useRef(false);
+  const chooserMounted = useRef(false);
+  if (diaDialog) diaMounted.current = true;
+  useEffect(() => {
+    if (diaDialog) loadUnlockFx(); // الحركة جاهزة قبل التأكيد
+  }, [diaDialog]);
+  if (chooser) chooserMounted.current = true;
   const [confetti, setConfetti] = useState(null);
-  const codeVisible = revealed || (keyOwned && !keyScratch);
+  const codeVisible = revealed || ((keyOwned || diaOwned) && !keyScratch);
 
   // إعادة ضبط الخدش وبيانات Premium عند تبديل الوضع أو تغيّر حالة الاشتراك
   useEffect(() => {
@@ -114,7 +144,8 @@ export default function CompanyCard({
     if (!premium || !canSee) return null;
     if (premiumData) return premiumData;
     let d = keyOwned ? fk.codeFor(company.id) : null;
-    if (!d) {
+    if (!d && diaOwned) d = keys.codeFor(company.id) || (await keys.loadCode(company.id));
+    if (!d && !diaOwned) {
       try {
         d = await getPremiumCode(company.id);
       } catch {
@@ -124,12 +155,12 @@ export default function CompanyCard({
     const val = d || { premium_code: null, premium_url: null };
     setPremiumData(val);
     return val;
-  }, [premium, canSee, premiumData, company.id, keyOwned, fk.codeFor]);
+  }, [premium, canSee, premiumData, company.id, keyOwned, diaOwned, fk.codeFor, keys.codeFor, keys.loadCode]);
 
-  // الشركة المكشوفة بالمفتاح: الكود يبان مباشرة (بلا خدش في كل زيارة)
+  // الشركة المكشوفة بالمفتاح (الذهبي ولا الماسي): الكود يبان مباشرة (بلا خدش في كل زيارة)
   useEffect(() => {
-    if (keyOwned && !keyScratch && !premiumData) ensurePremium();
-  }, [keyOwned, keyScratch, premiumData, ensurePremium]);
+    if ((keyOwned || diaOwned) && !keyScratch && !premiumData) ensurePremium();
+  }, [keyOwned, diaOwned, keyScratch, premiumData, ensurePremium]);
 
   const hot = (company.clicks || 0) >= 50;
   // ضوء دائري بلون النوع يتبع المؤشر (أو موضع اللمس في الهاتف)
@@ -150,12 +181,25 @@ export default function CompanyCard({
   }, [confetti]);
 
   const closeKeyDialog = useCallback(() => setKeyDialog(false), []);
+  const closeDiaDialog = useCallback(() => setDiaDialog(false), []);
+  const closeChooser = useCallback(() => setChooser(false), []);
+  // المفتاح الذهبي متاح لهاد البطاقة (نفس شروط keyCta = "use")
+  const goldenHere = keyOn && !keyOwned && fk.enabled && fk.status === "available" && company.free_reveal_enabled !== false;
 
-  // البطاقة المقفولة: زائر → التسجيل (الشركة تتحفظ)، مفتاح متاح → التأكيد، وإلا نافذة Premium
+  // البطاقة المقفولة: زائر → التسجيل (الشركة تتحفظ)، مفاتيح ماسية → التأكيد، حساب بلا مفاتيح → يختار
+  // (الذهبي / شراء مفاتيح / Premium)، وإلا كيما قبل (الذهبي ولا نافذة Premium)
   const keyAction = () => {
     if (keyCta === "guest") {
       setPendingFreeKey(company.id, lang);
       navigate("/signup");
+      return;
+    }
+    if (diaCta) {
+      setDiaDialog(true);
+      return;
+    }
+    if (diaOn) {
+      setChooser(true);
       return;
     }
     if (keyCta === "use") {
@@ -177,15 +221,29 @@ export default function CompanyCard({
     return r?.status || "error";
   };
 
+  // المفتاح الماسي: تأكيد → الخادم يحرق مفتاح (مرة وحدة لكل شركة) → حركة الفتح فوق الخدش
+  const confirmDiamond = async () => {
+    const r = await keys.spend(company.id, copySource || copySourceFromPath());
+    if (r?.status === "ok" || r?.status === "yours" || r?.status === "free_key") {
+      setPremiumData(r.demo ? { premium_code: DEMO_CODE, premium_url: null } : { premium_code: r.premium_code ?? null, premium_url: r.premium_url ?? null });
+      setRevealed(false);
+      setKeyScratch(true);
+      setDiaFx(true);
+      setDiaDialog(false);
+      return null;
+    }
+    return r?.status || "error";
+  };
+
   const onScratchReveal = () => {
     setRevealed(true);
     ensurePremium();
     if (!keyScratch) return;
     setKeyScratch(false);
-    // قصاصات ذهبية من فوق البطاقة
+    // قصاصات من فوق البطاقة: ذهبية (المفتاح الذهبي) ولا كريستال (الماسي)
     const r = glow.ref.current?.getBoundingClientRect();
     const origin = r ? { x: (r.left + r.width / 2) / window.innerWidth, y: Math.min(0.8, Math.max(0.12, (r.top + r.height * 0.25) / window.innerHeight)) } : undefined;
-    setConfetti({ n: Date.now(), origin });
+    setConfetti({ n: Date.now(), origin, diamond: diaOwned });
   };
 
   // ألوان حسب الوضع (عادي = لون النوع / Premium = ذهبي)
@@ -193,6 +251,7 @@ export default function CompanyCard({
   const accentGlow = premium ? GOLD_GLOW : meta.glow;
   // قيمة الخصم عامة (تُعرض دائماً)؛ أما الكود/الرابط Premium فيُكشفان خادمياً.
   const shownDiscount = premium ? loc("premium_discount") || loc("discount") : loc("discount");
+  const normalValue = loc("discount");
   // في وضع Premium: قبل وصول بيانات RPC نعرض حاجباً (••••••)، وبعده الكود الحقيقي
   // (مع fallback للكود العادي إن كان premium_code فارغاً). غير Premium: الكود العادي.
   const shownCode = premium
@@ -283,7 +342,16 @@ export default function CompanyCard({
             absolute خارج التدفّق → لا تتغيّر أبعاد البطاقة عند التبديل عادي/Premium،
             ولا تغطّي شعار المتجر ولا الاسم. pointer-events-none حتى يمرّ النقر لما تحتها. */}
         {premium &&
-          (keyOwned ? (
+          (diaOwned ? (
+            // الشركة اللي فتحها بالمفتاح الماسي: نفس البلاصة، شارة "مفتاحك الماسي"
+            <span
+              data-part="premium-badge"
+              className="pointer-events-none absolute end-5 top-14 z-20 flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-black"
+              style={{ background: "#0d1428", borderColor: `${DIA_DEEP}cc`, color: DIA_SOFT, boxShadow: `0 4px 14px -5px ${DIA_GLOW}` }}
+            >
+              <DiamondGlyph size={11} /> {t("keys.card.badge")}
+            </span>
+          ) : keyOwned ? (
             // الشركة اللي كشفها بالمفتاح الذهبي: نفس البلاصة، شارة "مفتاحك الذهبي"
             <span
               data-part="premium-badge"
@@ -348,9 +416,19 @@ export default function CompanyCard({
         {/* قيمة الخصم + شارة النوع */}
         <div className="relative mt-4 flex items-end justify-between">
           <div data-part="value">
-            <div className="flex items-center gap-1.5 text-[11.5px] font-semibold text-[var(--color-mute)]">
+            <div className="flex min-w-0 items-center gap-1.5 text-[11.5px] font-semibold text-[var(--color-mute)]">
               {premium && <Crown size={12} style={{ color: GOLD }} />}
               {premium ? t("card.premiumDiscount") : t("card.offerValue")}
+              {/* كود مقفول: الفرق (العادي ← Premium) قبل ما يستعمل مفتاح ولا يشري */}
+              {premium && !canSee && freeKey && normalValue && normalValue !== shownDiscount && (
+                <span data-part="gain" className="flex min-w-0 items-center gap-1" title={t("keys.card.gain", { normal: normalValue, premium: shownDiscount })}>
+                  <span aria-hidden>·</span>
+                  <s className="max-w-[7.5rem] truncate decoration-[var(--color-mute)]">
+                    <BidiText text={normalValue} rtl={lang === "ar"} />
+                  </s>
+                  <ArrowLeft size={11} aria-hidden className="shrink-0 ltr:rotate-180" />
+                </span>
+              )}
             </div>
             <div className="text-[30px] font-black leading-none">
               <AnimatedDiscount value={shownDiscount} color={accent} glow={accentGlow} />
@@ -393,8 +471,13 @@ export default function CompanyCard({
                 accent={accent}
                 onReveal={onScratchReveal}
                 onUnlock={keyAction}
-                lockLabel={keyCta === "guest" || keyCta === "use" ? t(`freeKey.card.${keyCta}`) : undefined}
+                lockLabel={diaCta ? t("keys.card.open") : keyCta === "guest" || keyCta === "use" ? t(`freeKey.card.${keyCta}`) : undefined}
               />
+            )}
+            {premium && diaFx && keyScratch && (
+              <Suspense fallback={null}>
+                <DiamondUnlockFx onDone={() => setDiaFx(false)} />
+              </Suspense>
             )}
           </div>
 
@@ -441,9 +524,12 @@ export default function CompanyCard({
               ولا يوضع premium_url في DOM إطلاقاً قبل الكشف).
             - لا رابط متاح: نفس الزر معطّلاً (ليبقى الارتفاع ثابتاً). */}
         {premium && !codeVisible ? (
-          keyCta ? (
+          diaCta ? (
+            // المفتاح الماسي بلاصة زر الزيارة المقفول (نفس الارتفاع 42.25px)
+            <DiamondCta label={t("keys.card.open")} count={keys.balance} onClick={() => setDiaDialog(true)} />
+          ) : keyCta ? (
             // المفتاح الذهبي بلاصة زر الزيارة المقفول (نفس الارتفاع: الشبكة ما تقفزش)
-            <KeyCta kind={keyCta} label={t(`freeKey.card.${keyCta}`)} onClick={keyAction} />
+            <KeyCta kind={keyCta} label={t(`freeKey.card.${keyCta}`)} onClick={keyCta === "use" ? () => setKeyDialog(true) : keyAction} />
           ) : canSee ? (
             // عضو Premium قبل الخدش: زر فعّال يكشف الكود والرابط (بلا قفل — الكود مفتوح لك)
             <motion.button
@@ -508,7 +594,54 @@ export default function CompanyCard({
           onClose={closeKeyDialog}
         />
       )}
-      {confetti && typeof document !== "undefined" && createPortal(<GiftConfetti fire={confetti.n} origin={confetti.origin} />, document.body)}
+      {diaMounted.current && (
+        <Suspense fallback={null}>
+        <KeyUnlockDialog
+          open={diaDialog}
+          company={company}
+          normal={normalValue}
+          premium={loc("premium_discount") || loc("discount")}
+          balance={keys.balance}
+          onConfirm={confirmDiamond}
+          onGolden={
+            goldenHere
+              ? () => {
+                  setDiaDialog(false);
+                  setKeyDialog(true);
+                }
+              : undefined
+          }
+          onClose={closeDiaDialog}
+        />
+        </Suspense>
+      )}
+      {chooserMounted.current && (
+        <Suspense fallback={null}>
+        <KeyChooser
+          open={chooser}
+          company={company}
+          normal={normalValue}
+          premium={loc("premium_discount") || loc("discount")}
+          golden={goldenHere}
+          onGolden={() => {
+            setChooser(false);
+            setKeyDialog(true);
+          }}
+          onBuy={() => {
+            setChooser(false);
+            navigate(`${premiumPath(lang)}?keys=1#keys`);
+          }}
+          onPremium={() => {
+            setChooser(false);
+            onUnlock?.();
+          }}
+          onClose={closeChooser}
+        />
+        </Suspense>
+      )}
+      {confetti &&
+        typeof document !== "undefined" &&
+        createPortal(<GiftConfetti fire={confetti.n} origin={confetti.origin} colors={confetti.diamond ? PRISM : undefined} />, document.body)}
     </motion.article>
   );
 }
@@ -544,6 +677,31 @@ function KeyCta({ kind, label, onClick }) {
     </button>
   );
 }
+
+/* ===== زر المفتاح الماسي (بلاصة زر الزيارة المقفول، نفس الارتفاع 42.25px) — كريستال + عدد المفاتيح ===== */
+function DiamondCta({ label, count, onClick }) {
+  return (
+    <button
+      type="button"
+      data-part="visit"
+      onClick={onClick}
+      title={label}
+      className="dk-glint group/key relative mt-2.5 flex h-[42.25px] w-full items-center justify-center gap-2 rounded-xl border px-3 text-[12.5px] font-extrabold leading-[1.25] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#dbeeff]/70"
+      style={{ borderColor: `${DIA_DEEP}cc`, background: "linear-gradient(180deg, rgba(169,205,255,0.2), rgba(169,205,255,0.06))", color: DIA_SOFT, boxShadow: `inset 0 1px 0 rgba(255,255,255,0.18), 0 10px 26px -16px ${DIA_GLOW}` }}
+    >
+      <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover/key:-rotate-[18deg]" style={{ background: DIA_BG }}>
+        <DiamondGlyph size={14} />
+      </span>
+      <span className="line-clamp-2 text-center">{label}</span>
+      <span className="shrink-0 rounded-full px-1.5 text-[11px] font-black tabular-nums" style={{ background: DIA_BG, color: DIA_INK }}>
+        {count}
+      </span>
+    </button>
+  );
+}
+
+// كود المعاينة (KEYS_DEMO): الفتح التجريبي ما يقراش الكود الحقيقي
+const DEMO_CODE = "DEMO-KEY";
 
 /* ===== البطاقة المجمّدة: وضع Premium لشركة بلا عرض Premium =====
    رمادية وباهتة بلا أي ذهب (الفرق عن القفل الذهبي = عرض Premium موجود والزائر غير مشترك):

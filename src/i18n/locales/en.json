@@ -1754,7 +1754,8 @@
       "disposable": "The golden key doesn't work with temporary email. Sign up with a permanent email or with Google.",
       "unconfirmed": "Confirm your email first using the message we sent you, then try again.",
       "auth": "Log in first to use your key.",
-      "network": "Connection failed. Try again."
+      "network": "Connection failed. Try again.",
+      "inboxUsed": "This email already used its golden key on another account. One key per inbox, even with dots or a + in the address."
     },
     "home": {
       "title": "One Premium code… on us.",
@@ -1779,7 +1780,8 @@
       "counter_two": "<0>{{n}}</0> codes revealed for free",
       "counter_few": "<0>{{n}}</0> codes revealed for free",
       "counter_many": "<0>{{n}}</0> codes revealed for free",
-      "counter_other": "<0>{{n}}</0> codes revealed for free"
+      "counter_other": "<0>{{n}}</0> codes revealed for free",
+      "subInbox": "Your email already used its golden key from another account. The rest of the Premium codes are waiting."
     },
     "dash": {
       "availableTitle": "Your golden key is available",
@@ -1789,7 +1791,9 @@
       "usedTitleGeneric": "You've used your golden key",
       "usedDesc": "This code stays revealed for you for good.",
       "usedGone": "The company you picked is no longer on the site.",
-      "loading": "Loading the code…"
+      "loading": "Loading the code…",
+      "inboxTitle": "Your inbox's key is used",
+      "inboxDesc": "Your email already used its golden key from another account. Each inbox gets one key."
     }
   }
 }

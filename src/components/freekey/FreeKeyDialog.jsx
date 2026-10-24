@@ -12,6 +12,7 @@ const GOLD_DEEP = "#cf9a1e";
 // حالة الخادم (claim_free_reveal) → رسالة (freeKey.err.*)
 const ERR = {
   used: "used",
+  inbox_used: "inboxUsed",
   disabled: "disabled",
   has_premium: "hasPremium",
   unavailable: "unavailable",

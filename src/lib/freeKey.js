@@ -75,13 +75,14 @@ async function rpc(name, args) {
 export const fetchFreeKeyPublic = () => rpc("free_key_public");
 
 /**
- * حالة مفتاحي: { status: "available" | "used" | "premium", enabled, company_id?, company?, created_at? }.
+ * حالة مفتاحي: { status: "available" | "used" | "premium", enabled, company_id?, company?, created_at?, inbox? }.
  * company = { id, name, slug, logo, type } للشركة اللي كشفها (null إذا تمسحت).
+ * inbox = true: حساب آخر بنفس البريد (نقاط Gmail / "+") استعمل المفتاح — مفتاح واحد لكل بريد (phase31c).
  */
 export const fetchMyFreeKey = () => rpc("get_my_free_key");
 
 /**
- * استعمال المفتاح على شركة. status: ok | yours | auth | used | disabled | has_premium | unavailable
+ * استعمال المفتاح على شركة. status: ok | yours | auth | used | inbox_used | disabled | has_premium | unavailable
  * | disposable | unconfirmed. ok / yours يرجّعو premium_code و premium_url.
  */
 export const claimFreeReveal = (companyId, source) =>

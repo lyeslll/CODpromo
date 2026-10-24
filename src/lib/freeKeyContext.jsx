@@ -9,6 +9,7 @@ const FreeKeyContext = createContext({
   enabled: false,
   usedCompanyId: null,
   usedCompany: null,
+  usedInbox: false,
   reveals: null,
   pendingId: null,
   claim: async () => ({ status: "auth" }),
@@ -22,6 +23,7 @@ const FreeKeyContext = createContext({
  *  status: loading | off (الميزة موقوفة) | hidden (Premium مدفوع / هدية / أدمن: يشوف كلش)
  *          | guest | available | used
  *  usedCompanyId: الشركة اللي كشفها بمفتاحو — مكشوفة عندو ديما (حتى والميزة موقوفة).
+ *  usedInbox: المفتاح مستعمل من حساب آخر بنفس البريد (نقاط Gmail / "+") — بلا شركة (phase31c).
  *  enabled: الميزة مفعّلة (الأزرار والقسم يبانو غير هكا).
  *  claim(companyId, source): استعمال المفتاح؛ ok / yours → الكود يتحفظ (codeFor) والحالة تولّي used.
  *  pendingId: شركة يرجع ليها الزائر بعد الدخول (?fk=<id> في الرابط)؛ البطاقة تاخذها بـ takePending(id).
@@ -100,7 +102,7 @@ export function FreeKeyProvider({ children }) {
         setCodes((c) => ({ ...c, [companyId]: { premium_code: r.premium_code ?? null, premium_url: r.premium_url ?? null } }));
         setMine((m) => ({ ...(m || {}), status: "used", company_id: companyId, enabled: m?.enabled ?? true }));
         refresh();
-      } else if (["used", "has_premium", "disabled", "auth"].includes(r?.status)) {
+      } else if (["used", "inbox_used", "has_premium", "disabled", "auth"].includes(r?.status)) {
         refresh();
       }
       return r;
@@ -127,6 +129,7 @@ export function FreeKeyProvider({ children }) {
       enabled,
       usedCompanyId: status === "used" ? mine?.company_id ?? null : null,
       usedCompany: status === "used" ? mine?.company ?? null : null,
+      usedInbox: status === "used" && mine?.inbox === true,
       reveals: pub?.reveals ?? null,
       pendingId,
       claim,

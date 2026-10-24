@@ -76,6 +76,9 @@ export default function FreeKeyCard({ onCopied }) {
 
   const name = fk.usedCompany?.name;
   const value = code.data?.premium_code || null;
+  // بلا شركة: نفس البريد استعمل مفتاحو من حساب آخر (usedInbox)، ولا الشركة تمسحت
+  const title = name ? t("freeKey.dash.usedTitle", { company: name }) : fk.usedInbox ? t("freeKey.dash.inboxTitle") : t("freeKey.dash.usedTitleGeneric");
+  const desc = name ? t("freeKey.dash.usedDesc") : fk.usedInbox ? t("freeKey.dash.inboxDesc") : t("freeKey.dash.usedGone");
 
   const copy = async () => {
     if (!value) return;
@@ -96,8 +99,8 @@ export default function FreeKeyCard({ onCopied }) {
       <div className="flex min-w-0 items-center gap-4">
         {art}
         <div className="min-w-0">
-          <p className="text-[16px] font-extrabold text-[var(--text)]">{name ? t("freeKey.dash.usedTitle", { company: name }) : t("freeKey.dash.usedTitleGeneric")}</p>
-          <p className="mt-0.5 text-[13px] leading-relaxed text-[var(--text-soft)]">{name ? t("freeKey.dash.usedDesc") : t("freeKey.dash.usedGone")}</p>
+          <p className="text-[16px] font-extrabold text-[var(--text)]">{title}</p>
+          <p className="mt-0.5 text-[13px] leading-relaxed text-[var(--text-soft)]">{desc}</p>
         </div>
       </div>
       {name && (

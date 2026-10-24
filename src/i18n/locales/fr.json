@@ -1754,7 +1754,8 @@
       "disposable": "La clé dorée ne fonctionne pas avec une adresse e-mail temporaire. Inscrivez-vous avec une adresse permanente ou avec Google.",
       "unconfirmed": "Confirmez d'abord votre e-mail grâce au message reçu, puis réessayez.",
       "auth": "Connectez-vous d'abord pour utiliser votre clé.",
-      "network": "Connexion impossible. Réessayez."
+      "network": "Connexion impossible. Réessayez.",
+      "inboxUsed": "Cette adresse e-mail a déjà utilisé sa clé dorée sur un autre compte. Une clé par boîte mail, même avec des points ou un + dans l'adresse."
     },
     "home": {
       "title": "Un code Premium… c'est cadeau.",
@@ -1779,7 +1780,8 @@
       "counter_two": "<0>{{n}}</0> codes révélés gratuitement",
       "counter_few": "<0>{{n}}</0> codes révélés gratuitement",
       "counter_many": "<0>{{n}}</0> codes révélés gratuitement",
-      "counter_other": "<0>{{n}}</0> codes révélés gratuitement"
+      "counter_other": "<0>{{n}}</0> codes révélés gratuitement",
+      "subInbox": "Votre adresse e-mail a déjà utilisé sa clé dorée depuis un autre compte. Les autres codes Premium vous attendent."
     },
     "dash": {
       "availableTitle": "Votre clé dorée est disponible",
@@ -1789,7 +1791,9 @@
       "usedTitleGeneric": "Vous avez utilisé votre clé dorée",
       "usedDesc": "Ce code reste révélé pour vous, pour toujours.",
       "usedGone": "L'entreprise choisie n'est plus disponible sur le site.",
-      "loading": "Chargement du code…"
+      "loading": "Chargement du code…",
+      "inboxTitle": "La clé de votre boîte mail est utilisée",
+      "inboxDesc": "Votre adresse e-mail a déjà utilisé sa clé dorée depuis un autre compte. Une seule clé par boîte mail."
     }
   }
 }

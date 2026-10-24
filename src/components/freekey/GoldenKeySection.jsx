@@ -182,7 +182,15 @@ export default function GoldenKeySection({ companies, preferred, onOpenPremium }
   const cut = title.indexOf("…");
   const usedName = fk.usedCompany?.name;
   const sub =
-    state === "guest" ? t("freeKey.home.subGuest") : state === "available" ? t("freeKey.home.subAvailable") : usedName ? t("freeKey.home.subUsed", { company: usedName }) : t("freeKey.home.subUsedGeneric");
+    state === "guest"
+      ? t("freeKey.home.subGuest")
+      : state === "available"
+      ? t("freeKey.home.subAvailable")
+      : usedName
+      ? t("freeKey.home.subUsed", { company: usedName })
+      : fk.usedInbox
+      ? t("freeKey.home.subInbox")
+      : t("freeKey.home.subUsedGeneric");
   const saidText = t(state === "guest" ? "freeKey.home.saidGuest" : state === "available" ? "freeKey.home.saidAvailable" : "freeKey.home.saidUsed");
   const ctaCls =
     "inline-flex items-center justify-center gap-2.5 rounded-2xl px-7 py-4 text-[16px] font-extrabold text-[#1d1403] outline-none transition-transform hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-[#ffe486] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-ink)]";

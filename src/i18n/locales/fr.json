@@ -197,12 +197,16 @@
     "s1Desc": "Nous collectons le minimum de données nécessaires au fonctionnement de la plateforme et à ses services :",
     "s1Items": [
       "Adresse e-mail",
-      "Nom complet ou nom de l'entreprise",
+      "Nom complet ou nom de l’entreprise",
       "Type de compte (utilisateur / entreprise)",
-      "Identifiants de connexion et informations de session"
+      "Pour les comptes entreprise : numéro de téléphone ou WhatsApp et site web",
+      "Votre historique d’achat si vous achetez Premium (montant, moyen de paiement et date)",
+      "Vos notes d’entreprises, vos votes sur les codes et vos favoris",
+      "Une empreinte chiffrée de votre adresse IP (nous ne conservons pas l’adresse elle-même) pour éviter les abus des cadeaux et de la clé dorée",
+      "Données de connexion et informations de session"
     ],
     "s2Title": "Connexion et authentification",
-    "s2Desc": "Vous pouvez créer un compte et vous connecter avec votre e-mail et mot de passe, ou via votre compte Google (OAuth). Nous utilisons le service hCaptcha pour vérifier que vous n'êtes pas un robot et protéger les comptes contre les abus.",
+    "s2Desc": "Vous pouvez créer un compte et vous connecter avec votre e-mail et votre mot de passe, ou avec votre compte Google (OAuth). Nous utilisons une protection anti-robots invisible et intégrée (sans service tiers) pour protéger les comptes contre les abus.",
     "s3Title": "Comment nous utilisons vos données",
     "s3Desc": "Nous utilisons vos données uniquement aux fins suivantes :",
     "s3Items": [
@@ -212,9 +216,9 @@
       "Vous contacter au sujet de votre compte ou de nos services"
     ],
     "s4Title": "Paiements",
-    "s4Desc": "Tous les paiements sont traités par des prestataires tiers de confiance : Stripe, PayPal et SlickPay sur le site, et Google Play Billing dans l'application. Les données de votre carte sont gérées directement par ces prestataires — CODpromo ne stocke ni n'a accès à aucune information de carte bancaire.",
+    "s4Desc": "Tous les paiements passent par des prestataires de paiement tiers de confiance : Stripe, PayPal et SlickPay. Vos données de carte sont traitées directement par ces prestataires, et CODpromo ne stocke ni ne voit aucune information de carte bancaire.",
     "s5Title": "Stockage des données et e-mails",
-    "s5Desc": "Vos données sont stockées de manière sécurisée dans une base de données Supabase. Les e-mails (comme la confirmation de compte et les offres) sont envoyés via le service Brevo.",
+    "s5Desc": "Vos données sont stockées de manière sécurisée dans une base de données Supabase. Nous n’envoyons que des e-mails liés au compte et aux achats (confirmation d’adresse, confirmation de paiement) via le service Resend, et aucun e-mail promotionnel pour l’instant.",
     "s6Title": "Vos droits",
     "s6Desc": "Vous avez le contrôle total de vos données, y compris le droit de :",
     "s6Items": [
@@ -223,7 +227,8 @@
       "Demander la suppression définitive de votre compte et de vos données"
     ],
     "s7Title": "Nous contacter",
-    "s7Desc": "Pour toute question de confidentialité ou pour exercer vos droits, contactez-nous à :"
+    "s7Desc": "Pour toute question de confidentialité ou pour exercer vos droits, contactez-nous à :",
+    "s4DescApp": "Dans l’application Android, les achats se font uniquement via Google Play Billing. Les données de paiement sont traitées directement par Google, et CODpromo ne stocke ni ne voit aucune information de carte bancaire."
   },
   "emailPopup": {
     "doneTitle": "C'est fait ! 🎉",

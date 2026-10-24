@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Mail } from "lucide-react";
 
 import { useLocale } from "../lib/locale.jsx";
+import { useAndroidApp } from "../lib/androidApp.js";
 import { SITE_URL } from "../lib/seo.js";
 
 import Navbar from "../components/Navbar.jsx";
@@ -19,13 +20,15 @@ const CONTACT_EMAIL = "support@codpromo.com";
 export default function Privacy() {
   const { t } = useTranslation();
   const { lang } = useLocale();
+  // داخل تطبيق Android: Google Play برك (نفس قاعدة /terms و /premium)
+  const inApp = useAndroidApp() === "app";
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   // تاريخ آخر تحديث — يُعرض بصيغة اللغة النشطة
-  const updated = new Date("2026-06-15").toLocaleDateString(
+  const updated = new Date("2026-10-24").toLocaleDateString(
     lang === "ar" ? "ar" : lang === "fr" ? "fr-FR" : "en-US",
     { year: "numeric", month: "long", day: "numeric" }
   );
@@ -35,7 +38,7 @@ export default function Privacy() {
     { title: "privacy.s1Title", desc: "privacy.s1Desc", items: "privacy.s1Items" },
     { title: "privacy.s2Title", desc: "privacy.s2Desc" },
     { title: "privacy.s3Title", desc: "privacy.s3Desc", items: "privacy.s3Items" },
-    { title: "privacy.s4Title", desc: "privacy.s4Desc" },
+    { title: "privacy.s4Title", desc: inApp ? "privacy.s4DescApp" : "privacy.s4Desc" },
     { title: "privacy.s5Title", desc: "privacy.s5Desc" },
     { title: "privacy.s6Title", desc: "privacy.s6Desc", items: "privacy.s6Items" },
   ];

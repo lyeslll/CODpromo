@@ -199,10 +199,14 @@
       "Email address",
       "Full name or company name",
       "Account type (user / company)",
-      "Login credentials and session information"
+      "For company accounts: phone or WhatsApp number and company website",
+      "Your purchase record if you buy Premium (amount, payment method and date)",
+      "Your company ratings, code votes and favorites",
+      "An encrypted fingerprint of your IP address (we don't store the address itself) to prevent abuse of gifts and the golden key",
+      "Login data and session information"
     ],
     "s2Title": "Login and authentication",
-    "s2Desc": "You can create an account and sign in using email and password, or via your Google account (OAuth). We use the hCaptcha service to verify you are not a bot and to protect accounts from abuse.",
+    "s2Desc": "You can create an account and log in with your email and password, or with your Google account (OAuth). We use an invisible, built-in bot check (no third-party service) to protect accounts from abuse.",
     "s3Title": "How we use your data",
     "s3Desc": "We use your data only for the following purposes:",
     "s3Items": [
@@ -212,9 +216,9 @@
       "Contacting you about your account or our services"
     ],
     "s4Title": "Payments",
-    "s4Desc": "All payments are processed by trusted third-party providers: Stripe, PayPal and SlickPay on the website, and Google Play Billing in the app. Your card details are handled directly by these providers — CODpromo does not store or have access to any bank card information.",
+    "s4Desc": "All payments go through trusted third-party payment providers: Stripe, PayPal and SlickPay. Your card details are processed directly by these providers, and CODpromo never stores or sees any bank card information.",
     "s5Title": "Data storage and emails",
-    "s5Desc": "Your data is stored securely in a Supabase database. Emails (such as account confirmation and offers) are sent via the Brevo service.",
+    "s5Desc": "Your data is stored securely in a Supabase database. We only send account and purchase emails (such as email confirmation and payment confirmation) through the Resend service, and we don't send any marketing emails at the moment.",
     "s6Title": "Your rights",
     "s6Desc": "You have full control over your data, including the right to:",
     "s6Items": [
@@ -223,7 +227,8 @@
       "Request permanent deletion of your account and data"
     ],
     "s7Title": "Contact us",
-    "s7Desc": "For any privacy question or to exercise your rights, contact us at:"
+    "s7Desc": "For any privacy question or to exercise your rights, contact us at:",
+    "s4DescApp": "In the Android app, purchases are made through Google Play Billing only. Payment details are processed directly by Google, and CODpromo never stores or sees any bank card information."
   },
   "emailPopup": {
     "doneTitle": "You're in! 🎉",

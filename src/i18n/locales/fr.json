@@ -2017,7 +2017,7 @@
     },
     "methods": {
       "q": "Comment payer ?",
-      "a": "Par carte internationale (Visa / Mastercard), carte algérienne CIB / Edahabia, PayPal, ou Google Play dans l'application.",
+      "a": "Par carte internationale (Visa / Mastercard), carte algérienne CIB / Edahabia, ou PayPal.",
       "aApp": "Dans l'application Android, le paiement se fait uniquement via Google Play, avec votre compte Google Play."
     }
   },

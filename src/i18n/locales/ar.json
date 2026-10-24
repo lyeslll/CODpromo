@@ -2017,7 +2017,7 @@
     },
     "methods": {
       "q": "كيف أدفع؟",
-      "a": "ببطاقة دولية (Visa / Mastercard)، أو بالبطاقة الجزائرية CIB / Edahabia، أو عبر PayPal، أو عبر Google Play داخل التطبيق.",
+      "a": "ببطاقة دولية (Visa / Mastercard)، أو بالبطاقة الجزائرية CIB / الذهبية Edahabia، أو عبر حسابك في PayPal.",
       "aApp": "داخل تطبيق Android يتم الدفع عبر Google Play فقط، بحسابك في Google Play."
     }
   },

@@ -198,7 +198,9 @@ export default async function handler(req, res) {
       const title = storeSeoTitle(c, lang);
       const description = storeSeoDescription(c, lang);
       // صورة مشاركة خاصة بالشركة (api/og.js): اللوغو + القيمة + Premium، 1200×630
-      const image = `https://${host}/api/og?slug=${encodeURIComponent(c.slug)}`;
+      // host معروف برك (الموقع ولا preview تاع Vercel) — ما نكتبوش في الصفحة أي host جاي في الطلب
+      const ogHost = /^(www\.)?codpromo\.com$|^[a-z0-9-]+\.vercel\.app$/i.test(host) ? host : "codpromo.com";
+      const image = `https://${ogHost}/api/og?slug=${encodeURIComponent(c.slug)}`;
       const canonical = storeUrl(c.slug, lang);
       const alternates = ["ar", "en", "fr"].map((l) => ({ lang: l, url: storeUrl(c.slug, l) }));
       const home = { name: L.store?.breadcrumbHome || SITE_NAME, url: `${SITE_URL}${prefix(lang)}/` };
@@ -265,7 +267,7 @@ export default async function handler(req, res) {
       // الفئة تربط لشركاتها في الـ HTML (روابط داخلية للسيو)
       const body = catCompanies.length
         ? `<main dir="${dirOf(lang)}" style="${BODY_STYLE}"><h1>${esc(title.replace(/ \| CODpromo$/, ""))}</h1>${descText ? `<p>${esc(descText)}</p>` : ""}<ul>${catCompanies
-            .map((x) => `<li><a href="${storeUrl(x.slug, lang)}">${esc(x.name)}</a>${loc(x, "discount", lang) ? ` — ${esc(loc(x, "discount", lang))}` : ""}</li>`)
+            .map((x) => `<li><a href="${esc(storeUrl(x.slug, lang))}">${esc(x.name)}</a>${loc(x, "discount", lang) ? ` — ${esc(loc(x, "discount", lang))}` : ""}</li>`)
             .join("")}</ul></main>`
         : "";
       return serveTemplate(res, inject(template, { lang, title, description, headExtra, body }));

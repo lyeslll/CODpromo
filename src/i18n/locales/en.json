@@ -605,7 +605,8 @@
         "gifts": "Gifts",
         "freeKey": "Golden key",
         "sales": "Sales",
-        "pricing": "Pricing"
+        "pricing": "Pricing",
+        "ratings": "Ratings"
       },
       "range": {
         "label": "Period",
@@ -1191,6 +1192,20 @@
         "deletedUser": "Deleted account",
         "adminTag": "Admin (not counted)",
         "more": "Show more"
+      },
+      "ratings": {
+        "title": "Company ratings",
+        "sub": "Stars and tags from signed-in accounts. Hidden ratings don't count in the average.",
+        "total": "All ratings",
+        "visible": "Visible",
+        "avg": "Overall average",
+        "search": "Search by company or email…",
+        "empty": "No ratings yet",
+        "emptyDesc": "They appear here when customers rate companies from their pages.",
+        "hide": "Hide",
+        "show": "Show",
+        "hiddenOk": "Rating hidden",
+        "shown": "Rating visible again"
       }
     }
   },

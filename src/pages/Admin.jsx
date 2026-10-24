@@ -63,6 +63,7 @@ import GiftsPage from "../components/admin/v2/GiftsPage.jsx";
 import FreeKeyPage from "../components/admin/v2/FreeKeyPage.jsx";
 import SalesPage from "../components/admin/v2/SalesPage.jsx";
 import PricingPage from "../components/admin/v2/PricingPage.jsx";
+import RatingsPage from "../components/admin/v2/RatingsPage.jsx";
 import { setCompanyFreeReveal } from "../lib/freeKey.js";
 import { Glass, PageHeader, Skeleton, EmptyState, LIME_BG } from "../components/admin/v2/ui.jsx";
 import { fetchCompanyPrivate, saveCompanyPrivate } from "../lib/adminStats.js";
@@ -691,6 +692,8 @@ function Dashboard({ onLock }) {
           path="requests/:id"
           element={<RequestReviewPage requests={requests} loading={loadingRequests} categories={categories} submitting={submitting} onPublish={handlePublishRequest} onCreateCategory={handleQuickCategory} />}
         />
+        {/* تقييمات الشركات (phase34): القائمة + تخبية */}
+        <Route path="ratings" element={<RatingsPage notify={notify} />} />
         <Route
           path="votes"
           element={

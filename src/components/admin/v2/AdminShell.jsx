@@ -7,6 +7,7 @@ import {
   FolderTree,
   Inbox,
   Vote,
+  Star,
   Users,
   AtSign,
   Crown,
@@ -40,6 +41,7 @@ export const NAV = [
       { key: "categories", path: "/admin/categories", icon: FolderTree },
       { key: "requests", path: "/admin/requests", icon: Inbox, badge: "pending" },
       { key: "votes", path: "/admin/votes", icon: Vote },
+      { key: "ratings", path: "/admin/ratings", icon: Star },
     ],
   },
   {

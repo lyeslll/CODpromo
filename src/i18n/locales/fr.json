@@ -605,7 +605,8 @@
         "gifts": "Cadeaux",
         "freeKey": "Clé dorée",
         "sales": "Ventes",
-        "pricing": "Tarifs"
+        "pricing": "Tarifs",
+        "ratings": "Notes"
       },
       "range": {
         "label": "Période",
@@ -1191,6 +1192,20 @@
         "deletedUser": "Compte supprimé",
         "adminTag": "Admin (non compté)",
         "more": "Afficher plus"
+      },
+      "ratings": {
+        "title": "Notes des entreprises",
+        "sub": "Étoiles et tags des comptes connectés. Les notes masquées ne comptent pas dans la moyenne.",
+        "total": "Toutes les notes",
+        "visible": "Visibles",
+        "avg": "Moyenne générale",
+        "search": "Rechercher par entreprise ou e-mail…",
+        "empty": "Aucune note pour l’instant",
+        "emptyDesc": "Elles apparaissent ici quand les clients notent des entreprises depuis leurs pages.",
+        "hide": "Masquer",
+        "show": "Afficher",
+        "hiddenOk": "Note masquée",
+        "shown": "Note de nouveau visible"
       }
     }
   },

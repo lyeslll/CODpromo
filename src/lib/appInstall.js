@@ -1,34 +1,23 @@
 import { useState } from "react";
-import { isPlayBillingSupported } from "./playBilling.js";
+import { isAndroidAppKnown } from "./androidApp.js";
 
 // ============================================================
 //  CODpromo — توزيع تطبيق Android (Google Play)
 //  - رابط صفحة التطبيق في Google Play.
-//  - هل نحن داخل التطبيق؟ (نفس كشف خيار Google Play في الدفع: isPlayBillingSupported)
+//  - هل نحن داخل التطبيق؟ (نفس كشف الدفع: androidApp.js)
 //  - منصّة الهاتف (Android / iPhone) لاختيار الزر المناسب.
 // ============================================================
 
 export const PLAY_URL = "https://play.google.com/store/apps/details?id=com.codpromo.twa";
 
-const IN_APP_KEY = "codpromo:in-app";
-
 /**
  * داخل تطبيق؟ → كل عناصر "حمّل التطبيق" تختفي.
- * - تطبيق Android (TWA): نفس كشف خيار Google Play في الدفع، ونحفظه للجلسة
- *   (document.referrer يضيع بعد إعادة تحميل الصفحة داخل التطبيق).
+ * - تطبيق Android (TWA): نفس كشف الدفع (androidApp.js: الـ referrer بالحزمة + علامة الجلسة).
  * - نافذة تطبيق مثبّت (standalone)، أو تطبيق iOS، أو معاينة الهاتف داخل الصفحة (iframe).
  */
 export function isInsideApp() {
   if (typeof window === "undefined") return false;
-  if (isPlayBillingSupported()) {
-    try {
-      sessionStorage.setItem(IN_APP_KEY, "1");
-    } catch {}
-    return true;
-  }
-  try {
-    if (sessionStorage.getItem(IN_APP_KEY) === "1") return true;
-  } catch {}
+  if (isAndroidAppKnown()) return true;
   if (window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true) return true;
   if (document.body.classList.contains("is-ios-app")) return true;
   try {

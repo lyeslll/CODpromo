@@ -11,6 +11,7 @@
 // ============================================================================
 
 import { supabase } from "./supabaseClient.js";
+import { detectAndroidApp, isAndroidAppKnown } from "./androidApp.js";
 
 // طريقة الدفع المعتمدة من Google Play Billing
 const PLAY_METHOD = "https://play.google.com/billing";
@@ -26,20 +27,16 @@ export const PLAY_PRODUCT_IDS = {
 const ALL_PRODUCT_IDS = Object.values(PLAY_PRODUCT_IDS);
 
 // ----------------------------------------------------------------------------
-// كشف توفّر Play Billing (رَن-تايم). صحيح فقط داخل تطبيق TWA المؤهّل.
+// كشف تطبيق Android (TWA) — المصدر الوحيد في androidApp.js (الـ referrer بالحزمة + علامة
+// sessionStorage + فحص Digital Goods)، باش ما يضيعش بعد الدخول بـ Google ولا إعادة التحميل.
 // ----------------------------------------------------------------------------
 export function isPlayBillingSupported() {
-  return (
-    typeof window !== "undefined" &&
-    "getDigitalGoodsService" in window &&
-    typeof document !== "undefined" &&
-    document.referrer.startsWith("android-app://")
-  );
+  return typeof window !== "undefined" && "getDigitalGoodsService" in window && isAndroidAppKnown();
 }
 
 // يجلب خدمة Digital Goods الخاصة بـ Play (أو null إن لم تتوفّر).
 async function getService() {
-  if (!isPlayBillingSupported()) return null;
+  if (!(await detectAndroidApp()) || !("getDigitalGoodsService" in window)) return null;
   try {
     return await window.getDigitalGoodsService(PLAY_METHOD);
   } catch {
@@ -106,7 +103,7 @@ function formatMoney(value, currency) {
 // errorKey يُترجَم في الواجهة عبر premium.playErr.<key> (لا نصوص hardcoded هنا).
 // ----------------------------------------------------------------------------
 export async function purchasePlay(tier, { onVerified } = {}) {
-  if (!isPlayBillingSupported() || typeof PaymentRequest === "undefined") {
+  if (!(await detectAndroidApp()) || typeof PaymentRequest === "undefined") {
     return { ok: false, errorKey: "unavailable" };
   }
 

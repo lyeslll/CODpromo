@@ -1919,7 +1919,8 @@
     ],
     "s5Title": "Moyens de paiement",
     "s5Desc": "Carte internationale (Visa / Mastercard via Stripe), carte algérienne CIB / Edahabia (via SlickPay et SATIM), PayPal, et Google Play dans l'application. Nous ne conservons jamais vos données de carte.",
-    "contactDesc": "Pour toute question sur Premium ou pour demander un remboursement, écrivez-nous à :"
+    "contactDesc": "Pour toute question sur Premium ou pour demander un remboursement, écrivez-nous à :",
+    "s5DescApp": "Dans l'application Android, le paiement se fait uniquement via Google Play, selon les conditions de Google Play. Nous ne conservons jamais vos données de carte."
   },
   "premiumFaq": {
     "title": "Questions sur Premium à vie",
@@ -1943,7 +1944,8 @@
     },
     "methods": {
       "q": "Comment payer ?",
-      "a": "Par carte internationale (Visa / Mastercard), carte algérienne CIB / Edahabia, PayPal, ou Google Play dans l'application."
+      "a": "Par carte internationale (Visa / Mastercard), carte algérienne CIB / Edahabia, PayPal, ou Google Play dans l'application.",
+      "aApp": "Dans l'application Android, le paiement se fait uniquement via Google Play, avec votre compte Google Play."
     }
   }
 }

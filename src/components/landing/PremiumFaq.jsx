@@ -6,12 +6,14 @@ import { useTranslation } from "react-i18next";
 import SectionHead from "./SectionHead.jsx";
 import { formatPrice } from "../../lib/pricing.jsx";
 import { formatNumber } from "../../lib/values.js";
+import { useAndroidApp } from "../../lib/androidApp.js";
 
 /**
  * أسئلة Premium مدى الحياة (نفس النصوص في الواجهة وفي FAQPage JSON-LD للرئيسية).
  * السعر والمقاعد من pricing_public — بلا أرقام في الكود؛ قبل ما يوصل السعر، سؤال السعر يتخبّى.
+ * inApp: داخل تطبيق Android جواب "كيف أدفع؟" = Google Play برك (ممنوع نذكرو البوابات الأخرى في التطبيق).
  */
-export function premiumFaqItems(t, lang, pricing) {
+export function premiumFaqItems(t, lang, pricing, inApp = false) {
   const items = [{ k: "lifetime" }, { k: "price" }, { k: "renewal" }, { k: "refund" }, { k: "methods" }];
   return items
     .map(({ k }) => {
@@ -25,6 +27,7 @@ export function premiumFaqItems(t, lang, pricing) {
         };
         return { k, q: t("premiumFaq.price.q"), a: t(pricing.isLaunch ? "premiumFaq.price.aLaunch" : "premiumFaq.price.aRegular", vars) };
       }
+      if (k === "methods" && inApp) return { k, q: t("premiumFaq.methods.q"), a: t("premiumFaq.methods.aApp") };
       return { k, q: t(`premiumFaq.${k}.q`), a: t(`premiumFaq.${k}.a`) };
     })
     .filter(Boolean);
@@ -34,7 +37,8 @@ export default function PremiumFaq({ pricing }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const [open, setOpen] = useState(0);
-  const items = premiumFaqItems(t, lang, pricing);
+  const inApp = useAndroidApp() === "app";
+  const items = premiumFaqItems(t, lang, pricing, inApp);
 
   return (
     <section className="relative py-20 sm:py-24" aria-labelledby="premium-faq-title">

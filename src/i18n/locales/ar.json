@@ -1919,7 +1919,8 @@
     ],
     "s5Title": "طرق الدفع",
     "s5Desc": "بطاقة دولية (Visa / Mastercard عبر Stripe)، والبطاقة الجزائرية CIB / Edahabia (عبر SlickPay وSATIM)، وPayPal، وGoogle Play داخل التطبيق. لا نحفظ بيانات بطاقتك.",
-    "contactDesc": "لأي سؤال عن Premium أو لطلب الاسترداد، راسلنا على:"
+    "contactDesc": "لأي سؤال عن Premium أو لطلب الاسترداد، راسلنا على:",
+    "s5DescApp": "داخل تطبيق Android يتم الدفع عبر Google Play فقط، وتسري عليه شروط Google Play. لا نحفظ بيانات بطاقتك."
   },
   "premiumFaq": {
     "title": "أسئلة عن Premium مدى الحياة",
@@ -1943,7 +1944,8 @@
     },
     "methods": {
       "q": "كيف أدفع؟",
-      "a": "ببطاقة دولية (Visa / Mastercard)، أو بالبطاقة الجزائرية CIB / Edahabia، أو عبر PayPal، أو عبر Google Play داخل التطبيق."
+      "a": "ببطاقة دولية (Visa / Mastercard)، أو بالبطاقة الجزائرية CIB / Edahabia، أو عبر PayPal، أو عبر Google Play داخل التطبيق.",
+      "aApp": "داخل تطبيق Android يتم الدفع عبر Google Play فقط، بحسابك في Google Play."
     }
   }
 }

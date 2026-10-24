@@ -8,6 +8,10 @@ import "flag-icons/css/flag-icons.min.css";
 import "./index.css";
 import { Capacitor } from "@capacitor/core";
 import { startSwAutoReload } from "./lib/swAutoReload.js";
+import { rememberAndroidApp } from "./lib/androidApp.js";
+
+// تطبيق Android (TWA): نحفظو العلامة من أول صفحة، قبل أي إعادة تحميل ولا تحويل (الـ referrer يضيع من بعد)
+rememberAndroidApp();
 
 // الموقع يحدّث نفسه تلقائياً عند نشر نسخة جديدة (بدل بقاء النسخة القديمة المحفوظة)
 startSwAutoReload();

@@ -35,6 +35,7 @@ import AppDownload from "../components/landing/AppDownload.jsx";
 import NocodeSection from "../components/nocode/NocodeSection.jsx";
 import PremiumFaq, { premiumFaqItems } from "../components/landing/PremiumFaq.jsx";
 import { usePricing } from "../lib/pricing.jsx";
+import { useAndroidApp } from "../lib/androidApp.js";
 
 // ============================================================
 //  الصفحة الرئيسية = صفحة تعريف (landing) لتجّار الدفع عند الاستلام.
@@ -104,7 +105,8 @@ export default function Home() {
 
   // ===== السيو =====
   const pricing = usePricing();
-  const faqItems = premiumFaqItems(t, lang, pricing);
+  const inAndroidApp = useAndroidApp() === "app";
+  const faqItems = premiumFaqItems(t, lang, pricing, inAndroidApp);
   const jsonLd = [
     {
       "@context": "https://schema.org",

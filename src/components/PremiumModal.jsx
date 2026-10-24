@@ -21,7 +21,8 @@ import { usePremium, isPremiumProfile, isLifetimeProfile } from "../lib/premium.
 import { useAuth } from "../lib/auth.jsx";
 import { usePricing, usePricingRefresh } from "../lib/pricing.jsx";
 import { startStripeCheckout, startPaypalCheckout, startSlickpayCheckout } from "../lib/billing.js";
-import { isPlayBillingSupported, getPlayDetails, purchasePlay, syncPlayPurchases } from "../lib/playBilling.js";
+import { getPlayDetails, purchasePlay, syncPlayPurchases } from "../lib/playBilling.js";
+import { useAndroidApp } from "../lib/androidApp.js";
 import LifetimePrice from "./pricing/LifetimePrice.jsx";
 import SeatsMeter from "./pricing/SeatsMeter.jsx";
 
@@ -76,22 +77,23 @@ export default function PremiumModal({ open, onClose, initialStep = "home" }) {
   const [paying, setPaying] = useState(null); // مفتاح الطريقة اللي راهي تبدا الدفع
   const [payError, setPayError] = useState("");
   const [pricingFailed, setPricingFailed] = useState(false);
-  // Google Play Billing (داخل تطبيق TWA فقط — لا أثر على الويب)
-  const [playAvailable, setPlayAvailable] = useState(false);
+  // داخل تطبيق Android (TWA): Google Play برك — في المتصفح: البوابات الثلاث برك (androidApp.js).
+  // "checking" = الفحص مازال (أقل من ثانيتين): حتى طريقة ما تبان باش ما تبانش الغالطة.
+  const appMode = useAndroidApp();
+  const playAvailable = appMode === "app";
   const [playDetails, setPlayDetails] = useState({});
 
-  // كشف توفّر Google Play Billing مرّة واحدة (صحيح فقط داخل تطبيق TWA المؤهّل).
+  // أسعار Play المحلية (داخل التطبيق برك)
   useEffect(() => {
-    if (!isPlayBillingSupported()) return;
+    if (!playAvailable) return;
     let active = true;
-    setPlayAvailable(true);
     getPlayDetails().then((d) => {
       if (active) setPlayDetails(d);
     });
     return () => {
       active = false;
     };
-  }, []);
+  }, [playAvailable]);
 
   // فتح النافذة: الخطوة المطلوبة + السعر والعدّاد من جديد (باش يكونو حقيقيين في هاد اللحظة)
   useEffect(() => {
@@ -189,7 +191,7 @@ export default function PremiumModal({ open, onClose, initialStep = "home" }) {
     refreshPricing().then((p) => setPricingFailed(!p));
   };
 
-  const methods = playAvailable ? [{ key: "play", icon: Smartphone }] : WEB_METHODS;
+  const methods = appMode === "app" ? [{ key: "play", icon: Smartphone }] : appMode === "web" ? WEB_METHODS : [];
   const playPrice = pricing ? playDetails[pricing.tier]?.price : null;
 
   return (
@@ -339,7 +341,8 @@ export default function PremiumModal({ open, onClose, initialStep = "home" }) {
                         </div>
                       )}
 
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-2" aria-busy={appMode === "checking"}>
+                        {appMode === "checking" && <div aria-hidden className="h-[70px] animate-pulse rounded-2xl bg-[var(--fill-strong)]" />}
                         {methods.map((m) => {
                           const busy = paying === m.key;
                           const disabled = !pricing || (paying && !busy);

@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Crown, CreditCard, Landmark, Wallet, KeyRound, CalendarDays, Mail, Smartphone, Clock } from "lucide-react";
 import { isActivePremium } from "../../lib/admin.js";
-import { Segmented, Skeleton, fmtDate, useAdminT } from "./v2/ui.jsx";
+import { listPurchases } from "../../lib/sales.js";
+import { Segmented, Skeleton, fmt, fmtDate, useAdminT } from "./v2/ui.jsx";
 
 const METHOD = {
   stripe: { icon: CreditCard, color: "#635bff" },
@@ -10,10 +11,17 @@ const METHOD = {
   google_play: { icon: Smartphone, color: "#34a853" },
 };
 
+/** "100 دج" / "1$" / "0.50$" — المبلغ الحقيقي من purchases */
+const money = (t, amount, currency) => {
+  const n = Number(amount);
+  const s = Number.isInteger(n) ? fmt(n) : n.toFixed(2);
+  return currency === "DZD" ? t("sales.dzd", { n: s }) : currency === "USD" ? t("sales.usd", { n: s }) : `${s} ${currency}`;
+};
 
 /**
  * أعضاء Premium: تبويب "فعّال" (حسب قاعدة has_premium_access، بلا الأدمن) وتبويب "منتهي".
  * members = fetchPremiumProfiles() (أصحاب is_premium أو premium_until).
+ * المبلغ = آخر شراء (purchases عبر admin_list_purchases): المبلغ والعملة الحقيقيين، وشارة "تجربة" لـ tier = 'test'.
  */
 export default function PremiumMembers({ members = [], loading, codes = [] }) {
   const t = useAdminT();
@@ -21,6 +29,27 @@ export default function PremiumMembers({ members = [], loading, codes = [] }) {
   const active = useMemo(() => members.filter(isActivePremium), [members]);
   const expired = useMemo(() => members.filter((p) => !isActivePremium(p)), [members]);
   const rows = tab === "active" ? active : expired;
+
+  // آخر شراء لكل حساب (القائمة من الأحدث): غير المستردّ أولاً
+  const [purchases, setPurchases] = useState([]);
+  useEffect(() => {
+    let active = true;
+    listPurchases("all", 500, 0)
+      .then((rows) => active && setPurchases(rows))
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+  const purchaseOf = useMemo(() => {
+    const map = {};
+    for (const r of purchases) {
+      if (!r.user_id) continue;
+      const cur = map[r.user_id];
+      if (!cur || (cur.refunded_at && !r.refunded_at)) map[r.user_id] = r;
+    }
+    return map;
+  }, [purchases]);
 
   const byId = Object.fromEntries(members.map((p) => [p.id, p]));
   const usedCodes = codes.filter((c) => c.is_used).map((c) => ({ ...c, member: byId[c.used_by] }));
@@ -93,7 +122,18 @@ export default function PremiumMembers({ members = [], loading, codes = [] }) {
                         )}
                       </Td>
                       <Td>{p.plan_type ? t(`users.planTypes.${p.plan_type}`, { defaultValue: p.plan_type }) : "—"}</Td>
-                      <Td className="font-bold text-white">{p.plan_type === "lifetime" ? t("premium.lifetimeCell") : "—"}</Td>
+                      <Td className="font-bold text-white">
+                        {purchaseOf[p.id] ? (
+                          <span className="inline-flex flex-wrap items-center gap-1.5">
+                            <bdi className="tabular-nums">{money(t, purchaseOf[p.id].amount, purchaseOf[p.id].currency)}</bdi>
+                            {purchaseOf[p.id].tier === "test" && (
+                              <span className="rounded-md bg-[#38bdf8]/15 px-1.5 py-0.5 text-[11px] font-bold text-[#7dd3fc]">{t("pricing.tier.test")}</span>
+                            )}
+                          </span>
+                        ) : (
+                          "—"
+                        )}
+                      </Td>
                       <Td>
                         <span className="inline-flex items-center gap-1 text-[var(--text-softer)]">
                           {tab === "active" ? <CalendarDays size={13} /> : <Clock size={13} />}

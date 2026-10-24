@@ -6,6 +6,7 @@ import { useLocale } from "../lib/locale.jsx";
 import { SITE_URL } from "../lib/seo.js";
 import { formatPrice, usePricing } from "../lib/pricing.jsx";
 import { formatNumber } from "../lib/values.js";
+import { useAndroidApp } from "../lib/androidApp.js";
 
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
@@ -23,6 +24,8 @@ export default function Terms() {
   const { t } = useTranslation();
   const { lang } = useLocale();
   const pricing = usePricing();
+  // داخل تطبيق Android: طرق الدفع = Google Play برك (ممنوع نذكرو البوابات الأخرى في التطبيق)
+  const inApp = useAndroidApp() === "app";
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -48,7 +51,7 @@ export default function Terms() {
     { title: "terms.s2Title", desc: t("terms.s2Desc") },
     { title: "terms.s3Title", desc: priceDesc },
     { title: "terms.s4Title", desc: t("terms.s4Desc"), items: "terms.s4Items" },
-    { title: "terms.s5Title", desc: t("terms.s5Desc") },
+    { title: "terms.s5Title", desc: t(inApp ? "terms.s5DescApp" : "terms.s5Desc") },
   ];
 
   return (

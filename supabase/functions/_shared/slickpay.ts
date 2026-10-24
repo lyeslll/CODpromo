@@ -4,7 +4,7 @@
 //  التحقق دايماً عند SlickPay (GET /users/invoices/{id} بمفتاحنا) + المبلغ لازم يطابق المحفوظ.
 // ============================================================
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { grantLifetime, sameAmount, type Tier } from "./lifetime.ts";
+import { grantLifetime, isTier, sameAmount, type Tier } from "./lifetime.ts";
 
 // قاعدة عنوان SlickPay: sandbox افتراضياً (devapi) للأمان — بدّلها لـ prod عبر secret
 export const SLICKPAY_BASE =
@@ -55,7 +55,7 @@ export async function activateInvoice(
   paidAmount: unknown,
 ): Promise<string> {
   // فواتير الاشتراكات القديمة (قبل الدفعة الوحدة) بلا tier: ما تعطيش مدى الحياة
-  if (invoice.tier !== "launch" && invoice.tier !== "regular") return "legacy";
+  if (!isTier(invoice.tier)) return "legacy";
   if (!sameAmount(paidAmount, invoice.amount)) {
     console.error(`slickpay: invoice ${invoice.invoice_id} amount mismatch (${paidAmount} ≠ ${invoice.amount})`);
     return "amount_mismatch";

@@ -54,11 +54,12 @@ Deno.serve(async (req) => {
     if (await alreadyPremium(admin, user.id)) return json({ error: "already_premium" }, 409);
 
     // 3) السعر من الخادم
-    const pricing = await getPricing(admin);
+    const pricing = await getPricing(admin, user.id);
     const tier = pricing.tier;
     const cents = Math.round(usdFor(pricing, tier) * 100);
     const priceId =
-      Deno.env.get(tier === "launch" ? "STRIPE_PRICE_LIFETIME_LAUNCH" : "STRIPE_PRICE_LIFETIME_REGULAR") ?? "";
+      // سعر التجربة: نفس المنتوج (من Price الإطلاق) بـ price_data بالمبلغ الصغير
+      Deno.env.get(tier === "regular" ? "STRIPE_PRICE_LIFETIME_REGULAR" : "STRIPE_PRICE_LIFETIME_LAUNCH") ?? "";
     const lineItem = await lineItemFor(priceId, cents);
 
     // 4) عميل Stripe (يتحفظ في profiles عبر service role — الحقل محمي من العميل)

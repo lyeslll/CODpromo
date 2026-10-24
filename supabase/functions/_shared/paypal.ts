@@ -4,7 +4,7 @@
 //  عند الالتقاط: الحالة COMPLETED + المبلغ والعملة تاع الـ capture لازم يطابقو الطلب المحفوظ.
 // ============================================================
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { grantLifetime, sameAmount, type Tier } from "./lifetime.ts";
+import { grantLifetime, isTier, sameAmount, type Tier } from "./lifetime.ts";
 
 // قاعدة عنوان PayPal: sandbox افتراضياً للأمان — بدّلها لـ live عبر secret
 export const PAYPAL_BASE =
@@ -62,7 +62,7 @@ export async function activateOrder(
   capture: { id: string; amount?: { currency_code?: string; value?: string } },
 ): Promise<string> {
   // طلبات الاشتراكات القديمة (قبل الدفعة الوحدة) بلا tier: ما تعطيش مدى الحياة
-  if (order.tier !== "launch" && order.tier !== "regular") return "legacy";
+  if (!isTier(order.tier)) return "legacy";
   if (capture.amount?.currency_code !== "USD" || !sameAmount(capture.amount?.value, order.amount_usd)) {
     console.error(`paypal: order ${order.order_id} amount mismatch (${capture.amount?.value} ${capture.amount?.currency_code})`);
     return "amount_mismatch";

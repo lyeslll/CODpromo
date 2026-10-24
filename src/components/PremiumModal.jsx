@@ -285,10 +285,16 @@ export default function PremiumModal({ open, onClose, initialStep = "home" }) {
                             <p className="text-[13px] font-extrabold" style={{ color: GOLD_SOFT }}>
                               {t("pricing.oneTime")}
                             </p>
-                            {pricing?.isLaunch && (
-                              <span className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-black text-[#1d1403]" style={{ background: GOLD_BG }}>
-                                {t("pricing.launchBadge")}
+                            {pricing?.isTest ? (
+                              <span className="shrink-0 rounded-full border border-[#38bdf8]/50 bg-[#38bdf8]/15 px-2.5 py-1 text-[11px] font-black text-[#7dd3fc]">
+                                {t("pricing.testBadge")}
                               </span>
+                            ) : (
+                              pricing?.isLaunch && (
+                                <span className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-black text-[#1d1403]" style={{ background: GOLD_BG }}>
+                                  {t("pricing.launchBadge")}
+                                </span>
+                              )
                             )}
                           </div>
 

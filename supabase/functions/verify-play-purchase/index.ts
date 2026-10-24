@@ -133,8 +133,12 @@ Deno.serve(async (req) => {
     if (purchase?.purchaseState === 2) return json({ ok: false, pending: true }, 200);
     if (purchase?.purchaseState !== 0) return json({ ok: false, error: "not purchased" }, 200);
 
+    // شراء تجريبي (purchaseType = 0، حسابات License testing): tier = 'test' — بلا دراهم،
+    // ما يتحسبش في المبيعات ولا في مقاعد الإطلاق
+    const isTest = purchase?.purchaseType === 0;
+
     // 4) منتوج الإطلاق بعد ما تسكّرت المقاعد (تطبيق قديم مثلاً) → مرفوض بلا إقرار (Google يرجّع الدراهم)
-    if (tier === "launch") {
+    if (tier === "launch" && !isTest) {
       const { data: closedAt } = await admin.rpc("pricing_launch_closed_at");
       const boughtAt = Number(purchase?.purchaseTimeMillis) || Date.now();
       if (closedAt && boughtAt > new Date(closedAt as string).getTime() + LAUNCH_GRACE_MS) {
@@ -143,16 +147,16 @@ Deno.serve(async (req) => {
     }
 
     // 5) التسجيل + Premium مدى الحياة (idempotent). Google ما يعطيش المبلغ المدفوع:
-    //    نسجّلو سعر المنتوج بالدولار، وشراء تجريبي (purchaseType = 0، حسابات الاختبار) بـ 0.
+    //    نسجّلو سعر المنتوج بالدولار، والشراء التجريبي بـ 0 و tier = 'test'.
     const pricing = await getPricing(admin);
-    const amount = purchase?.purchaseType === 0 ? 0 : usdFor(pricing, tier);
+    const amount = isTest ? 0 : usdFor(pricing, tier);
     await grantLifetime(admin, {
       provider: "google_play",
       ref: token,
       userId: user.id,
       amount,
       currency: "USD",
-      tier,
+      tier: isTest ? "test" : tier,
       paymentRef: purchase?.orderId ?? null,
     });
 

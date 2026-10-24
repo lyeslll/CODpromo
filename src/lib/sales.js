@@ -32,3 +32,15 @@ export const listPurchases = async (filter = "all", limit = 50, offset = 0) =>
 
 /** "سحب Premium بعد الاسترداد": refunded_at + Premium يتنحّى إذا ما بقالو حتى شراء. 'revoked' | 'already' | 'not_found' */
 export const revokePurchase = (id) => rpc("admin_revoke_purchase", { p_id: id });
+
+// ===================== سعر التجربة (حساب واحد، 30 دقيقة) =====================
+
+/** { user_id, email, price_dzd, price_usd, expires_at, already_premium } — يرمي P0002 إذا الإيميل ما كاينش. */
+export const setTestPrice = (email, dzd, usd) =>
+  rpc("admin_set_test_price", { p_email: email, p_dzd: Math.round(Number(dzd)), p_usd: Number(usd) });
+
+/** أسعار التجربة النشطة: [{ user_id, email, price_dzd, price_usd, expires_at }] */
+export const listTestPrices = async () => (await rpc("admin_test_prices")) || [];
+
+/** إيقاف قبل الوقت. */
+export const stopTestPrice = (userId) => rpc("admin_stop_test_price", { p_user: userId });

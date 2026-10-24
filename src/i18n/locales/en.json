@@ -1099,7 +1099,8 @@
         "saved": "Prices saved",
         "tier": {
           "launch": "Launch price",
-          "regular": "Regular price"
+          "regular": "Regular price",
+          "test": "Test"
         },
         "kpi": {
           "tier": "Price shown now",
@@ -1123,7 +1124,23 @@
         "save": "Save prices",
         "updatedAt": "Last changed: {{date}}",
         "previewTitle": "Preview as on the site",
-        "previewHint": "This is how the price appears in the Premium window, the comparison section and the footer."
+        "previewHint": "This is how the price appears in the Premium window, the comparison section and the footer.",
+        "test": {
+          "title": "Test price",
+          "hint": "A small amount for one account, for 30 minutes. It's set on the server for that account only; the purchase is recorded as a test (tier = test) and never counts in sales or launch seats. For Google Play, use License testing accounts: their purchases are free and are recorded as tests too.",
+          "email": "Account email",
+          "dzd": "Amount (DZD)",
+          "usd": "Amount ($)",
+          "start": "Start 30 minutes",
+          "stop": "Stop",
+          "started": "Test price active for {{email}} for 30 minutes",
+          "alreadyPremium": "The price is set for {{email}}, but this account already has Premium, so the server will refuse the payment. Use a regular account.",
+          "notFound": "No account with this email",
+          "invalid": "Amount: at least 50 DZD and $0.50, and no more than the regular price",
+          "stopped": "Test price stopped for {{email}}",
+          "amount": "{{dzd}} DZD · ${{usd}}",
+          "left": "{{time}} left"
+        }
       },
       "sales": {
         "dzd": "{{n}} DZD",
@@ -1148,7 +1165,7 @@
           "paypal": "PayPal",
           "google_play": "Google Play"
         },
-        "excludedNote": "Non-refunded only. Gifts and the golden key never appear here, and admin accounts aren't counted.",
+        "excludedNote": "Non-refunded only, without test purchases. Gifts and the golden key never appear here, and admin accounts aren't counted.",
         "listTitle": "Purchases",
         "refundRule": "Refunds: within 7 days of purchase, if the buyer hasn't revealed any new Premium code since buying.",
         "filterLabel": "Filter purchases",
@@ -1879,7 +1896,8 @@
     "seatsLeft_two": "{{n}} launch seats left",
     "seatsLeft_few": "{{n}} launch seats left",
     "seatsLeft_many": "{{n}} launch seats left",
-    "seatsLeft_other": "{{n}} launch seats left"
+    "seatsLeft_other": "{{n}} launch seats left",
+    "testBadge": "Test price"
   },
   "terms": {
     "title": "Terms & refund policy",

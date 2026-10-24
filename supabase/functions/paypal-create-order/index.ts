@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
     if (await alreadyPremium(admin, user.id)) return json({ error: "already_premium" }, 409);
 
     // 2) السعر من الخادم
-    const pricing = await getPricing(admin);
+    const pricing = await getPricing(admin, user.id);
     const tier = pricing.tier;
     const amount = usdFor(pricing, tier);
     const value = amount.toFixed(2);

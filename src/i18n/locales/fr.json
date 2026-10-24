@@ -1099,7 +1099,8 @@
         "saved": "Tarifs enregistrés",
         "tier": {
           "launch": "Prix de lancement",
-          "regular": "Prix normal"
+          "regular": "Prix normal",
+          "test": "Test"
         },
         "kpi": {
           "tier": "Prix affiché",
@@ -1123,7 +1124,23 @@
         "save": "Enregistrer les tarifs",
         "updatedAt": "Dernière modification : {{date}}",
         "previewTitle": "Aperçu comme sur le site",
-        "previewHint": "Voici comment le prix apparaît dans la fenêtre Premium, la section comparaison et le pied de page."
+        "previewHint": "Voici comment le prix apparaît dans la fenêtre Premium, la section comparaison et le pied de page.",
+        "test": {
+          "title": "Prix de test",
+          "hint": "Un petit montant pour un seul compte, pendant 30 minutes. Il est fixé côté serveur pour ce compte uniquement ; l'achat est enregistré comme test (tier = test) et ne compte ni dans les ventes ni dans les places de lancement. Pour Google Play, utilisez des comptes License testing : leurs achats sont gratuits et enregistrés comme tests.",
+          "email": "E-mail du compte",
+          "dzd": "Montant (DA)",
+          "usd": "Montant ($)",
+          "start": "Activer 30 minutes",
+          "stop": "Arrêter",
+          "started": "Prix de test actif pour {{email}} pendant 30 minutes",
+          "alreadyPremium": "Le prix est appliqué à {{email}}, mais ce compte a déjà Premium : le serveur refusera le paiement. Utilisez un compte normal.",
+          "notFound": "Aucun compte avec cet e-mail",
+          "invalid": "Montant : au moins 50 DA et 0,50 $, sans dépasser le prix normal",
+          "stopped": "Prix de test arrêté pour {{email}}",
+          "amount": "{{dzd}} DA · {{usd}} $",
+          "left": "Reste {{time}}"
+        }
       },
       "sales": {
         "dzd": "{{n}} DA",
@@ -1148,7 +1165,7 @@
           "paypal": "PayPal",
           "google_play": "Google Play"
         },
-        "excludedNote": "Non remboursés uniquement. Les cadeaux et la clé dorée n'apparaissent jamais ici, et les comptes admin ne sont pas comptés.",
+        "excludedNote": "Non remboursés uniquement, sans les achats de test. Les cadeaux et la clé dorée n'apparaissent jamais ici, et les comptes admin ne sont pas comptés.",
         "listTitle": "Achats",
         "refundRule": "Remboursement : sous 7 jours après l'achat, si l'acheteur n'a révélé aucun nouveau code Premium depuis.",
         "filterLabel": "Filtrer les achats",
@@ -1879,7 +1896,8 @@
     "seatsLeft_two": "Plus que {{n}} places au prix de lancement",
     "seatsLeft_few": "Plus que {{n}} places au prix de lancement",
     "seatsLeft_many": "Plus que {{n}} places au prix de lancement",
-    "seatsLeft_other": "Plus que {{n}} places au prix de lancement"
+    "seatsLeft_other": "Plus que {{n}} places au prix de lancement",
+    "testBadge": "Prix de test"
   },
   "terms": {
     "title": "Conditions et politique de remboursement",

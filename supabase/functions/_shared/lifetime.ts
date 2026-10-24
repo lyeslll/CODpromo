@@ -42,7 +42,8 @@ export function siteUrl(req: Request) {
   return Deno.env.get("SITE_URL") || req.headers.get("origin") || "http://localhost:5173";
 }
 
-export type Tier = "launch" | "regular";
+// "test" = سعر التجربة لحساب واحد (pricing_test_prices، 30 دقيقة) — ما يتحسبش في المبيعات ولا المقاعد
+export type Tier = "launch" | "regular" | "test";
 
 export interface Pricing {
   tier: Tier;
@@ -54,17 +55,26 @@ export interface Pricing {
   regular_dzd: number;
   seats_total: number;
   seats_left: number;
+  test_expires_at?: string;
 }
 
-/** السعر الحالي من القاعدة (مقاعد الإطلاق محسوبة من purchases). */
-export async function getPricing(admin: SupabaseClient): Promise<Pricing> {
-  const { data, error } = await admin.rpc("pricing_public");
+/**
+ * السعر الحالي من القاعدة (مقاعد الإطلاق محسوبة من purchases). مع userId: سعر التجربة النشط
+ * لهاد الحساب برك (pricing_for_user → tier = "test")، وإلا السعر العام.
+ */
+export async function getPricing(admin: SupabaseClient, userId?: string): Promise<Pricing> {
+  const { data, error } = userId
+    ? await admin.rpc("pricing_for_user", { uid: userId })
+    : await admin.rpc("pricing_public");
   if (error || !data) throw new Error("pricing unavailable");
   return data as Pricing;
 }
 
-export const usdFor = (p: Pricing, tier: Tier) => Number(tier === "launch" ? p.launch_usd : p.regular_usd);
-export const dzdFor = (p: Pricing, tier: Tier) => Number(tier === "launch" ? p.launch_dzd : p.regular_dzd);
+const priceOf = (p: Pricing, tier: Tier, k: "usd" | "dzd") =>
+  Number(tier === "test" ? p[`price_${k}`] : tier === "launch" ? p[`launch_${k}`] : p[`regular_${k}`]);
+export const usdFor = (p: Pricing, tier: Tier) => priceOf(p, tier, "usd");
+export const dzdFor = (p: Pricing, tier: Tier) => priceOf(p, tier, "dzd");
+export const isTier = (t: unknown): t is Tier => t === "launch" || t === "regular" || t === "test";
 
 /**
  * حارس الدفع المزدوج: Premium من الملف (مدفوع / Stork / مدى الحياة) أو أدمن، أو شراء مدى الحياة.

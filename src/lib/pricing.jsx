@@ -1,6 +1,7 @@
 // ============================================================
 //  CODpromo — سعر الدفعة الوحدة (Premium مدى الحياة) — للعرض فقط
-//  المصدر: RPC pricing_public() (جدول pricing_settings + المقاعد المباعة بسعر الإطلاق).
+//  المصدر: RPC my_pricing() = pricing_public() (جدول pricing_settings + المقاعد المباعة بسعر الإطلاق)،
+//  وللحساب اللي عندو سعر تجربة نشط (من /admin/pricing، 30 دقيقة) سعرو هو برك (tier = "test").
 //  المبلغ الموثوق يتقرّر في الخادم (Edge Functions) عند إنشاء الدفع، أبداً هنا.
 //  كي يكمّلو مقاعد الإطلاق، tier = "regular" والسعر العادي يبان وحدو في كل بلاصة.
 // ============================================================
@@ -13,14 +14,17 @@ const num = (v) => {
   return Number.isFinite(n) ? n : null;
 };
 
-/** { tier, isLaunch, usd, dzd, launchUsd, launchDzd, regularUsd, regularDzd, seatsTotal, seatsLeft } أو null. */
+/** { tier, isLaunch, isTest, usd, dzd, launchUsd, launchDzd, regularUsd, regularDzd, seatsTotal, seatsLeft, testExpiresAt } أو null. */
 export async function fetchPricing() {
-  const { data, error } = await supabase.rpc("pricing_public");
+  const { data, error } = await supabase.rpc("my_pricing");
   if (error || !data) return null;
   const isLaunch = data.tier === "launch";
+  const isTest = data.tier === "test";
   return {
-    tier: isLaunch ? "launch" : "regular",
+    tier: isTest ? "test" : isLaunch ? "launch" : "regular",
     isLaunch,
+    isTest,
+    testExpiresAt: isTest ? data.test_expires_at || null : null,
     usd: num(data.price_usd),
     dzd: num(data.price_dzd),
     launchUsd: num(data.launch_usd),
@@ -60,7 +64,15 @@ export function PricingProvider({ children }) {
       if (document.visibilityState === "visible" && Date.now() - last.current > 60000) refresh();
     };
     document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
+    // دخول / خروج: سعر التجربة خاص بحساب واحد → نعاودو نجيبو السعر
+    // (setTimeout: نداء Supabase مباشرة داخل onAuthStateChange يقدر يحبس الجلسة)
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") setTimeout(refresh, 0);
+    });
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      sub?.subscription?.unsubscribe();
+    };
   }, [refresh]);
 
   return <PricingContext.Provider value={{ pricing, ready, refresh }}>{children}</PricingContext.Provider>;

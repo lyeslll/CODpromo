@@ -7,7 +7,7 @@
 //  يتحقّق من توقيع الـ webhook قبل أي حاجة. بلا verify_jwt (Stripe لا يرسل JWT) — انظر config.toml.
 // ============================================================
 import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
-import { adminClient, grantLifetime, revokeLifetime, type Tier } from "../_shared/lifetime.ts";
+import { adminClient, grantLifetime, isTier, revokeLifetime } from "../_shared/lifetime.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "", {
   httpClient: Stripe.createFetchHttpClient(),
@@ -29,9 +29,9 @@ async function handleSession(s: Stripe.Checkout.Session): Promise<string | null>
   if (s.payment_status !== "paid" && s.payment_status !== "no_payment_required") return "not paid yet";
 
   const userId = s.metadata?.supabase_user_id || s.client_reference_id;
-  const tier = s.metadata?.tier as Tier | undefined;
+  const tier = s.metadata?.tier;
   const expected = Number(s.metadata?.expected_amount);
-  if (!userId || (tier !== "launch" && tier !== "regular") || !(expected > 0)) return "bad metadata";
+  if (!userId || !isTier(tier) || !(expected > 0)) return "bad metadata";
   if ((s.currency || "").toLowerCase() !== "usd") return "wrong currency";
   if (s.amount_subtotal !== expected) return "amount mismatch";
 

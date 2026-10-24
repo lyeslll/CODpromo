@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Pencil, Trash2, ExternalLink, Loader2, AlertTriangle, Search, Crown } from "lucide-react";
+import { Pencil, Trash2, ExternalLink, Loader2, AlertTriangle, Search, Crown, Key } from "lucide-react";
 import CompanyLogo from "../CompanyLogo.jsx";
 import { getTypeMeta } from "../../lib/types.js";
+import { hasPremiumOffer } from "../../lib/premiumOffer.js";
+import { useAdminT } from "./v2/ui.jsx";
 
-export default function CompanyTable({ companies, loading, editingId, onEdit, onDelete, onTogglePremium }) {
+export default function CompanyTable({ companies, loading, editingId, onEdit, onDelete, onTogglePremium, onToggleFreeReveal }) {
+  const ta = useAdminT();
   const [q, setQ] = useState("");
   const [confirmId, setConfirmId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
@@ -67,7 +70,7 @@ export default function CompanyTable({ companies, loading, editingId, onEdit, on
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0, height: 0 }}
-                  className={`flex items-center gap-3 p-3 transition-colors sm:p-4 ${
+                  className={`flex flex-wrap items-center gap-3 p-3 transition-colors sm:flex-nowrap sm:p-4 ${
                     editingId === c.id ? "bg-[var(--color-lime)]/[0.06]" : "hover:bg-white/[0.02]"
                   }`}
                 >
@@ -127,7 +130,7 @@ export default function CompanyTable({ companies, loading, editingId, onEdit, on
                       </button>
                     </motion.div>
                   ) : (
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex w-full items-center justify-end gap-1.5 sm:w-auto">
                       {/* تبديل دعم Premium مباشرةً (نفس المعنى في نموذج التعديل) */}
                       {onTogglePremium && (
                         <button
@@ -150,6 +153,33 @@ export default function CompanyTable({ companies, loading, editingId, onEdit, on
                             <span
                               className="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all"
                               style={{ insetInlineStart: c.supports_premium !== false ? 18 : 2 }}
+                            />
+                          </span>
+                        </button>
+                      )}
+                      {/* متاح للمفتاح الذهبي (يخدم غير على شركة عندها عرض Premium) */}
+                      {onToggleFreeReveal && (
+                        <button
+                          onClick={() => onToggleFreeReveal(c.id, !(c.free_reveal_enabled !== false))}
+                          title={
+                            !hasPremiumOffer(c)
+                              ? ta("freeKey.tableNoOffer")
+                              : c.free_reveal_enabled !== false
+                              ? ta("freeKey.tableOn")
+                              : ta("freeKey.tableOff")
+                          }
+                          aria-label={ta("freeKey.switchLabel")}
+                          aria-pressed={c.free_reveal_enabled !== false}
+                          className={`relative flex h-9 items-center gap-1.5 rounded-lg border border-[var(--color-ink-line)] px-2 ${hasPremiumOffer(c) ? "" : "opacity-45"}`}
+                        >
+                          <Key size={14} style={{ color: c.free_reveal_enabled !== false ? "#f0c63c" : "var(--color-mute)" }} />
+                          <span
+                            className="relative h-5 w-9 shrink-0 rounded-full transition-colors"
+                            style={{ background: c.free_reveal_enabled !== false ? "#f0c63c" : "var(--color-ink-line)" }}
+                          >
+                            <span
+                              className="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all"
+                              style={{ insetInlineStart: c.free_reveal_enabled !== false ? 18 : 2 }}
                             />
                           </span>
                         </button>

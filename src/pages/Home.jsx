@@ -26,6 +26,7 @@ import NameStory from "../components/landing/NameStory.jsx";
 import Pillars from "../components/landing/Pillars.jsx";
 import CardAnatomy from "../components/landing/CardAnatomy.jsx";
 import PremiumCompare from "../components/landing/PremiumCompare.jsx";
+import GoldenKeySection from "../components/freekey/GoldenKeySection.jsx";
 import CategoryGrid from "../components/landing/CategoryGrid.jsx";
 import HowSteps from "../components/landing/HowSteps.jsx";
 import TrustSection from "../components/landing/TrustSection.jsx";
@@ -168,6 +169,7 @@ export default function Home() {
           onUnlock={openPremium}
         />
         <PremiumCompare company={compareCompany} stats={siteStats} onOpenPremium={openPremium} isPremiumActive={hasPremium} />
+        <GoldenKeySection companies={companies} preferred={compareCompany} onOpenPremium={openPremium} />
         <CategoryGrid categories={cats} counts={counts} />
         <HowSteps />
         <TrustSection companies={companies} voteStats={voteStats} />

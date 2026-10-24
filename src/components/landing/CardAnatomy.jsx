@@ -156,6 +156,7 @@ export default function CardAnatomy({ company, isFavorite, onToggleFav, onCopy, 
             premium={premium && company.supports_premium !== false}
             unlocked={unlocked}
             onUnlock={onUnlock}
+            freeKey={false}
           />
         </div>
 

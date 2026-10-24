@@ -363,7 +363,8 @@
       "errRateLimit": "Too many attempts, please try again shortly",
       "errGeneric": "Couldn't create the account",
       "typeLabel": "Account type",
-      "giftNote": "Your gift is saved: once you confirm your email, it activates on your account. If it doesn't activate automatically, open the gift link again."
+      "giftNote": "Your gift is saved: once you confirm your email, it activates on your account. If it doesn't activate automatically, open the gift link again.",
+      "freeKeyNote": "Your golden key is saved: once you confirm your email, you'll go straight back to the offers to use it."
     },
     "forgot": {
       "title": "Reset your password",
@@ -622,7 +623,8 @@
         "seo": "SEO",
         "featured": "Featured offers",
         "nocode": "No-code deals",
-        "gifts": "Gifts"
+        "gifts": "Gifts",
+        "freeKey": "Golden key"
       },
       "range": {
         "label": "Period",
@@ -751,7 +753,8 @@
         "premiumSub": "Premium members and Stork codes",
         "siteStatsSub": "Numbers shown on the homepage",
         "seoSub": "Search titles and descriptions for company pages",
-        "giftsSub": "Links that give free Premium for a set period, separate from payments and Stork."
+        "giftsSub": "Links that give free Premium for a set period, separate from payments and Stork.",
+        "freeKeySub": "One free Premium code per account, once. It doesn't grant Premium and isn't counted in subscribers or revenue."
       },
       "premium": {
         "members": "Premium members",
@@ -1064,6 +1067,48 @@
             "revoked": "Taken back"
           }
         }
+      },
+      "freeKey": {
+        "on": "Feature on",
+        "off": "Feature off",
+        "turnedOn": "Golden key turned on",
+        "turnedOff": "Golden key turned off",
+        "offNote": "The golden key is off: the home section and the card buttons are hidden, and no new keys can be used. Anyone who already revealed a code still sees it.",
+        "kpi": {
+          "today": "Reveals today",
+          "week": "Last 7 days",
+          "total": "All reveals",
+          "converted": "Went paid Premium after the key"
+        },
+        "convertedNote": "From SlickPay and PayPal invoices and Google Play purchases after the reveal date. Stripe keeps no payment date here, so only its currently active subscriptions count.",
+        "chart": "Reveals per day (30 days)",
+        "top": "Most revealed companies",
+        "unit": "reveals",
+        "alertsTitle": "Alert: many reveals from the same IP",
+        "alertsHint": "More than 5 reveals from the same address in one day (last 30 days). Alert only, nothing is blocked: many people share one IP on mobile networks.",
+        "alertLine": "Reveals on {{day}}: {{n}}",
+        "ipHint": "Address fingerprint (hashed, no plain IP)",
+        "listTitle": "Latest reveals",
+        "listCount": "{{shown}} of {{total}}",
+        "emptyTitle": "No reveals yet",
+        "emptyDesc": "Golden key reveals show up here: user, company and date.",
+        "deletedUser": "Deleted account",
+        "deletedCompany": "Deleted company",
+        "more": "Show more",
+        "source": {
+          "home": "Home",
+          "offers": "Offers page",
+          "featured": "Featured offers",
+          "store": "Company page",
+          "category": "Category page",
+          "favorites": "Favorites",
+          "dashboard": "Dashboard",
+          "other": "Other"
+        },
+        "tableOn": "Available for the golden key, click to turn off",
+        "tableOff": "Not available for the golden key, click to turn on",
+        "tableNoOffer": "No Premium offer: the golden key doesn't work on this company",
+        "switchLabel": "Available for the golden key"
       }
     }
   },
@@ -1279,7 +1324,8 @@
       "email": "Email",
       "commission": "Platform commission (%)",
       "affiliate": "Referral / affiliate dashboard link",
-      "notes": "Notes"
+      "notes": "Notes",
+      "freeReveal": "Available for the golden key"
     },
     "h": {
       "name": "Example: YouCan",
@@ -1300,7 +1346,8 @@
       "commission": "Example: 15",
       "affiliate": "Dashboard link only, no password",
       "notes": "Anything useful: deal terms, renewal date…",
-      "websitePartner": "Example: https://youcan.shop"
+      "websitePartner": "Example: https://youcan.shop",
+      "freeReveal": "Each account can reveal one Premium code for free, once. Works only if the company has a Premium code."
     },
     "types": {
       "discount": "Discount",
@@ -1681,6 +1728,72 @@
       "rateLimited": "Too many incorrect attempts. Try again in an hour.",
       "ended": "Your gift has ended.",
       "network": "Couldn't connect. Try again."
+    }
+  },
+  "freeKey": {
+    "card": {
+      "guest": "Sign up free and reveal one Premium code on us",
+      "use": "Use your golden key",
+      "upsell": "Free key used. Go Premium to reveal them all",
+      "badge": "Your golden key"
+    },
+    "confirm": {
+      "title": "You only have one key",
+      "body": "Are you sure you want to reveal the {{company}} code?",
+      "note": "This code stays visible to you for good. Every other company stays locked until you go Premium.",
+      "yes": "Yes, reveal the code",
+      "busy": "Unlocking…",
+      "no": "Not now",
+      "close": "Close"
+    },
+    "err": {
+      "used": "You've already used your key on another company. Each account gets one key.",
+      "disabled": "The golden key is paused right now.",
+      "hasPremium": "You already have Premium, so every Premium code is open to you.",
+      "unavailable": "This company isn't available for the golden key. Pick another one.",
+      "disposable": "The golden key doesn't work with temporary email. Sign up with a permanent email or with Google.",
+      "unconfirmed": "Confirm your email first using the message we sent you, then try again.",
+      "auth": "Log in first to use your key.",
+      "network": "Connection failed. Try again.",
+      "inboxUsed": "This email already used its golden key on another account. One key per inbox, even with dots or a + in the address."
+    },
+    "home": {
+      "title": "One Premium code… on us.",
+      "subGuest": "Create a free account, pick the company you want, and reveal its Premium code.",
+      "subAvailable": "Your golden key is in your account: pick one company and reveal its Premium code.",
+      "subUsed": "You used your key on {{company}}. The rest of the Premium codes are waiting.",
+      "subUsedGeneric": "You've used your golden key. The rest of the Premium codes are waiting.",
+      "keyLabel": "Your free key",
+      "saidGuest": "Sign up to open it",
+      "saidAvailable": "It opens one Premium code of your choice",
+      "saidUsed": "Your free key has been used",
+      "ctaGuest": "Sign up and get your key",
+      "ctaAvailable": "Your key is ready, pick your card",
+      "ctaUsed": "Go Premium and reveal every code",
+      "fine": {
+        "free": "Free",
+        "noCard": "No bank card",
+        "once": "Once per account"
+      },
+      "counter_zero": "No codes revealed for free yet",
+      "counter_one": "<0>{{n}}</0> code revealed for free",
+      "counter_two": "<0>{{n}}</0> codes revealed for free",
+      "counter_few": "<0>{{n}}</0> codes revealed for free",
+      "counter_many": "<0>{{n}}</0> codes revealed for free",
+      "counter_other": "<0>{{n}}</0> codes revealed for free",
+      "subInbox": "Your email already used its golden key from another account. The rest of the Premium codes are waiting."
+    },
+    "dash": {
+      "availableTitle": "Your golden key is available",
+      "availableDesc": "Use it to reveal one Premium code for free, on the company you choose.",
+      "availableCta": "Pick a card",
+      "usedTitle": "You used your key on {{company}}",
+      "usedTitleGeneric": "You've used your golden key",
+      "usedDesc": "This code stays revealed for you for good.",
+      "usedGone": "The company you picked is no longer on the site.",
+      "loading": "Loading the code…",
+      "inboxTitle": "Your inbox's key is used",
+      "inboxDesc": "Your email already used its golden key from another account. Each inbox gets one key."
     }
   }
 }

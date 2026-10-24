@@ -59,6 +59,8 @@ import FeaturedPage from "../components/admin/v2/FeaturedPage.jsx";
 import NocodePage from "../components/admin/v2/NocodePage.jsx";
 import NocodeEditor from "../components/admin/v2/NocodeEditor.jsx";
 import GiftsPage from "../components/admin/v2/GiftsPage.jsx";
+import FreeKeyPage from "../components/admin/v2/FreeKeyPage.jsx";
+import { setCompanyFreeReveal } from "../lib/freeKey.js";
 import { Glass, PageHeader, Skeleton, EmptyState, LIME_BG } from "../components/admin/v2/ui.jsx";
 import { fetchCompanyPrivate, saveCompanyPrivate } from "../lib/adminStats.js";
 import RequestsManager from "../components/admin/RequestsManager.jsx";
@@ -411,6 +413,12 @@ function Dashboard({ onLock }) {
         saved = await addCompany(form);
         setCompanies((prev) => [saved, ...prev]);
       }
+      // "متاح للمفتاح الذهبي": عبر RPC (admin_set_company_free_reveal)، ماشي مع باقي الحقول
+      const wantFree = form.free_reveal_enabled;
+      if (typeof wantFree === "boolean" && saved?.id && (saved.free_reveal_enabled !== false) !== wantFree) {
+        await setCompanyFreeReveal(saved.id, wantFree);
+        setCompanies((prev) => prev.map((c) => (c.id === saved.id ? { ...c, free_reveal_enabled: wantFree } : c)));
+      }
       if (priv && saved?.id) await saveCompanyPrivate(saved.id, priv);
       notify("success", id ? tc("companies.saved") : tc("companies.added"));
       navigate("/admin/companies");
@@ -492,6 +500,17 @@ function Dashboard({ onLock }) {
       setCompanies((prev) =>
         prev.map((c) => (c.id === id ? { ...c, supports_premium: !value } : c))
       );
+      notify("error", e.message);
+    }
+  };
+
+  // "متاح للمفتاح الذهبي" مباشرةً من الجدول (تحديث متفائل مع تراجع عند الفشل)
+  const handleToggleFreeReveal = async (id, value) => {
+    setCompanies((prev) => prev.map((c) => (c.id === id ? { ...c, free_reveal_enabled: value } : c)));
+    try {
+      await setCompanyFreeReveal(id, value);
+    } catch (e) {
+      setCompanies((prev) => prev.map((c) => (c.id === id ? { ...c, free_reveal_enabled: !value } : c)));
       notify("error", e.message);
     }
   };
@@ -606,6 +625,7 @@ function Dashboard({ onLock }) {
                 onEdit={(c) => navigate(`/admin/companies/${c.id}`)}
                 onDelete={handleDelete}
                 onTogglePremium={handleTogglePremium}
+                onToggleFreeReveal={handleToggleFreeReveal}
               />
             </>
           }
@@ -699,6 +719,8 @@ function Dashboard({ onLock }) {
         />
         {/* الهدايا — روابط Premium مجاني لمدة محدّدة (منفصلة على الدفع وعلى Stork) */}
         <Route path="gifts" element={<GiftsPage notify={notify} />} />
+        {/* المفتاح الذهبي — كود Premium واحد مجاناً لكل حساب (ما يعطيش Premium) */}
+        <Route path="free-key" element={<FreeKeyPage notify={notify} />} />
         <Route
           path="site-stats"
           element={
@@ -829,6 +851,7 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
           categories={categories}
           submitting={submitting}
           showPrivate
+          freeRevealSwitch
           onCreateCategory={onCreateCategory}
           onCancel={() => navigate("/admin/companies")}
           onSubmit={(form, priv) => {

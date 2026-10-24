@@ -363,7 +363,8 @@
       "errRateLimit": "Trop de tentatives, réessayez bientôt",
       "errGeneric": "Impossible de créer le compte",
       "typeLabel": "Type de compte",
-      "giftNote": "Votre cadeau est conservé : après la confirmation de votre e-mail, il s'active sur votre compte. S'il ne s'active pas automatiquement, rouvrez le lien du cadeau."
+      "giftNote": "Votre cadeau est conservé : après la confirmation de votre e-mail, il s'active sur votre compte. S'il ne s'active pas automatiquement, rouvrez le lien du cadeau.",
+      "freeKeyNote": "Votre clé dorée est gardée : après la confirmation de votre e-mail, vous revenez directement aux offres pour l'utiliser."
     },
     "forgot": {
       "title": "Réinitialiser le mot de passe",
@@ -622,7 +623,8 @@
         "seo": "SEO",
         "featured": "Offres en vedette",
         "nocode": "Offres sans code",
-        "gifts": "Cadeaux"
+        "gifts": "Cadeaux",
+        "freeKey": "Clé dorée"
       },
       "range": {
         "label": "Période",
@@ -751,7 +753,8 @@
         "premiumSub": "Membres Premium et codes Stork",
         "siteStatsSub": "Chiffres affichés sur l'accueil",
         "seoSub": "Titres et descriptions des pages entreprises pour les moteurs",
-        "giftsSub": "Des liens qui offrent Premium gratuitement pour une durée définie, séparés des paiements et de Stork."
+        "giftsSub": "Des liens qui offrent Premium gratuitement pour une durée définie, séparés des paiements et de Stork.",
+        "freeKeySub": "Un code Premium gratuit par compte, une seule fois. Elle ne donne pas Premium et ne compte ni dans les abonnés ni dans les revenus."
       },
       "premium": {
         "members": "Membres Premium",
@@ -1064,6 +1067,48 @@
             "revoked": "Retiré"
           }
         }
+      },
+      "freeKey": {
+        "on": "Fonction activée",
+        "off": "Fonction désactivée",
+        "turnedOn": "Clé dorée activée",
+        "turnedOff": "Clé dorée désactivée",
+        "offNote": "La clé dorée est désactivée : la section de l'accueil et les boutons des cartes sont masqués, et aucune nouvelle clé ne peut être utilisée. Ceux qui ont déjà révélé un code le voient toujours.",
+        "kpi": {
+          "today": "Révélations du jour",
+          "week": "7 derniers jours",
+          "total": "Toutes les révélations",
+          "converted": "Passés à Premium payant après la clé"
+        },
+        "convertedNote": "D'après les factures SlickPay et PayPal et les achats Google Play après la date de révélation. Stripe ne garde pas de date de paiement ici : seuls ses abonnements actifs comptent.",
+        "chart": "Révélations par jour (30 jours)",
+        "top": "Entreprises les plus révélées",
+        "unit": "révélations",
+        "alertsTitle": "Alerte : beaucoup de révélations depuis la même IP",
+        "alertsHint": "Plus de 5 révélations depuis la même adresse en un jour (30 derniers jours). Simple alerte, rien n'est bloqué : beaucoup de personnes partagent la même IP sur les réseaux mobiles.",
+        "alertLine": "Révélations le {{day}} : {{n}}",
+        "ipHint": "Empreinte de l'adresse (hachée, sans IP en clair)",
+        "listTitle": "Dernières révélations",
+        "listCount": "{{shown}} sur {{total}}",
+        "emptyTitle": "Aucune révélation pour l'instant",
+        "emptyDesc": "Les révélations de la clé dorée apparaissent ici : utilisateur, entreprise et date.",
+        "deletedUser": "Compte supprimé",
+        "deletedCompany": "Entreprise supprimée",
+        "more": "Afficher plus",
+        "source": {
+          "home": "Accueil",
+          "offers": "Page des offres",
+          "featured": "Offres en vedette",
+          "store": "Page de l'entreprise",
+          "category": "Page de catégorie",
+          "favorites": "Favoris",
+          "dashboard": "Tableau de bord",
+          "other": "Autre"
+        },
+        "tableOn": "Disponible pour la clé dorée, cliquez pour désactiver",
+        "tableOff": "Non disponible pour la clé dorée, cliquez pour activer",
+        "tableNoOffer": "Pas d'offre Premium : la clé dorée ne fonctionne pas sur cette entreprise",
+        "switchLabel": "Disponible pour la clé dorée"
       }
     }
   },
@@ -1279,7 +1324,8 @@
       "email": "E-mail",
       "commission": "Commission de la plateforme (%)",
       "affiliate": "Lien du tableau de bord d'affiliation",
-      "notes": "Notes"
+      "notes": "Notes",
+      "freeReveal": "Disponible pour la clé dorée"
     },
     "h": {
       "name": "Exemple : YouCan",
@@ -1300,7 +1346,8 @@
       "commission": "Exemple : 15",
       "affiliate": "Uniquement le lien, sans mot de passe",
       "notes": "Toute info utile : conditions, date de renouvellement…",
-      "websitePartner": "Exemple : https://youcan.shop"
+      "websitePartner": "Exemple : https://youcan.shop",
+      "freeReveal": "Chaque compte peut révéler un code Premium gratuitement, une seule fois. Fonctionne uniquement si l'entreprise a un code Premium."
     },
     "types": {
       "discount": "Réduction",
@@ -1681,6 +1728,72 @@
       "rateLimited": "Trop de tentatives incorrectes. Réessayez dans une heure.",
       "ended": "Votre cadeau est terminé.",
       "network": "Connexion impossible. Réessayez."
+    }
+  },
+  "freeKey": {
+    "card": {
+      "guest": "Inscription gratuite : un code Premium offert",
+      "use": "Utilisez votre clé dorée",
+      "upsell": "Clé gratuite utilisée. Passez à Premium pour tout révéler",
+      "badge": "Votre clé dorée"
+    },
+    "confirm": {
+      "title": "Vous n'avez qu'une seule clé",
+      "body": "Voulez-vous vraiment révéler le code de {{company}} ?",
+      "note": "Ce code reste visible pour vous, pour toujours. Les autres entreprises restent verrouillées jusqu'à ce que vous passiez à Premium.",
+      "yes": "Oui, révéler le code",
+      "busy": "Déverrouillage…",
+      "no": "Pas maintenant",
+      "close": "Fermer"
+    },
+    "err": {
+      "used": "Vous avez déjà utilisé votre clé sur une autre entreprise. Une seule clé par compte.",
+      "disabled": "La clé dorée est suspendue pour le moment.",
+      "hasPremium": "Vous avez déjà Premium : tous les codes Premium vous sont ouverts.",
+      "unavailable": "Cette entreprise n'est pas disponible pour la clé dorée. Choisissez-en une autre.",
+      "disposable": "La clé dorée ne fonctionne pas avec une adresse e-mail temporaire. Inscrivez-vous avec une adresse permanente ou avec Google.",
+      "unconfirmed": "Confirmez d'abord votre e-mail grâce au message reçu, puis réessayez.",
+      "auth": "Connectez-vous d'abord pour utiliser votre clé.",
+      "network": "Connexion impossible. Réessayez.",
+      "inboxUsed": "Cette adresse e-mail a déjà utilisé sa clé dorée sur un autre compte. Une clé par boîte mail, même avec des points ou un + dans l'adresse."
+    },
+    "home": {
+      "title": "Un code Premium… c'est cadeau.",
+      "subGuest": "Créez un compte gratuit, choisissez l'entreprise qui vous intéresse et révélez son code Premium.",
+      "subAvailable": "Votre clé dorée est dans votre compte : choisissez une entreprise et révélez son code Premium.",
+      "subUsed": "Vous avez utilisé votre clé sur {{company}}. Les autres codes Premium vous attendent.",
+      "subUsedGeneric": "Vous avez utilisé votre clé dorée. Les autres codes Premium vous attendent.",
+      "keyLabel": "Clé gratuite",
+      "saidGuest": "Inscrivez-vous pour l'ouvrir",
+      "saidAvailable": "Elle ouvre un code Premium de votre choix",
+      "saidUsed": "Votre clé gratuite a été utilisée",
+      "ctaGuest": "Inscrivez-vous et recevez votre clé",
+      "ctaAvailable": "Votre clé est prête, choisissez la carte",
+      "ctaUsed": "Passez à Premium et révélez tous les codes",
+      "fine": {
+        "free": "Gratuit",
+        "noCard": "Sans carte bancaire",
+        "once": "Une fois par compte"
+      },
+      "counter_zero": "Aucun code révélé gratuitement pour l'instant",
+      "counter_one": "<0>{{n}}</0> code révélé gratuitement",
+      "counter_two": "<0>{{n}}</0> codes révélés gratuitement",
+      "counter_few": "<0>{{n}}</0> codes révélés gratuitement",
+      "counter_many": "<0>{{n}}</0> codes révélés gratuitement",
+      "counter_other": "<0>{{n}}</0> codes révélés gratuitement",
+      "subInbox": "Votre adresse e-mail a déjà utilisé sa clé dorée depuis un autre compte. Les autres codes Premium vous attendent."
+    },
+    "dash": {
+      "availableTitle": "Votre clé dorée est disponible",
+      "availableDesc": "Révélez avec elle un code Premium gratuit, sur l'entreprise de votre choix.",
+      "availableCta": "Choisir une carte",
+      "usedTitle": "Vous avez utilisé votre clé sur {{company}}",
+      "usedTitleGeneric": "Vous avez utilisé votre clé dorée",
+      "usedDesc": "Ce code reste révélé pour vous, pour toujours.",
+      "usedGone": "L'entreprise choisie n'est plus disponible sur le site.",
+      "loading": "Chargement du code…",
+      "inboxTitle": "La clé de votre boîte mail est utilisée",
+      "inboxDesc": "Votre adresse e-mail a déjà utilisé sa clé dorée depuis un autre compte. Une seule clé par boîte mail."
     }
   }
 }

@@ -24,6 +24,8 @@ import { parseVal } from "../../lib/values.js";
 //   trap             عنصر honeypot (useBotGuard) يُوضع داخل الفورم
 //   submitLabel      نص زر الإرسال (الشركة: "أرسل الطلب")
 //   lang             لغة نصوص الفورم (الأدمن: "ar" ثابتة)
+//   freeRevealSwitch سويتش "متاح للمفتاح الذهبي" (الأدمن): يرجع في company.free_reveal_enabled
+//                    والحفظ عبر RPC admin_set_company_free_reveal (ماشي مع باقي الأعمدة)
 // ============================================================
 
 const TYPES = [
@@ -88,8 +90,10 @@ export default function CompanyOfferForm({
   trap = null,
   submitLabel,
   lang,
+  freeRevealSwitch = false,
 }) {
   const partner = mode === "partner";
+  const [freeReveal, setFreeReveal] = useState(() => initial?.free_reveal_enabled !== false);
   const { i18n } = useTranslation();
   const formLang = lang || i18n.language;
   const t = useMemo(() => i18n.getFixedT(formLang, null, "offerForm"), [i18n, formLang]);
@@ -159,6 +163,7 @@ export default function CompanyOfferForm({
       category_id: form.category_id || null,
       // النص category يطابق اسم الفئة العربي (توافق مع الكود القديم)
       category: selected ? selected.name_ar || "" : "",
+      ...(freeRevealSwitch && !partner ? { free_reveal_enabled: freeReveal } : {}),
     };
     onSubmit(company, showPrivate || partner ? priv : null);
   };
@@ -296,8 +301,12 @@ export default function CompanyOfferForm({
         <section className="rounded-[20px] border p-5 sm:p-6" style={{ borderColor: `${GOLD}55`, background: `linear-gradient(160deg, ${GOLD}1a, transparent 55%), rgba(255,255,255,0.02)` }}>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <SectionHead icon={Crown} color={GOLD} title={t("s.premium")} sub={t("s.premiumSub")} />
-            <Switch checked={form.supports_premium !== false} onChange={(v) => setForm((f) => ({ ...f, supports_premium: v }))} label={t("f.supportsPremium")} />
+            <div className="flex flex-wrap items-center gap-2">
+              <Switch checked={form.supports_premium !== false} onChange={(v) => setForm((f) => ({ ...f, supports_premium: v }))} label={t("f.supportsPremium")} />
+              {freeRevealSwitch && !partner && <Switch checked={freeReveal} onChange={setFreeReveal} label={t("f.freeReveal")} />}
+            </div>
           </div>
+          {freeRevealSwitch && !partner && <p className="-mt-1 mb-4 text-[12px] leading-relaxed text-[#6b7280]">{t("h.freeReveal")}</p>}
           <div className={`grid gap-4 transition-opacity sm:grid-cols-2 ${form.supports_premium === false ? "opacity-45" : ""}`}>
             <Field label={t("f.premiumDiscount")} hint={t("h.premiumDiscount")} warn={strength === false ? t("warn.weaker") : null}>
               {(p) => <input {...p} value={form.premium_discount} onChange={set("premium_discount")} placeholder={form.discount || ""} className={inputCls} dir="auto" />}
@@ -446,6 +455,7 @@ export default function CompanyOfferForm({
             premium={previewMode === "premium"}
             unlocked={false}
             linkToStore={false}
+            freeKey={false}
           />
         </Inert>
         <p className="mt-3 text-[12px] leading-relaxed text-[#6b7280]">
@@ -678,7 +688,7 @@ export function OfferPreview({ offer, premium = false }) {
   };
   return (
     <Inert>
-      <CompanyCard company={company} index={0} isFavorite={false} onToggleFav={() => {}} onCopy={() => {}} premium={premium} unlocked={false} linkToStore={false} />
+      <CompanyCard company={company} index={0} isFavorite={false} onToggleFav={() => {}} onCopy={() => {}} premium={premium} unlocked={false} linkToStore={false} freeKey={false} />
     </Inert>
   );
 }

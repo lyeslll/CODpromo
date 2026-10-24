@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Copy, Check, Key, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useFreeKey } from "../../../lib/freeKeyContext.jsx";
+import { usePremium } from "../../../lib/premium.jsx";
 import { getPremiumCode } from "../../../lib/supabase.js";
 import { logCodeCopy } from "../../../lib/copies.js";
 import { offersLink } from "../../../lib/seo.js";
@@ -18,6 +19,7 @@ const GOLD_DEEP = "#cf9a1e";
  * Premium / أدمن / الميزة موقوفة بلا كشف → ما تبانش.
  */
 export default function FreeKeyCard({ onCopied }) {
+  const { hasPremium } = usePremium();
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const rtl = i18n.dir() === "rtl";
@@ -47,6 +49,8 @@ export default function FreeKeyCard({ onCopied }) {
 
   useEffect(() => () => clearTimeout(copiedTimer.current), []);
 
+  // قبل ما توصل الحالة: مكان البطاقة محجوز (بلاه تدفع "آخر الأكواد" لتحت). المشترك ما يشوفهاش أصلاً.
+  if (fk.status === "loading" && !hasPremium) return <div aria-hidden className="h-[132px] animate-pulse rounded-[var(--radius-card)] border border-[var(--color-ink-line)] bg-[var(--color-ink-card)]" />;
   if (fk.status !== "available" && !used) return null;
 
   const shell =

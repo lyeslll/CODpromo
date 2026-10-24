@@ -13,6 +13,9 @@
 --     company_rating_summary(company)     — عام: العدد + المعدّل + العلامات (بلا المخبّية).
 --     company_rating_summaries()          — عام: نفس الشي لكل الشركات (القوائم و prerender).
 --     admin_list_ratings / admin_set_rating_hidden — أدمن برك (admin_assert).
+--  مراجعة أمان مستقلة قبل التطبيق (24 أكتوبر 2026): تقييم واحد لكل بريد حقيقي (بصمة phase31c) لكل شركة،
+--  حساب شركة = صاحب شركة / عندو طلب شركة / account_type (ماشي account_type برك — العميل يقدر يبدّلو)،
+--  الملخّص العام بلا معدّل ولا توزيع تحت 3 تقييمات، حدّ لحجم العلامات قبل أي حساب.
 --  idempotent، بلا DROP / DELETE / TRUNCATE. الرجوع: supabase-phase34-rollback.sql.
 -- ============================================================
 
@@ -65,6 +68,7 @@ create table if not exists public.company_ratings (
   id          bigint generated always as identity primary key,
   company_id  bigint not null references public.companies (id) on delete cascade,
   user_id     uuid   not null references auth.users (id) on delete cascade,
+  email_hash  text,                  -- بصمة البريد (phase31c): بريد واحد = تقييم واحد لكل شركة
   stars       smallint not null check (stars between 1 and 5),
   tags        text[] not null default '{}' check (cardinality(tags) <= 4),
   edits       integer not null default 0,
@@ -74,13 +78,14 @@ create table if not exists public.company_ratings (
   updated_at  timestamptz not null default now(),
   unique (company_id, user_id)
 );
+create unique index if not exists company_ratings_inbox_uniq on public.company_ratings (company_id, email_hash) where email_hash is not null;
 create index if not exists company_ratings_company_idx on public.company_ratings (company_id) where hidden_at is null;
 create index if not exists company_ratings_user_idx on public.company_ratings (user_id, updated_at desc);
 
 -- سجلّ الكتابات (للحدّ): كل نداء ناجح لـ rate_company = سطر.
 create table if not exists public.company_rating_log (
   id          bigint generated always as identity primary key,
-  user_id     uuid not null,
+  user_id     uuid not null references auth.users (id) on delete cascade,
   company_id  bigint not null,
   created_at  timestamptz not null default now()
 );
@@ -156,14 +161,17 @@ as $$
   t as (
     select tag, count(*) as n from r, unnest(r.tags) as tag group by tag
   )
+  -- تحت 3 تقييمات: العدد برك (بلا معدّل ولا توزيع ولا علامات — ما يتعرفش تقييم شخص واحد)
+  , c as (select count(*) as n from r)
   select jsonb_build_object(
     'company_id', p_company_id,
-    'count', (select count(*) from r),
-    'avg', (select round(avg(stars)::numeric, 1) from r),
-    'dist', (select jsonb_object_agg(s, n) from (select stars as s, count(*) as n from r group by stars) d),
-    'tags', coalesce((select jsonb_agg(jsonb_build_object('tag', tag, 'n', n) order by n desc, tag) from t), '[]'::jsonb),
+    'count', c.n,
+    'avg', case when c.n >= 3 then (select round(avg(stars)::numeric, 1) from r) end,
+    'dist', case when c.n >= 3 then (select jsonb_object_agg(s, n) from (select stars as s, count(*) as n from r group by stars) d) end,
+    'tags', case when c.n >= 3 then coalesce((select jsonb_agg(jsonb_build_object('tag', tag, 'n', n) order by n desc, tag) from t), '[]'::jsonb) else '[]'::jsonb end,
     'kind', public.company_kind(p_company_id)
-  );
+  )
+  from c;
 $$;
 
 create or replace function public.company_rating_summaries()
@@ -173,7 +181,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select company_id, count(*), round(avg(stars)::numeric, 1)
+  select company_id, count(*), case when count(*) >= 3 then round(avg(stars)::numeric, 1) end
     from public.company_ratings
    where hidden_at is null
    group by company_id;
@@ -219,6 +227,7 @@ declare
   v_tags text[];
   v_hour int;
   v_day int;
+  v_inbox text;
 begin
   -- GET (معاملة قراءة برك في PostgREST) مرفوض: الكتابة POST برك.
   if current_setting('transaction_read_only', true) = 'on' then
@@ -226,6 +235,10 @@ begin
   end if;
   if v_uid is null then
     return jsonb_build_object('status', 'auth');
+  end if;
+  -- مصفوفة ضخمة = مرفوضة قبل أي حساب
+  if cardinality(p_tags) > 10 then
+    return jsonb_build_object('status', 'invalid');
   end if;
 
   select * into v_user from auth.users where id = v_uid;
@@ -248,7 +261,10 @@ begin
   if exists (select 1 from public.company_owners o where o.company_id = p_company_id and o.user_id = v_uid) then
     return jsonb_build_object('status', 'owner');
   end if;
-  if exists (select 1 from public.profiles p where p.id = v_uid and p.account_type = 'company') then
+  -- account_type يتبدّل من العميل → نشوفو حتى الملكية وطلبات الشركات (الأدمن والـ trigger برك يكتبوهم)
+  if exists (select 1 from public.profiles p where p.id = v_uid and p.account_type = 'company')
+     or exists (select 1 from public.company_owners o where o.user_id = v_uid)
+     or exists (select 1 from public.company_requests q where q.user_id = v_uid) then
     return jsonb_build_object('status', 'company_account');
   end if;
 
@@ -266,6 +282,15 @@ begin
 
   -- حدّ الكتابة: قفل لكل حساب (طلبات متزامنة تمرّ وحدة بوحدة)، 20 في الساعة، و 6 تبديلات في اليوم لنفس الشركة.
   perform pg_advisory_xact_lock(hashtextextended('company_rating:' || v_uid::text, 0));
+  -- بريد واحد (Gmail بالنقاط و +، نفس قاعدة المفتاح الذهبي) = تقييم واحد لكل شركة، حتى بحسابات مختلفة
+  v_inbox := public.free_key_email_hash(v_user.email);
+  if v_inbox is not null then
+    perform pg_advisory_xact_lock(hashtextextended('company_rating_inbox:' || v_inbox || ':' || p_company_id::text, 0));
+    if exists (select 1 from public.company_ratings r
+                where r.company_id = p_company_id and r.email_hash = v_inbox and r.user_id <> v_uid) then
+      return jsonb_build_object('status', 'inbox_used');
+    end if;
+  end if;
   select count(*) into v_hour from public.company_rating_log where user_id = v_uid and created_at > now() - interval '1 hour';
   select count(*) into v_day from public.company_rating_log
    where user_id = v_uid and company_id = p_company_id and created_at > now() - interval '1 day';
@@ -273,11 +298,12 @@ begin
     return jsonb_build_object('status', 'rate_limited');
   end if;
 
-  insert into public.company_ratings (company_id, user_id, stars, tags)
-  values (p_company_id, v_uid, p_stars, v_tags)
+  insert into public.company_ratings (company_id, user_id, email_hash, stars, tags)
+  values (p_company_id, v_uid, v_inbox, p_stars, v_tags)
   on conflict (company_id, user_id) do update
     set stars = excluded.stars,
         tags = excluded.tags,
+        email_hash = excluded.email_hash,
         edits = public.company_ratings.edits + 1,
         updated_at = now();
   insert into public.company_rating_log (user_id, company_id) values (v_uid, p_company_id);
@@ -328,6 +354,9 @@ begin
   if current_setting('transaction_read_only', true) = 'on' then
     raise exception 'read_only' using errcode = '25006';
   end if;
+  if p_hidden is null then
+    raise exception 'p_hidden is null' using errcode = '22004';
+  end if;
   update public.company_ratings
      set hidden_at = case when p_hidden then coalesce(hidden_at, now()) else null end,
          hidden_by = case when p_hidden then auth.uid() else null end
@@ -352,3 +381,5 @@ grant execute on function public.my_company_rating(bigint) to authenticated;
 grant execute on function public.rate_company(bigint, integer, text[]) to authenticated;
 grant execute on function public.admin_list_ratings(bigint, integer) to authenticated;
 grant execute on function public.admin_set_rating_hidden(bigint, boolean) to authenticated;
+
+notify pgrst, 'reload schema';

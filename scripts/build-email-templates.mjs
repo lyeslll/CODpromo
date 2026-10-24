@@ -29,6 +29,11 @@ const AUTH = {
 // $l = user_metadata.lang (أي نوع → نص)، وإلا "ar". index على map ناقص المفتاح ما يطيّحش القالب.
 const PRELUDE = '{{- $l := "ar" -}}{{- with .Data -}}{{- with index . "lang" -}}{{- $l = printf "%v" . -}}{{- end -}}{{- end -}}';
 const branches = (by) => `${PRELUDE}{{- if eq $l "en" -}}${by.en}{{- else if eq $l "fr" -}}${by.fr}{{- else -}}${by.ar}{{- end -}}`;
+// العنوان: Supabase يقبل 255 حرف برك → نسخة قصيرة. .Data = user_metadata (map، حتى فارغ)، و index على
+// مفتاح ناقص يرجّع nil → "<nil>" → العربية.
+const SUBJECT_MAX = 255;
+const subjectBranches = (by) =>
+  `{{$l:=printf "%v" (index .Data "lang")}}{{if eq $l "en"}}${by.en}{{else if eq $l "fr"}}${by.fr}{{else}}${by.ar}{{end}}`;
 
 const args = process.argv.slice(2);
 const previewAt = args.indexOf("--preview");
@@ -76,7 +81,8 @@ if (previewAt >= 0) {
       subj[lang] = r.subject;
     }
     writeFileSync(join(dir, `${type}.html`), branches(by) + "\n");
-    subjects[type] = branches(subj);
+    subjects[type] = subjectBranches(subj);
+    if (subjects[type].length > SUBJECT_MAX) throw new Error(`${type}: subject ${subjects[type].length} > ${SUBJECT_MAX}`);
     console.log(`${type}.html  ${Math.round(branches(by).length / 1024)} KB`);
   }
   writeFileSync(join(dir, "subjects.json"), JSON.stringify(subjects, null, 2) + "\n");

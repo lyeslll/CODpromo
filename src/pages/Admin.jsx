@@ -64,6 +64,7 @@ import FreeKeyPage from "../components/admin/v2/FreeKeyPage.jsx";
 import SalesPage from "../components/admin/v2/SalesPage.jsx";
 import PricingPage from "../components/admin/v2/PricingPage.jsx";
 import RatingsPage from "../components/admin/v2/RatingsPage.jsx";
+import KeysPage from "../components/admin/v2/KeysPage.jsx";
 import { setCompanyFreeReveal } from "../lib/freeKey.js";
 import { Glass, PageHeader, Skeleton, EmptyState, LIME_BG } from "../components/admin/v2/ui.jsx";
 import { fetchCompanyPrivate, saveCompanyPrivate } from "../lib/adminStats.js";
@@ -747,6 +748,7 @@ function Dashboard({ onLock }) {
         <Route path="free-key" element={<FreeKeyPage notify={notify} />} />
         {/* Premium مدى الحياة — المبيعات (purchases + أهلية الاسترداد) والأسعار (pricing_settings) */}
         <Route path="sales" element={<SalesPage notify={notify} />} />
+        <Route path="keys" element={<KeysPage notify={notify} />} />
         <Route path="pricing" element={<PricingPage notify={notify} />} />
         <Route
           path="site-stats"

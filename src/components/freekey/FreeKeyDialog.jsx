@@ -70,6 +70,9 @@ export default function FreeKeyDialog({ open, company, value, onConfirm, onClose
   };
 
   if (typeof document === "undefined") return null;
+  // الـ portal يبقى ابن البطاقة في شجرة React: أحداث المؤشّر ما تطلعش للبطاقة (whileTap) ولا لسحب
+  // القائمة في /offers (عادي ⇄ Premium)، و data-no-swipe احتياط لنفس السحب
+  const stop = (e) => e.stopPropagation();
   return createPortal(
     <AnimatePresence>
       {open && (
@@ -79,6 +82,12 @@ export default function FreeKeyDialog({ open, company, value, onConfirm, onClose
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           dir={i18n.dir()}
+          data-no-swipe=""
+          onPointerDown={stop}
+          onPointerMove={stop}
+          onPointerUp={stop}
+          onPointerCancel={stop}
+          onClick={stop}
         >
           <div className="absolute inset-0 bg-black/65 backdrop-blur-sm" onClick={busy ? undefined : onClose} />
           <motion.div

@@ -11,6 +11,7 @@ import { activeCategories, countByCategory, matchesSearch } from "../../lib/offe
 import { getTypeMeta } from "../../lib/types.js";
 import CompanyLogo from "../CompanyLogo.jsx";
 import { useHeaderOffers } from "./headerData.js";
+import { useBackToClose } from "../../lib/useBackToClose.js";
 
 const MAX_OFFERS = 6;
 const MAX_CATS = 3;
@@ -20,6 +21,7 @@ const MAX_CATS = 3;
  * والضغط على نتيجة يفتح /offers بالبحث (أو بالفئة). الأسهم للتنقّل، Enter للفتح، Esc للإغلاق.
  */
 export default function QuickSearch({ open, onClose }) {
+  useBackToClose(open, onClose);
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const navigate = useNavigate();

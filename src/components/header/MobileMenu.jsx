@@ -18,6 +18,7 @@ import LifetimePrice from "../pricing/LifetimePrice.jsx";
 import SeatsMeter from "../pricing/SeatsMeter.jsx";
 import { useHeaderOffers, userDisplay } from "./headerData.js";
 import GooglePlayBadge from "../app/GooglePlayBadge.jsx";
+import { useBackToClose } from "../../lib/useBackToClose.js";
 import { useAppTarget } from "../../lib/appInstall.js";
 
 const GOLD_BG = "linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e)";
@@ -63,6 +64,7 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, onS
   const offers = useHeaderOffers(open);
   const app = useAppTarget();
   const [geo, setGeo] = useState(null);
+  useBackToClose(open, onClose); // زر الرجوع (Android) يسكّر القائمة
 
   // القياس قبل الرسم (حتى تبدأ الدائرة من الزر بالضبط)، ومع تدوير الشاشة،
   // وبعد تبديل اللغة (يتبدّل اتجاه الصفحة في الإطار التالي فينتقل زر القائمة للجهة الأخرى).

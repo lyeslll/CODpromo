@@ -5,6 +5,7 @@ import { Loader2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { GoldenKey } from "./GoldenKey.jsx";
 import { isImageUrl } from "../CompanyLogo.jsx";
+import { useBackToClose } from "../../lib/useBackToClose.js";
 
 const GOLD_SOFT = "#ffe486";
 const GOLD_DEEP = "#cf9a1e";
@@ -27,6 +28,7 @@ const ERR = {
  * onConfirm() → null عند النجاح (النافذة تتسكّر من البطاقة)، وإلا حالة الخادم لرسالة الخطأ.
  */
 export default function FreeKeyDialog({ open, company, value, onConfirm, onClose }) {
+  useBackToClose(open, onClose);
   const { t, i18n } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");

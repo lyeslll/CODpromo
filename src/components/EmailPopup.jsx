@@ -5,6 +5,7 @@ import { X, Mail, BellRing, Loader2, Check, ShieldCheck } from "lucide-react";
 import { useTranslation, Trans } from "react-i18next";
 import { useAuth } from "../lib/auth.jsx";
 import { subscribeEmail } from "../lib/subscribers.js";
+import { useBackToClose } from "../lib/useBackToClose.js";
 
 // ============================================================
 //  نافذة قائمة الانتظار (تنبيهات الأكواد بالبريد) — الرئيسية و /offers برك.
@@ -104,6 +105,7 @@ export default function EmailPopup() {
   }, [open]);
 
   const close = () => setOpen(false);
+  useBackToClose(open, close);
 
   const submit = async (e) => {
     e.preventDefault();

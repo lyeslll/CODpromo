@@ -38,8 +38,10 @@ const TONES = {
 
 const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-// قيمة لاتينية داخل جملة عربية (بريد، رابط): تبقى من اليسار لليمين
-const ltr = (s) => `<span dir="ltr" style="unicode-bidi:embed;">${esc(s)}</span>`;
+// بريد داخل النص: رابط بلون التصميم، من اليسار لليمين حتى في جملة عربية. بلاه Gmail يحوّلو وحدو
+// لرابط أزرق ما يتقراش فوق الخلفية السوداء.
+const mailLink = (address, color = C.lime) =>
+  `<a href="mailto:${esc(address)}" dir="ltr" style="color:${color};text-decoration:none;font-weight:700;unicode-bidi:embed;">${esc(address)}</a>`;
 
 /** "{{key}}" → قيمة (نفس صيغة i18next). vars بقيم HTML جاهزة. */
 function fill(str, vars = {}) {
@@ -159,9 +161,9 @@ function codeBox(x, code) {
 function doc(x, { tone, icon, subject, preheader, content, footer }) {
   const t = TONES[tone];
   const dir = x.rtl ? "rtl" : "ltr";
-  return `<!doctype html><html lang="${x.lang}" dir="${dir}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><meta name="color-scheme" content="dark light"><meta name="supported-color-schemes" content="dark light"><title>${esc(subject)}</title>` +
+  return `<!doctype html><html lang="${x.lang}" dir="${dir}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><meta name="color-scheme" content="dark light"><meta name="supported-color-schemes" content="dark light"><meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no"><title>${esc(subject)}</title>` +
     `<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">` +
-    `<style>body{margin:0;padding:0;background-color:${C.bg};-webkit-text-size-adjust:100%;}a{color:${C.lime};}img{border:0;}@media (max-width:600px){.px{padding-left:22px!important;padding-right:22px!important;}.h1{font-size:24px!important;line-height:32px!important;}}</style></head>` +
+    `<style>body{margin:0;padding:0;background-color:${C.bg};-webkit-text-size-adjust:100%;}a{color:${C.lime};}a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important;}img{border:0;}@media (max-width:600px){.px{padding-left:22px!important;padding-right:22px!important;}.h1{font-size:24px!important;line-height:32px!important;}}</style></head>` +
     `<body style="margin:0;padding:0;background-color:${C.bg};" bgcolor="${C.bg}" dir="${dir}">` +
     `<div style="display:none;max-height:0;max-width:0;overflow:hidden;opacity:0;mso-hide:all;font-size:1px;line-height:1px;color:${C.bg};">${esc(preheader)}${"&#8199;&#65279;&#847; ".repeat(40)}</div>` +
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${C.bg}" style="background-color:${C.bg};" dir="${dir}"><tr><td align="center" style="padding:28px 12px 36px;">` +
@@ -216,7 +218,7 @@ const tag = (text) =>
 /** قوالب Auth: data.url / email / newEmail / token (قيم حقيقية للمعاينة، ولا متغيّرات Go للمولّد). */
 function authTemplate(x, key, data) {
   const S = x.L[key];
-  const v = { email: ltr(data.email), newEmail: ltr(data.newEmail) };
+  const v = { email: mailLink(data.email), newEmail: mailLink(data.newEmail) };
   let content = h1(x, esc(S.title)) + p(x, fill(S.body, v));
   if (key === "reauthentication") {
     content += codeBox(x, esc(data.token)) + p(x, esc(S.note), C.mute, 13);
@@ -239,7 +241,7 @@ const TEMPLATES = {
     const S = x.L.welcome;
     if (d.accountType === "company") {
       const content = p(x, greet(x, d.name), C.text) + h1(x, esc(S.companyTitle)) + p(x, esc(S.companyBody)) + button(x, "lime", esc(S.companyCta), x.links.partnerNew);
-      return { subject: S.subject, preheader: S.preheader, tone: "lime", content, footer: esc(x.L.common.footer) };
+      return { subject: S.companySubject, preheader: S.companyPreheader, tone: "lime", content, footer: esc(x.L.common.footer) };
     }
     let content = p(x, greet(x, d.name), C.text) + h1(x, esc(S.title)) + p(x, esc(S.body));
     if (d.freeKey) content += panel(x, { icon: "key", title: esc(S.keyTitle), html: esc(S.keyBody), cta: esc(S.keyCta), url: x.links.premiumOffers });
@@ -264,7 +266,7 @@ const TEMPLATES = {
       receipt(x, "gold", esc(S.summary), rows) +
       steps(x, esc(S.howTitle), [esc(S.step1), esc(S.step2), esc(S.step3)]) +
       button(x, "gold", esc(S.cta), x.links.premiumOffers) +
-      panel(x, { title: esc(S.refundTitle), html: fill(S.refundBody, { date: esc(fmtDate(x, until)), email: ltr(x.contact) }), tone: "mute" });
+      panel(x, { title: esc(S.refundTitle), html: fill(S.refundBody, { date: esc(fmtDate(x, until)), email: mailLink(x.contact, C.goldSoft) }), tone: "mute" });
     return { subject: S.subject, preheader: S.preheader, tone: "gold", content, footer: esc(x.L.common.footer) };
   },
 

@@ -2,7 +2,7 @@
   "common": {
     "tagline": "Réductions · Coupons · Cashback",
     "hi": "Bonjour {{name}},",
-    "hiNoName": "Bonjour,",
+    "hiNoName": "Bonjour à vous,",
     "footer": "Vous recevez cet e-mail car vous avez un compte CODpromo.",
     "footerAuth": "Si vous n'avez pas demandé cet e-mail, ignorez-le : rien ne changera sur votre compte.",
     "contact": "Une question ? Écrivez-nous à",
@@ -60,21 +60,23 @@
     "note": "Ne partagez jamais ce code. Personne chez CODpromo ne vous le demandera."
   },
   "welcome": {
-    "subject": "Bienvenue sur CODpromo, votre compte est prêt",
-    "preheader": "Des codes promo pour les vendeurs en paiement à la livraison, au même endroit.",
+    "subject": "Votre compte CODpromo est prêt",
+    "preheader": "Votre e-mail est confirmé. Voici ce que vous pouvez faire depuis votre compte.",
     "title": "Votre compte est prêt",
-    "body": "Vous avez confirmé votre e-mail : votre compte CODpromo est prêt. Vous y trouverez des codes promo, coupons et cashback chez les sociétés de livraison, plateformes et outils dont votre activité dépend.",
+    "body": "Vous avez confirmé votre e-mail : votre compte CODpromo est prêt. Depuis votre compte, copiez les codes dont votre activité a besoin chez les sociétés de livraison, plateformes et outils, et enregistrez les entreprises qui vous intéressent.",
     "keyTitle": "Votre clé dorée vous attend",
-    "keyBody": "Chaque compte reçoit une clé dorée gratuite : choisissez l'entreprise qui vous intéresse, révélez son code Premium, et il reste révélé pour vous.",
+    "keyBody": "Chaque compte a une clé dorée : choisissez l'entreprise qui vous intéresse, révélez son code Premium, et il reste révélé pour vous.",
     "keyCta": "Utiliser ma clé dorée",
     "nowTitle": "Ce que vous pouvez faire maintenant",
-    "now1": "Copiez n'importe quel code normal gratuitement et utilisez-le chez l'entreprise.",
+    "now1": "Copiez n'importe quel code normal et utilisez-le chez l'entreprise.",
     "now2": "Enregistrez les entreprises qui vous intéressent dans vos favoris.",
     "now3": "Votez pour un code après l'avoir essayé, pour que les autres sachent qu'il fonctionne.",
-    "cta": "Voir les offres",
+    "cta": "Voir les codes",
     "companyTitle": "Le compte de votre entreprise est prêt",
     "companyBody": "Vous avez confirmé votre e-mail : le compte CODpromo de votre entreprise est prêt. Ajoutez vos offres depuis votre tableau de bord ; nous les vérifions avant de les publier auprès des vendeurs en paiement à la livraison.",
-    "companyCta": "Ajouter l'offre de votre entreprise"
+    "companyCta": "Ajouter l'offre de votre entreprise",
+    "companySubject": "Le compte CODpromo de votre entreprise est prêt",
+    "companyPreheader": "Votre e-mail est confirmé, et le tableau de bord de votre entreprise est prêt."
   },
   "purchase": {
     "subject": "Achat confirmé : Premium à vie",

@@ -2,7 +2,7 @@
   "common": {
     "tagline": "Discounts · Coupons · Cashback",
     "hi": "Hi {{name}},",
-    "hiNoName": "Hi,",
+    "hiNoName": "Hi there,",
     "footer": "You're receiving this email because you have a CODpromo account.",
     "footerAuth": "If you didn't ask for this email, you can safely ignore it. Nothing will change on your account.",
     "contact": "Questions? Email us at",
@@ -60,21 +60,23 @@
     "note": "Never share this code. No one at CODpromo will ever ask you for it."
   },
   "welcome": {
-    "subject": "Welcome to CODpromo, your account is ready",
-    "preheader": "Discount codes for cash-on-delivery sellers, in one place.",
+    "subject": "Your CODpromo account is ready",
+    "preheader": "Your email is confirmed. Here's what you can do from your account.",
     "title": "Your account is ready",
-    "body": "You've confirmed your email, and your CODpromo account is ready. Here you'll find discount codes, coupons and cashback at the delivery companies, platforms and tools your business relies on.",
+    "body": "You've confirmed your email, and your CODpromo account is ready. From your account you copy the codes your business needs at the delivery companies, platforms and tools it relies on, and save the companies you care about.",
     "keyTitle": "Your golden key is waiting",
-    "keyBody": "Every account gets one free golden key: pick the company you care about, reveal its Premium code, and it stays revealed for you.",
+    "keyBody": "Every account has one golden key: pick the company you care about, reveal its Premium code, and it stays revealed for you.",
     "keyCta": "Use my golden key",
     "nowTitle": "What you can do now",
-    "now1": "Copy any regular code for free and use it at the company.",
+    "now1": "Copy any regular code and use it at the company.",
     "now2": "Save the companies you care about to your favorites.",
     "now3": "Vote on a code after you try it, so others know it works.",
-    "cta": "Browse offers",
+    "cta": "Browse the codes",
     "companyTitle": "Your company account is ready",
     "companyBody": "You've confirmed your email, and your company's CODpromo account is ready. Add your offers from your dashboard, and we'll review them before publishing them to cash-on-delivery sellers.",
-    "companyCta": "Add your company's offer"
+    "companyCta": "Add your company's offer",
+    "companySubject": "Your company's CODpromo account is ready",
+    "companyPreheader": "Your email is confirmed, and your company dashboard is ready."
   },
   "purchase": {
     "subject": "Your purchase is confirmed: Premium for life",

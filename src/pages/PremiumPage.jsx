@@ -19,7 +19,7 @@ import { useMobileFx } from "../components/featured/mobile.js";
 import { loadHeaderOffers, useSharedStats } from "../components/header/headerData.js";
 import { useAuth } from "../lib/auth.jsx";
 import { usePremium } from "../lib/premium.jsx";
-import { usePricing, usePricingRefresh } from "../lib/pricing.jsx";
+import { usePricing, usePricingRefresh, formatPrice } from "../lib/pricing.jsx";
 import { useFreeKey } from "../lib/freeKeyContext.jsx";
 import { useAndroidApp } from "../lib/androidApp.js";
 import { canUseFx } from "../lib/fxCapability.js";
@@ -226,7 +226,20 @@ export default function PremiumPage({ lang = "ar" }) {
             <h1 className="mt-5 text-balance text-[clamp(32px,8.4vw,40px)] font-black leading-[1.12] tracking-tight sm:text-[52px] lg:text-[58px]">{title}</h1>
             <p className="mt-5 max-w-xl text-[16.5px] leading-[1.85] text-[var(--text-soft)] sm:text-[18px]">{sub}</p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            {/* السعر في أول شاشة (كان يبان غير في البطاقة الذهبية تحت) — من pricing_public، بلا رقم قبل ما يوصل */}
+            {!member && !isGift && pricing && (
+              <p className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                {pricing.isLaunch && pricing.regularDzd != null && (
+                  <s className="text-[14px] font-bold text-[var(--text-soft)] decoration-[var(--color-mute)]">
+                    <bdi>{formatPrice(t, lang, pricing.regularDzd, pricing.regularUsd)}</bdi>
+                  </s>
+                )}
+                <bdi className="text-[24px] font-black leading-none text-[#ffe486] sm:text-[28px]">{formatPrice(t, lang, pricing.dzd, pricing.usd)}</bdi>
+                <span className="text-[13.5px] font-bold text-[var(--text-soft)]">{t("premiumPage.hero.priceNote")}</span>
+              </p>
+            )}
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               {member ? (
                 <Link to={offersTo} className="inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-[16.5px] font-extrabold text-[#1d1403]" style={{ background: GOLD_BG }}>
                   <Crown size={18} /> {t("premiumPage.hero.memberCta")}
@@ -257,7 +270,7 @@ export default function PremiumPage({ lang = "ar" }) {
 
             {!member && (
               <>
-                <p className="mt-5 max-w-lg text-[13.5px] leading-relaxed text-[var(--color-mute)]">{t("premiumPage.hero.assurance")}</p>
+                <p className="mt-5 max-w-lg text-[13.5px] leading-relaxed text-[var(--text-soft)]">{t("premiumPage.hero.assurance")}</p>
                 <button type="button" onClick={stork} className="mt-3 inline-flex items-center gap-1.5 text-[13.5px] font-bold text-[var(--text-soft)] underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--text)]">
                   <KeyRound size={14} className="text-[#cf9a1e]" /> {t("premium.storkMemberBtn")}
                 </button>

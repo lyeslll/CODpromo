@@ -15,6 +15,7 @@ import { setPendingFreeKey } from "../lib/freeKey.js";
 import { isImageUrl } from "./CompanyLogo.jsx";
 import { cachedTone, detectTone, logoSrc, logoSrcSet, tileStyle } from "../lib/logoImage.js";
 import CodeVote from "./CodeVote.jsx";
+import BidiText from "./BidiText.jsx";
 import { GlowSpot, useCardGlow } from "./CardGlow.jsx";
 import FreeKeyDialog from "./freekey/FreeKeyDialog.jsx";
 import GiftConfetti from "./gift/GiftConfetti.jsx";
@@ -340,7 +341,7 @@ export default function CompanyCard({
 
         {/* الوصف — ارتفاع ثابت (ثلاثة أسطر) ليتساوى ارتفاع كل البطاقات */}
         <p className="relative mt-4 line-clamp-3 h-[60px] overflow-hidden text-[13.5px] leading-[1.48] text-[var(--text-soft)]">
-          {desc}
+          <BidiText text={desc} rtl={lang === "ar"} />
         </p>
 
         {/* قيمة الخصم + شارة النوع */}
@@ -528,7 +529,7 @@ function KeyCta({ kind, label, onClick }) {
 const FROZEN = "#71717a";
 
 function FrozenTicket({ company, index, isFavorite, onToggleFav, linkToStore, storeHref, category, desc, onShowNormal }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const meta = getTypeMeta(company.type);
   const Icon = meta.icon;
   const head = (
@@ -576,7 +577,7 @@ function FrozenTicket({ company, index, isFavorite, onToggleFav, linkToStore, st
           </button>
         </div>
 
-        <p className="relative mt-4 line-clamp-3 h-[60px] overflow-hidden text-[13.5px] leading-[1.48] text-[var(--color-mute)]">{desc}</p>
+        <p className="relative mt-4 line-clamp-3 h-[60px] overflow-hidden text-[13.5px] leading-[1.48] text-[var(--color-mute)]"><BidiText text={desc} rtl={i18n.language === "ar"} /></p>
 
         <div className="relative mt-4 flex items-end justify-between">
           <div data-part="value">

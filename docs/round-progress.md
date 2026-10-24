@@ -7,11 +7,25 @@
 - [ ] الفحص الأول (صور قبل + Lighthouse) → `.audit/before` (برا git)
 - [ ] `docs/mobile-ux-audit.md` (P0/P1/P2)
 - [ ] التيليفون: القائمة السفلية، الهيدر والقوائم، نافذة النشرة، السرعة، النصوص، Wordmark
-- [ ] صفحة الشركة + التقييم (phase34) + SEO
+- [x] صفحة الشركة + التقييم (phase34 مطبّقة بعد مراجعة أمان: 50 اختبار) + SEO (prerender + JSON-LD + sitemap)
 - [ ] الأدمين: مسح الفورم، قصّ اللوغو، خانات جديدة
 - [ ] الكمبيوتر: تصليحات صغار
 - [ ] الفحص الأخير + Lighthouse بعد + الأمان
 - [ ] push + preview + CLAUDE.md + التقرير
+
+## تمّ (بالترتيب)
+- لوغوهات WebP بالحجم الصحيح + مربع موحّد (logo_bg / قراءة الحواف).
+- <bdi> للأوصاف العربية ("!CODpromo Premium")، التصويت بلا "0".
+- الأدمين: الفورم ما يتمسحش كي ترجع للتبويب (auth.jsx).
+- phase34 مطبّقة في production (24 أكتوبر 2026). الرجوع: supabase-phase34-rollback.sql.
+- مسودة النبذات: docs/company-descriptions-draft.md (26/27، Trackili ما يتفتحش).
+
+## باقي
+- الفحص: Lighthouse prod (بعد ما تكمل الصور)، agents يراجعو الصور، docs/mobile-ux-audit.md.
+- القائمة السفلية (ذهبي)، الهيدر/القوائم، النشرة، السرعة (اللغات lazy، الأقسام)، Wordmark، النصوص.
+- الأدمين: حفظ تلقائي للمسودة، قصّ اللوغو، الخانات الجديدة، صفحة التقييمات.
+- OG image لكل شركة (اقتراح).
+- Firefox ما يخدمش في هاد الجهاز (Playwright: mozglue SxS) → Chromium + WebKit برك.
 
 ## أدوات الفحص (برا الريبو)
 - `D:\CODPROMO\codpromo-project\audit-tools\` : Playwright 1.56 (chromium/webkit/firefox) + Lighthouse 12.

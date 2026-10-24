@@ -39,8 +39,13 @@ export async function fetchPricing() {
 /** "9,900 دج (39$)" — نفس الكتابة في كل الموقع (المفتاح pricing.format). */
 export function formatPrice(t, lang, dzd, usd) {
   if (dzd == null || usd == null) return "";
-  return t("pricing.format", { dzd: formatNumber(dzd, lang), usd: formatNumber(usd, lang) });
+  const s = t("pricing.format", { dzd: formatNumber(dzd, lang), usd: formatNumber(usd, lang) });
+  // بالعربية الأرقام اللي بعد "دج" تتحسب أرقام عربية والـ $ يقفز للجهة الأخرى: "($39)" بلاصة "(39$)".
+  // نعزلو "39$" (LRI … PDI) باش يبان كيما في البطاقة الذهبية.
+  return lang === "ar" ? s.replace(/(\d[\d,.\u00a0\u202f]*\$)/g, `${LRI}$1${PDI}`) : s;
 }
+const LRI = "\u2066"; // عزل اتجاه (Left-to-Right Isolate)
+const PDI = "\u2069"; // نهاية العزل
 
 const PricingContext = createContext({ pricing: null, ready: false, refresh: async () => null });
 

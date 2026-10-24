@@ -15,6 +15,7 @@ import HowItWorks from "../components/premium-page/HowItWorks.jsx";
 import PriceSection from "../components/premium-page/PriceSection.jsx";
 import PremiumPageFaq, { premiumPageFaqItems, stripServerFaqQuestions } from "../components/premium-page/PremiumPageFaq.jsx";
 import StickyBuy from "../components/premium-page/StickyBuy.jsx";
+import KeysSection from "../components/keys/KeysSection.jsx";
 import { useMobileFx } from "../components/featured/mobile.js";
 import { loadHeaderOffers, useSharedStats } from "../components/header/headerData.js";
 import { useAuth } from "../lib/auth.jsx";
@@ -320,6 +321,8 @@ export default function PremiumPage({ lang = "ar" }) {
         onBuy={buy}
         offersTo={offersTo}
       />
+      {/* المفاتيح الماسية (phase37): الخيار الثاني تحت Premium — Premium حقيقي ما يشوفوش */}
+      <KeysSection member={member} />
       <PremiumPageFaq items={faqItems} />
 
       {/* الخطوة التالية */}

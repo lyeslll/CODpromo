@@ -4,6 +4,7 @@ import { HelmetProvider } from "react-helmet-async";
 import App from "./App.jsx";
 import { LocaleProvider } from "./lib/locale.jsx";
 import i18n, { ensureLang } from "./i18n/index.js";
+import "./assets/fonts/fonts.css";
 import "./assets/flags/flags.css";
 import "./index.css";
 import { Capacitor } from "@capacitor/core";

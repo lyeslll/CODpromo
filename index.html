@@ -20,13 +20,10 @@
       content="أكواد خصم وكوبونات وكاش باك على التوصيل ومنصات المتاجر والإعلانات وبطاقات الدفع وERP، لتجّار الدفع عند الاستلام في الجزائر والعالم العربي. مجاناً، وكل كود يُراجَع يدوياً، وPremium مدى الحياة بدفعة واحدة."
     />
 
-    <!-- Tajawal (العربية) + Inter (English / Français) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Tajawal (العربية) + Inter (English / Français): من الموقع نفسه (src/assets/fonts/fonts.css).
+         preload غير للخطين اللي يبانو في أول شاشة بالعربية (العنوان 900 + الأزرار 700، ~9KB لكل واحد). -->
+    <link rel="preload" href="/fonts/tajawal-v12-arabic-900.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/tajawal-v12-arabic-700.woff2" as="font" type="font/woff2" crossorigin />
 
     <!-- Anti-flash: الموقع داكن فقط + اللغة/الاتجاه قبل أول رسم -->
     <script>

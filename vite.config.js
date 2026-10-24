@@ -68,6 +68,16 @@ export default defineConfig({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
+          // الخطوط من الموقع (/fonts/، أسماء فيها النسخة) → CacheFirst (سنة)
+          {
+            urlPattern: ({ url }) => url.origin === self.location.origin && url.pathname.startsWith("/fonts/"),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "site-fonts",
+              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
           // خطوط Google (CSS) → StaleWhileRevalidate
           {
             urlPattern: ({ url }) => url.origin === "https://fonts.googleapis.com",

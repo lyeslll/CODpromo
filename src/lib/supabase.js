@@ -77,7 +77,7 @@ async function toError(res, fallback) {
 // كامل للعرض يستعمل هذه القائمة. (الكود/الرابط العاديان code/link يبقيان عامين.)
 export const COMPANY_PUBLIC_COLUMNS =
   "id,created_at,clicks,name,logo,category,category_id,code,discount,premium_discount," +
-  "supports_premium,has_premium_code,type,description,link,status," +
+  "supports_premium,has_premium_code,free_reveal_enabled,type,description,link,status," +
   "premium_description,premium_description_en,premium_description_fr," +
   "description_en,description_fr,category_en,category_fr," +
   "discount_en,discount_fr,premium_discount_en,premium_discount_fr," +

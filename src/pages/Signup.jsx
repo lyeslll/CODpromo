@@ -20,6 +20,7 @@ import { useBotGuard } from "../components/auth/botGuard.jsx";
 import { Field, Divider } from "./Login.jsx";
 import { useAuth } from "../lib/auth.jsx";
 import { pendingGiftPath } from "../lib/gifts.js";
+import { pendingFreeKeyPath } from "../lib/freeKey.js";
 
 const TYPES = [
   { key: "customer", icon: User },
@@ -80,8 +81,8 @@ export default function Signup() {
       : { account_type: "customer", full_name: fullName.trim() };
 
     setLoading(true);
-    // جا من رابط هدية: رابط تفعيل الإيميل يرجّعو لصفحة الهدية
-    const giftNext = pendingGiftPath();
+    // جا من رابط هدية: رابط تفعيل الإيميل يرجّعو لصفحة الهدية؛ جا من بطاقة (المفتاح الذهبي): لنفس البطاقة
+    const giftNext = pendingGiftPath() || pendingFreeKeyPath();
     const { data, error } = await signUp(email.trim(), password, metadata, giftNext);
     setLoading(false);
     if (error) return setError(t(`auth.signup.${signupErrorKey(error.message)}`));
@@ -92,7 +93,7 @@ export default function Signup() {
   const google = async () => {
     setError("");
     setGoogleLoading(true);
-    const { error } = await signInWithGoogle(pendingGiftPath());
+    const { error } = await signInWithGoogle(pendingGiftPath() || pendingFreeKeyPath());
     if (error) {
       setGoogleLoading(false);
       setError(t(`auth.signup.${signupErrorKey(error.message)}`));
@@ -120,8 +121,12 @@ export default function Signup() {
           <p className="text-[14px] leading-relaxed text-[var(--text-soft)]">
             <Trans i18nKey="auth.signup.doneDesc" values={{ email }} components={[<span className="font-bold text-[var(--text)]" />]} />
           </p>
-          {pendingGiftPath() && (
+          {pendingGiftPath() ? (
             <p className="rounded-xl border border-[#f0c63c]/30 bg-[#f0c63c]/[0.07] px-3.5 py-2.5 text-[13px] leading-relaxed text-[#ffe486]">{t("auth.signup.giftNote")}</p>
+          ) : (
+            pendingFreeKeyPath() && (
+              <p className="rounded-xl border border-[#f0c63c]/30 bg-[#f0c63c]/[0.07] px-3.5 py-2.5 text-[13px] leading-relaxed text-[#ffe486]">{t("auth.signup.freeKeyNote")}</p>
+            )
           )}
         </div>
       </AuthShell>

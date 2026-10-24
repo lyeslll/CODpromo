@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-ro
 import { MotionConfig } from "framer-motion";
 import { AuthProvider } from "./lib/auth.jsx";
 import { PremiumProvider, usePremium } from "./lib/premium.jsx";
+import { FreeKeyProvider } from "./lib/freeKeyContext.jsx";
 import { offersLink } from "./lib/seo.js";
 import { CategoriesProvider } from "./lib/categories.jsx";
 import { VoteStatsProvider } from "./lib/voteStats.jsx";
@@ -141,6 +142,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <PremiumProvider>
+          <FreeKeyProvider>
           <CategoriesProvider>
           <VoteStatsProvider>
           <ScrollVisibilityProvider>
@@ -218,6 +220,7 @@ export default function App() {
           </ScrollVisibilityProvider>
           </VoteStatsProvider>
           </CategoriesProvider>
+          </FreeKeyProvider>
         </PremiumProvider>
       </AuthProvider>
     </BrowserRouter>

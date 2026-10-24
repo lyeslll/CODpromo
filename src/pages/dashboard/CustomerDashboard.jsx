@@ -7,6 +7,7 @@ import DashboardShell from "../../components/dashboard/DashboardShell.jsx";
 import WelcomePanel from "../../components/dashboard/customer/WelcomePanel.jsx";
 import PlanPass from "../../components/dashboard/customer/PlanPass.jsx";
 import GiftCodeField from "../../components/dashboard/customer/GiftCodeField.jsx";
+import FreeKeyCard from "../../components/dashboard/customer/FreeKeyCard.jsx";
 import RecentCopies from "../../components/dashboard/customer/RecentCopies.jsx";
 import GrowCards from "../../components/dashboard/customer/GrowCards.jsx";
 import SettingsPanel from "../../components/dashboard/customer/SettingsPanel.jsx";
@@ -210,6 +211,10 @@ export default function CustomerDashboard() {
             // هدية وحدة لكل حساب في حياتو: الخانة تبان غير لحساب ما خذاش هدية من قبل
             giftField={premiumReady && !gift ? <GiftCodeField onRedeemed={onGiftRedeemed} /> : null}
           />
+        </div>
+        {/* المفتاح الذهبي: متاح → اختر البطاقة، مستعمل → الكود + النسخ (الهاتف: مباشرة تحت الخطة) */}
+        <div className="order-1 empty:hidden lg:order-none lg:col-span-12">
+          <FreeKeyCard onCopied={showToast} />
         </div>
         <div className="order-2 lg:order-none lg:col-span-7">
           <RecentCopies rows={copies} loading={copiesLoading} premiumActive={hasPremium} onCopy={copyAgain} onUnlock={() => setModal("home")} />

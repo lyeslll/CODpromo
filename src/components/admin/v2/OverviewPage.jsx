@@ -138,7 +138,7 @@ function Kpi({ icon: Icon, color, value, label, extra, note, to, wide }) {
 }
 
 /** منحنى بسيط (SVG): مساحة + خط، مع قيمة النقطة عند المرور/اللمس. */
-function ChartCard({ title, color, data, field }) {
+export function ChartCard({ title, color, data, field }) {
   const t = useAdminT();
   const [hover, setHover] = useState(null);
   const series = data?.series || [];
@@ -244,7 +244,7 @@ function ChartCard({ title, color, data, field }) {
   );
 }
 
-function TopList({ title, rows, loading, valueOf, unit, extraOf }) {
+export function TopList({ title, rows, loading, valueOf, unit, extraOf }) {
   const t = useAdminT();
   const max = Math.max(1, ...(rows || []).map(valueOf));
   return (

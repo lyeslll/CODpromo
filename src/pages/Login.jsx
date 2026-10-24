@@ -7,6 +7,7 @@ import AuthShell, { GoogleButton, AuthAlert, authInputCls } from "../components/
 import { useBotGuard } from "../components/auth/botGuard.jsx";
 import { useAuth } from "../lib/auth.jsx";
 import { pendingGiftPath } from "../lib/gifts.js";
+import { pendingFreeKeyPath } from "../lib/freeKey.js";
 
 /** يحوّل رسالة خطأ Supabase إلى مفتاح ترجمة. */
 export function loginErrorKey(msg = "") {
@@ -39,14 +40,14 @@ export default function Login() {
     const { error } = await signIn(email.trim(), password);
     setLoading(false);
     if (error) return setError(t(`auth.login.${loginErrorKey(error.message)}`));
-    // جا من رابط هدية → يرجع لصفحتها وتتفعّل وحدها
-    navigate(pendingGiftPath() || "/dashboard");
+    // جا من رابط هدية → يرجع لصفحتها وتتفعّل وحدها؛ جا من بطاقة (المفتاح الذهبي) → يرجع لنفس البطاقة
+    navigate(pendingGiftPath() || pendingFreeKeyPath() || "/dashboard");
   };
 
   const google = async () => {
     setError("");
     setGoogleLoading(true);
-    const { error } = await signInWithGoogle(pendingGiftPath());
+    const { error } = await signInWithGoogle(pendingGiftPath() || pendingFreeKeyPath());
     if (error) {
       setGoogleLoading(false);
       setError(t(`auth.login.${loginErrorKey(error.message)}`));

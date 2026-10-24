@@ -1,17 +1,22 @@
 import { useRef, useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock, Undo2 } from "lucide-react";
+import { createPortal } from "react-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock, Undo2, Key } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getTypeMeta, getTypeKey } from "../lib/types.js";
 import { companySlug, companyCategoryRecord, categoryName } from "../lib/slug.js";
 import { useCategories } from "../lib/categories.jsx";
 import { getPremiumCode } from "../lib/supabase.js";
-import { logCodeCopy } from "../lib/copies.js";
+import { logCodeCopy, copySourceFromPath } from "../lib/copies.js";
 import { hasPremiumOffer } from "../lib/premiumOffer.js";
+import { useFreeKey } from "../lib/freeKeyContext.jsx";
+import { setPendingFreeKey } from "../lib/freeKey.js";
 import { isImageUrl } from "./CompanyLogo.jsx";
 import CodeVote from "./CodeVote.jsx";
 import { GlowSpot, useCardGlow } from "./CardGlow.jsx";
+import FreeKeyDialog from "./freekey/FreeKeyDialog.jsx";
+import GiftConfetti from "./gift/GiftConfetti.jsx";
 import { useWaveValue, useCountText } from "../lib/modeWave.jsx";
 
 // هوية Premium الذهبية
@@ -29,6 +34,9 @@ const GOLD_GLOW = "rgba(240,198,60,0.4)";
  * وفي وضع Premium يصبح كل شيء ذهبياً. القصّ عبر CSS mask (.ticket-* في index.css).
  * وضع Premium لشركة بلا عرض Premium (لا كود Premium) → بطاقة "مجمّدة" رمادية (FrozenTicket):
  * بلا نسخ ولا زيارة ولا خدش ولا نداء لـ RPC، مع رابط onShowNormal يرجّع الصفحة للوضع العادي.
+ * المفتاح الذهبي (lib/freeKeyContext.jsx) في البطاقة المقفولة لغير المشترك: زائر → التسجيل،
+ * مفتاح متاح → تأكيد ثم خدش، مفتاح مستعمل → الشركة اللي كشفها مكشوفة ديما والباقي نحو Premium.
+ * freeKey={false} = البطاقة كيما كانت (المعاينات وتشريح البطاقة).
  */
 export default function CompanyCard({
   company,
@@ -42,8 +50,12 @@ export default function CompanyCard({
   linkToStore = true,
   copySource,
   onShowNormal,
+  freeKey = true,
 }) {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const reduceMotion = useReducedMotion();
+  const fk = useFreeKey();
   // موجة التبديل (lib/modeWave.jsx): البطاقة الظاهرة تلحق الوضع الجديد بعد تأخيرها، والباقي في الحين
   const premium = useWaveValue(premiumProp, `c${company.id}`);
   const { byId, categories } = useCategories();
@@ -66,30 +78,113 @@ export default function CompanyCard({
   // null = لم تُطلب/لم تصل بعد. { premium_code, premium_url } = وصلت.
   const [premiumData, setPremiumData] = useState(null);
 
+  // ===== المفتاح الذهبي: غير المشترك برك، على بطاقة عندها عرض Premium (ماشي مجمّدة) =====
+  //  keyOwned: كشفها بمفتاحو → مكشوفة عندو ديما (الخادم يرجّع كودها في get_premium_code).
+  //  keyCta: guest (سجّل) | use (استعمل مفتاحك) | upsell (استعملتو → Premium) | null (القفل العادي).
+  const keyOn = freeKey && premium && hasPremiumOffer(company) && !unlocked && fk.status !== "loading" && fk.status !== "hidden";
+  const keyOwned = keyOn && fk.usedCompanyId === company.id;
+  const keyCta =
+    !keyOn || keyOwned || !fk.enabled
+      ? null
+      : fk.status === "used"
+      ? "upsell"
+      : company.free_reveal_enabled === false
+      ? null
+      : fk.status === "guest"
+      ? "guest"
+      : fk.status === "available"
+      ? "use"
+      : null;
+  const canSee = unlocked || keyOwned;
+  const [keyScratch, setKeyScratch] = useState(false); // كشف جديد في هاد البطاقة: الخدش أولاً
+  const [keyDialog, setKeyDialog] = useState(false);
+  const [confetti, setConfetti] = useState(null);
+  const codeVisible = revealed || (keyOwned && !keyScratch);
+
   // إعادة ضبط الخدش وبيانات Premium عند تبديل الوضع أو تغيّر حالة الاشتراك
   useEffect(() => {
     setRevealed(false);
     setPremiumData(null);
   }, [premium, unlocked]);
 
-  // يجلب كود/رابط Premium مرّة واحدة عند الحاجة (مشترك فعّال فقط؛ الخادم يتحقق).
+  // يجلب كود/رابط Premium مرّة واحدة عند الحاجة (مشترك فعّال أو مفتاح ذهبي على هاد الشركة؛ الخادم يتحقق).
   const ensurePremium = useCallback(async () => {
-    if (!premium || !unlocked) return null;
+    if (!premium || !canSee) return null;
     if (premiumData) return premiumData;
-    let d;
-    try {
-      d = await getPremiumCode(company.id);
-    } catch {
-      d = null;
+    let d = keyOwned ? fk.codeFor(company.id) : null;
+    if (!d) {
+      try {
+        d = await getPremiumCode(company.id);
+      } catch {
+        d = null;
+      }
     }
     const val = d || { premium_code: null, premium_url: null };
     setPremiumData(val);
     return val;
-  }, [premium, unlocked, premiumData, company.id]);
+  }, [premium, canSee, premiumData, company.id, keyOwned, fk.codeFor]);
+
+  // الشركة المكشوفة بالمفتاح: الكود يبان مباشرة (بلا خدش في كل زيارة)
+  useEffect(() => {
+    if (keyOwned && !keyScratch && !premiumData) ensurePremium();
+  }, [keyOwned, keyScratch, premiumData, ensurePremium]);
 
   const hot = (company.clicks || 0) >= 50;
   // ضوء دائري بلون النوع يتبع المؤشر (أو موضع اللمس في الهاتف)
   const glow = useCardGlow();
+
+  // رجوع الزائر بعد الدخول (?fk=<id>): البطاقة تجي قدامو، والتأكيد يتحلّ إذا المفتاح متاح
+  useEffect(() => {
+    if (!freeKey || !premium || fk.pendingId !== company.id || fk.status === "loading") return;
+    if (!fk.takePending(company.id)) return;
+    glow.ref.current?.scrollIntoView({ behavior: reduceMotion ? "instant" : "smooth", block: "center", inline: "center" });
+    if (keyCta === "use") setKeyDialog(true);
+  }, [freeKey, premium, fk.pendingId, fk.status, fk.takePending, company.id, keyCta, reduceMotion, glow.ref]);
+
+  useEffect(() => {
+    if (!confetti) return;
+    const id = setTimeout(() => setConfetti(null), 3800);
+    return () => clearTimeout(id);
+  }, [confetti]);
+
+  const closeKeyDialog = useCallback(() => setKeyDialog(false), []);
+
+  // البطاقة المقفولة: زائر → التسجيل (الشركة تتحفظ)، مفتاح متاح → التأكيد، وإلا نافذة Premium
+  const keyAction = () => {
+    if (keyCta === "guest") {
+      setPendingFreeKey(company.id, lang);
+      navigate("/signup");
+      return;
+    }
+    if (keyCta === "use") {
+      setKeyDialog(true);
+      return;
+    }
+    onUnlock?.();
+  };
+
+  const confirmKey = async () => {
+    const r = await fk.claim(company.id, copySource || copySourceFromPath());
+    if (r?.status === "ok" || r?.status === "yours") {
+      setPremiumData({ premium_code: r.premium_code ?? null, premium_url: r.premium_url ?? null });
+      setRevealed(false);
+      setKeyScratch(true);
+      setKeyDialog(false);
+      return null;
+    }
+    return r?.status || "error";
+  };
+
+  const onScratchReveal = () => {
+    setRevealed(true);
+    ensurePremium();
+    if (!keyScratch) return;
+    setKeyScratch(false);
+    // قصاصات ذهبية من فوق البطاقة
+    const r = glow.ref.current?.getBoundingClientRect();
+    const origin = r ? { x: (r.left + r.width / 2) / window.innerWidth, y: Math.min(0.8, Math.max(0.12, (r.top + r.height * 0.25) / window.innerHeight)) } : undefined;
+    setConfetti({ n: Date.now(), origin });
+  };
 
   // ألوان حسب الوضع (عادي = لون النوع / Premium = ذهبي)
   const accent = premium ? GOLD : meta.color;
@@ -110,9 +205,9 @@ export default function CompanyCard({
     : company.link;
 
   const handleCopy = async () => {
-    // كود Premium مقفل: لا نسخ — نوجّه للاشتراك
-    if (premium && !unlocked) {
-      onUnlock?.();
+    // كود Premium مقفل: لا نسخ — نوجّه للمفتاح الذهبي أو للاشتراك
+    if (premium && !canSee) {
+      keyAction();
       return;
     }
     // في وضع Premium نجلب الكود الحقيقي خادمياً قبل النسخ (لا نعتمد على صف الشركة)
@@ -124,7 +219,8 @@ export default function CompanyCard({
       copiedPremium = !!d?.premium_code;
     }
     onCopy(company, code);
-    logCodeCopy(company.id, copiedPremium, copySource);
+    // كود Premium مكشوف بالمفتاح الذهبي (ماشي اشتراك) → source = free_key
+    logCodeCopy(company.id, copiedPremium, keyOwned && copiedPremium ? "free_key" : copySource);
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
   };
@@ -183,15 +279,25 @@ export default function CompanyCard({
         {/* شارة Premium كـ overlay مطلق في زاوية جهة end أسفل زر القلب مباشرةً:
             absolute خارج التدفّق → لا تتغيّر أبعاد البطاقة عند التبديل عادي/Premium،
             ولا تغطّي شعار المتجر ولا الاسم. pointer-events-none حتى يمرّ النقر لما تحتها. */}
-        {premium && (
-          <span
-            data-part="premium-badge"
-            className="pointer-events-none absolute end-5 top-14 z-20 flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-black text-[#0a0a0a]"
-            style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`, boxShadow: `0 4px 14px -5px ${GOLD_GLOW}` }}
-          >
-            <Crown size={11} /> {t("card.premiumBadge")}
-          </span>
-        )}
+        {premium &&
+          (keyOwned ? (
+            // الشركة اللي كشفها بالمفتاح الذهبي: نفس البلاصة، شارة "مفتاحك الذهبي"
+            <span
+              data-part="premium-badge"
+              className="pointer-events-none absolute end-5 top-14 z-20 flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-black"
+              style={{ background: "#1d1403", borderColor: `${GOLD}b3`, color: GOLD_SOFT, boxShadow: `0 4px 14px -5px ${GOLD_GLOW}` }}
+            >
+              <Key size={11} /> {t("freeKey.card.badge")}
+            </span>
+          ) : (
+            <span
+              data-part="premium-badge"
+              className="pointer-events-none absolute end-5 top-14 z-20 flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-black text-[#0a0a0a]"
+              style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})`, boxShadow: `0 4px 14px -5px ${GOLD_GLOW}` }}
+            >
+              <Crown size={11} /> {t("card.premiumBadge")}
+            </span>
+          ))}
 
         {/* الرأس — القلب مثبت أعلى البطاقة (items-start + shrink-0) ولا يتأثر بطول النص */}
         <div className="relative flex items-start justify-between gap-2">
@@ -277,16 +383,14 @@ export default function CompanyCard({
               </span>
               <span className="font-mono text-[15px] font-extrabold tracking-widest text-[var(--text)]">{shownCode}</span>
             </div>
-            {premium && !revealed && (
+            {premium && !codeVisible && (
               <ScratchLayer
                 t={t}
-                unlocked={unlocked}
+                unlocked={canSee}
                 accent={accent}
-                onReveal={() => {
-                  setRevealed(true);
-                  ensurePremium();
-                }}
-                onUnlock={() => onUnlock?.()}
+                onReveal={onScratchReveal}
+                onUnlock={keyAction}
+                lockLabel={keyCta === "guest" || keyCta === "use" ? t(`freeKey.card.${keyCta}`) : undefined}
               />
             )}
           </div>
@@ -324,16 +428,21 @@ export default function CompanyCard({
             - Premium قبل الكشف: مقفول مظهراً فقط (أيقونة قفل، بلا href —
               ولا يوضع premium_url في DOM إطلاقاً قبل الكشف).
             - لا رابط متاح: نفس الزر معطّلاً (ليبقى الارتفاع ثابتاً). */}
-        {premium && !revealed ? (
-          <div
-            data-part="visit"
-            aria-disabled="true"
-            className="relative mt-2.5 flex cursor-not-allowed select-none items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold text-[var(--color-mute)] opacity-60"
-            style={{ borderColor: `${accent}33`, background: `${accent}08` }}
-          >
-            <Lock size={14} style={{ color: accent }} />
-            {t("card.visit")}
-          </div>
+        {premium && !codeVisible ? (
+          keyCta ? (
+            // المفتاح الذهبي بلاصة زر الزيارة المقفول (نفس الارتفاع: الشبكة ما تقفزش)
+            <KeyCta kind={keyCta} label={t(`freeKey.card.${keyCta}`)} onClick={keyAction} />
+          ) : (
+            <div
+              data-part="visit"
+              aria-disabled="true"
+              className="relative mt-2.5 flex cursor-not-allowed select-none items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold text-[var(--color-mute)] opacity-60"
+              style={{ borderColor: `${accent}33`, background: `${accent}08` }}
+            >
+              <Lock size={14} style={{ color: accent }} />
+              {t("card.visit")}
+            </div>
+          )
         ) : shownLink ? (
           <motion.a
             data-part="visit"
@@ -364,7 +473,50 @@ export default function CompanyCard({
           <CodeVote companyId={company.id} accent={accent} glow={accentGlow} />
         </div>
       </div>
+
+      {(keyCta === "use" || keyDialog) && (
+        <FreeKeyDialog
+          open={keyDialog}
+          company={company}
+          value={loc("premium_discount") || loc("discount")}
+          onConfirm={confirmKey}
+          onClose={closeKeyDialog}
+        />
+      )}
+      {confetti && typeof document !== "undefined" && createPortal(<GiftConfetti fire={confetti.n} origin={confetti.origin} />, document.body)}
     </motion.article>
+  );
+}
+
+/* ===== زر المفتاح الذهبي في البطاقة المقفولة (بلاصة زر الزيارة، نفس الارتفاع 42.25px) =====
+   use = "استعمل مفتاحك" (ذهبي ممتلئ الأيقونة) · guest = "سجّل مجاناً…" · upsell = "استعملت مفتاحك…" (هادئ) */
+const KEY_CTA_STYLE = {
+  use: { borderColor: `${GOLD}b3`, background: `linear-gradient(180deg, ${GOLD}2b, ${GOLD}10)`, color: GOLD_SOFT, boxShadow: `inset 0 1px 0 ${GOLD_SOFT}2e, 0 10px 26px -16px ${GOLD_GLOW}` },
+  guest: { borderColor: `${GOLD}66`, background: `${GOLD}12`, color: GOLD_SOFT },
+  upsell: { borderColor: `${GOLD}33`, background: `${GOLD}08`, color: "var(--text-soft)" },
+};
+
+function KeyCta({ kind, label, onClick }) {
+  return (
+    <button
+      type="button"
+      data-part="visit"
+      onClick={onClick}
+      title={label}
+      className="group/key relative mt-2.5 flex h-[42.25px] w-full items-center justify-center gap-2 rounded-xl border px-3 text-[12.5px] font-extrabold leading-[1.25] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#ffe486]/70"
+      style={KEY_CTA_STYLE[kind]}
+    >
+      {kind === "use" ? (
+        <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover/key:-rotate-[18deg]" style={{ background: `linear-gradient(135deg, ${GOLD_SOFT}, ${GOLD_DEEP})` }}>
+          <Key size={13} className="text-[#1d1403]" />
+        </span>
+      ) : kind === "upsell" ? (
+        <Crown size={15} className="shrink-0" style={{ color: GOLD }} />
+      ) : (
+        <Key size={15} className="shrink-0" style={{ color: GOLD }} />
+      )}
+      <span className="line-clamp-2 text-center">{label}</span>
+    </button>
   );
 }
 
@@ -483,14 +635,15 @@ const METAL_BG = {
   boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.2)",
 };
 
-function ScratchLayer({ t, unlocked, accent = GOLD, onReveal, onUnlock }) {
+function ScratchLayer({ t, unlocked, accent = GOLD, onReveal, onUnlock, lockLabel }) {
   // غير مشترك: غطاء مقفل — أيقونة قفل فقط، والضغط عليه يفتح نافذة "افتح خصومات Premium"
+  // (ولا المفتاح الذهبي: lockLabel = نص زر المفتاح)
   if (!unlocked) {
     return (
       <button
         type="button"
         onClick={onUnlock}
-        aria-label={t("card.unlockPremium")}
+        aria-label={lockLabel || t("card.unlockPremium")}
         className="absolute inset-0 flex cursor-pointer select-none items-center justify-center gap-1.5 overflow-hidden rounded-xl"
         style={METAL_BG}
       >

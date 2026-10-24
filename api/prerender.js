@@ -128,10 +128,13 @@ function locale(lang) {
   return localeCache[lang];
 }
 
-async function getTemplate(host) {
+// cookie: روابط preview تاع Vercel محمية بالدخول → نمرّرو كوكي الزائر لنفس الـ host، وإلا يرجع
+// القالب صفحة دخول Vercel. القالب يتحفظ غير إذا هو index.html تاعنا (فيه #root).
+async function getTemplate(host, cookie) {
   if (templateCache[host]) return templateCache[host];
-  const r = await fetch(`https://${host}/index.html`);
+  const r = await fetch(`https://${host}/index.html`, cookie ? { headers: { cookie } } : undefined);
   const html = await r.text();
+  if (!r.ok || !html.includes('id="root"')) throw new Error("template");
   templateCache[host] = html;
   return html;
 }
@@ -180,7 +183,7 @@ export default async function handler(req, res) {
 
   let template;
   try {
-    template = await getTemplate(host);
+    template = await getTemplate(host, req.headers.cookie);
   } catch {
     // تعذّر جلب القالب — لا نكسر الصفحة: نُعيد توجيه بسيط لخدمة SPA.
     res.status(302).setHeader("Location", "/index.html");

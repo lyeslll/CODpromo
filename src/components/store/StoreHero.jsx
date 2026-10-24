@@ -140,10 +140,19 @@ export default function StoreHero({
               <button
                 type="button"
                 onClick={copy}
-                className="store-copy flex min-h-[54px] shrink-0 items-center gap-2 rounded-xl px-5 text-[15px] font-black transition-transform active:scale-[0.97]"
+                className="store-copy flex min-h-[54px] shrink-0 items-center gap-2 rounded-xl px-5 text-[15px] font-black transition-transform active:scale-[0.97] max-[399px]:px-4"
               >
                 {copied ? <Check size={18} strokeWidth={3} /> : <Copy size={18} />}
-                <span aria-live="polite">{copied ? t("storePage.copied") : t("storePage.copy")}</span>
+                <span aria-live="polite">
+                  {copied ? (
+                    t("storePage.copied")
+                  ) : (
+                    <>
+                      <span className="max-[399px]:hidden">{t("storePage.copy")}</span>
+                      <span className="hidden max-[399px]:inline">{t("storePage.copyShort")}</span>
+                    </>
+                  )}
+                </span>
               </button>
             </div>
           ) : null}
@@ -166,7 +175,8 @@ export default function StoreHero({
                   <Crown size={16} />
                 </span>
                 <span className="flex min-w-0 items-baseline gap-2 text-[13.5px] font-extrabold text-[#ffe486]">
-                  <span className="truncate">
+                  {/* سطرين كحدّ أقصى (بلاصة "…"): "Your Premium code is unlocked" ما يدخلش في 360px */}
+                  <span className="line-clamp-2 leading-tight">
                     <BidiText text={unlocked ? t("storePage.premiumOpen") : t("storePage.premiumWith")} rtl={rtl} />
                   </span>
                   <bdi className="shrink-0 [font-family:Inter,sans-serif] text-[16px] font-black">{premiumValue}</bdi>

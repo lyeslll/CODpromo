@@ -69,13 +69,18 @@ const CHIP_SLOTS = ["top-[2%] end-[-11%]", "top-[40%] end-[-15%]", "top-[78%] en
  */
 function HeroValueBox({ stats, lang, t }) {
   const pricing = usePricing();
-  if (!pricing) return null;
-  const unlock = stats?.premiumUnlockValueUsd ?? null;
-  const multiplier = premiumMultiplier(unlock, pricing.usd);
-  const priceText = formatPrice(t, lang, pricing.dzd, pricing.usd);
+  // قبل ما يوصلو السعر وأرقام site_stats: نفس المربع بالنسخة الطويلة (القيمة + ×N) والنص مخفي (visibility)
+  // باش الـ Hero ما يقفزش — حتى رقم ما يبان (88… = مكان محجوز برك)
+  const waiting = !pricing || stats == null;
+  const unlock = waiting ? 8888 : stats?.premiumUnlockValueUsd ?? null;
+  const multiplier = waiting ? 88 : premiumMultiplier(unlock, pricing.usd);
+  const priceText = waiting ? formatPrice(t, lang, 88888, 88) : formatPrice(t, lang, pricing.dzd, pricing.usd);
 
   return (
-    <div className="mt-7 flex max-w-xl flex-col gap-4 rounded-2xl border border-[#f0c63c]/35 bg-[linear-gradient(120deg,rgba(166,240,0,0.07),rgba(240,198,60,0.1))] p-4 sm:flex-row sm:items-center sm:gap-5 sm:p-5">
+    <div
+      aria-hidden={waiting || undefined}
+      className={`mt-7 flex max-w-xl flex-col gap-4 rounded-2xl border border-[#f0c63c]/35 bg-[linear-gradient(120deg,rgba(166,240,0,0.07),rgba(240,198,60,0.1))] p-4 sm:flex-row sm:items-center sm:gap-5 sm:p-5 ${waiting ? "[&_bdi]:invisible [&_p]:invisible" : ""}`}
+    >
       <span className="flex shrink-0 items-center gap-2 text-[17px] font-black text-[var(--color-lime)]">
         <span className="grid h-7 w-7 place-items-center rounded-full bg-[var(--color-lime)] text-[#0a0a0a]">
           <Check size={16} strokeWidth={3} />

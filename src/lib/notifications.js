@@ -24,11 +24,14 @@ export function isRecent(date, days = NEW_DAYS) {
   return Number.isFinite(t) && Date.now() - t < days * DAY && t <= Date.now() + 60000;
 }
 
+// الصفحات العامة اللي عندها نسخة /en و /fr (نفس القائمة في send-push و api/prerender.js)
+const LOCALIZED = /^\/(?:(?:store|category)\/[^/?#]|(?:categories|offers|partners|premium|new|favorites)(?:[/?#]|$))/;
+
 /** نفس قاعدة send-push: الصفحات العامة ببادئة /en و /fr. */
 export function localizePath(path, lang) {
   if (!path || lang === "ar" || !path.startsWith("/")) return path || "/";
   if (path === "/") return `/${lang}`;
-  return /^\/(store\/|category\/|categories|offers|partners|premium|new|favorites)(?=[/?#]|$)/.test(path) ? `/${lang}${path}` : path;
+  return LOCALIZED.test(path) ? `/${lang}${path}` : path;
 }
 
 /** رابط داخلي برك (نفس CHECK القاعدة) — أي حاجة أخرى = /new. */

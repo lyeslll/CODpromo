@@ -50,7 +50,7 @@ const pick = (row: Record<string, string | null> | null, field: string, lang: La
 export function localizePath(path: string, lang: Lang): string {
   if (lang === "ar" || !path.startsWith("/")) return path;
   if (path === "/") return `/${lang}`;
-  return /^\/(store\/|category\/|categories|offers|partners|premium|new|favorites)(?=[/?#]|$)/.test(path) ? `/${lang}${path}` : path;
+  return /^\/(?:(?:store|category)\/[^/?#]|(?:categories|offers|partners|premium|new|favorites)(?:[/?#]|$))/.test(path) ? `/${lang}${path}` : path;
 }
 
 /** لوغو الشركة بحجم الأيقونة (Supabase render/image)، وإلا أيقونة الموقع. */

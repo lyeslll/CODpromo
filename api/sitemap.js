@@ -29,6 +29,7 @@ const categoriesUrl = (lang) => `${SITE_URL}${prefix(lang)}/categories`;
 const offersUrl = (lang) => `${SITE_URL}${prefix(lang)}/offers`;
 const partnersUrl = (lang) => `${SITE_URL}${prefix(lang)}/partners`;
 const premiumUrl = (lang) => `${SITE_URL}${prefix(lang)}/premium`;
+const newUrl = (lang) => `${SITE_URL}${prefix(lang)}/new`;
 const homeUrl = (lang) => `${SITE_URL}${prefix(lang)}/`;
 
 function xmlEscape(s) {
@@ -91,6 +92,23 @@ export default async function handler(req, res) {
     // صفحة بيع Premium (/premium) بالثلاث لغات
     for (const lang of LANGS) {
       nodes.push(urlNode(premiumUrl(lang), (l) => premiumUrl(l), null));
+    }
+
+    // "جديد CODpromo" (/new) بالثلاث لغات — lastmod = آخر تحديث عام (بلا المخفي)
+    let newLastmod = null;
+    try {
+      const nr = await fetch(`${SUPABASE_URL}/rest/v1/rpc/notifications_feed`, {
+        method: "POST",
+        headers: { ...sbHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ p_limit: 1, p_all: true }),
+      });
+      const feed = nr.ok ? await nr.json() : null;
+      newLastmod = feed?.items?.[0]?.published_at ? String(feed.items[0].published_at).slice(0, 10) : null;
+    } catch {
+      /* بلا lastmod */
+    }
+    for (const lang of LANGS) {
+      nodes.push(urlNode(newUrl(lang), (l) => newUrl(l), newLastmod));
     }
 
     // صفحة كل الفئات (/categories) بالثلاث لغات

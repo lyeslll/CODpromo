@@ -38,7 +38,9 @@ async function rpc(name, args) {
 }
 
 // ===================== القراءة =====================
+// null يبقى null (Number(null) = 0): الزائر ما عندوش حدّ (max_keys = null)، ماشي حدّ 0
 const num = (v) => {
+  if (v == null || v === "") return null;
   const n = Number(v);
   return Number.isFinite(n) ? n : null;
 };

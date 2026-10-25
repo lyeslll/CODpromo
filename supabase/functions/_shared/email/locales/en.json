@@ -143,7 +143,8 @@
     "creditBody": "If you later buy Premium for life on the CODpromo website, everything you paid for keys comes off its price, with no time limit.",
     "creditCta": "See your Premium price after the discount",
     "refundTitle": "Refund policy",
-    "refundBody": "You can get a refund for the keys you haven’t used within 7 days of buying (until {{date}}), unless their price was counted toward Premium. Send your request from this email address to {{email}}."
+    "refundBody": "You can get a refund for the keys you haven’t used within 7 days of buying (until {{date}}), unless their price was counted toward Premium. Send your request from this email address to {{email}}.",
+    "refundBodyPlain": "You can get a refund for the keys you haven't used within 7 days of purchase (until {{date}}). Send your request from this address to {{email}}."
   },
   "keysGift": {
     "subject": "A gift from CODpromo: diamond keys",

@@ -295,6 +295,7 @@ const TEMPLATES = {
   keys_purchase: (x, d) => {
     const S = x.L.keysPurchase;
     const K = x.L.keysCommon;
+    const play = d.provider === "google_play";
     const rows = [
       [esc(S.pack), fill(K.packV, { keys: esc(String(d.keys ?? "")) })],
       [esc(S.amount), `${fmtAmount(x, d.amount, d.currency)}${d.tier === "test" ? tag(S.testTag) : ""}`],
@@ -309,8 +310,9 @@ const TEMPLATES = {
       receipt(x, "diamond", esc(S.summary), rows) +
       steps(x, esc(K.howTitle), [esc(K.step1), esc(K.step2), esc(K.step3)]) +
       button(x, "diamond", esc(K.cta), x.links.premiumOffers) +
-      panel(x, { title: esc(S.creditTitle), html: esc(S.creditBody), cta: esc(S.creditCta), url: x.links.premium, tone: "gold" }) +
-      panel(x, { title: esc(S.refundTitle), html: fill(S.refundBody, { date: esc(fmtDate(x, d.refundUntil)), email: mailLink(x.contact, DIAMOND_SOFT) }), tone: "mute" });
+      // شراء من تطبيق Android (Google Play): بلا ذكر للخصم من Premium في الموقع (كيما شاشات التطبيق)
+      (play ? "" : panel(x, { title: esc(S.creditTitle), html: esc(S.creditBody), cta: esc(S.creditCta), url: x.links.premium, tone: "gold" })) +
+      panel(x, { title: esc(S.refundTitle), html: fill(play ? S.refundBodyPlain : S.refundBody, { date: esc(fmtDate(x, d.refundUntil)), email: mailLink(x.contact, DIAMOND_SOFT) }), tone: "mute" });
     return { subject: S.subject, preheader: S.preheader, tone: "diamond", content, footer: esc(x.L.common.footer) };
   },
 

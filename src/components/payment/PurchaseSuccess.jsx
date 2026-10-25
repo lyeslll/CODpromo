@@ -12,6 +12,7 @@ import { fetchMyCreditUpgrade } from "../../lib/keys.js";
 import { formatMoney } from "../keys/money.js";
 import { usePricing } from "../../lib/pricing.jsx";
 import { useLocale } from "../../lib/locale.jsx";
+import { useAndroidApp } from "../../lib/androidApp.js";
 import { offersLink } from "../../lib/seo.js";
 
 const GOLD_SOFT = "#ffe486";
@@ -77,6 +78,8 @@ export default function PurchaseSuccess() {
   // Premium بالرصيد كامل (المفاتيح الماسية): بلا سطر في purchases → السجلّ من key_credit_uses
   const viaCredit = params.get("via") === "credit";
   const [creditUse, setCreditUse] = useState(null);
+  // داخل التطبيق: بلا ذكر لرصيد المفاتيح (Premium بسعرو الكامل عبر Google Play)
+  const inApp = useAndroidApp() === "app";
   const pricing = usePricing();
   const { setLang } = useLocale();
 
@@ -190,7 +193,7 @@ export default function PurchaseSuccess() {
 
   const shown = DEMO && demo ? demoPurchase(demo, pricing, params.get("credit") ? 2300 : 0) : purchase;
   const demoCredit = DEMO && demo && params.get("credit") ? { kind: demo === "credit" ? "full" : "checkout", credit: 2300, currency: "DZD" } : null;
-  const usedCredit = demoCredit || creditUse;
+  const usedCredit = inApp ? null : demoCredit || creditUse;
   const creditRow = usedCredit ? [[t("keys.credit.row"), formatMoney(t, lang, usedCredit.credit, usedCredit.currency, { minus: true })]] : [];
   const rows = usedCredit?.kind === "full"
     ? [

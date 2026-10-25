@@ -246,7 +246,7 @@ export default function KeysReturn() {
       )}
 
       <p className="mt-5 max-w-md text-[12.5px] leading-relaxed text-[var(--color-mute)]">
-        {t("keys.buy.refund")}{" "}
+        {t(keys.showCredit ? "keys.buy.refund" : "keys.buy.refundApp")}{" "}
         <Link to="/terms#keys" className="font-bold text-[var(--text-soft)] underline decoration-dotted underline-offset-4">
           {t("pricing.terms")}
         </Link>

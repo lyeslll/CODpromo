@@ -3006,7 +3006,8 @@
       "accountDesc": "Les clés sont ajoutées à votre compte et restent à vous à vie. Créez un compte gratuit ou connectez-vous, puis vous revenez directement à ce pack.",
       "forever": "Un seul paiement · les clés n’expirent jamais",
       "refund": "Les clés non utilisées sont remboursables sous 7 jours après l’achat, sauf si leur prix a été déduit de Premium.",
-      "demoNote": "Aperçu : aucun paiement réel."
+      "demoNote": "Aperçu : aucun paiement réel.",
+      "refundApp": "Les clés non utilisées sont remboursables sous 7 jours après l’achat."
     },
     "buyErr": {
       "hasPremium": "Vous avez déjà Premium : tous les codes Premium vous sont ouverts. Pas besoin de clés.",

@@ -3006,7 +3006,8 @@
       "accountDesc": "Keys are added to your account and stay yours forever. Create a free account or log in, then you’ll come right back to this pack.",
       "forever": "One payment · keys never expire",
       "refund": "Unused keys can be refunded within 7 days of buying, unless their price was counted toward Premium.",
-      "demoNote": "Preview: no real payment happens."
+      "demoNote": "Preview: no real payment happens.",
+      "refundApp": "Unused keys can be refunded within 7 days of buying."
     },
     "buyErr": {
       "hasPremium": "You already have Premium, and every Premium code is open to you. No keys needed.",

@@ -252,7 +252,7 @@ export default function KeysLadder({ reserve }) {
       ) : (
         <>
           <p className="flex items-start gap-2 text-[13.5px] font-extrabold leading-snug" style={{ color: GOLD_SOFT }}>
-            <Check size={16} strokeWidth={3} className="mt-[1px] shrink-0" />
+            <Check size={16} strokeWidth={3} className="shrink-0" style={{ marginTop: 1 }} />
             <span className="min-w-0">
               {usedName ? (
                 <BidiText text={t("keysLadder.golden.usedOn", { company: usedName })} rtl={rtl} />
@@ -315,8 +315,8 @@ export default function KeysLadder({ reserve }) {
                 onFocus={loadCheckout}
                 disabled={!fits(p)}
                 aria-label={t("keysLadder.diamond.buyAria", { pack: t("keys.count", { count: p.keys }), price: priceOf(p) })}
-                className="group relative flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-start transition-colors hover:border-[#a9cdff]/70 hover:bg-[rgba(169,205,255,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a9cdff] disabled:cursor-not-allowed disabled:opacity-50"
-                style={{ borderColor: `${DIA_DEEP}66`, background: "linear-gradient(170deg, rgba(169,205,255,0.1), rgba(169,205,255,0.02) 70%), var(--color-ink)" }}
+                className="kl-pack group relative flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-start transition-colors hover:border-[#a9cdff]/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a9cdff] disabled:cursor-not-allowed disabled:opacity-50"
+                style={{ borderColor: `${DIA_DEEP}66` }}
               >
                 <DiamondGlyph size={20} className="shrink-0" />
                 <span className="min-w-0 flex-1">
@@ -334,7 +334,7 @@ export default function KeysLadder({ reserve }) {
                   {t("keysLadder.diamond.buy")}
                 </span>
                 {p.id === bestId && (
-                  <span className="absolute -top-2.5 end-3 rounded-full px-2 py-0.5 text-[10.5px] font-black" style={{ background: DIA_BG, color: DIA_INK }}>
+                  <span className="absolute end-3 rounded-full px-2 py-0.5 text-[10.5px] font-black" style={{ top: -10, background: DIA_BG, color: DIA_INK }}>
                     {t("keysLadder.diamond.best")}
                   </span>
                 )}
@@ -345,7 +345,7 @@ export default function KeysLadder({ reserve }) {
           )}
         </div>
         {data?.error && !packs.length && (
-          <Link to={`${premiumPath(lang)}#keys`} className={`${btnCls} mt-1 border text-[#dbeeff] focus-visible:ring-[#a9cdff]`} style={{ borderColor: `${DIA_DEEP}88` }}>
+          <Link to={`${premiumPath(lang)}#keys`} className={`${btnCls} mt-1 border text-[#dbeeff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a9cdff]`} style={{ borderColor: `${DIA_DEEP}88` }}>
             {t("keysLadder.diamond.packs")}
           </Link>
         )}
@@ -446,12 +446,13 @@ export default function KeysLadder({ reserve }) {
             ref={stageRef}
             onPointerMove={onPointerMove}
             onPointerLeave={onPointerLeave}
-            className={`relative mx-auto mt-12 ${k === 2 ? "max-w-[820px]" : "max-w-[1120px]"} ${armed ? "kl-armed" : ""} ${inView ? "is-in" : ""}`}
+            className={`relative mx-auto mt-12 ${armed ? "kl-armed" : ""} ${inView ? "is-in" : ""}`}
+            style={{ maxWidth: k === 2 ? 820 : 1120 }}
           >
             <div className="grid" style={{ gridTemplateColumns: `repeat(${k}, minmax(0, 1fr))` }}>
               {tiers.map((tier, i) => (
                 <div key={tier} className="kl-col flex flex-col" style={{ "--i": i, "--tone": TONE[tier] }}>
-                  <div className="flex flex-1 flex-col px-[18px]" style={{ paddingTop: (k - 1 - i) * RISE + KEY_SPACE }}>
+                  <div className="flex flex-1 flex-col" style={{ paddingTop: (k - 1 - i) * RISE + KEY_SPACE, paddingInline: 18 }}>
                     <div className="kl-card-in relative flex flex-1 flex-col">
                       <TierVisual tier={tier} rtl={rtl} sparkle={live && onScreen} />
                       <TierCard tier={tier} step={i + 1} total={k} c={cards[tier]} />
@@ -481,7 +482,7 @@ export default function KeysLadder({ reserve }) {
                     type="button"
                     onClick={() => jump(tier)}
                     aria-label={t("keysLadder.jump", { name: cards[tier].name })}
-                    className="kl-tile w-full rounded-b-[14px] outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                    className="kl-tile w-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a9cdff]"
                     style={{ "--tone": TONE[tier], "--i": i, height: TILE_BASE + i * TILE_RISE }}
                   >
                     <span aria-hidden className="kl-tile-visual">
@@ -492,8 +493,8 @@ export default function KeysLadder({ reserve }) {
                       </span>
                     </span>
                     <span aria-hidden className="kl-tile-top" />
-                    <span aria-hidden className="kl-tile-front px-1.5 pb-3 pt-2 text-center">
-                      <span className={`kl-metric font-black [font-family:Inter,Tajawal,sans-serif] ${tier === "premium" ? "text-[38px] leading-[0.72]" : "text-[27px] leading-none"}`}>{cards[tier].metric || "\u00a0"}</span>
+                    <span aria-hidden className="kl-tile-front text-center">
+                      <span className={`kl-metric font-black [font-family:Inter,Tajawal,sans-serif] ${tier === "premium" ? "kl-inf" : "text-[27px] leading-none"}`}>{cards[tier].metric || "\u00a0"}</span>
                       <span className="mt-1.5 text-[11.5px] font-bold leading-tight text-[var(--text-softer)]">{cards[tier].unitShort}</span>
                       <span className="mt-2 max-w-full rounded-full px-2 py-0.5 text-[11px] font-extrabold" style={{ background: `rgb(${TONE[tier]} / 0.16)`, color: `rgb(${TONE[tier]})` }}>
                         <bdi>{cards[tier].priceShort}</bdi>
@@ -556,7 +557,7 @@ function TierCard({ tier, step, total, c, compact = false }) {
         </div>
         {!compact && (
           <p className="mt-3 flex items-end gap-2.5">
-            <span className={`kl-metric shrink-0 whitespace-nowrap font-black tracking-tight [font-family:Inter,Tajawal,sans-serif] ${tier === "premium" ? "text-[70px] leading-[0.66]" : "text-[52px] leading-[0.95]"}`}>{c.metric || "\u00a0"}</span>
+            <span className={`kl-metric shrink-0 whitespace-nowrap font-black tracking-tight [font-family:Inter,Tajawal,sans-serif] ${tier === "premium" ? "kl-inf" : "text-[52px] leading-[0.95]"}`}>{c.metric || "\u00a0"}</span>
             <span className="pb-1 text-[13px] font-bold leading-snug text-[var(--text-softer)]">{c.unit}</span>
           </p>
         )}
@@ -587,7 +588,7 @@ function TierCard({ tier, step, total, c, compact = false }) {
             );
           })}
         </ul>
-        <div className="mt-auto pt-5">{c.actions}</div>
+        <div className="pt-5" style={{ marginTop: "auto" }}>{c.actions}</div>
       </div>
     </article>
   );

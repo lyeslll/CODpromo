@@ -40,6 +40,29 @@
   background-clip: text;
   color: transparent;
 }
+/* ∞ (Premium): الرمز قصير بطبيعتو → أكبر باش يساوي الأرقام */
+.kl-card .kl-inf {
+  font-size: 70px;
+  line-height: 0.66;
+}
+.kl-tile-front .kl-inf {
+  font-size: 38px;
+  line-height: 0.72;
+}
+
+/* باقة المفاتيح (زر الشراء) */
+.kl-pack {
+  background:
+    linear-gradient(170deg, rgba(169, 205, 255, 0.1), rgba(169, 205, 255, 0.02) 70%),
+    var(--color-ink);
+}
+@media (hover: hover) {
+  .kl-pack:not(:disabled):hover {
+    background:
+      linear-gradient(170deg, rgba(169, 205, 255, 0.16), rgba(169, 205, 255, 0.05) 70%),
+      var(--color-ink);
+  }
+}
 
 /* مستوى الدرجة: أعمدة تطلع (▂▄▆) */
 .kl-bars {
@@ -229,6 +252,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  border-radius: 0 0 14px 14px;
   -webkit-tap-highlight-color: transparent;
 }
 .kl-tile-top {
@@ -242,6 +266,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
+  padding: 8px 6px 12px;
   border-top: 1.5px solid rgb(var(--tone) / 0.85);
   border-radius: 0 0 14px 14px;
   background: linear-gradient(180deg, rgb(var(--tone) / 0.2), rgb(var(--tone) / 0.05) 78%, rgb(var(--tone) / 0.02));

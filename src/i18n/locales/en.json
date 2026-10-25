@@ -701,6 +701,7 @@
         "today": "Today",
         "last7": "7 days",
         "offers": "offers",
+        "hidden": "hidden",
         "premiumNote": "Admin account excluded",
         "review": "Open requests to review",
         "noPending": "Nothing waiting",

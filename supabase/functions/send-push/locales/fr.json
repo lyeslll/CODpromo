@@ -1,0 +1,36 @@
+{
+  "company": {
+    "title": "Nouveau sur CODpromo : {{name}}",
+    "body": "{{offer}} — votre code est prêt",
+    "bodyNoOffer": "Leur offre est disponible sur CODpromo"
+  },
+  "code": {
+    "title": "Nouveau code pour {{name}}",
+    "body": "{{offer}} — essayez-le maintenant",
+    "bodyNoOffer": "Essayez-le maintenant sur CODpromo"
+  },
+  "premium_code": {
+    "title": "Nouveau code Premium pour {{name}}",
+    "body": "{{offer}} pour les membres Premium",
+    "bodyNoOffer": "Une remise plus forte pour les membres Premium"
+  },
+  "deal": {
+    "title": "Nouvelle offre sans code : {{name}}",
+    "body": "{{offer}}",
+    "bodyNoOffer": "Activez-la en un clic sur CODpromo"
+  },
+  "digest": {
+    "title_zero": "Aucune nouveauté",
+    "title_one": "1 nouveauté sur CODpromo",
+    "title_two": "{{count}} nouveautés sur CODpromo",
+    "title_few": "{{count}} nouveautés sur CODpromo",
+    "title_many": "{{count}} nouveautés sur CODpromo",
+    "title_other": "{{count}} nouveautés sur CODpromo",
+    "more": "{{names}} et plus"
+  },
+  "test": {
+    "title": "Test des notifications CODpromo",
+    "body": "Les notifications fonctionnent sur cet appareil."
+  },
+  "sep": ", "
+}

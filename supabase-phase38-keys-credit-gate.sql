@@ -279,6 +279,9 @@ begin
     v_status := 'refund_needed'; v_note := 'amount';
   elsif public.keys_premium_blocked(c.user_id) then
     v_status := 'refund_needed'; v_note := 'already_premium';
+  elsif exists (select 1 from public.key_credit_uses f where f.user_id = c.user_id and f.kind = 'full' and f.revoked_at is not null) then
+    -- نفس قاعدة keys_credit_quote_for: الأدمن رجّع Premium بالرصيد لهاد الحساب → الرصيد ما يعطيش Premium وحدو
+    v_status := 'refund_needed'; v_note := 'credit_revoked';
   elsif not public.keys_credit_backed(c.user_id, c.currency, c.credit) then
     v_status := 'refund_needed'; v_note := 'credit_refunded';
   else
@@ -472,7 +475,7 @@ begin
                                       'applied', (c.kind = 'full' and c.revoked_at is null) or exists (select 1 from public.purchases pu
                                                    where pu.provider_ref = c.provider_ref and pu.refunded_at is null),
                                       'gate_status', g.status, 'gate_reason', g.reason, 'late_status', g.late_status,
-                                      'resolution', g.resolution)
+                                      'resolution', g.resolution, 'gate_error', g.last_error)
              order by c.created_at desc)
       from public.key_credit_uses c
       left join auth.users u on u.id = c.user_id

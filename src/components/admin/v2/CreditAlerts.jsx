@@ -7,7 +7,7 @@ const money = (t, amount, currency) =>
   currency === "DZD" ? t("sales.dzd", { n: fmt(amount) }) : currency === "USD" ? t("sales.usd", { n: Number(amount).toFixed(Number.isInteger(Number(amount)) ? 0 : 2) }) : `${fmt(amount)} ${currency}`;
 
 // "امنح Premium" ما يخدمش كي الحساب Premium من قبل، تمسح، ولا المبلغ ما يطابقش
-const NO_GRANT = new Set(["already_premium", "no_account", "amount"]);
+const NO_GRANT = new Set(["already_premium", "no_account", "amount"]);  // credit_revoked: قرار الأدمن (يقدر يمنح)
 
 /**
  * /admin/sales — تنبيهات Premium بالرصيد (phase38) فوق المبيعات:

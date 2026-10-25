@@ -1463,7 +1463,8 @@
             "already_premium": "Le compte a déjà Premium (payé deux fois).",
             "credit_refunded": "Les clés comptées dans le crédit ont été remboursées.",
             "no_account": "Le compte a été supprimé.",
-            "grant": "L'activation a échoué."
+            "grant": "L'activation a échoué.",
+            "credit_revoked": "Un admin a déjà retiré un Premium obtenu avec le crédit sur ce compte."
           },
           "howRefund": {
             "stripe": "Remboursez depuis le tableau de bord Stripe, puis cliquez sur « J'ai remboursé ». Référence :",

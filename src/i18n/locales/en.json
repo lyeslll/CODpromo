@@ -1463,7 +1463,8 @@
             "already_premium": "The account already has Premium (paid twice).",
             "credit_refunded": "The keys counted in the credit were refunded.",
             "no_account": "The account was deleted.",
-            "grant": "Activation failed."
+            "grant": "Activation failed.",
+            "credit_revoked": "An admin previously revoked a credit-only Premium on this account."
           },
           "howRefund": {
             "stripe": "Refund from the Stripe dashboard, then click “I refunded it”. Reference:",

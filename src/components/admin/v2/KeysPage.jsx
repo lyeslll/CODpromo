@@ -367,7 +367,7 @@ function CreditUses({ rows, onRevoke, onVoid }) {
                 {c.gate_status && (
                   <span
                     className={`rounded-md px-1.5 py-0.5 text-[11px] font-bold ${c.late_status === "refund_needed" && !c.resolution ? "bg-[#f87171]/15 text-[#fca5a5]" : "bg-white/[0.06] text-[#9ca3af]"}`}
-                    title={c.gate_reason ? t(`keys.gate.reason.${c.gate_reason}`) : undefined}
+                    title={[c.gate_reason && t(`keys.gate.reason.${c.gate_reason}`), c.gate_error].filter(Boolean).join(" — ") || undefined}
                   >
                     {t(`keys.gate.${c.late_status || c.gate_status}`)}
                   </span>

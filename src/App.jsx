@@ -27,6 +27,7 @@ const FavoritesPage = lazy(() => import("./pages/FavoritesPage.jsx"));
 const OffersPage = lazy(() => import("./pages/OffersPage.jsx"));
 const PartnersPage = lazy(() => import("./pages/PartnersPage.jsx"));
 const PremiumPage = lazy(() => import("./pages/PremiumPage.jsx"));
+const NewPage = lazy(() => import("./pages/NewPage.jsx"));
 const Admin = lazy(() => import("./pages/Admin.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
 const Signup = lazy(() => import("./pages/Signup.jsx"));
@@ -54,6 +55,7 @@ function PageFallback() {
 }
 import BottomNav from "./components/BottomNav.jsx";
 import { useGoPremium } from "./lib/goPremium.js";
+import WhatsNewToast from "./components/notifications/WhatsNewToast.jsx";
 
 /** اللغة المقصودة من المسار: بادئة /en أو /fr، صفحات /store و/category و/offers بلا بادئة عربية، وإلا تبقى لغة المستخدم. */
 function langFromPath(pathname, current) {
@@ -66,7 +68,8 @@ function langFromPath(pathname, current) {
     pathname.startsWith("/favorites") ||
     pathname.startsWith("/offers") ||
     pathname.startsWith("/partners") ||
-    pathname.startsWith("/premium")
+    pathname.startsWith("/premium") ||
+    pathname === "/new"
   )
     return "ar";
   return current;
@@ -186,6 +189,10 @@ export default function App() {
           <Route path="/premium" element={<PremiumPage lang="ar" />} />
           <Route path="/en/premium" element={<PremiumPage lang="en" />} />
           <Route path="/fr/premium" element={<PremiumPage lang="fr" />} />
+          {/* "جديد CODpromo": كل التحديثات بالتاريخ (الإشعارات العامة، SEO) */}
+          <Route path="/new" element={<NewPage lang="ar" />} />
+          <Route path="/en/new" element={<NewPage lang="en" />} />
+          <Route path="/fr/new" element={<NewPage lang="fr" />} />
 
           {/* صفحات الشركات (SEO) — العربية افتراضية، en/fr ببادئة لغة */}
           <Route path="/store/:slug" element={<StorePage lang="ar" />} />
@@ -244,6 +251,8 @@ export default function App() {
           </Routes>
           </Suspense>
           <MobileBottomNav />
+          {/* الزائر يرجع بعد غياب: "X عروض جديدة منذ آخر زيارة" → /new */}
+          <WhatsNewToast />
           <CursorGlow />
           </ScrollVisibilityProvider>
           </VoteStatsProvider>

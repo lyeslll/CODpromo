@@ -44,7 +44,9 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html}"],
         // مشهد الـ 3D يُحمَّل عند الحاجة فقط (الأجهزة القادرة) — لا نفرضه على كل الزوار مسبقاً.
         // + لوحة الأدمن وفورم الشركة: للأدمن والشركات برك (~250KB ما يلزمش يتحمّل في الخلفية لكل زائر).
-        globIgnores: ["**/MagicScene3D-*.js", "**/Admin-*.js", "**/CompanyOfferForm-*.js"],
+        globIgnores: ["**/MagicScene3D-*.js", "**/Admin-*.js", "**/CompanyOfferForm-*.js", "**/push-sw.js"],
+        // إشعارات الهاتف (Web Push): push + notificationclick في ملف وحدو (public/push-sw.js)
+        importScripts: ["/push-sw.js"],
         // SPA: أي تنقّل يُخدَم من index.html (يشمل /store, /category, /admin, العودة من الدفع…)
         navigateFallback: "/index.html",
         cleanupOutdatedCaches: true,

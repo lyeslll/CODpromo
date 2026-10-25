@@ -115,6 +115,20 @@ export async function fetchCompanies() {
 }
 
 /**
+ * عدد الشركات الظاهرة للزوار (= عدد البطاقات في /offers): نفس القراءة العامة، والمخفية (status = 'hidden')
+ * ما تتحسبش (policy phase36). HEAD + count=exact: بلا ما نجيبو القائمة.
+ */
+export async function fetchOffersCount() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?select=id`, {
+    method: "HEAD",
+    headers: { ...headers, Prefer: "count=exact" },
+  });
+  if (!res.ok) throw new Error("فشل الاتصال بالخادم");
+  const m = /\/(\d+)$/.exec(res.headers.get("content-range") || "");
+  return m ? Number(m[1]) : null;
+}
+
+/**
  * يكشف كود/رابط Premium لشركة عبر RPC خادمية تتحقق من اشتراك المستخدم.
  * يعمل بجلسة المستخدم المُصادَقة. يعيد { premium_code, premium_url } أو null
  * إن لم يكن المستخدم مشتركاً فعّالاً (أو أدمن). لا يُرسَل الكود إلا بعد التحقق.

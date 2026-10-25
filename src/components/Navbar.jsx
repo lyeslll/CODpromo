@@ -18,6 +18,7 @@ import { useScrollVisibility } from "../lib/scrollVisibility.jsx";
 import { activeCategories, countByCategory } from "../lib/offerFilters.js";
 import { homePath, offersPath } from "../lib/seo.js";
 import { formatNumber } from "../lib/values.js";
+import NotificationBell from "./notifications/NotificationBell.jsx";
 
 // الحاسوب (lg+): العروض (مع العدد) + الفئات (ميغا مينيو) + كيف يعمل. الهاتف واللوحي: Premium صغير + قائمة بكامل الشاشة.
 const MEGA_ID = "nav-categories-mega";
@@ -52,6 +53,7 @@ function Underline() {
 export default function Navbar() {
   const [open, setOpen] = useState(false); // قائمة الهاتف
   const [searchOpen, setSearchOpen] = useState(false);
+  const [bellOpen, setBellOpen] = useState(false); // نافذة الإشعارات (الكمبيوتر): الهيدر يبقى ظاهر
   const goPremium = useGoPremium();
   const [hoverKey, setHoverKey] = useState(null);
   const [megaFocus, setMegaFocus] = useState(false);
@@ -150,7 +152,7 @@ export default function Navbar() {
     >
       <div
         className={`nav-inner mx-auto max-w-6xl px-4 pt-3 transition-[transform,visibility] duration-300 will-change-transform sm:pt-4 ${
-          hidden && !open && !mega.open && !searchOpen ? "invisible -translate-y-[150%]" : "visible translate-y-0 [&>*]:pointer-events-auto"
+          hidden && !open && !mega.open && !searchOpen && !bellOpen ? "invisible -translate-y-[150%]" : "visible translate-y-0 [&>*]:pointer-events-auto"
         }`}
       >
         {/* ===== الكبسولة (الهيدر) — لمسة تعريف خفيفة في الأعلى، زجاجية وأصغر قليلاً عند النزول ===== */}
@@ -250,6 +252,8 @@ export default function Navbar() {
                 {kbd}
               </kbd>
             </button>
+            {/* جرس الإشعارات: نفس ارتفاع الأزرار (h-9)، نافذة تحت الجرس */}
+            <NotificationBell onOpenChange={setBellOpen} />
 
             <LanguageSwitcher />
             <PremiumNavButton onOpen={openPremium} />
@@ -282,6 +286,10 @@ export default function Navbar() {
           {/* ===== الهاتف: زر Premium صغير + زر القائمة (يبقى ابناً مباشراً للكبسولة لقواعد وضع التطبيق) ===== */}
           <div className="me-2 ms-auto lg:hidden">
             <PremiumNavButton onOpen={openPremium} compact />
+          </div>
+          {/* جرس الإشعارات (الهاتف): لوحة من تحت بكامل العرض */}
+          <div className="me-2 lg:hidden">
+            <NotificationBell sheet />
           </div>
           <button
             ref={menuBtnRef}

@@ -19,8 +19,9 @@ export default function PremiumNavButton({ onOpen, compact = false }) {
   const memberLabel = isLifetime ? t("premium.lifetime") : t("header.member");
   const navigate = useNavigate();
   const size = compact ? "h-9 gap-1 rounded-xl px-2 text-[12.5px] max-[369px]:px-2.5" : "gap-1.5 rounded-xl px-3 py-2 text-[13.5px] xl:px-3.5";
-  // الهواتف الضيّقة (< 370px) لا تتّسع للشعار والنص معاً: التاج وحده ظاهر، والنص يبقى لقارئ الشاشة
-  const label = compact ? "relative max-[369px]:sr-only" : "relative";
+  // الهواتف (< 420px) لا تتّسع للشعار والنص وجرس الإشعارات معاً: التاج وحده ظاهر، والنص يبقى لقارئ الشاشة
+  // (زر Premium الكبير في شريط التنقّل السفلي يبقى كيما راه)
+  const label = compact ? "relative max-[419px]:sr-only" : "relative";
 
   if (hasPremium) {
     return (

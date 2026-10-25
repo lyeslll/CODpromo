@@ -60,6 +60,7 @@ import FeaturedPage from "../components/admin/v2/FeaturedPage.jsx";
 import NocodePage from "../components/admin/v2/NocodePage.jsx";
 import NocodeEditor from "../components/admin/v2/NocodeEditor.jsx";
 import GiftsPage from "../components/admin/v2/GiftsPage.jsx";
+import NotificationsPage from "../components/admin/v2/NotificationsPage.jsx";
 import FreeKeyPage from "../components/admin/v2/FreeKeyPage.jsx";
 import SalesPage from "../components/admin/v2/SalesPage.jsx";
 import PricingPage from "../components/admin/v2/PricingPage.jsx";
@@ -710,6 +711,8 @@ function Dashboard({ onLock }) {
         />
         {/* تقييمات الشركات (phase34): القائمة + تخبية */}
         <Route path="ratings" element={<RatingsPage notify={notify} />} />
+        {/* الإشعارات: القائمة، إعلان بقوالب، إخفاء / تعديل، push (phase notifications) */}
+        <Route path="notifications" element={<NotificationsPage notify={notify} />} />
         <Route
           path="votes"
           element={

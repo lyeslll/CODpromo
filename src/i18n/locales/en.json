@@ -669,6 +669,7 @@
         "sales": "Sales",
         "pricing": "Pricing",
         "ratings": "Ratings",
+        "notifications": "Notifications",
         "pending_zero": "No pending requests",
         "pending_one": "{{count}} pending request",
         "pending_two": "{{count}} pending requests",
@@ -1657,6 +1658,246 @@
       "bg_custom": "Color",
       "apply": "Use this logo",
       "note": "Saved as a light 512×512 WebP square."
+    }
+  },
+  "notify": {
+    "kind": {
+      "company": {
+        "title": "New on CODpromo: {{name}}",
+        "body": "{{offer}} — your code is ready",
+        "bodyNoOffer": "Their offer is live on CODpromo"
+      },
+      "code": {
+        "title": "New code for {{name}}",
+        "body": "{{offer}} — try it now",
+        "bodyNoOffer": "Try it now on CODpromo"
+      },
+      "premium_code": {
+        "title": "New Premium code for {{name}}",
+        "body": "{{offer}} for Premium members",
+        "bodyNoOffer": "A bigger discount for Premium members"
+      },
+      "deal": {
+        "title": "New no-code deal: {{name}}",
+        "body": "{{offer}}",
+        "bodyNoOffer": "Activate it in one tap on CODpromo"
+      }
+    },
+    "bell": {
+      "label": "Notifications",
+      "unread_zero": "No unread notifications",
+      "unread_one": "1 unread notification",
+      "unread_two": "{{count}} unread notifications",
+      "unread_few": "{{count}} unread notifications",
+      "unread_many": "{{count}} unread notifications",
+      "unread_other": "{{count}} unread notifications"
+    },
+    "panel": {
+      "title": "Notifications",
+      "unread_zero": "Nothing new",
+      "unread_one": "1 new",
+      "unread_two": "{{count}} new",
+      "unread_few": "{{count}} new",
+      "unread_many": "{{count}} new",
+      "unread_other": "{{count}} new",
+      "unreadOne": "Unread",
+      "markAll": "Mark all as read",
+      "settings": "Notification settings",
+      "close": "Close",
+      "error": "Couldn't load updates.",
+      "retry": "Try again",
+      "empty": "No updates yet",
+      "emptyHint": "We'll let you know here as soon as a new company, code or deal is added.",
+      "all": "All updates"
+    },
+    "push": {
+      "title": "Phone notifications",
+      "pitch": "Get notified on your phone as soon as a new company or code is added. Turn it off anytime.",
+      "cta": "Turn on phone notifications",
+      "working": "One moment…",
+      "on": "Phone notifications are on for this device",
+      "off": "Turn off",
+      "denied": "Notifications are blocked for this site. Allow them in your browser or app settings, then try again.",
+      "dismissed": "Notifications weren't turned on. Tap again and choose “Allow”.",
+      "ios": "On iPhone: add CODpromo to your Home Screen (Share → Add to Home Screen), open it from there and turn on notifications.",
+      "error": "Couldn't turn on notifications. Please try again.",
+      "rateLimited": "Too many attempts from this network. Try again shortly.",
+      "enabledTitle": "CODpromo notifications are on",
+      "enabledBody": "We'll notify you as soon as a new company or code is added."
+    },
+    "badge": {
+      "new": "New"
+    },
+    "toast": {
+      "title_zero": "No new offers since your last visit",
+      "title_one": "1 new offer since your last visit",
+      "title_two": "{{count}} new offers since your last visit",
+      "title_few": "{{count}} new offers since your last visit",
+      "title_many": "{{count}} new offers since your last visit",
+      "title_other": "{{count}} new offers since your last visit",
+      "cta": "See what's new",
+      "close": "Close"
+    },
+    "page": {
+      "title": "What's new on CODpromo",
+      "eyebrow": "Updates",
+      "lead": "Every new company, code and deal added to CODpromo, by date. Turn on notifications to get them as soon as they're added.",
+      "seoTitle": "What's new on CODpromo — latest companies, codes and deals",
+      "seoDesc": "Every new company, discount code and deal added to CODpromo, by date: discount codes, coupons and cashback for cash-on-delivery sellers.",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "sinceVisit": "New since your visit",
+      "freshCount_zero": "Nothing new since your last visit",
+      "freshCount_one": "1 new update since your last visit",
+      "freshCount_two": "{{count}} new updates since your last visit",
+      "freshCount_few": "{{count}} new updates since your last visit",
+      "freshCount_many": "{{count}} new updates since your last visit",
+      "freshCount_other": "{{count}} new updates since your last visit",
+      "more": "Show more",
+      "allOffers": "All offers"
+    },
+    "prefs": {
+      "title": "Notifications",
+      "lead": "Choose what reaches you in the bell and on your phone.",
+      "all": "Everything new",
+      "allHint": "Every new company, code and deal.",
+      "categories": "Selected categories",
+      "categoriesHint": "Only what's new in the categories you pick.",
+      "favorites": "My favorites only",
+      "favoritesHint": "Companies you've added to your favorites.",
+      "always": "Site announcements and new features always reach you.",
+      "save": "Save",
+      "saved": "Saved.",
+      "error": "Couldn't save. Please try again.",
+      "pickOne": "Pick at least one category.",
+      "device": "Notifications on this device"
+    },
+    "admin": {
+      "title": "Notifications",
+      "sub": "Created automatically when a company, code or no-code deal is added (hidden companies get none). Here: a new announcement, hiding or editing a notification, and phone notifications.",
+      "stat": {
+        "mode": "Phone notifications",
+        "devices": "Subscribed devices",
+        "byLang": "Arabic {{ar}} · English {{en}} · French {{fr}}",
+        "users": "Subscribed accounts",
+        "usersHint": "The rest are visitors without an account",
+        "batches": "Sends in 24 hours",
+        "batchesHint": "A cap so it never becomes spam"
+      },
+      "mode": {
+        "off": "Off",
+        "test": "Test mode — admins only",
+        "live": "On for everyone"
+      },
+      "device": {
+        "title": "Phone notifications on your devices",
+        "note": "Turn on notifications on your phone, then test: a test message reaches your own devices only.",
+        "testNote": "Test mode before the merge: notifications reach admin accounts only, never customers."
+      },
+      "test_zero": "Test on my devices (none)",
+      "test_one": "Test on my device",
+      "test_two": "Test on my devices ({{count}})",
+      "test_few": "Test on my devices ({{count}})",
+      "test_many": "Test on my devices ({{count}})",
+      "test_other": "Test on my devices ({{count}})",
+      "testOk_zero": "No device",
+      "testOk_one": "Test sent to your device",
+      "testOk_two": "Test sent to {{count}} devices",
+      "testOk_few": "Test sent to {{count}} devices",
+      "testOk_many": "Test sent to {{count}} devices",
+      "testOk_other": "Test sent to {{count}} devices",
+      "testErr": {
+        "noDevice": "No subscribed device on your account — turn on notifications on this device first.",
+        "rateLimited": "5 tests per hour at most.",
+        "other": "The test failed."
+      },
+      "modeOn": "Turn notifications on",
+      "modeOff": "Turn notifications off",
+      "modeOnOk": "Phone notifications are on.",
+      "modeOffOk": "Phone notifications are off.",
+      "modeTest": "Test mode only changes with the merge.",
+      "shownOk": "The notification is visible again",
+      "hiddenOk": "The notification is hidden",
+      "form": {
+        "title": "New notification",
+        "sub": "Pick a ready-made template. Empty text = the template text, translated automatically.",
+        "template": "Template",
+        "company": "Company",
+        "search": "Search a company…",
+        "companyHint": "The link goes to the company page. Hidden companies aren't allowed.",
+        "titleOpt": "Title (optional)",
+        "titleReq": "Title",
+        "body": "Text (optional)",
+        "url": "Link on the site",
+        "urlHint": "Starts with /, like /premium or /offers?kind=nocode. Empty = the What's new page.",
+        "translate": "Translate automatically",
+        "showTr": "English and French",
+        "hideTr": "Hide translation",
+        "push": "Send a phone notification (after a minute)",
+        "publish": "Publish",
+        "preview": "Preview",
+        "previewEmpty": "Type the title…",
+        "pickCompany": "Pick the company first.",
+        "needTitle": "The title is required.",
+        "badUrl": "The link must be on the site and start with /.",
+        "ok": "Notification published.",
+        "okPush": "Published — it reaches phones within one to two minutes.",
+        "err": {
+          "hidden": "This company is hidden: no notification for it.",
+          "rate_limited": "Too many notifications in one hour. Try later.",
+          "invalid": "Invalid data."
+        }
+      },
+      "tpl": {
+        "company": "New company",
+        "code": "New code",
+        "feature": "New site feature",
+        "announcement": "Announcement"
+      },
+      "list": {
+        "title": "All notifications",
+        "empty": "No notifications yet",
+        "emptyDesc": "The first one is created automatically with the next new company.",
+        "edit": "Edit",
+        "show": "Show",
+        "hide": "Hide",
+        "editHint": "Empty = the template text, translated automatically.",
+        "editHintOwn": "The Arabic title is required.",
+        "save": "Save",
+        "saved": "Saved.",
+        "cancel": "Cancel"
+      },
+      "kind": {
+        "company": "New company",
+        "code": "New code",
+        "premium_code": "Premium code",
+        "deal": "No-code deal",
+        "feature": "New feature",
+        "announcement": "Announcement"
+      },
+      "auto": "Automatic",
+      "manual": "Manual",
+      "push": {
+        "pending": "push soon",
+        "sending": "push sending…",
+        "sent_zero": "push: no device",
+        "sent_one": "push: 1 device",
+        "sent_two": "push: {{count}} devices",
+        "sent_few": "push: {{count}} devices",
+        "sent_many": "push: {{count}} devices",
+        "sent_other": "push: {{count}} devices",
+        "skipped": "no push",
+        "failed": "push failed",
+        "off": "no push"
+      },
+      "reads_zero": "No reads",
+      "reads_one": "1 read",
+      "reads_two": "{{count}} reads",
+      "reads_few": "{{count}} reads",
+      "reads_many": "{{count}} reads",
+      "reads_other": "{{count}} reads",
+      "companyHidden": "Company hidden",
+      "hidden": "Hidden"
     }
   },
   "partners": {

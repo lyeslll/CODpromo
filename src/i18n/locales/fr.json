@@ -2241,7 +2241,16 @@
     "s5Title": "Moyens de paiement",
     "s5Desc": "Carte internationale (Visa / Mastercard via Stripe), carte algérienne CIB / Edahabia (via SlickPay et SATIM), PayPal, et Google Play dans l'application. Nous ne conservons jamais vos données de carte.",
     "contactDesc": "Pour toute question sur Premium ou pour demander un remboursement, écrivez-nous à :",
-    "s5DescApp": "Dans l'application Android, le paiement se fait uniquement via Google Play, selon les conditions de Google Play. Nous ne conservons jamais vos données de carte."
+    "s5DescApp": "Dans l'application Android, le paiement se fait uniquement via Google Play, selon les conditions de Google Play. Nous ne conservons jamais vos données de carte.",
+    "keysTitle": "Clés diamant",
+    "keysDesc": "Une clé diamant débloque le code Premium d'une entreprise de votre choix, et ce code reste débloqué sur votre compte pour toujours, même si l'entreprise le change. Une clé ne débloque pas Premium pour les autres entreprises.",
+    "keysItems": [
+      "Les clés sont vendues en packs. Le prix affiché au début du paiement est celui que vous payez.",
+      "Les clés n'expirent jamais. Elles restent sur votre compte jusqu'à ce que vous les utilisiez.",
+      "Dans les 7 jours suivant l'achat, vous pouvez être remboursé des clés non utilisées (leur part du prix du pack) : écrivez à {{email}} depuis l'adresse de votre compte, et nous vous remboursons via le moyen de paiement utilisé. Une clé utilisée pour débloquer un code n'est pas remboursable.",
+      "Si un achat est remboursé par le prestataire de paiement, les clés non utilisées de cet achat sont retirées de votre compte."
+    ],
+    "keysCredit": "Le montant payé pour vos clés est déduit du prix de Premium lorsque vous l'achetez sur le site. Le montant déduit du prix de Premium n'est pas remboursable."
   },
   "premiumFaq": {
     "title": "Questions sur Premium à vie",
@@ -2722,7 +2731,7 @@
       "sub": "Chaque clé diamant ouvre le code Premium d’une entreprise de votre choix, et il reste ouvert pour vous à vie, même si l’entreprise change de code.",
       "perKey": "Soit {{price}} par clé",
       "buy": "Acheter ce pack",
-      "limit_zero": "Il ne reste que {{count}} code verrouillé sur votre compte.",
+      "limit_zero": "Aucun code verrouillé de votre compte n'a besoin d'une clé.",
       "limit_one": "Il ne reste que {{count}} code verrouillé sur votre compte.",
       "limit_two": "Il ne reste que {{count}} codes verrouillés sur votre compte.",
       "limit_few": "Il ne reste que {{count}} codes verrouillés sur votre compte.",

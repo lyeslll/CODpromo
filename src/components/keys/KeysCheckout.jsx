@@ -191,7 +191,7 @@ export default function KeysCheckout({ open, pack, maxKeys, onClose }) {
         <Check size={13} strokeWidth={3} className="mt-[2px] shrink-0 text-[var(--color-lime)]" /> {t("keys.buy.refund")}
       </p>
       <div className="mt-4 border-t border-dashed border-[var(--color-ink-line)] pt-3 text-[12.5px]">
-        <Link to="/terms" onClick={onClose} className="font-bold text-[var(--text-soft)] underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--text)]">
+        <Link to="/terms#keys" onClick={onClose} className="font-bold text-[var(--text-soft)] underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--text)]">
           {t("pricing.terms")}
         </Link>
       </div>

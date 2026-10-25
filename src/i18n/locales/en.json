@@ -2241,7 +2241,16 @@
     "s5Title": "Payment methods",
     "s5Desc": "International card (Visa / Mastercard via Stripe), Algerian CIB / Edahabia card (via SlickPay and SATIM), PayPal, and Google Play inside the app. We never store your card details.",
     "contactDesc": "For any question about Premium or to request a refund, email us at:",
-    "s5DescApp": "Inside the Android app, payment is made through Google Play only, under Google Play's terms. We never store your card details."
+    "s5DescApp": "Inside the Android app, payment is made through Google Play only, under Google Play's terms. We never store your card details.",
+    "keysTitle": "Diamond keys",
+    "keysDesc": "A diamond key unlocks the Premium code of one company you choose, and that code stays unlocked on your account forever, even if the company changes it. A key doesn't unlock Premium for other companies.",
+    "keysItems": [
+      "Keys are sold in packs. The price shown when you start paying is the price you pay.",
+      "Keys never expire. They stay on your account until you use them.",
+      "Within 7 days of purchase, you can get a refund for the keys you haven't used (their share of the pack price): email {{email}} from the address on your account, and we refund you through the same payment method. A key you've used to unlock a code can't be refunded.",
+      "If a purchase is refunded through the payment provider, the unused keys from that purchase are removed from your account."
+    ],
+    "keysCredit": "What you paid for keys is deducted from the Premium price when you buy it on the website. The amount deducted from the Premium price can't be refunded."
   },
   "premiumFaq": {
     "title": "Lifetime Premium questions",
@@ -2722,7 +2731,7 @@
       "sub": "Each diamond key opens the Premium code of one company you choose, and it stays open for you forever, even if the company changes its code.",
       "perKey": "That’s {{price}} per key",
       "buy": "Buy this pack",
-      "limit_zero": "Only {{count}} codes are still locked on your account.",
+      "limit_zero": "No locked code on your account needs a key.",
       "limit_one": "Only {{count}} code is still locked on your account.",
       "limit_two": "Only {{count}} codes are still locked on your account.",
       "limit_few": "Only {{count}} codes are still locked on your account.",

@@ -24,6 +24,8 @@
     { "source": "/category/:slug", "destination": "/api/prerender?type=category&lang=ar&slug=:slug" },
     { "source": "/en/category/:slug", "destination": "/api/prerender?type=category&lang=en&slug=:slug" },
     { "source": "/fr/category/:slug", "destination": "/api/prerender?type=category&lang=fr&slug=:slug" },
+    { "source": "/feeds/offers.v1.json", "destination": "/api/offers-feed" },
+    { "source": "/go/:id([a-z0-9-]+--[0-9]+)", "destination": "/api/go?id=:id" },
     { "source": "/((?!\\.well-known/|api/).*)", "destination": "/index.html" }
   ],
   "headers": [

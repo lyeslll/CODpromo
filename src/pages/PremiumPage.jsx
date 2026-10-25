@@ -104,6 +104,14 @@ export default function PremiumPage({ lang = "ar" }) {
     if (user && !isPremiumActive) setModal("home");
   }, [location.search, location.pathname, authLoading, user, isPremiumActive, navigate]);
 
+  // /premium#keys (بطاقة "مفاتيحك"، لوحة المفاتيح، الداشبورد، البطاقة المقفولة…) → قسم المفاتيح بعد ما تظهر الصفحة
+  // (كيما /terms#keys والرئيسية)، ويتعاود كي يتحمّل اللي فوقو (الشركات، السعر، الأرقام، حالة الحساب)
+  useEffect(() => {
+    if (location.hash !== "#keys") return;
+    const tmr = setTimeout(() => document.getElementById("keys")?.scrollIntoView({ block: "start" }), 150);
+    return () => clearTimeout(tmr);
+  }, [location.hash, location.key, loading, pricingReady, heroPending, stats]);
+
   const premiumCos = useMemo(() => companies.filter(hasPremiumOffer), [companies]);
   const n = premiumCos.length;
   const companiesText = n ? t("premiumPage.companies", { count: n, n: formatNumber(n, lang) }) : null;

@@ -3103,5 +3103,64 @@
       "opened_other": "{{count}} entreprises ouvertes",
       "history": "Historique"
     }
+  },
+  "keysLadder": {
+    "eyebrow": "Les clés CODpromo",
+    "title": "D’un seul code… à tous les codes Premium.",
+    "sub": "Commencez avec votre clé dorée gratuite, ouvrez seulement les codes qu’il vous faut avec des clés diamant, ou prenez Premium et ouvrez tout.",
+    "subNoGolden": "Ouvrez seulement les codes qu’il vous faut avec des clés diamant, ou prenez Premium et ouvrez tout.",
+    "step": "Étape {{n}} sur {{total}}",
+    "jump": "Aller à {{name}}",
+    "golden": {
+      "chip": "Offerte",
+      "name": "Clé dorée",
+      "unit": "code Premium au choix",
+      "unitShort": "code au choix",
+      "price": "Gratuite",
+      "desc": "Pour essayer Premium gratuitement : elle révèle le code d’une entreprise de votre choix, qui reste visible pour vous.",
+      "perks": {
+        "noCard": "Sans carte bancaire",
+        "once": "Une fois par compte",
+        "account": "Un compte gratuit suffit"
+      },
+      "ctaGuest": "Créez votre compte et prenez votre clé dorée",
+      "ctaAvailable": "Utilisez votre clé dorée",
+      "ctaUsed": "Voir votre code",
+      "usedOn": "Utilisée sur {{company}}",
+      "usedGeneric": "Vous avez utilisé votre clé dorée",
+      "usedInbox": "La clé de votre e-mail a servi sur un autre compte"
+    },
+    "diamond": {
+      "chip": "Selon vos besoins",
+      "name": "Clés diamant",
+      "metricTwo": "{{a}} ou {{b}}",
+      "metricRange": "{{min}}–{{max}}",
+      "unit": "codes au choix, ouverts à vie",
+      "unitShort": "codes à vie",
+      "from": "À partir de",
+      "fromShort": "Dès {{price}}",
+      "desc": "Pour ceux qui veulent seulement les codes dont ils ont besoin : chaque clé ouvre le code Premium d’une entreprise de votre choix.",
+      "perks": {
+        "forever": "Ouvert à vie, même si l’entreprise change de code",
+        "noExpiry": "Les clés n’expirent jamais",
+        "refund": "Clés non utilisées remboursables sous 7 jours"
+      },
+      "fair": "Tout ce que vous payez en clés est déduit du prix de Premium si vous passez à Premium plus tard.",
+      "buy": "Acheter",
+      "buyAria": "Acheter {{pack}} pour {{price}}",
+      "best": "Le plus avantageux",
+      "use": "Ouvrir des codes",
+      "packs": "Voir les packs"
+    },
+    "premium": {
+      "chip": "Tout",
+      "name": "Premium à vie",
+      "metric": "∞",
+      "unit": "tous les codes, actuels et futurs",
+      "unitShort": "tous les codes",
+      "desc": "Pour ceux qui utilisent plusieurs entreprises : tous les codes ouverts d’un coup, sans clés ni choix.",
+      "cta": "Découvrir Premium",
+      "ctaGift": "Le garder à vie"
+    }
   }
 }

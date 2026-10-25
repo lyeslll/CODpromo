@@ -3103,5 +3103,64 @@
       "opened_other": "{{count}} companies opened",
       "history": "History"
     }
+  },
+  "keysLadder": {
+    "eyebrow": "CODpromo keys",
+    "title": "From one code… to every Premium code.",
+    "sub": "Start with your free golden key, open only the codes you need with diamond keys, or get Premium and open everything.",
+    "subNoGolden": "Open only the codes you need with diamond keys, or get Premium and open everything.",
+    "step": "Step {{n}} of {{total}}",
+    "jump": "Go to {{name}}",
+    "golden": {
+      "chip": "On us",
+      "name": "Golden key",
+      "unit": "Premium code of your choice",
+      "unitShort": "code you pick",
+      "price": "Free",
+      "desc": "To try Premium for free: it reveals the code of one company you choose, and it stays visible to you.",
+      "perks": {
+        "noCard": "No bank card",
+        "once": "Once per account",
+        "account": "Just a free account"
+      },
+      "ctaGuest": "Create your account and get your golden key",
+      "ctaAvailable": "Use your golden key",
+      "ctaUsed": "See your code",
+      "usedOn": "You used it on {{company}}",
+      "usedGeneric": "You’ve used your golden key",
+      "usedInbox": "Your email’s key was used on another account"
+    },
+    "diamond": {
+      "chip": "Pay for what you need",
+      "name": "Diamond keys",
+      "metricTwo": "{{a}} or {{b}}",
+      "metricRange": "{{min}}–{{max}}",
+      "unit": "codes you choose, open forever",
+      "unitShort": "codes, forever",
+      "from": "From",
+      "fromShort": "From {{price}}",
+      "desc": "For those who only want the codes they need: each key opens the Premium code of one company you choose.",
+      "perks": {
+        "forever": "Open forever, even if the company changes its code",
+        "noExpiry": "Keys never expire",
+        "refund": "Unused keys refundable within 7 days"
+      },
+      "fair": "Everything you pay for keys comes off the Premium price if you upgrade later.",
+      "buy": "Buy",
+      "buyAria": "Buy {{pack}} for {{price}}",
+      "best": "Best value",
+      "use": "Open codes now",
+      "packs": "See the packs"
+    },
+    "premium": {
+      "chip": "Everything",
+      "name": "Premium for life",
+      "metric": "∞",
+      "unit": "every code, now and later",
+      "unitShort": "every code",
+      "desc": "For those who use several companies: every code open at once, no keys, no choosing.",
+      "cta": "Discover Premium",
+      "ctaGift": "Make it lifetime"
+    }
   }
 }

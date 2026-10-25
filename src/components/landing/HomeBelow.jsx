@@ -4,6 +4,7 @@ import Pillars from "./Pillars.jsx";
 import CardAnatomy from "./CardAnatomy.jsx";
 import PremiumCompare from "./PremiumCompare.jsx";
 import GoldenKeySection from "../freekey/GoldenKeySection.jsx";
+import KeysLadderSlot from "../keys-ladder/KeysLadderSlot.jsx";
 import CategoryGrid from "./CategoryGrid.jsx";
 import HowSteps from "./HowSteps.jsx";
 import TrustSection from "./TrustSection.jsx";
@@ -53,6 +54,7 @@ export default function HomeBelow({
       />
       <PremiumCompare company={compareCompany} stats={siteStats} onOpenPremium={goPremium} isPremiumActive={hasPremium} />
       <GoldenKeySection companies={companies} preferred={compareCompany} onOpenPremium={goPremium} />
+      <KeysLadderSlot />
       <CategoryGrid categories={cats} counts={counts} />
       <HowSteps />
       <TrustSection companies={companies} voteStats={voteStats} />

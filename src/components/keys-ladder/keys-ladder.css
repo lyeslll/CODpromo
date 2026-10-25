@@ -1,0 +1,428 @@
+/* ======================================================================
+   سلّم المفاتيح — قسم الرئيسية (KeysLadder.jsx): المفتاح الذهبي ← المفاتيح الماسية ← Premium.
+   كل درجة = تذكرة كوبون واقفة فوق درجة سلّم (سطح + واجهة)، ومفتاحها فوقها.
+   .kl-fx    = الكمبيوتر بالمؤثرات: المفاتيح تطفو وتتحرّك مع الماوس، ضوء يطلع السلّم، العملة تتأرجح.
+   .kl-light = الهاتف / جهاز ضعيف / prefers-reduced-motion: نفس الرسم ثابت.
+   .kl-armed = حركة الدخول (مرة وحدة، حتى في الهاتف) — تتزاد من JS برك، وما تتزادش مع prefers-reduced-motion.
+   كل حركة transform / opacity (والخيط stroke-dashoffset)، والمستمرّة تخدم غير والقسم في الشاشة (.is-live).
+   اللون تاع كل درجة: --tone = "R G B" (rgb(var(--tone) / a)).
+   ====================================================================== */
+
+.kl-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(36% 30% at 24% 46%, rgba(240, 198, 60, 0.08), transparent 70%),
+    radial-gradient(42% 34% at 50% 72%, rgba(169, 205, 255, 0.06), transparent 72%);
+}
+[dir="ltr"] .kl-bg {
+  background:
+    radial-gradient(36% 30% at 76% 46%, rgba(240, 198, 60, 0.08), transparent 70%),
+    radial-gradient(42% 34% at 50% 72%, rgba(169, 205, 255, 0.06), transparent 72%);
+}
+
+/* ===================== التذكرة ===================== */
+.kl-card {
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@media (hover: hover) {
+  .kl-col:hover .kl-card {
+    transform: translateY(-6px);
+  }
+}
+.kl-fx .kl-card-premium {
+  filter: drop-shadow(0 22px 40px rgba(240, 198, 60, 0.16));
+}
+.kl-metric {
+  background: linear-gradient(180deg, #ffffff 10%, rgb(var(--tone)) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+/* ∞ (Premium): الرمز قصير بطبيعتو → أكبر باش يساوي الأرقام */
+.kl-card .kl-inf {
+  font-size: 70px;
+  line-height: 0.66;
+}
+.kl-tile-front .kl-inf {
+  font-size: 38px;
+  line-height: 0.72;
+}
+
+/* باقة المفاتيح (زر الشراء) */
+.kl-pack {
+  background:
+    linear-gradient(170deg, rgba(169, 205, 255, 0.1), rgba(169, 205, 255, 0.02) 70%),
+    var(--color-ink);
+}
+@media (hover: hover) {
+  .kl-pack:not(:disabled):hover {
+    background:
+      linear-gradient(170deg, rgba(169, 205, 255, 0.16), rgba(169, 205, 255, 0.05) 70%),
+      var(--color-ink);
+  }
+}
+
+/* مستوى الدرجة: أعمدة تطلع (▂▄▆) */
+.kl-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 17px;
+}
+.kl-bars > span {
+  width: 5px;
+  border-radius: 2px;
+  background: rgb(var(--tone) / 0.2);
+}
+.kl-bars > span.on {
+  background: rgb(var(--tone));
+  box-shadow: 0 0 8px rgb(var(--tone) / 0.55);
+}
+
+/* ===================== الدرجات (السطح + الواجهة) ===================== */
+.kl-step {
+  transform-origin: 50% 100%;
+}
+.kl-step-top {
+  height: 18px;
+  background: linear-gradient(180deg, rgb(var(--tone) / 0.06), rgb(var(--tone) / 0.24));
+  clip-path: polygon(3.5% 0, 96.5% 0, 100% 100%, 0 100%);
+}
+.kl-step-front {
+  position: relative;
+  border-top: 1.5px solid rgb(var(--tone) / 0.8);
+  background: linear-gradient(180deg, rgb(var(--tone) / 0.17), rgb(var(--tone) / 0.035) 72%, transparent);
+  box-shadow: 0 -12px 30px -16px rgb(var(--tone) / 0.75);
+}
+/* خط مثقّب على الواجهة (نفس تذاكر الكوبون) */
+.kl-step-front::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 18px;
+  right: 18px;
+  height: 2px;
+  background-image: linear-gradient(90deg, rgb(var(--tone) / 0.32) 55%, transparent 0);
+  background-size: 10px 2px;
+  background-repeat: repeat-x;
+}
+.kl-floor {
+  position: absolute;
+  left: -3%;
+  right: -3%;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+}
+.kl-floor::after {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 0;
+  height: 110px;
+  background: radial-gradient(50% 100% at 50% 0%, rgba(240, 198, 60, 0.09), transparent 72%);
+}
+
+/* الخيط اللي يطلع السلّم (SVG فوق حافات الدرجات) */
+.kl-path {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+[dir="rtl"] .kl-path {
+  transform: scaleX(-1);
+}
+.kl-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.kl-path-draw {
+  stroke: rgba(255, 255, 255, 0.28);
+  stroke-width: 1;
+  stroke-dasharray: 100 100;
+  stroke-dashoffset: 0;
+}
+.kl-path-glow,
+.kl-path-spark {
+  stroke-dasharray: 7 200;
+  stroke-dashoffset: 7;
+  opacity: 0;
+}
+.kl-path-glow {
+  stroke: rgba(255, 236, 170, 0.28);
+  stroke-width: 9;
+}
+.kl-path-spark {
+  stroke: #fffaf0;
+  stroke-width: 2.4;
+}
+
+/* ===================== المفاتيح فوق التذاكر ===================== */
+.kl-visual {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 24px);
+  width: 170px;
+  margin-left: -85px;
+  z-index: 2;
+  pointer-events: none;
+}
+.kl-par {
+  transform: translate3d(calc(var(--mx, 0) * var(--depth, 12) * 1px), calc(var(--my, 0) * var(--depth, 12) * 0.6px), 0);
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.kl-tilt {
+  transform: rotate(var(--kr, 0deg));
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@media (hover: hover) {
+  .kl-col:hover .kl-tilt {
+    transform: rotate(calc(var(--kr, 0deg) * 0.35)) scale(1.06);
+  }
+}
+.kl-key-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.55));
+}
+.kl-light .kl-key-svg {
+  filter: none;
+}
+/* ظلّ المفتاح على التذكرة */
+.kl-shade {
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  width: 140px;
+  height: 18px;
+  margin-left: -70px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.55), transparent);
+  pointer-events: none;
+}
+
+/* Premium: عملة ذهبية بتاج + أشعّة */
+.kl-coin-wrap {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  margin-inline: auto;
+  perspective: 600px;
+}
+.kl-rays {
+  position: absolute;
+  inset: -40px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 228, 134, 0.2) 0deg 5deg, transparent 5deg 22.5deg);
+  -webkit-mask: radial-gradient(closest-side, #000 28%, transparent 100%);
+  mask: radial-gradient(closest-side, #000 28%, transparent 100%);
+}
+.kl-coin-spin {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+.kl-coin {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  color: #5c3f04;
+  background: radial-gradient(circle at 34% 28%, #fff6d5, #ffe486 26%, #f0c63c 54%, #cf9a1e 80%, #a87512);
+  box-shadow:
+    inset 0 0 0 3px rgba(122, 84, 8, 0.55),
+    inset 0 0 0 9px rgba(255, 243, 196, 0.32),
+    inset 0 0 0 10.5px rgba(122, 84, 8, 0.35),
+    inset 0 -12px 20px rgba(122, 84, 8, 0.4),
+    0 18px 34px -12px rgba(240, 198, 60, 0.65);
+}
+
+/* ===================== الهاتف: الدرجات الصغيرة فوق التذاكر ===================== */
+.kl-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border-radius: 0 0 14px 14px;
+  -webkit-tap-highlight-color: transparent;
+}
+.kl-tile-top {
+  height: 12px;
+  background: linear-gradient(180deg, rgb(var(--tone) / 0.08), rgb(var(--tone) / 0.3));
+  clip-path: polygon(5% 0, 95% 0, 100% 100%, 0 100%);
+}
+.kl-tile-front {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 6px 12px;
+  border-top: 1.5px solid rgb(var(--tone) / 0.85);
+  border-radius: 0 0 14px 14px;
+  background: linear-gradient(180deg, rgb(var(--tone) / 0.2), rgb(var(--tone) / 0.05) 78%, rgb(var(--tone) / 0.02));
+  box-shadow: 0 -10px 24px -14px rgb(var(--tone) / 0.8);
+}
+.kl-tile:active .kl-tile-front {
+  background: linear-gradient(180deg, rgb(var(--tone) / 0.28), rgb(var(--tone) / 0.08) 78%, rgb(var(--tone) / 0.03));
+}
+.kl-tile-visual {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 6px);
+  width: 92px;
+  margin-left: -46px;
+  pointer-events: none;
+}
+.kl-tile-visual .kl-coin-wrap {
+  width: 54px;
+  height: 54px;
+}
+.kl-tile-visual .kl-rays {
+  inset: -18px;
+}
+
+/* ===================== الحركات ===================== */
+@media (prefers-reduced-motion: no-preference) {
+  /* الدخول (مرة وحدة): الدرجات تطلع، التذاكر توقف فوقها، المفاتيح تنزل، الخيط يترسم، العملة تدور */
+  .kl-armed .kl-step {
+    transform: scaleY(0.001);
+  }
+  .kl-armed .kl-card-in {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  .kl-armed .kl-visual-in {
+    opacity: 0;
+    transform: translateY(-28px) scale(0.86);
+  }
+  .kl-armed .kl-path-draw {
+    stroke-dashoffset: 100;
+  }
+  .kl-armed .kl-tile-in {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  .kl-armed.is-in .kl-step {
+    transform: none;
+    transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--i) * 140ms);
+  }
+  .kl-armed.is-in .kl-card-in {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.6s ease calc(220ms + var(--i) * 140ms),
+      transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) calc(220ms + var(--i) * 140ms);
+  }
+  .kl-armed.is-in .kl-visual-in {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.5s ease calc(560ms + var(--i) * 170ms),
+      transform 0.95s cubic-bezier(0.34, 1.56, 0.64, 1) calc(560ms + var(--i) * 170ms);
+  }
+  .kl-armed.is-in .kl-path-draw {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1.5s cubic-bezier(0.45, 0, 0.25, 1) 0.75s;
+  }
+  .kl-armed.is-in .kl-tile-in {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.5s ease calc(var(--i) * 120ms),
+      transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--i) * 120ms);
+  }
+  .kl-armed.is-in .kl-coin-spin {
+    animation: kl-flip 1.3s cubic-bezier(0.2, 0.7, 0.2, 1) calc(900ms + var(--i) * 170ms) both;
+  }
+
+  /* المستمرّة (الكمبيوتر بالمؤثرات، والقسم في الشاشة) */
+  .kl-fx.is-live .kl-float {
+    animation: kl-bob 5.8s ease-in-out infinite;
+    animation-delay: calc(var(--i) * -1.9s);
+  }
+  .kl-fx.is-live .kl-shade {
+    animation: kl-shade 5.8s ease-in-out infinite;
+    animation-delay: calc(var(--i) * -1.9s);
+  }
+  .kl-fx.is-live .kl-coin {
+    animation: kl-swing 7s ease-in-out 2.6s infinite;
+  }
+  .kl-fx.is-live .kl-rays {
+    animation: kl-rot 28s linear infinite;
+  }
+  .kl-fx.is-live .is-in .kl-path-glow,
+  .kl-fx.is-live .is-in .kl-path-spark {
+    animation: kl-travel 6.5s cubic-bezier(0.45, 0, 0.25, 1) 2.2s infinite;
+  }
+}
+
+@keyframes kl-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@keyframes kl-shade {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.82);
+    opacity: 0.6;
+  }
+}
+@keyframes kl-flip {
+  from {
+    transform: rotateY(-360deg);
+  }
+  to {
+    transform: rotateY(0deg);
+  }
+}
+@keyframes kl-swing {
+  0%,
+  100% {
+    transform: rotateY(-24deg);
+  }
+  50% {
+    transform: rotateY(24deg);
+  }
+}
+@keyframes kl-rot {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes kl-travel {
+  0% {
+    stroke-dashoffset: 7;
+    opacity: 0;
+  }
+  4% {
+    opacity: 1;
+  }
+  38% {
+    stroke-dashoffset: -100;
+    opacity: 1;
+  }
+  42%,
+  100% {
+    stroke-dashoffset: -100;
+    opacity: 0;
+  }
+}

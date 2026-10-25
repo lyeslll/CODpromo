@@ -32,6 +32,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 - **التصميم الجديد راه على `main`** (merge `redesign-home` في `54d5ce0`، أكتوبر 2026). الفرع `redesign-home` والـ tag باقين — ممنوع تحذفهم.
 - **نقطة الرجوع:** الـ tag **`pre-redesign`** (`dc53f2e`) = آخر `main` قبل التصميم الجديد. للرجوع: `git revert -m 1 54d5ce0` ثم `git push` (عادي، بلا force) — ماشي `reset --hard`.
 - **حجز Premium بالرصيد + /terms#keys** (الفرع `keys-terms-credit`، 25 أكتوبر 2026) مدموج بـ merge عادي `9ae8264` — الرجوع في §5 ("phase38").
+- **سلّم المفاتيح في الرئيسية** (الفرع `keys-home`، 25 أكتوبر 2026) مدموج بـ merge عادي `69b60e8` — واجهة برك (بلا قاعدة ولا Edge Functions ولا تبديل في منطق المفاتيح والدفع). الرجوع: `git revert -m 1 69b60e8` ثم `git push` (بلا force).
 - **هيدر الهاتف = اللوغو + الجرس + القائمة** (الفرع `mobile-header`، 25 أكتوبر 2026) مدموج بـ merge عادي `50cd2ed` — واجهة برك. الرجوع: `git revert -m 1 50cd2ed` ثم `git push` (بلا force).
 - **المفاتيح الماسية** (الفرع `diamond-keys`، 25 أكتوبر 2026) مدموجة في `main` بـ merge عادي `7d1a117`. الرجوع (الويب): `git revert -m 1 7d1a117` ثم `git push` (بلا force) — الـ Edge Functions و phase37 ما يرجعوش مع الـ revert (phase37 جديدة برك وما تضرّش؛ `stripe-webhook` / `paypal-webhook` / `send-email` يتعاودو يتنشرو من الكود بعد الرجوع).
 - **جولة الهاتف وصفحات الشركات** (الفرع `mobile-ux-round`، 24 أكتوبر 2026) مدموجة في `main` بـ merge عادي. الرجوع: `git revert -m 1 <commit الدمج>` ثم `git push` (بلا force). القاعدة (phase34 → phase36) تبقى: متوافقة مع الكود القديم، وكل وحدة عندها ملف رجوع.

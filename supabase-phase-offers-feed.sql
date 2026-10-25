@@ -10,7 +10,8 @@
 --     ilyes_slug يتعمّر للشركات الموجودة من ملف الأمثلة تاع الدليل (codpromo-sample.json، 24 شركة).
 --  2) القاعدة الوحيدة (الملف + التحويل + النقرة):
 --     offers_feed_ok = الشركة ظاهرة (company_is_public) + ilyes_visible + كود عادي [A-Za-z0-9_-]{1,32}
---     + رابط https. بطاقات "قريباً" بلا كود (CHECK companies_soon_no_codes) → ما يدخلوش.
+--     + رابط https. بطاقات "قريباً" (phase coming-soon) مستثنية صراحة (not coming_soon في الدوال الثلاثة)،
+--     وزيد على هذا ما عندهمش كود (CHECK companies_soon_no_codes). يتشغّل بعد phase-coming-soon.
 --     offers_feed_id = "<slug>--<id>": فيه "--" → ما يتصادمش أبداً مع /go/<slug> تاع العروض بلا كود
 --     (CHECK nocode_deals_slug_chk ما يقبلش "--")، و vercel.json يبعث هاد الشكل برك لـ api/go.js.
 --  3) offers_feed_v1() و offers_feed_target(id): SECURITY INVOKER — تتنادى بالمفتاح العام: RLS تخبّي
@@ -109,6 +110,7 @@ as $$
          coalesce(c.has_premium_code, false) and c.supports_premium is distinct from false
     from public.companies c
    where public.offers_feed_ok(c.status, c.ilyes_visible, btrim(c.code), c.link)
+     and not c.coming_soon
    order by c.created_at desc nulls last, c.id desc
    limit 500;
 $$;
@@ -126,7 +128,8 @@ as $$
    where c.id = case when coalesce(p_id, '') ~ '^[a-z0-9]+(-[a-z0-9]+)*--[0-9]{1,18}$'
                      then (substring(p_id from '--([0-9]{1,18})$'))::bigint end
      and public.offers_feed_id(c.slug, c.id) = p_id
-     and public.offers_feed_ok(c.status, c.ilyes_visible, btrim(c.code), c.link);
+     and public.offers_feed_ok(c.status, c.ilyes_visible, btrim(c.code), c.link)
+     and not c.coming_soon;
 $$;
 
 revoke all on function public.offers_feed_v1() from public;
@@ -191,7 +194,8 @@ begin
     from public.companies c
    where c.id = (substring(p_id from '--([0-9]{1,18})$'))::bigint
      and public.offers_feed_id(c.slug, c.id) = p_id
-     and public.offers_feed_ok(c.status, c.ilyes_visible, btrim(c.code), c.link);
+     and public.offers_feed_ok(c.status, c.ilyes_visible, btrim(c.code), c.link)
+     and not c.coming_soon;
   if v_company is null then
     return json_build_object('counted', false);
   end if;

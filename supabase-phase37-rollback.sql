@@ -18,6 +18,7 @@ end;
 $$;
 
 drop function if exists public.admin_revoke_credit_upgrade(bigint);
+drop function if exists public.admin_void_credit_checkout(bigint);
 drop function if exists public.admin_credit_uses();
 drop function if exists public.admin_refund_key_order(bigint);
 drop function if exists public.admin_list_key_orders(text, integer, integer);
@@ -60,6 +61,7 @@ drop function if exists public.key_email_enqueue(text, uuid, text, jsonb);
 drop function if exists public.key_email_dispatch(bigint);
 drop function if exists public.key_email_enabled();
 drop function if exists public.key_order_refund_info(bigint);
+drop function if exists public.key_credit_void(bigint);
 drop function if exists public.keys_credit_state(uuid);
 drop function if exists public.keys_credit_quote_for(uuid);
 drop function if exists public.keys_credit_backed(uuid, text, numeric);

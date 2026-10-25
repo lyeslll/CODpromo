@@ -407,8 +407,9 @@ end;
 $$;
 
 -- الرصيد تحسب في Premium (شراء Premium بالرصيد غير مستردّ، ولا تفعيل كامل بالرصيد)؟
--- reserved = دفع Premium بالرصيد بدا وما كملش: فاتورة SlickPay / طلب PayPal بالباقي مازال pending (مهما طال —
--- الفاتورة تقدر تتخلّص من بعد)، ولا جلسة Stripe في آخر 24 ساعة (تنتهي بعد ساعة). يمنع استرداد المفاتيح قبل.
+-- reserved = دفع Premium بالرصيد بدا وما كملش (حتى شراء في purchases) وما تلغاش (revoked_at): فاتورة SlickPay /
+-- طلب PayPal بالباقي مهما طال ومهما كانت حالتها عندنا (status يقدر يتبدّل لـ failed والفاتورة مازالت تتخلّص عند
+-- البوابة)، ولا جلسة Stripe في آخر 24 ساعة (تنتهي بعد ساعة). يمنع استرداد المفاتيح قبل. يتحرّر غير بـ key_credit_void.
 create or replace function public.keys_credit_state(uid uuid)
 returns json
 language sql
@@ -423,13 +424,9 @@ as $$
                            or exists (select 1 from public.purchases pu
                                        where pu.provider_ref = c.provider_ref and pu.refunded_at is null))),
     'reserved_at', (select max(c.created_at) from public.key_credit_uses c
-                     where c.user_id = uid and c.kind = 'checkout'
+                     where c.user_id = uid and c.kind = 'checkout' and c.revoked_at is null
                        and not exists (select 1 from public.purchases pu where pu.provider_ref = c.provider_ref)
-                       and ((c.provider = 'stripe' and c.created_at > now() - interval '24 hours')
-                            or (c.provider = 'slickpay' and exists (select 1 from public.slickpay_invoices i
-                                                                     where i.invoice_id = c.provider_ref and i.status = 'pending'))
-                            or (c.provider = 'paypal' and exists (select 1 from public.paypal_orders po
-                                                                   where po.order_id = c.provider_ref and po.status = 'pending'))))
+                       and (c.provider <> 'stripe' or c.created_at > now() - interval '24 hours'))
   );
 $$;
 
@@ -1185,6 +1182,53 @@ begin
 end;
 $$;
 
+-- إلغاء دفع Premium بالرصيد اللي ما كملش (داخلي): revoked_at على السطر، والفاتورة / الطلب تاع الباقي يولّي بلا tier
+-- → الدوال الكاينة (activateInvoice / activateOrder) يرجّعو "legacy" وما يعطيوش Premium بيه حتى لو تخلّص من بعد.
+-- Stripe: الجلسة تنتهي بعد ساعة وحدها. 'voided' | 'completed' (شراء كامل) | 'not_found'
+create or replace function public.key_credit_void(p_id bigint)
+returns text
+language plpgsql
+volatile
+security definer
+set search_path = public
+as $$
+declare
+  c public.key_credit_uses%rowtype;
+begin
+  select * into c from public.key_credit_uses where id = p_id and kind = 'checkout' for update;
+  if not found or c.revoked_at is not null then
+    return 'not_found';
+  end if;
+  if exists (select 1 from public.purchases pu where pu.provider_ref = c.provider_ref) then
+    return 'completed';
+  end if;
+  update public.key_credit_uses set revoked_at = now() where id = c.id;
+  if c.provider = 'slickpay' then
+    update public.slickpay_invoices set tier = null where invoice_id = c.provider_ref and status <> 'completed';
+  elsif c.provider = 'paypal' then
+    update public.paypal_orders set tier = null where order_id = c.provider_ref and status <> 'completed';
+  end if;
+  return 'voided';
+end;
+$$;
+
+-- الأدمن: "إلغاء الحجز" (الزبون ما كمّلش دفع الباقي وطلب استرداد المفاتيح)
+create or replace function public.admin_void_credit_checkout(p_id bigint)
+returns text
+language plpgsql
+volatile
+security definer
+set search_path = public
+as $$
+begin
+  perform public.admin_assert();
+  if current_setting('transaction_read_only') = 'on' then
+    raise exception 'POST only' using errcode = '25006';
+  end if;
+  return public.key_credit_void(p_id);
+end;
+$$;
+
 -- الاسترداد (داخلي): المفاتيح اللي ما تستعملوش من هاد الطلب تتنحّى، والطلب يتعلّم مسترد.
 -- p_refunded = المجموع المسترد لحد الآن (Stripe amount_refunded، PayPal total_refunded_amount) → greatest = idempotent.
 -- كل استرداد (حتى الثاني على نفس الطلب) يعاود يحسب واش الرصيد مازال يغطي Premium بالرصيد.
@@ -1228,6 +1272,12 @@ begin
   -- الدراهم اللي تحسبت في Premium رجعت (استرداد من البوابة، اعتراض…): تفعيل Premium بالرصيد كامل اللي ما بقاش
   -- مغطّى يتنحّى. شراء Premium بالباقي (checkout) يبان "غير مغطّى" في الأدمن والقرار ليه.
   if o.user_id is not null then
+    -- دفع الباقي اللي ما كملش والرصيد اللي تحسب فيه ما بقاش مغطّى: يتلغى (الفاتورة القديمة ما تعطيش Premium)
+    perform public.key_credit_void(c.id)
+       from public.key_credit_uses c
+      where c.user_id = o.user_id and c.kind = 'checkout' and c.revoked_at is null
+        and not exists (select 1 from public.purchases pu where pu.provider_ref = c.provider_ref)
+        and not public.keys_credit_backed(o.user_id, c.currency, c.credit);
     update public.key_credit_uses c set revoked_at = now()
      where c.user_id = o.user_id and c.kind = 'full' and c.revoked_at is null
        and not public.keys_credit_backed(o.user_id, c.currency, c.credit);
@@ -1627,6 +1677,8 @@ begin
                                       'email', coalesce(u.email, p.email)::text, 'user_id', c.user_id, 'id', c.id,
                                       'revoked_at', c.revoked_at,
                                       'backed', c.user_id is null or public.keys_credit_backed(c.user_id, c.currency, c.credit),
+                                      'voidable', c.kind = 'checkout' and c.revoked_at is null
+                                                  and not exists (select 1 from public.purchases pu where pu.provider_ref = c.provider_ref),
                                       'applied', (c.kind = 'full' and c.revoked_at is null) or exists (select 1 from public.purchases pu
                                                    where pu.provider_ref = c.provider_ref and pu.refunded_at is null))
              order by c.created_at desc)
@@ -1683,6 +1735,8 @@ revoke all on function public.key_order_unused(bigint) from public, anon, authen
 revoke all on function public.keys_credit_quote_for(uuid) from public, anon, authenticated;
 revoke all on function public.keys_credit_amounts(uuid) from public, anon, authenticated;
 revoke all on function public.keys_credit_backed(uuid, text, numeric) from public, anon, authenticated;
+revoke all on function public.key_credit_void(bigint) from public, anon, authenticated;
+revoke all on function public.admin_void_credit_checkout(bigint) from public, anon;
 revoke all on function public.keys_credit_state(uuid) from public, anon, authenticated;
 revoke all on function public.key_order_refund_info(bigint) from public, anon, authenticated;
 revoke all on function public.key_email_enabled() from public, anon, authenticated;
@@ -1749,5 +1803,6 @@ grant execute on function public.admin_list_key_orders(text, integer, integer) t
 grant execute on function public.admin_refund_key_order(bigint) to authenticated;
 grant execute on function public.admin_credit_uses() to authenticated;
 grant execute on function public.admin_revoke_credit_upgrade(bigint) to authenticated;
+grant execute on function public.admin_void_credit_checkout(bigint) to authenticated;
 
 notify pgrst, 'reload schema';

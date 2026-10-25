@@ -1438,7 +1438,14 @@
         "packNoteLimit": "On ne vend jamais plus de clés que de codes encore verrouillés sur le compte.",
         "creditUnbacked": "Non couvert",
         "creditUnbackedHint": "Des clés comptées dans cet achat ont été remboursées. Vous pouvez retirer Premium depuis la liste des ventes si besoin.",
-        "packAbovePremium": "Le prix du pack doit rester inférieur au prix de Premium."
+        "packAbovePremium": "Le prix du pack doit rester inférieur au prix de Premium.",
+        "voidCheckout": "Annuler la réservation",
+        "voidConfirm": "Annuler la réservation de crédit de {{email}} ? L’ancienne facture du reste ne donnera pas Premium même payée plus tard, et les clés deviennent remboursables.",
+        "voidRes": {
+          "voided": "Réservation annulée",
+          "completed": "L’achat est finalisé : impossible d’annuler",
+          "not_found": "Introuvable ou déjà annulée"
+        }
       }
     }
   },

@@ -41,6 +41,9 @@ export const listCreditUses = async () => (await rpc("admin_credit_uses")) || []
 /** رجوع تفعيل Premium بالرصيد كامل (تجربة مثلاً): 'revoked' | 'not_found' */
 export const revokeCreditUpgrade = (id) => rpc("admin_revoke_credit_upgrade", { p_id: id });
 
+/** إلغاء حجز دفع Premium بالرصيد اللي ما كملش (الفاتورة القديمة ما تعطيش Premium): 'voided' | 'completed' | 'not_found' */
+export const voidCreditCheckout = (id) => rpc("admin_void_credit_checkout", { p_id: id });
+
 /** { packs: [{ id, keys, price_dzd, price_usd, play_product_id, is_active, position, updated_at }], pricing } */
 export const fetchAdminKeyPacks = () => rpc("admin_key_packs");
 

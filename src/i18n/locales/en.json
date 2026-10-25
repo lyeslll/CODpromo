@@ -1438,7 +1438,14 @@
         "packNoteLimit": "We never sell more keys than the codes still locked on the account.",
         "creditUnbacked": "Not covered",
         "creditUnbackedHint": "Keys counted in this purchase were refunded. You can revoke Premium from the sales list if needed.",
-        "packAbovePremium": "The pack price must stay below the Premium price."
+        "packAbovePremium": "The pack price must stay below the Premium price.",
+        "voidCheckout": "Cancel reservation",
+        "voidConfirm": "Cancel {{email}}’s credit reservation? The old remainder invoice will not grant Premium even if paid later, and the keys become refundable.",
+        "voidRes": {
+          "voided": "Reservation cancelled",
+          "completed": "The purchase completed: cannot cancel",
+          "not_found": "Not found or already cancelled"
+        }
       }
     }
   },

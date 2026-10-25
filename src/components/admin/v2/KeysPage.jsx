@@ -18,7 +18,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { fetchKeysHistory, fetchKeysStats, giftKeys, listCreditUses, listKeysAccounts, revokeCreditUpgrade } from "../../../lib/keysAdmin.js";
+import { fetchKeysHistory, fetchKeysStats, giftKeys, listCreditUses, listKeysAccounts, revokeCreditUpgrade, voidCreditCheckout } from "../../../lib/keysAdmin.js";
 import { ChartCard } from "./OverviewPage.jsx";
 import { useAdminT, Glass, PageHeader, Skeleton, EmptyState, fmt, fmtDate, inputCls } from "./ui.jsx";
 
@@ -118,6 +118,17 @@ export default function KeysPage({ notify }) {
     }
   };
 
+  const voidCheckout = async (c) => {
+    if (!window.confirm(t("keys.voidConfirm", { email: c.email || t("sales.deletedUser") }))) return;
+    try {
+      const r = await voidCreditCheckout(c.id);
+      notify(r === "voided" ? "success" : "error", t(`keys.voidRes.${r}`));
+      setTick((x) => x + 1);
+    } catch (e) {
+      notify("error", e.message);
+    }
+  };
+
   if (error) {
     return (
       <>
@@ -186,7 +197,7 @@ export default function KeysPage({ notify }) {
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
         <GiftForm notify={notify} onDone={() => setTick((x) => x + 1)} />
-        <CreditUses rows={credits} onRevoke={revokeUpgrade} />
+        <CreditUses rows={credits} onRevoke={revokeUpgrade} onVoid={voidCheckout} />
       </div>
 
       {/* الحسابات */}
@@ -315,7 +326,7 @@ function GiftForm({ notify, onDone }) {
 }
 
 /** شراءات Premium بالرصيد (الباقي بالبوابة) والتفعيل الكامل بالرصيد. */
-function CreditUses({ rows, onRevoke }) {
+function CreditUses({ rows, onRevoke, onVoid }) {
   const t = useAdminT();
   return (
     <Glass className="p-5">
@@ -351,6 +362,11 @@ function CreditUses({ rows, onRevoke }) {
                   <span className="rounded-md bg-[#f87171]/15 px-1.5 py-0.5 text-[11px] font-bold text-[#fca5a5]" title={t("keys.creditUnbackedHint")}>
                     {t("keys.creditUnbacked")}
                   </span>
+                )}
+                {c.voidable && (
+                  <button type="button" onClick={() => onVoid(c)} className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[11.5px] font-bold text-[#9ca3af] hover:text-white">
+                    <X size={12} /> {t("keys.voidCheckout")}
+                  </button>
                 )}
                 {c.kind === "full" && c.applied && (
                   <button type="button" onClick={() => onRevoke(c)} className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[11.5px] font-bold text-[#9ca3af] hover:text-white">

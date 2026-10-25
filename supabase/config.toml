@@ -58,3 +58,6 @@ verify_jwt = false
 # إشعارات الهاتف (phase notifications): تناديها القاعدة برك (pg_net) برأس x-push-secret، بلا JWT
 [functions.send-push]
 verify_jwt = false
+
+[functions.send-app-push]
+verify_jwt = false

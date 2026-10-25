@@ -54,6 +54,15 @@ export function renderNotification(n, t, lang) {
   if (n.kind === "feature" || n.kind === "announcement") return { ...base, title: ownTitle, body: ownBody };
   const offer =
     n.kind === "deal" ? pick(row, "reward", lang) : n.kind === "premium_code" ? pick(row, "premium_discount", lang) : pick(row, "discount", lang);
+  // "أعلمني عند التفعيل" (phase coming-soon): صاحب الحساب كان يستنى هاد العرض → "العرض الذي كنت تنتظره هنا"
+  if (n.waited) {
+    return {
+      ...base,
+      waited: true,
+      title: t("notify.waited.title", { name }),
+      body: offer ? t(`notify.kind.${n.kind}.body`, { offer }) : t(`notify.kind.${n.kind}.bodyNoOffer`),
+    };
+  }
   return {
     ...base,
     title: ownTitle || t(`notify.kind.${n.kind}.title`, { name }),

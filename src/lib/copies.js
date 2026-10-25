@@ -51,7 +51,8 @@ export async function fetchRecentCopies(userId, limit = 10) {
   const out = [];
   for (const r of data || []) {
     const key = `${r.company_id}:${r.premium}`;
-    if (!r.companies || seen.has(key)) continue;
+    // "العرض قريباً" (رجعت قريباً من بعد ما تنسخت): الكود ماشي متاح دروك
+    if (!r.companies || r.companies.coming_soon === true || seen.has(key)) continue;
     seen.add(key);
     out.push(r);
     if (out.length === limit) break;

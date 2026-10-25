@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Search, Tag, X } from "lucide-react";
+import { ArrowLeft, Hourglass, Search, Tag, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useCategories } from "../../lib/categories.jsx";
 import { offersLink } from "../../lib/seo.js";
@@ -10,10 +10,12 @@ import { categoryName, categoryRecordSlug, companyCategoryRecord } from "../../l
 import { activeCategories, countByCategory, matchesSearch } from "../../lib/offerFilters.js";
 import { getTypeMeta } from "../../lib/types.js";
 import CompanyLogo from "../CompanyLogo.jsx";
-import { useHeaderOffers } from "./headerData.js";
+import { useHeaderComingSoon, useHeaderOffers } from "./headerData.js";
+import { SOON } from "../coming-soon/tone.js";
 import { useBackToClose } from "../../lib/useBackToClose.js";
 
 const MAX_OFFERS = 6;
+const MAX_SOON = 3;
 const MAX_CATS = 3;
 
 /**
@@ -27,6 +29,7 @@ export default function QuickSearch({ open, onClose }) {
   const navigate = useNavigate();
   const { categories, byId } = useCategories();
   const offers = useHeaderOffers(open);
+  const soon = useHeaderComingSoon(open);
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef(null);
@@ -52,15 +55,18 @@ export default function QuickSearch({ open, onClose }) {
     if (!query) return [];
     const low = query.toLowerCase();
     const offerHits = offers.filter((c) => matchesSearch(c, query, lang, byId, categories)).slice(0, MAX_OFFERS);
+    // "العرض قريباً" بعد العروض اللي تخدم
+    const soonHits = soon.filter((c) => matchesSearch(c, query, lang, byId, categories)).slice(0, MAX_SOON);
     const catHits = cats
       .filter((c) => [categoryName(c, lang), c.name_ar, c.name_en, c.name_fr].some((v) => v && v.toLowerCase().includes(low)))
       .slice(0, MAX_CATS);
     return [
       ...offerHits.map((o) => ({ key: `o-${o.id}`, kind: "offer", o })),
+      ...soonHits.map((o) => ({ key: `s-${o.id}`, kind: "soon", o })),
       ...catHits.map((c) => ({ key: `c-${c.id}`, kind: "cat", c })),
       { key: "all", kind: "all" },
     ];
-  }, [query, offers, cats, lang, byId, categories]);
+  }, [query, offers, soon, cats, lang, byId, categories]);
 
   const suggestions = useMemo(
     () => cats.filter((c) => (counts[c.id] || 0) > 0).sort((a, b) => (counts[b.id] || 0) - (counts[a.id] || 0)).slice(0, 6),
@@ -71,7 +77,7 @@ export default function QuickSearch({ open, onClose }) {
 
   const go = (item) => {
     let to;
-    if (item?.kind === "offer") to = offersLink(lang, { q: item.o.name });
+    if (item?.kind === "offer" || item?.kind === "soon") to = offersLink(lang, { q: item.o.name });
     else if (item?.kind === "cat") to = offersLink(lang, { category: categoryRecordSlug(item.c) });
     else to = offersLink(lang, query ? { q: query } : {});
     onClose();
@@ -223,6 +229,22 @@ function Kbd({ label, children }) {
 }
 
 function ResultRow({ item, lang, t, byId, categories, counts, query }) {
+  if (item.kind === "soon") {
+    const c = item.o;
+    const rec = companyCategoryRecord(c, byId, categories);
+    return (
+      <>
+        <CompanyLogo logo={c.logo} bg={c.logo_bg} name={c.name} size={36} accent={SOON} />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[14.5px] font-extrabold text-[var(--text)]">{c.name}</span>
+          <span className="block truncate text-[12px] font-medium text-[var(--color-mute)]">{rec ? categoryName(rec, lang) : c.category}</span>
+        </span>
+        <span className="flex shrink-0 items-center gap-1 text-[12.5px] font-black" style={{ color: SOON }}>
+          <Hourglass size={13} aria-hidden /> {t("comingSoon.badge")}
+        </span>
+      </>
+    );
+  }
   if (item.kind === "offer") {
     const c = item.o;
     const meta = getTypeMeta(c.type);

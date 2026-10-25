@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate, useReducedMotion } from "framer-motion";
-import { Search, X } from "lucide-react";
+import { Hourglass, Search, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { fetchCompanies } from "../lib/supabase.js";
+import { fetchComingSoon } from "../lib/comingSoon.js";
+import { SOON } from "../components/coming-soon/tone.js";
 import { usePremium } from "../lib/premium.jsx";
 import { useVoteStats } from "../lib/voteStats.jsx";
 import { useCategories } from "../lib/categories.jsx";
@@ -56,6 +58,8 @@ const SWIPE_HINT_KEY = "codpromo:swipe-hint";
 //    /offers?type=cashback&category=payment-cards&mode=premium
 //    /offers?featured=1 (العروض المميّزة فقط) · ?sort=usage (الأكثر استخداماً)
 //    /offers?kind=nocode (تبويب "بلا كود": البحث والفئات ومبدّل Premium تعمل فيه أيضاً)
+//    /offers?soon=1 ("العرض قريباً" برك، phase coming-soon). بلا فلتر: القريبة تجي بعد العروض اللي تخدم ديما،
+//    وما تتحسبش معاهم (العدد = العروض اللي تخدم، والقريبة وحدها "+N قريباً").
 //  الهاتف: مبدّل عائم فوق شريط التنقّل + سحب أفقي على القائمة للتبديل كأنها تبويبات.
 // ============================================================
 export default function OffersPage({ lang = "ar" }) {
@@ -67,6 +71,7 @@ export default function OffersPage({ lang = "ar" }) {
   const [params, setParams] = useSearchParams();
 
   const [companies, setCompanies] = useState([]);
+  const [soonList, setSoonList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const goPremium = useGoPremium();
@@ -82,6 +87,7 @@ export default function OffersPage({ lang = "ar" }) {
   const kindParam = params.get("kind") === "nocode" ? "nocode" : "code";
   const nocode = kindParam === "nocode";
   const featuredParam = params.get("featured") === "1";
+  const soonParam = params.get("soon") === "1";
   const sortMode = ["success", "usage"].includes(params.get("sort")) ? params.get("sort") : "newest";
   const qParam = params.get("q") || "";
 
@@ -140,8 +146,11 @@ export default function OffersPage({ lang = "ar" }) {
   const load = useCallback(() => {
     setLoading(true);
     setError(null);
-    fetchCompanies()
-      .then((data) => setCompanies(Array.isArray(data) ? data : []))
+    Promise.all([fetchCompanies(), fetchComingSoon().catch(() => [])])
+      .then(([data, soon]) => {
+        setCompanies(Array.isArray(data) ? data : []);
+        setSoonList(Array.isArray(soon) ? soon : []);
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
@@ -174,17 +183,29 @@ export default function OffersPage({ lang = "ar" }) {
   // تبويب "بلا كود": نفس البحث والفئات؛ في Premium العروض ذات رابط Premium أولاً والمجمّدة بعدها
   const deals = useNocodeDeals();
   const dealCounts = useMemo(() => countByCategory(deals || [], cats), [deals, cats]);
-  const counts = useMemo(() => countByCategory(companies, cats), [companies, cats]);
+  // فلتر "قريباً": شرائح الفئات تحسب القريبة برك؛ وإلا العروض اللي تخدم برك
+  const counts = useMemo(() => countByCategory(soonParam ? soonList : companies, cats), [soonParam, soonList, companies, cats]);
 
   const filtered = useMemo(
     () =>
       companies.filter((c) => {
+        if (soonParam) return false;
         if (featuredParam && !featuredLabel.has(c.id)) return false;
         if (typeParam && c.type !== TYPE_PARAMS[typeParam]) return false;
         if (categoryParam && companyCategorySlug(c, byId, categories) !== categoryParam) return false;
         return matchesSearch(c, search, lang, byId, categories);
       }),
-    [companies, featuredParam, featuredLabel, typeParam, categoryParam, search, lang, byId, categories]
+    [companies, soonParam, featuredParam, featuredLabel, typeParam, categoryParam, search, lang, byId, categories]
+  );
+  // "العرض قريباً": نفس البحث والفئة؛ فلتر النوع والمميّزة ما يخصّوهاش (العرض مازال ما وصلش)
+  const filteredSoon = useMemo(
+    () =>
+      soonList.filter((c) => {
+        if (typeParam || featuredParam) return false;
+        if (categoryParam && companyCategorySlug(c, byId, categories) !== categoryParam) return false;
+        return matchesSearch(c, search, lang, byId, categories);
+      }),
+    [soonList, typeParam, featuredParam, categoryParam, search, lang, byId, categories]
   );
 
   const filteredDeals = useMemo(
@@ -213,18 +234,18 @@ export default function OffersPage({ lang = "ar" }) {
 
   // ?featured=1 قبل وصول قائمة المميّزة: هيكل تحميل بدل "لا نتائج"
   const featuredPending = featuredParam && featuredRows === null;
-  const showFeaturedRow = !nocode && featured.length > 0 && !featuredParam && !typeParam && !categoryParam && !search.trim();
+  const showFeaturedRow = !nocode && featured.length > 0 && !featuredParam && !soonParam && !typeParam && !categoryParam && !search.trim();
   const gridLoading = nocode ? deals === null : loading || featuredPending || (!mobileFx && !fxMod && !error);
-  const activeCount = nocode ? filteredDeals.length : filtered.length;
+  const activeCount = nocode ? filteredDeals.length : filtered.length + filteredSoon.length;
   // القائمة معروضة → المبدّل العائم يظهر في الهاتف (ونترك له مسافة تحت القائمة)
   const switchable = !gridLoading && !(error && !nocode) && activeCount > 0;
   const changeKind = (k) =>
-    updateParams(k === "nocode" ? { kind: "nocode", type: null, featured: null, sort: null } : { kind: null });
+    updateParams(k === "nocode" ? { kind: "nocode", type: null, featured: null, sort: null, soon: null } : { kind: null });
 
   const resetFilters = () => {
     setSearch("");
     lastWrittenQ.current = "";
-    updateParams({ q: null, type: null, category: null, featured: null });
+    updateParams({ q: null, type: null, category: null, featured: null, soon: null });
   };
 
   // ===== المبدّل العائم (هاتف): يظهر ما دامت القائمة في الشاشة =====
@@ -381,6 +402,19 @@ export default function OffersPage({ lang = "ar" }) {
                 {t("home.offersCount", { count: companies.length })}
               </span>
             )}
+            {/* "العرض قريباً" يتحسب وحدو (ماشي مع العروض اللي تخدم) */}
+            {!loading && !error && soonList.length > 0 && (
+              <button
+                type="button"
+                onClick={() => updateParams({ soon: soonParam ? null : "1", kind: null, type: null, featured: null })}
+                aria-pressed={soonParam}
+                className="mb-1 inline-flex items-center gap-1.5 rounded-xl border px-3 py-1 text-[13px] font-bold transition-colors"
+                style={{ borderColor: `${SOON}55`, background: soonParam ? `${SOON}24` : `${SOON}12`, color: SOON }}
+              >
+                <Hourglass size={13} aria-hidden />
+                {t("comingSoon.plus", { count: soonList.length })}
+              </button>
+            )}
           </div>
           {/* الهاتف: سطرين برك (كانت 3 أسطر + كل الفلاتر قبل أول بطاقة) */}
           <p className="mt-2.5 line-clamp-2 max-w-2xl text-[14.5px] leading-relaxed text-[var(--text-soft)] sm:mt-3 sm:line-clamp-none sm:text-[16px]">{t("offers.subtitle")}</p>
@@ -412,7 +446,8 @@ export default function OffersPage({ lang = "ar" }) {
                 </button>
               )}
               <span className="hidden shrink-0 rounded-lg bg-[var(--fill)] px-2 py-1 text-[11px] font-bold text-[var(--color-mute)] sm:block">
-                {t("search.results", { count: activeCount })}
+                {t("search.results", { count: nocode ? filteredDeals.length : filtered.length })}
+                {!nocode && filteredSoon.length > 0 && !soonParam && <span style={{ color: SOON }}> · {t("comingSoon.plus", { count: filteredSoon.length })}</span>}
               </span>
             </label>
           </div>
@@ -428,7 +463,7 @@ export default function OffersPage({ lang = "ar" }) {
             onChange={changeKind}
             counts={{ code: loading ? null : companies.length, nocode: deals ? deals.length : null }}
           />
-          {!nocode && <TypeFilter value={typeParam} onChange={(v) => updateParams({ type: v })} />}
+          {!nocode && <TypeFilter value={typeParam} onChange={(v) => updateParams({ type: v, ...(v ? { soon: null } : {}) })} />}
           <CategoryChips
             categories={cats}
             counts={nocode ? dealCounts : counts}
@@ -439,7 +474,16 @@ export default function OffersPage({ lang = "ar" }) {
                 ? {
                     active: featuredParam,
                     count: featured.length,
-                    onToggle: () => updateParams({ featured: featuredParam ? null : "1" }),
+                    onToggle: () => updateParams({ featured: featuredParam ? null : "1", soon: null }),
+                  }
+                : null
+            }
+            soon={
+              !nocode && (soonList.length || soonParam)
+                ? {
+                    active: soonParam,
+                    count: soonList.length,
+                    onToggle: () => updateParams({ soon: soonParam ? null : "1", type: null, featured: null }),
                   }
                 : null
             }
@@ -543,7 +587,7 @@ export default function OffersPage({ lang = "ar" }) {
               </NocodeGrid>
             </motion.div>
           )}
-          {!nocode && !loading && !error && filtered.length > 0 && (mobileFx || fxMod) && (
+          {!nocode && !loading && !error && filtered.length + filteredSoon.length > 0 && (mobileFx || fxMod) && (
             <motion.div style={{ x: dragX }} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <AnimatePresence>
                 {ordered.map((c, i) => {
@@ -575,6 +619,21 @@ export default function OffersPage({ lang = "ar" }) {
                     </fxMod.FeaturedFrame>
                   );
                 })}
+                {/* "العرض قريباً" ديما بعد العروض اللي تخدم (بلا ترتيب: الأحدث) */}
+                {filteredSoon.map((c, i) => (
+                  <CompanyCard
+                    key={c.id}
+                    company={c}
+                    index={ordered.length + i}
+                    isFavorite={favorites.includes(c.id)}
+                    onToggleFav={toggleFav}
+                    onCopy={handleCopy}
+                    premium={isPremium}
+                    unlocked={unlocked}
+                    onUnlock={goPremium}
+                    onShowNormal={() => setMode("normal")}
+                  />
+                ))}
               </AnimatePresence>
             </motion.div>
           )}

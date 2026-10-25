@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import BidiText from "../BidiText.jsx";
 import CompanyLogo from "../CompanyLogo.jsx";
 import { getTypeMeta } from "../../lib/types.js";
-import { locText, textLines, RATING_MIN_AVG } from "../../lib/storeContent.js";
+import { locText, textLines, RATING_MIN_AVG, storeComingSoon } from "../../lib/storeContent.js";
 import { storePath } from "../../lib/seo.js";
 
 /** عنوان قسم موحّد (بلا وسوم فوقه — العنوان وحدو يكفي). */
@@ -25,7 +25,7 @@ export function StoreSteps({ company, steps, custom, lang }) {
   const rtl = lang === "ar";
   return (
     <section aria-labelledby="store-steps-title" className="mt-14">
-      <SectionTitle id="store-steps-title">{t("storePage.stepsTitle", { name: company.name })}</SectionTitle>
+      <SectionTitle id="store-steps-title">{t(storeComingSoon(company) ? "storePage.soon.stepsTitle" : "storePage.stepsTitle", { name: company.name })}</SectionTitle>
       <ol className={`store-steps grid gap-3 md:gap-4 ${steps.length === 3 ? "md:grid-cols-3" : steps.length === 2 ? "md:grid-cols-2" : steps.length >= 4 ? "md:grid-cols-2 lg:grid-cols-4" : ""}`}>
         {steps.map((s, i) => (
           <li key={i} className="store-step flex gap-3.5 md:flex-col md:gap-3">

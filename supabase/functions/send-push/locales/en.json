@@ -19,6 +19,15 @@
     "body": "{{offer}}",
     "bodyNoOffer": "Activate it in one tap on CODpromo"
   },
+  "waited": {
+    "title": "The offer you were waiting for is here: {{name}}",
+    "many_zero": "No offers",
+    "many_one": "{{count}} offer you were waiting for is here",
+    "many_two": "{{count}} offers you were waiting for are here",
+    "many_few": "{{count}} offers you were waiting for are here",
+    "many_many": "{{count}} offers you were waiting for are here",
+    "many_other": "{{count}} offers you were waiting for are here"
+  },
   "digest": {
     "title_zero": "No new updates",
     "title_one": "1 new update on CODpromo",

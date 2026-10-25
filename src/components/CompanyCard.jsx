@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useCallback, lazy, Suspense } from "react"
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock, Undo2, Key, Sparkles, ArrowLeft } from "lucide-react";
+import { Copy, Check, Heart, ExternalLink, Flame, Crown, Lock, Undo2, Key, Sparkles, ArrowLeft, Hourglass } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getTypeMeta, getTypeKey } from "../lib/types.js";
 import { companySlug, companyCategoryRecord, categoryName } from "../lib/slug.js";
@@ -25,12 +25,16 @@ import { DiamondGlyph } from "./keys/DiamondKey.jsx";
 import { DIA_BG, DIA_DEEP, DIA_GLOW, DIA_INK, DIA_SOFT, PRISM } from "./keys/diamond.js";
 import GiftConfetti from "./gift/GiftConfetti.jsx";
 import { useWaveValue, useCountText } from "../lib/modeWave.jsx";
+import { isComingSoon } from "../lib/comingSoon.js";
+import { SOON, SOON_GLOW } from "./coming-soon/tone.js";
 
 // المفتاح الماسي: النوافذ والحركة يتحمّلو غير كي يلزمو (البطاقة في الحزمة الأولى تاع الرئيسية)
 const loadUnlockFx = () => import("./keys/DiamondUnlockFx.jsx");
 const KeyUnlockDialog = lazy(() => import("./keys/KeyUnlockDialog.jsx"));
 const KeyChooser = lazy(() => import("./keys/KeyChooser.jsx"));
 const DiamondUnlockFx = lazy(loadUnlockFx);
+// "العرض قريباً": chunk وحدو (البطاقة + "أعلمني" + الستايل) — ما يتحمّلش غير كي تبان بطاقة قريبة
+const ComingSoonTicket = lazy(() => import("./coming-soon/ComingSoonTicket.jsx"));
 
 // هوية Premium الذهبية
 const GOLD = "#f0c63c";
@@ -53,6 +57,8 @@ const GOLD_GLOW = "rgba(240,198,60,0.4)";
  * → حركة الفتح → نفس الخدش؛ الشركة المفتوحة بيه مكشوفة ديما. بلا مفاتيح → يختار (الذهبي / شراء مفاتيح / Premium).
  * كل كود مقفول يبيّن الفرق (العادي ← Premium) باش يعرف واش يربح.
  * freeKey={false} = البطاقة كيما كانت (المعاينات وتشريح البطاقة).
+ * "العرض قريباً" (companies.coming_soon، phase coming-soon) → ComingSoonTicket في نفس البلاصة؛ في وضع Premium
+ * بلا Premium قريب → المجمّدة كيما الباقي (المفاتيح ما يشوفوهاش: has_premium_code = false في القاعدة).
  */
 export default function CompanyCard({
   company,
@@ -291,6 +297,26 @@ export default function CompanyCard({
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
   };
+
+  if (isComingSoon(company) && (!premium || company.premium_coming_soon)) {
+    return (
+      <Suspense fallback={<div aria-hidden className="ticket min-h-[470px] rounded-[var(--radius-card)] border border-[#ff7eb3]/20 bg-[var(--color-ink-card)]" />}>
+      <ComingSoonTicket
+        company={company}
+        index={index}
+        isFavorite={isFavorite}
+        onToggleFav={onToggleFav}
+        linkToStore={linkToStore}
+        storeHref={storeHref}
+        category={category}
+        desc={desc}
+        premium={premium}
+        logo={<CardLogo logo={company.logo} bg={company.logo_bg} name={company.name} accent={SOON} glow={SOON_GLOW} premium={false} />}
+        live={freeKey}
+      />
+      </Suspense>
+    );
+  }
 
   if (premium && !hasPremiumOffer(company)) {
     return (
@@ -747,6 +773,7 @@ function FrozenTicket({ company, index, isFavorite, onToggleFav, linkToStore, st
       exit={{ opacity: 0, y: -10, scale: 0.97 }}
       transition={{ duration: 0.45, delay: Math.min(index * 0.05, 0.35), ease: [0.16, 1, 0.3, 1] }}
       data-frozen=""
+      data-soon-frozen={isComingSoon(company) ? "" : undefined}
       data-wave-id={`c${company.id}`}
       className="ticket ticket-frozen relative flex flex-col"
       style={{ "--edge-base": "rgba(255,255,255,0.07)", "--edge-strong": "rgba(255,255,255,0.07)", "--perf": "rgba(255,255,255,0.12)" }}
@@ -783,8 +810,8 @@ function FrozenTicket({ company, index, isFavorite, onToggleFav, linkToStore, st
             <div className="text-[30px] font-black leading-none text-[#52525b]">—</div>
           </div>
           <span className="flex items-center gap-1.5 rounded-full bg-white/[0.04] px-3 py-1.5 text-[12px] font-bold text-[var(--color-mute)]">
-            <Icon size={13} />
-            {t(`types.${getTypeKey(company.type)}`)}
+            {isComingSoon(company) ? <Hourglass size={13} /> : <Icon size={13} />}
+            {isComingSoon(company) ? t("comingSoon.badge") : t(`types.${getTypeKey(company.type)}`)}
           </span>
         </div>
       </div>

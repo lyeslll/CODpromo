@@ -27,6 +27,7 @@ import {
   PanelLeftOpen,
   ArrowLeft,
   LogOut,
+  Hourglass,
 } from "lucide-react";
 import Logo from "../../Logo.jsx";
 import { useAdminT } from "./ui.jsx";
@@ -38,6 +39,7 @@ export const NAV = [
     group: "content",
     items: [
       { key: "companies", path: "/admin/companies", icon: Store },
+      { key: "comingSoon", path: "/admin/coming-soon", icon: Hourglass },
       { key: "featured", path: "/admin/featured", icon: Sparkles },
       { key: "nocode", path: "/admin/nocode", icon: Gift },
       { key: "categories", path: "/admin/categories", icon: FolderTree },

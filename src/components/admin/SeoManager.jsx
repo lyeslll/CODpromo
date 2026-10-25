@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import i18n from "i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Pencil, ExternalLink, Loader2, Check, X, Plus, Trash2,
@@ -226,8 +227,10 @@ function SeoEditor({ company, onClose, onSaved, notify }) {
 
   // القيم الافتراضية التلقائية (placeholder) — تُحسب من بيانات الشركة بدون حقول SEO.
   const bare = { ...company, seo_title: "", seo_title_en: "", seo_title_fr: "", seo_description: "", seo_description_en: "", seo_description_fr: "" };
-  const defaultTitle = storeTitle(bare, "ar");
-  const defaultDesc = storeDescription(bare, "ar");
+  // "العرض قريباً": نفس العنوان والوصف اللي يشوفهم جوجل (phase coming-soon)
+  const tAr = i18n.getFixedT("ar");
+  const defaultTitle = storeTitle(bare, "ar", tAr);
+  const defaultDesc = storeDescription(bare, "ar", tAr);
 
   const addFaq = () => setFaqs((f) => [...f, { question: "", answer: "" }]);
   const removeFaq = (i) => setFaqs((f) => f.filter((_, idx) => idx !== i));

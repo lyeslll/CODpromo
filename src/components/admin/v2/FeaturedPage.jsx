@@ -128,7 +128,8 @@ export default function FeaturedPage({ companies, loading: loadingCompanies, not
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return companies.filter((c) => !listed.has(c.id) && (c.name || "").toLowerCase().includes(q)).slice(0, 6);
+    // "العرض قريباً" ما يتميّزش (العروض المميّزة = عروض تخدم، وتبان قبل الكل)
+    return companies.filter((c) => !listed.has(c.id) && c.coming_soon !== true && (c.name || "").toLowerCase().includes(q)).slice(0, 6);
   }, [query, companies, listed]);
 
   // المعاينة = ما يظهر الآن في الرئيسية بالترتيب الحالي (حتى قبل الحفظ)
@@ -137,7 +138,7 @@ export default function FeaturedPage({ companies, loading: loadingCompanies, not
       rows
         .filter((r) => isLive(r))
         .map((r) => ({ company: byId.get(r.company_id), label: r.label }))
-        .filter((x) => x.company),
+        .filter((x) => x.company && x.company.coming_soon !== true),
     [rows, byId]
   );
 

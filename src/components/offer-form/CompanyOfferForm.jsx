@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-import { ImagePlus, Loader2, X, Tag, Ticket, Wallet, Plus, Save, Crown, Sparkles, AlertTriangle, Lock, Building2, Gift, Wand2, Check, Handshake, ShieldAlert } from "lucide-react";
+import { ImagePlus, Loader2, X, Tag, Ticket, Wallet, Plus, Save, Crown, Sparkles, AlertTriangle, Lock, Building2, Gift, Wand2, Check, Handshake, ShieldAlert, Globe, MousePointerClick } from "lucide-react";
 import CompanyLogo from "../CompanyLogo.jsx";
 import CompanyCard from "../CompanyCard.jsx";
 import LogoCropper from "./LogoCropper.jsx";
 import { uploadLogo } from "../../lib/supabase.js";
 import { getTypeMeta } from "../../lib/types.js";
 import { parseVal } from "../../lib/values.js";
+import { feedGoUrl, feedOfferId } from "../../lib/feedContent.js";
 
 // ============================================================
 //  CompanyOfferForm — فورم إضافة/تعديل شركة وعرضها، مستقل لإعادة الاستعمال
@@ -27,6 +28,8 @@ import { parseVal } from "../../lib/values.js";
 //   lang             لغة نصوص الفورم (الأدمن: "ar" ثابتة)
 //   freeRevealSwitch سويتش "متاح للمفتاح الذهبي" (الأدمن): يرجع في company.free_reveal_enabled
 //                    والحفظ عبر RPC admin_set_company_free_reveal (ماشي مع باقي الأعمدة)
+//   ilyesFields      قسم "الظهور في ilyesderradji.com" (الأدمن): ilyes_visible + ilyes_slug (phase offers-feed)،
+//                    و feedStats = نقرات ilyesderradji.com لهاد الشركة ({ d7, d30, total }) إذا كاينين
 // ============================================================
 
 const TYPES = [
@@ -58,8 +61,13 @@ const EMPTY = {
   store_kind: "",
   code_checked_at: "",
   logo_bg: "",
+  // ملف العروض العام (الأدمن برك): يظهر في ilyesderradji.com + المعرّف في دليلها (فارغ = slug تاعنا)
+  ilyes_visible: true,
+  ilyes_slug: "",
 };
 const PAGE_FIELDS = ["about", "features", "usage_steps", "store_kind", "code_checked_at", "logo_bg"];
+const ILYES_FIELDS = ["ilyes_visible", "ilyes_slug"];
+const ILYES_SLUG_RE = /^[a-z0-9-]{1,64}$/;
 const KINDS = ["platform", "delivery", "store", "tool", "payment", "service"];
 const LOGO_BGS = ["", "white", "dark", "transparent"];
 
@@ -140,6 +148,8 @@ export default function CompanyOfferForm({
   lang,
   freeRevealSwitch = false,
   pageFields = false,
+  ilyesFields = false,
+  feedStats = null,
   draftKey = null,
 }) {
   const partner = mode === "partner";
@@ -240,7 +250,11 @@ export default function CompanyOfferForm({
     code: !form.code.trim(),
   };
   if (partner) missing.whatsapp = !priv.whatsapp.trim();
-  const valid = !missing.name && !missing.discount && !missing.code && !missing.whatsapp;
+  const ilyesOn = ilyesFields && !partner;
+  const badIlyesSlug = ilyesOn && !!form.ilyes_slug && !ILYES_SLUG_RE.test(form.ilyes_slug);
+  const valid = !missing.name && !missing.discount && !missing.code && !missing.whatsapp && !badIlyesSlug;
+  // رابط العرض في الملف (الشركة المحفوظة برك): نفس المعرّف تاع القاعدة
+  const feedLink = ilyesOn && initial?.id ? feedGoUrl(feedOfferId(initial.slug, initial.id)) : "";
 
   const submit = (e) => {
     e.preventDefault();
@@ -260,6 +274,9 @@ export default function CompanyOfferForm({
     // خانات صفحة الشركة: للأدمن برك (الشركة ما تبعثهمش)، والتاريخ كامل (ISO) ولا فارغ
     if (!pageFields || partner) for (const k of PAGE_FIELDS) delete company[k];
     else company.code_checked_at = form.code_checked_at ? new Date(`${form.code_checked_at}T12:00:00Z`).toISOString() : "";
+    // خانات ilyesderradji.com: للأدمن برك (فارغ → null = slug تاع CODpromo)
+    if (!ilyesOn) for (const k of ILYES_FIELDS) delete company[k];
+    else company.ilyes_visible = form.ilyes_visible !== false;
     onSubmit(company, showPrivate || partner ? priv : null);
   };
 
@@ -506,6 +523,47 @@ export default function CompanyOfferForm({
           </Section>
         )}
 
+        {/* 4ج) ilyesderradji.com: العرض العادي برك يخرج في الملف العام (feeds/offers.v1.json) */}
+        {ilyesOn && (
+          <Section icon={Globe} title={t("s.ilyes")} sub={t("s.ilyesSub")}>
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <Switch checked={form.ilyes_visible !== false} onChange={(v) => setForm((f) => ({ ...f, ilyes_visible: v }))} label={t("f.ilyesVisible")} color="var(--color-lime)" />
+            </div>
+            <p className="mb-4 text-[12px] leading-relaxed text-[#6b7280]">{t("h.ilyesVisible")}</p>
+            <div className={`grid gap-4 transition-opacity sm:grid-cols-2 ${form.ilyes_visible === false ? "opacity-45" : ""}`}>
+              <Field label={t("f.ilyesSlug")} hint={t("h.ilyesSlug", { slug: initial?.slug || "—" })} error={badIlyesSlug ? t("warn.ilyesSlug") : null}>
+                {(p) => (
+                  <input
+                    {...p}
+                    value={form.ilyes_slug || ""}
+                    onChange={(e) => setForm((f) => ({ ...f, ilyes_slug: e.target.value.toLowerCase().replace(/\s+/g, "-") }))}
+                    placeholder={initial?.slug || ""}
+                    maxLength={64}
+                    className={`${inputCls} font-mono`}
+                    dir="ltr"
+                    spellCheck={false}
+                    autoComplete="off"
+                  />
+                )}
+              </Field>
+              {feedLink && (
+                <Field label={t("f.ilyesLink")} hint={t("h.ilyesLink")}>
+                  {(p) => <input {...p} value={feedLink} readOnly onFocus={(e) => e.target.select()} className={`${inputCls} font-mono text-[12.5px] text-[#a1a1aa]`} dir="ltr" />}
+                </Field>
+              )}
+            </div>
+            {feedStats && (
+              <p className="mt-4 flex items-start gap-2 text-[12.5px] leading-relaxed text-[#a1a1aa]">
+                <MousePointerClick size={14} className="mt-0.5 shrink-0 text-[var(--color-lime)]" />
+                {/* bdi: الدومين اللاتيني والأرقام ما يتخلّطوش في الاتجاه (RTL) */}
+                <span>
+                  <bdi className="font-bold text-white">{t("f.ilyesClicks")}</bdi> · <bdi>{t("h.ilyesClicks", { d7: feedStats.d7, d30: feedStats.d30, total: feedStats.total })}</bdi>
+                </span>
+              </p>
+            )}
+          </Section>
+        )}
+
         {/* 5) معلومات داخلية */}
         {showPrivate && (
           <Section icon={Lock} title={t("s.private")} sub={t("s.privateSub")} badge={t("s.adminOnly")}>
@@ -722,7 +780,7 @@ function Hint({ id, children }) {
   );
 }
 
-function Switch({ checked, onChange, label }) {
+function Switch({ checked, onChange, label, color = GOLD }) {
   return (
     <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-white/[0.08] bg-black/30 px-3 py-2 text-[13px] font-bold text-[#c9c9cf]">
       <span>{label}</span>
@@ -732,7 +790,7 @@ function Switch({ checked, onChange, label }) {
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className="relative h-6 w-11 rounded-full transition-colors"
-        style={{ background: checked ? GOLD : "rgba(255,255,255,0.12)" }}
+        style={{ background: checked ? color : "rgba(255,255,255,0.12)" }}
       >
         <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${checked ? "left-[22px]" : "left-0.5"}`} />
       </button>

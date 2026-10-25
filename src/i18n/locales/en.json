@@ -1702,6 +1702,8 @@
   },
   "offerForm": {
     "s": {
+      "ilyes": "On ilyesderradji.com",
+      "ilyesSub": "The ilyesderradji.com discount library reads only the regular offer (code and link) from a public file. A Premium offer never appears there.",
       "company": "Company",
       "companySub": "The identity shown at the top of the card",
       "type": "Offer type",
@@ -1725,6 +1727,10 @@
       "hintPartner": "PNG, JPG or WebP, up to 1 MB. A square logo on a transparent background works best."
     },
     "f": {
+      "ilyesVisible": "Show on ilyesderradji.com",
+      "ilyesSlug": "ID in the ilyesderradji.com directory",
+      "ilyesLink": "Offer link in the file",
+      "ilyesClicks": "Clicks from ilyesderradji.com",
       "name": "Company name",
       "category": "Category",
       "noCategory": "No category",
@@ -1756,6 +1762,10 @@
       "usageSteps": "Custom steps to use the code"
     },
     "h": {
+      "ilyesVisible": "When off, the offer leaves the public file within an hour.",
+      "ilyesSlug": "Optional: the company's ID in the directory (e.g. colivraison-express) so the offer links to its page there. Empty = this company's link here ({{slug}}).",
+      "ilyesLink": "The click is counted in CODpromo and in the partner dashboard, then the visitor reaches the referral link.",
+      "ilyesClicks": "7 days: {{d7}} · 30 days: {{d30}} · all: {{total}}",
       "name": "Example: YouCan",
       "category": "Pick an existing one, or add a new category without leaving",
       "website": "Example: https://youcan.shop (saved in internal info)",
@@ -1789,6 +1799,7 @@
       "cashback": "Cashback"
     },
     "warn": {
+      "ilyesSlug": "Lowercase Latin letters, digits and dashes only (64 characters max).",
       "https": "The link should start with https://",
       "weaker": "The Premium value isn't stronger than the regular one",
       "frozen": "Without a Premium code, the card appears frozen in Premium mode."
@@ -2227,6 +2238,8 @@
     }
   },
   "partnerDash": {
+    "feedClicks": "Clicks via ilyesderradji.com",
+    "feedClicks30": "last 30 days: {{value}}",
     "hello": "Hello, {{name}}",
     "sub": "Track your offers and how they perform, and send a new one any time.",
     "newOffer": "New offer",

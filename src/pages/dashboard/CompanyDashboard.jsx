@@ -8,6 +8,7 @@ import CompanyLogo from "../../components/CompanyLogo.jsx";
 import { getTypeMeta } from "../../lib/types.js";
 import { useAuth } from "../../lib/auth.jsx";
 import { fetchMyRequests, fetchPartnerOverview } from "../../lib/requests.js";
+import { fetchPartnerFeedClicks } from "../../lib/feedClicks.js";
 import { storePath, partnersPath } from "../../lib/seo.js";
 import { formatNumber } from "../../lib/values.js";
 import PartnerOfferPage from "./PartnerOfferPage.jsx";
@@ -26,6 +27,8 @@ export default function CompanyDashboard() {
   const location = useLocation();
   const [requests, setRequests] = useState(null);
   const [overview, setOverview] = useState(null);
+  // نقرات ilyesderradji.com على عروض الشركة (عبر codpromo.com/go/<id>): company_id → { total, d30 }
+  const [feedClicks, setFeedClicks] = useState({});
   const [error, setError] = useState("");
   const [toast, setToast] = useState(location.state?.sent ? t("partnerDash.sentToast") : "");
 
@@ -33,6 +36,9 @@ export default function CompanyDashboard() {
     setError("");
     fetchMyRequests(user.id).then(setRequests).catch((e) => (setRequests([]), setError(e.message)));
     fetchPartnerOverview().then(setOverview).catch((e) => (setOverview({ items: [], series: [] }), setError(e.message)));
+    fetchPartnerFeedClicks()
+      .then((rows) => setFeedClicks(Object.fromEntries(rows.map((r) => [r.company_id, r]))))
+      .catch(() => setFeedClicks({}));
   }, [user.id]);
 
   useEffect(load, [load]);
@@ -51,7 +57,7 @@ export default function CompanyDashboard() {
   return (
     <DashboardShell badge={t("dashboard.company.badge")} wide>
       <Routes>
-        <Route index element={<PartnerHome requests={requests} overview={overview} error={error} />} />
+        <Route index element={<PartnerHome requests={requests} overview={overview} feedClicks={feedClicks} error={error} />} />
         <Route path="offers/new" element={<PartnerOfferPage mode="new" pendingCount={(requests || []).filter((r) => r.status === "pending").length} />} />
         <Route path="offers/:companyId/edit" element={<PartnerOfferPage mode="edit" pendingCount={(requests || []).filter((r) => r.status === "pending").length} />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
@@ -77,7 +83,7 @@ export default function CompanyDashboard() {
   );
 }
 
-function PartnerHome({ requests, overview, error }) {
+function PartnerHome({ requests, overview, feedClicks = {}, error }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const { user, profile } = useAuth();
@@ -151,7 +157,7 @@ function PartnerHome({ requests, overview, error }) {
         ) : (
           <ul className="grid gap-3 lg:grid-cols-2">
             {overview.items.map((o) => (
-              <PublishedOffer key={o.id} offer={o} editPending={pendingEdits.has(o.id)} />
+              <PublishedOffer key={o.id} offer={o} feed={feedClicks[o.id]} editPending={pendingEdits.has(o.id)} />
             ))}
           </ul>
         )}
@@ -183,7 +189,7 @@ function PartnerHome({ requests, overview, error }) {
   );
 }
 
-function PublishedOffer({ offer, editPending }) {
+function PublishedOffer({ offer, feed, editPending }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const meta = getTypeMeta(offer.type);
@@ -225,6 +231,14 @@ function PublishedOffer({ offer, editPending }) {
           </div>
         ))}
       </dl>
+      {feed?.total > 0 && (
+        <p className="mt-3 flex flex-wrap items-center justify-center gap-1.5 text-[12px] text-[var(--color-mute)]">
+          {/* bdi: الدومين اللاتيني والأرقام ما يتخلّطوش في الاتجاه */}
+          <MousePointerClick size={12} /> <bdi>{t("partnerDash.feedClicks")}</bdi>
+          <b className="font-black tabular-nums text-[var(--text)]">{formatNumber(feed.total, lang)}</b>
+          <span aria-hidden>·</span> <bdi>{t("partnerDash.feedClicks30", { value: formatNumber(feed.d30 || 0, lang) })}</bdi>
+        </p>
+      )}
       <div className="mt-4">
         {editPending ? (
           <p className="flex items-center gap-1.5 text-[12.5px] font-bold text-[#fbbf24]">

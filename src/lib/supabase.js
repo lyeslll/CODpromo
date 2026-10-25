@@ -166,6 +166,8 @@ const ALLOWED = [
   "about", "about_en", "about_fr", "features", "features_en", "features_fr",
   "usage_steps", "usage_steps_en", "usage_steps_fr",
   "store_kind", "code_checked_at", "logo_bg",
+  // ملف العروض العام لـ ilyesderradji.com (phase offers-feed): المعرّف في الدليل + الظهور
+  "ilyes_slug", "ilyes_visible",
 ];
 
 /** يبقي فقط الحقول المسموح بها ويحوّل الفراغات إلى null. */
@@ -477,6 +479,21 @@ export async function fetchCompanyPageFields(id) {
   if (!res.ok) throw new Error("فشل الاتصال بالخادم");
   const data = await res.json();
   return (Array.isArray(data) ? data[0] : data) || null;
+}
+
+/**
+ * خانات ilyesderradji.com لفورم الأدمن (phase offers-feed) — ماشي في القوائم العامة.
+ * بهوية الأدمين: حتى الشركة المخفية (phase36) ترجع خاناتها.
+ */
+export async function fetchCompanyFeedFields(id) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${id}&select=ilyes_slug,ilyes_visible`, {
+    headers: await adminHeaders(),
+  });
+  if (!res.ok) throw new Error("فشل الاتصال بالخادم");
+  const data = await res.json();
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) throw new Error("not found");
+  return row;
 }
 
 // ===================== الأسئلة الشائعة (الأدمن) =====================

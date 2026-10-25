@@ -84,7 +84,11 @@ export default function PaymentReturnPaypal() {
       </StatusBadge>
       <h1 className="mt-6 text-[24px] font-black tracking-tight">{t("payment.return.failTitle")}</h1>
       <p className="mt-2 text-[15px] leading-relaxed text-[var(--text-soft)]">
-        {reason === "COMPLIANCE_VIOLATION" ? t("payment.return.failCompliance") : t("payment.return.failPaypal")}
+        {reason === "COMPLIANCE_VIOLATION"
+          ? t("payment.return.failCompliance")
+          : reason === "cancelled"
+            ? t("payment.return.failCancelled")
+            : t("payment.return.failPaypal")}
       </p>
       {reason && <p className="mt-2 font-mono text-[11px] text-[var(--color-mute)]">{t("payment.return.codeLabel", { code: reason })}</p>}
       <div className="mt-7 flex w-full flex-col gap-2.5 sm:flex-row sm:justify-center">

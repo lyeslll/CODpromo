@@ -20,6 +20,7 @@ import {
 import { fetchSalesStats, listPurchases, revokePurchase } from "../../../lib/sales.js";
 import { fetchKeysStats, listCreditUses } from "../../../lib/keysAdmin.js";
 import KeyOrdersList from "./KeyOrdersList.jsx";
+import CreditAlerts from "./CreditAlerts.jsx";
 import { ChartCard } from "./OverviewPage.jsx";
 import { useAdminT, Glass, PageHeader, Segmented, Skeleton, EmptyState, fmt, fmtDate, GOLD_BG } from "./ui.jsx";
 
@@ -184,6 +185,8 @@ export default function SalesPage({ notify }) {
           </button>
         }
       />
+
+      <CreditAlerts notify={notify} tick={tick} onChanged={() => setTick((x) => x + 1)} />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {kpis.map((k) => (

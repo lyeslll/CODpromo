@@ -549,7 +549,8 @@
       "failSlickpay": "We couldn't confirm your payment. If you completed it, activation may take a minute — refresh later, or try again.",
       "failPaypal": "We couldn't confirm your payment. Nothing was charged if it didn't complete — try again or choose another method.",
       "failCompliance": "PayPal declined the transaction due to restrictions on the receiving account. Nothing was charged — try another payment method.",
-      "codeLabel": "Code: {{code}}"
+      "codeLabel": "Code: {{code}}",
+      "failCancelled": "This payment request has expired and you weren't charged. Go back to Premium and start the payment again."
     }
   },
   "states": {
@@ -1440,11 +1441,71 @@
         "creditUnbackedHint": "Keys counted in this purchase were refunded. You can revoke Premium from the sales list if needed.",
         "packAbovePremium": "The pack price must stay below the Premium price.",
         "voidCheckout": "Cancel reservation",
-        "voidConfirm": "Cancel {{email}}’s credit reservation? The old remainder invoice will not grant Premium even if paid later, and the keys become refundable.",
+        "voidConfirm": "Cancel {{email}}’s credit reservation? The remaining-balance invoice will be closed at the gateway and won't grant Premium, and the keys become refundable. If a payment still arrives, it will show up in Sales.",
         "voidRes": {
           "voided": "Reservation cancelled",
           "completed": "The purchase completed: cannot cancel",
           "not_found": "Not found or already cancelled"
+        },
+        "alerts": {
+          "title": "Credit Premium payments that need your decision ({{n}})",
+          "hint": "A customer paid after their remaining-balance payment was cancelled, or Premium was activated and the keys counted toward it were refunded. The customer's money is never lost: refund it or grant Premium.",
+          "kind": {
+            "refund_needed": "Needs a decision",
+            "uncovered": "Not covered"
+          },
+          "desc": {
+            "refund_needed": "Paid {{amount}} via {{provider}} after the remaining-balance payment was cancelled, and Premium wasn't activated.",
+            "uncovered": "Premium was activated with credit ({{credit}} from keys) and {{amount}} paid, then the keys were refunded."
+          },
+          "note": {
+            "amount": "The amount paid doesn't match the invoice.",
+            "already_premium": "The account already has Premium (paid twice).",
+            "credit_refunded": "The keys counted in the credit were refunded.",
+            "no_account": "The account was deleted.",
+            "grant": "Activation failed."
+          },
+          "howRefund": {
+            "stripe": "Refund from the Stripe dashboard, then click “I refunded it”. Reference:",
+            "paypal": "Refund from the PayPal dashboard, then click “I refunded it”. Reference:",
+            "slickpay": "SlickPay: refunds are manual (transfer to the customer), then click “I refunded it”. Invoice:"
+          },
+          "howUncovered": "Keep Premium, or refund the Premium payment from the gateway dashboard (with Stripe and PayPal, Premium is removed automatically; with SlickPay, use “Revoke Premium after refund” below). Reference:",
+          "action": {
+            "refunded": "I refunded it",
+            "grant": "Grant Premium",
+            "keep": "Keep Premium"
+          },
+          "confirm": {
+            "refunded": "Did you refund {{amount}} to {{email}} via {{provider}}? The alert will close.",
+            "grant": "Grant lifetime Premium to {{email}} for the {{amount}} payment?",
+            "keep": "Keep Premium for {{email}} even though the keys were refunded? The alert will close."
+          },
+          "res": {
+            "refunded": "Refund recorded",
+            "granted": "Premium activated",
+            "kept": "Premium kept",
+            "has_premium": "The account already has Premium",
+            "amount": "The amount doesn't match: refund it",
+            "failed": "Activation failed",
+            "not_found": "This alert was already handled"
+          },
+          "grantedTitle": "Payments that arrived after cancellation and activated Premium automatically (last 30 days)"
+        },
+        "gate": {
+          "pending": "Closing at the gateway…",
+          "watch": "Being watched at the gateway",
+          "closed": "Closed at the gateway",
+          "granted": "Late payment: Premium activated",
+          "uncovered": "Late payment: not covered",
+          "refund_needed": "Late payment: needs a decision",
+          "reason": {
+            "timeout": "Time ran out (payment not finished)",
+            "admin": "Cancelled by an admin",
+            "refund": "The keys were refunded",
+            "replaced": "A new payment was started",
+            "premium": "Got Premium another way"
+          }
         }
       }
     }

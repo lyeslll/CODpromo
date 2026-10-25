@@ -363,6 +363,15 @@ function CreditUses({ rows, onRevoke, onVoid }) {
                     {t("keys.creditUnbacked")}
                   </span>
                 )}
+                {/* phase38: التسكير عند البوابة بعد الإلغاء + دفعة وصلت من بعد */}
+                {c.gate_status && (
+                  <span
+                    className={`rounded-md px-1.5 py-0.5 text-[11px] font-bold ${c.late_status === "refund_needed" && !c.resolution ? "bg-[#f87171]/15 text-[#fca5a5]" : "bg-white/[0.06] text-[#9ca3af]"}`}
+                    title={c.gate_reason ? t(`keys.gate.reason.${c.gate_reason}`) : undefined}
+                  >
+                    {t(`keys.gate.${c.late_status || c.gate_status}`)}
+                  </span>
+                )}
                 {c.voidable && (
                   <button type="button" onClick={() => onVoid(c)} className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[11.5px] font-bold text-[#9ca3af] hover:text-white">
                     <X size={12} /> {t("keys.voidCheckout")}

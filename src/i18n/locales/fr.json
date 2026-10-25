@@ -549,7 +549,8 @@
       "failSlickpay": "Nous n'avons pas pu confirmer votre paiement. Si vous l'avez effectué, l'activation peut prendre une minute — actualisez plus tard ou réessayez.",
       "failPaypal": "Nous n'avons pas pu confirmer votre paiement. Aucun montant n'a été débité s'il n'a pas abouti — réessayez ou choisissez un autre mode.",
       "failCompliance": "PayPal a refusé la transaction en raison de restrictions sur le compte destinataire. Aucun montant n'a été débité — essayez un autre mode de paiement.",
-      "codeLabel": "Code : {{code}}"
+      "codeLabel": "Code : {{code}}",
+      "failCancelled": "Cette demande de paiement a expiré et vous n'avez pas été débité. Revenez à Premium et recommencez le paiement."
     }
   },
   "states": {
@@ -1440,11 +1441,71 @@
         "creditUnbackedHint": "Des clés comptées dans cet achat ont été remboursées. Vous pouvez retirer Premium depuis la liste des ventes si besoin.",
         "packAbovePremium": "Le prix du pack doit rester inférieur au prix de Premium.",
         "voidCheckout": "Annuler la réservation",
-        "voidConfirm": "Annuler la réservation de crédit de {{email}} ? L’ancienne facture du reste ne donnera pas Premium même payée plus tard, et les clés deviennent remboursables.",
+        "voidConfirm": "Annuler la réservation de crédit de {{email}} ? La facture du reste sera fermée auprès de la passerelle et ne donnera pas Premium, et les clés deviennent remboursables. Si un paiement arrive quand même, il apparaîtra dans les ventes.",
         "voidRes": {
           "voided": "Réservation annulée",
           "completed": "L’achat est finalisé : impossible d’annuler",
           "not_found": "Introuvable ou déjà annulée"
+        },
+        "alerts": {
+          "title": "Paiements Premium avec crédit qui attendent votre décision ({{n}})",
+          "hint": "Un client a payé après l'annulation du paiement du reste, ou Premium a été activé et les clés comptées dedans ont été remboursées. L'argent du client n'est jamais perdu : remboursez-le ou accordez Premium.",
+          "kind": {
+            "refund_needed": "Décision requise",
+            "uncovered": "Non couvert"
+          },
+          "desc": {
+            "refund_needed": "A payé {{amount}} via {{provider}} après l'annulation du paiement du reste, et Premium n'a pas été activé.",
+            "uncovered": "Premium a été activé avec le crédit ({{credit}} de clés) et {{amount}} payés, puis les clés ont été remboursées."
+          },
+          "note": {
+            "amount": "Le montant payé ne correspond pas à la facture.",
+            "already_premium": "Le compte a déjà Premium (payé deux fois).",
+            "credit_refunded": "Les clés comptées dans le crédit ont été remboursées.",
+            "no_account": "Le compte a été supprimé.",
+            "grant": "L'activation a échoué."
+          },
+          "howRefund": {
+            "stripe": "Remboursez depuis le tableau de bord Stripe, puis cliquez sur « J'ai remboursé ». Référence :",
+            "paypal": "Remboursez depuis le tableau de bord PayPal, puis cliquez sur « J'ai remboursé ». Référence :",
+            "slickpay": "SlickPay : remboursement manuel (virement au client), puis cliquez sur « J'ai remboursé ». Facture :"
+          },
+          "howUncovered": "Gardez Premium, ou remboursez le paiement Premium depuis le tableau de bord de la passerelle (avec Stripe et PayPal, Premium est retiré automatiquement ; avec SlickPay, utilisez « Retirer Premium après remboursement » plus bas). Référence :",
+          "action": {
+            "refunded": "J'ai remboursé",
+            "grant": "Accorder Premium",
+            "keep": "Garder Premium"
+          },
+          "confirm": {
+            "refunded": "Avez-vous remboursé {{amount}} à {{email}} via {{provider}} ? L'alerte sera fermée.",
+            "grant": "Accorder Premium à vie à {{email}} pour le paiement de {{amount}} ?",
+            "keep": "Garder Premium pour {{email}} malgré le remboursement des clés ? L'alerte sera fermée."
+          },
+          "res": {
+            "refunded": "Remboursement enregistré",
+            "granted": "Premium activé",
+            "kept": "Premium conservé",
+            "has_premium": "Le compte a déjà Premium",
+            "amount": "Le montant ne correspond pas : remboursez",
+            "failed": "L'activation a échoué",
+            "not_found": "Cette alerte a déjà été traitée"
+          },
+          "grantedTitle": "Paiements arrivés après l'annulation qui ont activé Premium automatiquement (30 derniers jours)"
+        },
+        "gate": {
+          "pending": "Fermeture auprès de la passerelle…",
+          "watch": "Sous surveillance auprès de la passerelle",
+          "closed": "Fermé auprès de la passerelle",
+          "granted": "Paiement tardif : Premium activé",
+          "uncovered": "Paiement tardif : non couvert",
+          "refund_needed": "Paiement tardif : décision requise",
+          "reason": {
+            "timeout": "Délai dépassé (paiement non terminé)",
+            "admin": "Annulé par un admin",
+            "refund": "Les clés ont été remboursées",
+            "replaced": "Un nouveau paiement a été lancé",
+            "premium": "Premium obtenu autrement"
+          }
         }
       }
     }

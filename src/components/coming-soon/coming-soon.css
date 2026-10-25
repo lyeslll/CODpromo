@@ -1,0 +1,104 @@
+/* ======================================================================
+   "العرض قريباً" (phase coming-soon): تذكرة مختومة.
+   - .soon-shine: كلمة "قريباً" بالوردي، ولمعة خفيفة تمرّ عليها (مرة كل ~4 ثواني، جهة القراءة).
+     غير مع .soon-fx (canUseFx: ماشي جهاز ضعيف ولا توفير بيانات) و prefers-reduced-motion: no-preference.
+   - .soon-seal: ختم شمع فوق الخط المثقّب (وسط التذكرة)، يتختم مرة وحدة كي تبان البطاقة.
+   - .soon-code: بلاصة الكود مختومة (خطوط مائلة باهتة).
+   ====================================================================== */
+.soon-shine {
+  color: #ff7eb3;
+  text-shadow: 0 0 24px rgba(255, 126, 179, 0.35);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .soon-fx .soon-shine {
+    background: linear-gradient(100deg, #ff7eb3 0%, #ff7eb3 40%, #fff1f7 50%, #ff7eb3 60%, #ff7eb3 100%);
+    background-size: 260% 100%;
+    background-position: 100% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    /* الظل مع background-clip: text يرسم مستطيل ورا الكلمة في Chrome */
+    text-shadow: none;
+    animation: soon-shine 4.2s ease-in-out 0.8s infinite;
+  }
+  [dir="rtl"] .soon-fx .soon-shine {
+    background-position: 0% 0;
+    animation-name: soon-shine-rtl;
+  }
+  .soon-seal {
+    animation: soon-stamp 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) 0.2s both;
+  }
+}
+@keyframes soon-shine {
+  0% {
+    background-position: 100% 0;
+  }
+  40%,
+  100% {
+    background-position: 0% 0;
+  }
+}
+@keyframes soon-shine-rtl {
+  0% {
+    background-position: 0% 0;
+  }
+  40%,
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+.soon-seal {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 9999px;
+  color: #1a0711;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  background: radial-gradient(circle at 34% 28%, #ffd3e6, #ff7eb3 46%, #d9478d 100%);
+  box-shadow:
+    0 0 0 3px var(--color-ink-card),
+    0 8px 18px -6px rgba(255, 126, 179, 0.6),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.22),
+    inset 0 2px 3px rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+.soon-seal::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 9999px;
+  border: 1px dashed rgba(26, 7, 17, 0.38);
+}
+.soon-seal-lg {
+  width: 52px;
+  height: 52px;
+}
+@keyframes soon-stamp {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.7) rotate(-24deg);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(-8deg);
+  }
+}
+
+.soon-code {
+  border: 1px dashed rgba(255, 126, 179, 0.42);
+  background: repeating-linear-gradient(135deg, rgba(255, 126, 179, 0.08) 0 7px, rgba(255, 126, 179, 0.02) 7px 14px);
+}
+
+/* الخط المثقّب في البطاقة القريبة ما يمشيش (مختومة) */
+.ticket-soon:hover .ticket-perf {
+  animation: none;
+}

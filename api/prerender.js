@@ -16,7 +16,7 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { storeKind, storeSteps, storeFaq, similarStores, storeSeoTitle, storeSeoDescription, storeJsonLd, locText, storeHasPremium, RATING_MIN_AVG } from "../src/lib/storeContent.js";
+import { storeKind, storeSteps, storeFaq, similarStores, storeSeoTitle, storeSeoDescription, storeJsonLd, locText, storeHasPremium, storeComingSoon, RATING_MIN_AVG } from "../src/lib/storeContent.js";
 
 const SITE_URL = "https://codpromo.com";
 const SITE_NAME = "CODpromo";
@@ -45,9 +45,10 @@ const COMPANY_PUBLIC_COLUMNS =
   "seo_description,seo_description_en,seo_description_fr," +
   "seo_keywords,seo_keywords_en,seo_keywords_fr," +
   "has_premium_code,premium_description,premium_description_en,premium_description_fr," +
-  "store_kind,code_checked_at,logo_bg,about,about_en,about_fr,features,features_en,features_fr,usage_steps,usage_steps_en,usage_steps_fr";
-// للقوائم (شركات مشابهة / الفئة): خفيفة
-const COMPANY_LIST_COLUMNS = "id,slug,name,type,category_id,status,discount,discount_en,discount_fr,created_at";
+  "store_kind,code_checked_at,logo_bg,about,about_en,about_fr,features,features_en,features_fr,usage_steps,usage_steps_en,usage_steps_fr," +
+  "coming_soon,premium_coming_soon";
+// للقوائم (شركات مشابهة / الفئة): خفيفة. coming_soon = "العرض قريباً" (بلا قيمة: "قريباً" في القائمة، وتجي بعد العروض اللي تخدم)
+const COMPANY_LIST_COLUMNS = "id,slug,name,type,category_id,status,discount,discount_en,discount_fr,created_at,coming_soon";
 
 function slugify(v) {
   return String(v || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-{2,}/g, "-").replace(/^-+|-+$/g, "");
@@ -196,8 +197,8 @@ export default async function handler(req, res) {
       const faq = storeFaq(c, { t, lang, steps, adminFaqs: c.company_faqs });
       const similar = similarStores(c, Array.isArray(all) ? all : [], 8);
 
-      const title = storeSeoTitle(c, lang);
-      const description = storeSeoDescription(c, lang);
+      const title = storeSeoTitle(c, lang, t);
+      const description = storeSeoDescription(c, lang, t);
       // صورة مشاركة خاصة بالشركة (api/og.js): اللوغو + القيمة + Premium، 1200×630
       // host معروف برك (الموقع ولا preview تاع Vercel) — ما نكتبوش في الصفحة أي host جاي في الطلب
       const ogHost = /^(www\.)?codpromo\.com$|^[a-z0-9-]+\.vercel\.app$/i.test(host) ? host : "codpromo.com";
@@ -206,13 +207,14 @@ export default async function handler(req, res) {
       const alternates = ["ar", "en", "fr"].map((l) => ({ lang: l, url: storeUrl(c.slug, l) }));
       const home = { name: L.store?.breadcrumbHome || SITE_NAME, url: `${SITE_URL}${prefix(lang)}/` };
       const crumbs = [home, ...(catLabel && cat ? [{ name: catLabel, url: categoryUrl(catSlug, lang) }] : []), { name: c.name, url: canonical }];
-      const jsonLd = storeJsonLd(c, { lang, url: canonical, faq, rating, breadcrumb: crumbs });
+      const jsonLd = storeJsonLd(c, { lang, url: canonical, faq, rating, breadcrumb: crumbs, t });
       const body = storeBody({ c, lang, t, L, catLabel, catUrl: cat ? categoryUrl(catSlug, lang) : null, crumbs, steps, faq, similar, rating });
       const headExtra = buildHead({ lang, title, description, canonical, image, alternates, jsonLd });
       return serveTemplate(res, inject(template, { lang, title, description, headExtra, body }));
     }
 
     if (type === "category") {
+      const L = locale(lang) || locale("ar");
       let label = "";
       let count = 0;
       let descText = "";
@@ -231,8 +233,10 @@ export default async function handler(req, res) {
         const linked = await fetchJson(
           `${SUPABASE_URL}/rest/v1/companies?category_id=eq.${cat.id}&select=${COMPANY_LIST_COLUMNS}&order=created_at.desc`
         );
-        count = Array.isArray(linked) ? linked.length : 0;
-        catCompanies = Array.isArray(linked) ? linked.filter((x) => x.slug) : [];
+        // العدد = العروض اللي تخدم برك ("قريباً" وحدها)، والقائمة: اللي تخدم ثم القريبة
+        const rows = Array.isArray(linked) ? linked : [];
+        count = rows.filter((x) => !storeComingSoon(x)).length;
+        catCompanies = [...rows.filter((x) => x.slug && !storeComingSoon(x)), ...rows.filter((x) => x.slug && storeComingSoon(x))];
         if (count === 0 && cat.name_ar) {
           const legacy = await fetchJson(
             `${SUPABASE_URL}/rest/v1/companies?category=eq.${encodeURIComponent(cat.name_ar)}&select=id`
@@ -268,7 +272,7 @@ export default async function handler(req, res) {
       // الفئة تربط لشركاتها في الـ HTML (روابط داخلية للسيو)
       const body = catCompanies.length
         ? `<main dir="${dirOf(lang)}" style="${BODY_STYLE}"><h1>${esc(title.replace(/ \| CODpromo$/, ""))}</h1>${descText ? `<p>${esc(descText)}</p>` : ""}<ul>${catCompanies
-            .map((x) => `<li><a href="${esc(storeUrl(x.slug, lang))}">${esc(x.name)}</a>${loc(x, "discount", lang) ? ` — ${esc(loc(x, "discount", lang))}` : ""}</li>`)
+            .map((x) => `<li><a href="${esc(storeUrl(x.slug, lang))}">${esc(x.name)}</a>${listValue(x, lang, L) ? ` — ${esc(listValue(x, lang, L))}` : ""}</li>`)
             .join("")}</ul></main>`
         : "";
       return serveTemplate(res, inject(template, { lang, title, description, headExtra, body }));
@@ -282,7 +286,7 @@ export default async function handler(req, res) {
       const canonical = offersUrl(lang);
       const alternates = ["ar", "en", "fr"].map((l) => ({ lang: l, url: offersUrl(l) }));
       const list = await fetchJson(
-        `${SUPABASE_URL}/rest/v1/companies?select=slug,name&order=created_at.desc&limit=30`
+        `${SUPABASE_URL}/rest/v1/companies?select=slug,name&coming_soon=eq.false&order=created_at.desc&limit=30`
       );
       const items = (Array.isArray(list) ? list : []).filter((c) => c.slug);
       const jsonLd = [
@@ -478,10 +482,17 @@ function storeBody({ c, lang, t, L, catLabel, catUrl, crumbs, steps, faq, simila
   if (n >= RATING_MIN_AVG && rating?.avg != null) h += `<p>★ ${esc(rating.avg)} / 5 · ${esc(t("storePage.rating.count", { count: n }))}</p>`;
   if (locText(c, "description", lang)) h += `<p>${esc(locText(c, "description", lang))}</p>`;
   h += `<section><h2>${esc(t("storePage.offersTitle", { name: c.name }))}</h2>`;
-  if (value) h += `<p><strong>${esc(value)}</strong>${c.code ? ` — ${esc(t("storePage.codeLabel"))}: <code>${esc(c.code)}</code>` : ""}</p>`;
-  if (premium) h += `<p>${esc(t("storePage.premiumWith"))}: <strong>${esc(premium)}</strong>${locText(c, "premium_description", lang) ? ` — ${esc(locText(c, "premium_description", lang))}` : ""}</p>`;
+  if (storeComingSoon(c)) {
+    // "العرض قريباً": بلا قيمة ولا كود — الحقيقة برك
+    h += `<p><strong>${esc(t("comingSoon.codeSoon"))}</strong> — ${esc(t("comingSoon.heroLine", { name: c.name }))}</p>`;
+    if (c.link) h += `<p>${esc(t("comingSoon.joinNow", { name: c.name }))}</p>`;
+    if (c.premium_coming_soon) h += `<p>${esc(t("comingSoon.premiumSoon"))}</p>`;
+  } else {
+    if (value) h += `<p><strong>${esc(value)}</strong>${c.code ? ` — ${esc(t("storePage.codeLabel"))}: <code>${esc(c.code)}</code>` : ""}</p>`;
+    if (premium) h += `<p>${esc(t("storePage.premiumWith"))}: <strong>${esc(premium)}</strong>${locText(c, "premium_description", lang) ? ` — ${esc(locText(c, "premium_description", lang))}` : ""}</p>`;
+  }
   h += `</section>`;
-  if (steps.length) h += `<section><h2>${esc(t("storePage.stepsTitle", { name: c.name }))}</h2><ol>${steps.map((st) => `<li>${st.title ? `<strong>${esc(st.title)}</strong>: ` : ""}${esc(st.desc)}</li>`).join("")}</ol></section>`;
+  if (steps.length) h += `<section><h2>${esc(t(storeComingSoon(c) ? "storePage.soon.stepsTitle" : "storePage.stepsTitle", { name: c.name }))}</h2><ol>${steps.map((st) => `<li>${st.title ? `<strong>${esc(st.title)}</strong>: ` : ""}${esc(st.desc)}</li>`).join("")}</ol></section>`;
   if (about || features.length) {
     h += `<section><h2>${esc(t("storePage.aboutTitle", { name: c.name }))}</h2>`;
     h += lines(about).map((p) => `<p>${esc(p)}</p>`).join("");
@@ -491,10 +502,15 @@ function storeBody({ c, lang, t, L, catLabel, catUrl, crumbs, steps, faq, simila
   if (faq.length) h += `<section><h2>${esc(t("storePage.faq.title", { name: c.name }))}</h2>${faq.map((q) => `<h3>${esc(q.q)}</h3><p>${esc(q.a)}</p>`).join("")}</section>`;
   if (similar.length) {
     h += `<section><h2>${esc(t("storePage.similarTitle"))}</h2><ul>${similar
-      .map((x) => `<li><a href="${esc(storeUrl(x.slug, lang))}">${esc(x.name)}</a>${loc(x, "discount", lang) ? ` — ${esc(loc(x, "discount", lang))}` : ""}</li>`)
+      .map((x) => `<li><a href="${esc(storeUrl(x.slug, lang))}">${esc(x.name)}</a>${listValue(x, lang, L) ? ` — ${esc(listValue(x, lang, L))}` : ""}</li>`)
       .join("")}</ul>${catUrl && catLabel ? `<p><a href="${esc(catUrl)}">${esc(t("storePage.similarAll", { category: catLabel }))}</a></p>` : ""}</section>`;
   }
   return h + "</main>";
+}
+
+/** قيمة الشركة في القوائم (الفئة / المشابهة): القيمة، ولا "قريباً" للبطاقة القريبة. */
+function listValue(x, lang, L) {
+  return storeComingSoon(x) ? L?.comingSoon?.badge || "" : loc(x, "discount", lang);
 }
 
 /** إشعار → { title, body, url, date } (نفس قاعدة src/lib/notifications.js: نص الأدمين ولا القالب حسب النوع). */

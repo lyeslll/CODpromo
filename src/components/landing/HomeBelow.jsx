@@ -9,6 +9,7 @@ import CategoryGrid from "./CategoryGrid.jsx";
 import HowSteps from "./HowSteps.jsx";
 import TrustSection from "./TrustSection.jsx";
 import SampleOffers from "./SampleOffers.jsx";
+import ComingSoonStrip from "../coming-soon/ComingSoonStrip.jsx";
 import NocodeSection from "../nocode/NocodeSection.jsx";
 import AppDownload from "./AppDownload.jsx";
 import PremiumFaq from "./PremiumFaq.jsx";
@@ -68,6 +69,7 @@ export default function HomeBelow({
         unlocked={unlocked}
         onUnlock={goPremium}
       />
+      <ComingSoonStrip />
       <NocodeSection unlocked={unlocked} onUnlock={goPremium} />
       <AppDownload />
       <PremiumFaq pricing={pricing} />

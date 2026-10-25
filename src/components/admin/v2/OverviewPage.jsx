@@ -46,7 +46,7 @@ export default function OverviewPage() {
     ? [
         { id: "users", wide: true, icon: Users, color: "#a6f000", value: data.users_total, extra: [[t("ov.today"), data.users_today], [t("ov.last7"), data.users_7d]] },
         { id: "premium", icon: Crown, color: "#f0c63c", value: data.premium_active, note: t("ov.premiumNote") },
-        { id: "companies", icon: Store, color: "#38bdf8", value: data.companies, extra: [[t("ov.offers"), data.offers], ...(data.companies_hidden ? [[t("ov.hidden"), data.companies_hidden]] : [])] },
+        { id: "companies", icon: Store, color: "#38bdf8", value: data.companies, extra: [[t("ov.offers"), data.offers], ...(data.companies_hidden ? [[t("ov.hidden"), data.companies_hidden]] : []), ...(data.companies_soon ? [[t("ov.soon"), data.companies_soon]] : [])] },
         { id: "requests", icon: Inbox, color: "#fbbf24", value: data.requests_pending, to: "/admin/requests", note: data.requests_pending ? t("ov.review") : t("ov.noPending") },
         { id: "copies", icon: Copy, color: "#a6f000", value: data.copies_range, note: t(`range.in_${range}`) },
         { id: "success", icon: ThumbsUp, color: "#a6f000", value: success == null ? null : `${success}%`, note: t("ov.votesCount", { count: data.votes_range }) },

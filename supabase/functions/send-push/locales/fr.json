@@ -19,6 +19,15 @@
     "body": "{{offer}}",
     "bodyNoOffer": "Activez-la en un clic sur CODpromo"
   },
+  "waited": {
+    "title": "L'offre que vous attendiez est là : {{name}}",
+    "many_zero": "Aucune offre",
+    "many_one": "{{count}} offre que vous attendiez est là",
+    "many_two": "{{count}} offres que vous attendiez sont là",
+    "many_few": "{{count}} offres que vous attendiez sont là",
+    "many_many": "{{count}} offres que vous attendiez sont là",
+    "many_other": "{{count}} offres que vous attendiez sont là"
+  },
   "digest": {
     "title_zero": "Aucune nouveauté",
     "title_one": "1 nouveauté sur CODpromo",

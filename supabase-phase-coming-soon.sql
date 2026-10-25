@@ -111,6 +111,7 @@ $$;
 
 --  p_on = true: "أعلمني"، false: إلغاء. status: ok | auth | unconfirmed | disposable | owner | unavailable
 --  | notified (وصلو الإشعار تاع هاد البطاقة من قبل) | rate_limited. يرجّع waiting (حالة صاحب الحساب) + count.
+--  count غير لبطاقة "قريباً" ظاهرة (مراجعة الأمان: الإلغاء على بطاقة مخفية كان يرجّع عدد اللي يستناوها).
 create or replace function public.coming_soon_wait(p_company bigint, p_on boolean default true)
 returns json
 language plpgsql
@@ -122,6 +123,7 @@ declare
   v_uid    uuid := auth.uid();
   v_on     boolean := coalesce(p_on, true);
   v_has    boolean;
+  v_live   boolean; -- البطاقة "قريباً" وظاهرة (العدّاد يرجع غير لهادي)
   v_google boolean;
   u        auth.users%rowtype;
   w        public.coming_soon_waits%rowtype;
@@ -138,31 +140,32 @@ begin
 
   select * into w from public.coming_soon_waits x where x.company_id = p_company and x.user_id = v_uid for update;
   v_has := found;
+  v_live := exists (select 1 from public.companies c
+                     where c.id = p_company and coalesce(c.coming_soon, false) and public.company_is_public(c.status));
 
   -- الإلغاء: سطر صاحب الحساب برك (حتى بلا شروط أخرى)
   if not v_on then
     if v_has and w.active and w.notified_at is null then
       if w.toggles_day = current_date and w.toggles >= 20 then
-        return json_build_object('status', 'rate_limited', 'waiting', true, 'count', public.coming_soon_count(p_company));
+        return json_build_object('status', 'rate_limited', 'waiting', true, 'count', case when v_live then public.coming_soon_count(p_company) end);
       end if;
       update public.coming_soon_waits
          set active = false, updated_at = now(),
              toggles = case when toggles_day = current_date then toggles + 1 else 1 end, toggles_day = current_date
        where company_id = p_company and user_id = v_uid;
     end if;
-    return json_build_object('status', 'ok', 'waiting', false, 'count', public.coming_soon_count(p_company));
+    return json_build_object('status', 'ok', 'waiting', false, 'count', case when v_live then public.coming_soon_count(p_company) end);
   end if;
 
   if v_has and w.notified_at is not null then
-    return json_build_object('status', 'notified', 'waiting', false, 'count', public.coming_soon_count(p_company));
+    return json_build_object('status', 'notified', 'waiting', false, 'count', case when v_live then public.coming_soon_count(p_company) end);
   end if;
   if v_has and w.active then
-    return json_build_object('status', 'ok', 'waiting', true, 'count', public.coming_soon_count(p_company));
+    return json_build_object('status', 'ok', 'waiting', true, 'count', case when v_live then public.coming_soon_count(p_company) end);
   end if;
 
   -- البطاقة: "قريباً" وظاهرة في الموقع
-  if not exists (select 1 from public.companies c
-                  where c.id = p_company and coalesce(c.coming_soon, false) and public.company_is_public(c.status)) then
+  if not v_live then
     return json_build_object('status', 'unavailable');
   end if;
 
@@ -186,7 +189,7 @@ begin
   if v_has then
     -- رجوع بعد إلغاء: 20 تبديل في اليوم لكل بطاقة كأقصى (الـ spam ما يكبّرش العدّاد، يكتب برك)
     if w.toggles_day = current_date and w.toggles >= 20 then
-      return json_build_object('status', 'rate_limited', 'waiting', false, 'count', public.coming_soon_count(p_company));
+      return json_build_object('status', 'rate_limited', 'waiting', false, 'count', case when v_live then public.coming_soon_count(p_company) end);
     end if;
     update public.coming_soon_waits
        set active = true, inbox = public.free_key_email_hash(u.email), updated_at = now(),
@@ -195,7 +198,7 @@ begin
   else
     -- 30 بطاقة جديدة في الساعة لكل حساب كأقصى
     if (select count(*) from public.coming_soon_waits x where x.user_id = v_uid and x.created_at > now() - interval '1 hour') >= 30 then
-      return json_build_object('status', 'rate_limited', 'waiting', false, 'count', public.coming_soon_count(p_company));
+      return json_build_object('status', 'rate_limited', 'waiting', false, 'count', case when v_live then public.coming_soon_count(p_company) end);
     end if;
     insert into public.coming_soon_waits (company_id, user_id, inbox)
     values (p_company, v_uid, public.free_key_email_hash(u.email));

@@ -109,6 +109,28 @@ function returnPath(id) {
   return `${url.pathname}${url.search}`;
 }
 
+// "أعلمني" اللي ضغطو الزائر في هاد المتصفّح (localStorage: حتى رابط تأكيد الإيميل في تبويب آخر).
+// ?notify=<id> وحدو (رابط مبعوث من برا) ما يسجّلش حتى حاجة: البطاقة تجي قدامو برك ويضغط هو.
+const PENDING_KEY = "codpromo:soon-pending";
+const PENDING_TTL_MS = 2 * 60 * 60 * 1000;
+function setPending(id) {
+  try {
+    localStorage.setItem(PENDING_KEY, JSON.stringify({ id, at: Date.now() }));
+  } catch {
+    /* تخزين ممنوع: يضغط من جديد بعد الدخول */
+  }
+}
+function takePending(id) {
+  try {
+    const v = JSON.parse(localStorage.getItem(PENDING_KEY) || "null");
+    if (!v || v.id !== id) return false;
+    localStorage.removeItem(PENDING_KEY);
+    return Date.now() - Number(v.at) < PENDING_TTL_MS;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * حالة بطاقة قريبة: count (null = "كن من الأوائل")، waiting، notified، busy، status (آخر رفض)،
  * toggle() (زائر → الدخول ويرجع)، auto (تسجّلت وحدها بعد الرجوع → البطاقة تجي قدامو).
@@ -129,7 +151,8 @@ export function useComingSoon(companyId, enabled = true) {
     if (enabled && !loading) loadMine(uid);
   }, [enabled, loading, uid]);
 
-  // الرجوع بعد الدخول (?notify=<id>): الرابط يتنظّف (replace، الفلاتر تبقى) والتنبيه يتسجّل — بطاقة وحدة برك
+  // الرجوع بعد الدخول (?notify=<id>): الرابط يتنظّف (replace، الفلاتر تبقى)، البطاقة تجي قدامو، والتنبيه يتسجّل
+  // غير إذا الضغطة بدات هنا (setPending) — بطاقة وحدة برك حتى إذا الشركة باينة مرّتين
   useEffect(() => {
     if (!enabled || loading) return;
     const params = new URLSearchParams(location.search);
@@ -140,8 +163,9 @@ export function useComingSoon(companyId, enabled = true) {
     navigate({ pathname: location.pathname, search: search ? `?${search}` : "", hash: location.hash }, { replace: true, state: location.state });
     if (!uid) return;
     st.autoId = id;
+    const mine = takePending(id);
     loadMine(uid).then(() => {
-      if (!st.waiting.has(id) && !st.notified.has(id)) setWait(id, true);
+      if (mine && !st.waiting.has(id) && !st.notified.has(id)) setWait(id, true);
       else emit();
     });
   }, [enabled, loading, uid, id, location.search, location.key, location.pathname, location.hash, location.state, navigate]);
@@ -149,6 +173,7 @@ export function useComingSoon(companyId, enabled = true) {
   const toggle = useCallback(() => {
     if (!enabled || st.busy.has(id)) return;
     if (!uid) {
+      setPending(id);
       setReturnTo(returnPath(id));
       navigate("/login");
       return;

@@ -18,6 +18,7 @@ import {
   Gift,
   PartyPopper,
   Key,
+  Gem,
   Receipt,
   Tag,
   Menu,
@@ -60,6 +61,7 @@ export const NAV = [
     group: "sales",
     items: [
       { key: "sales", path: "/admin/sales", icon: Receipt },
+      { key: "keys", path: "/admin/keys", icon: Gem },
       { key: "pricing", path: "/admin/pricing", icon: Tag },
     ],
   },

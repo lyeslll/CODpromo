@@ -5,6 +5,7 @@ import { usePricingRefresh } from "../../../lib/pricing.jsx";
 import LifetimePrice from "../../pricing/LifetimePrice.jsx";
 import SeatsMeter from "../../pricing/SeatsMeter.jsx";
 import TestPriceCard from "./TestPriceCard.jsx";
+import KeyPacksCard from "./KeyPacksCard.jsx";
 import { useAdminT, Glass, PageHeader, Skeleton, EmptyState, fmt, fmtDate, inputCls, GOLD_BG } from "./ui.jsx";
 
 const GOLD = "#f0c63c";
@@ -198,6 +199,8 @@ export default function PricingPage({ notify }) {
       </div>
 
       <TestPriceCard notify={notify} />
+      {/* باقات المفاتيح الماسية (phase37) */}
+      <KeyPacksCard notify={notify} />
     </>
   );
 }

@@ -8,6 +8,8 @@ import GiftConfetti from "../gift/GiftConfetti.jsx";
 import { useAuth } from "../../lib/auth.jsx";
 import { isLifetimeProfile } from "../../lib/premium.jsx";
 import { fetchMyPurchase } from "../../lib/billing.js";
+import { fetchMyCreditUpgrade } from "../../lib/keys.js";
+import { formatMoney } from "../keys/money.js";
 import { usePricing } from "../../lib/pricing.jsx";
 import { useLocale } from "../../lib/locale.jsx";
 import { offersLink } from "../../lib/seo.js";
@@ -28,12 +30,15 @@ const DEMO = import.meta.env.DEV || __PURCHASE_DEMO__;
 const DEMO_METHODS = ["slickpay", "stripe", "paypal", "google_play"];
 
 /** شراء تجريبي بالسعر الحالي (pricing_public): الدينار لـ SlickPay و Google Play، الدولار لـ Stripe و PayPal. */
-function demoPurchase(kind, pricing) {
+function demoPurchase(kind, pricing, credit = 0) {
   const provider = DEMO_METHODS.includes(kind) ? kind : "slickpay";
   const usd = provider === "stripe" || provider === "paypal";
+  // المعاينة بالرصيد (&credit=1): الباقي بعد 2,300 دج (بنسبة سعر Premium)
+  const ratio = pricing?.dzd && pricing?.usd ? pricing.dzd / pricing.usd : null;
+  const cut = credit && ratio ? (usd ? Math.floor((credit / ratio) * 100) / 100 : credit) : 0;
   return {
     provider,
-    amount: (usd ? pricing?.usd : pricing?.dzd) ?? "",
+    amount: pricing ? Math.round(((usd ? pricing.usd : pricing.dzd) - cut) * 100) / 100 : "",
     currency: usd ? "USD" : "DZD",
     tier: pricing?.tier === "test" ? "test" : "launch",
     purchased_at: new Date().toISOString(),
@@ -69,6 +74,9 @@ export default function PurchaseSuccess() {
   const [round, setRound] = useState(0);
   const [params] = useSearchParams();
   const demo = DEMO ? params.get("demo") : null;
+  // Premium بالرصيد كامل (المفاتيح الماسية): بلا سطر في purchases → السجلّ من key_credit_uses
+  const viaCredit = params.get("via") === "credit";
+  const [creditUse, setCreditUse] = useState(null);
   const pricing = usePricing();
   const { setLang } = useLocale();
 
@@ -101,8 +109,19 @@ export default function PurchaseSuccess() {
     setState("confirming");
     const check = async () => {
       tries += 1;
-      const [p, prof] = await Promise.all([fetchMyPurchase(user.id).catch(() => null), refreshProfile?.().catch(() => null)]);
+      const [p, prof, cu] = await Promise.all([
+        viaCredit ? Promise.resolve(null) : fetchMyPurchase(user.id).catch(() => null),
+        refreshProfile?.().catch(() => null),
+        fetchMyCreditUpgrade().catch(() => null),
+      ]);
       if (!active) return;
+      // الرصيد اللي تحسب في هاد الشراء (آخر ساعة)
+      if (cu && Date.now() - new Date(cu.created_at).getTime() < 3600e3) setCreditUse(cu);
+      if (viaCredit && cu?.kind === "full") {
+        setState("done");
+        setFire((n) => n + 1);
+        return;
+      }
       if (p) {
         setPurchase(p);
         setState("done");
@@ -169,10 +188,21 @@ export default function PurchaseSuccess() {
     );
   }
 
-  const shown = DEMO && demo ? demoPurchase(demo, pricing) : purchase;
-  const rows = shown
+  const shown = DEMO && demo ? demoPurchase(demo, pricing, params.get("credit") ? 2300 : 0) : purchase;
+  const demoCredit = DEMO && demo && params.get("credit") ? { kind: demo === "credit" ? "full" : "checkout", credit: 2300, currency: "DZD" } : null;
+  const usedCredit = demoCredit || creditUse;
+  const creditRow = usedCredit ? [[t("keys.credit.row"), formatMoney(t, lang, usedCredit.credit, usedCredit.currency, { minus: true })]] : [];
+  const rows = usedCredit?.kind === "full"
     ? [
         [t("purchase.plan"), t("purchase.planV")],
+        ...creditRow,
+        [t("purchase.method"), t("keys.credit.method")],
+        [t("purchase.date"), new Date(usedCredit.created_at || Date.now()).toLocaleDateString(lang, { day: "numeric", month: "long", year: "numeric" })],
+      ]
+    : shown
+    ? [
+        [t("purchase.plan"), t("purchase.planV")],
+        ...creditRow,
         [t("purchase.amount"), formatAmount(t, lang, shown.amount, shown.currency), shown.tier === "test" ? t("purchase.testTag") : null],
         [t("purchase.method"), METHOD_KEY[shown.provider] ? t(`premium.methods.${METHOD_KEY[shown.provider]}Name`) : shown.provider],
         [t("purchase.date"), new Date(shown.purchased_at).toLocaleDateString(lang, { day: "numeric", month: "long", year: "numeric" })],

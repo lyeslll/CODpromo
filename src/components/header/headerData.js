@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { fetchCompanies, fetchOffersCount } from "../../lib/supabase.js";
+import { fetchCompanies } from "../../lib/supabase.js";
 import { fetchSiteStats } from "../../lib/siteStats.js";
 
 // ============================================================
 //  بيانات الهيدر المشتركة — تُجلب مرّة واحدة في الجلسة (ذاكرة على مستوى الوحدة):
 //   - العروض (للبحث السريع وعدد العروض في كل فئة) — فقط عند فتح القائمة/البحث.
-//   - عدد الشركات لشارة "العروض" (= عدد البطاقات في /offers) — عدّ الشركات الظاهرة (بلا المخفية).
+//   - عدد الشركات لشارة "العروض" (= عدد البطاقات في /offers) — من نفس مصدر شريط الأرقام (site_stats).
 // ============================================================
 
 let offersCache = null;
@@ -39,23 +39,14 @@ export function useHeaderOffers(enabled) {
 }
 
 let statsPromise = null;
-let countPromise = null;
 
-/**
- * عدد العروض = عدد البطاقات في /offers (الشركات الظاهرة للزوار، بلا المخفية)، أو null.
- * قبل كان site_stats.partners_count (يحسب حتى المخفية: 28 في الهيدر و 27 في الصفحة).
- */
+/** عدد العروض = عدد الشركات (site_stats.partners_count — يدوي أو عدّ تلقائي)، أو null. */
 export function useOffersCount() {
   const [count, setCount] = useState(null);
   useEffect(() => {
     let active = true;
-    if (!countPromise) {
-      countPromise = fetchOffersCount().catch(() => {
-        countPromise = null;
-        return null;
-      });
-    }
-    countPromise.then((n) => active && setCount(n));
+    if (!statsPromise) statsPromise = fetchSiteStats().catch(() => null);
+    statsPromise.then((s) => active && setCount(s?.partnersCount ?? null));
     return () => {
       active = false;
     };

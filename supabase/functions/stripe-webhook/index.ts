@@ -8,6 +8,8 @@
 // ============================================================
 import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
 import { adminClient, grantLifetime, isTier, revokeLifetime } from "../_shared/lifetime.ts";
+// المفاتيح الماسية (phase37): مسار وحدو — metadata.kind = "keys" + طلب في key_orders. ماشي Premium أبداً.
+import { KEYS_KIND, keysRefundGateway, keysStripeSession } from "../_shared/keys.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "", {
   httpClient: Stripe.createFetchHttpClient(),
@@ -69,6 +71,14 @@ Deno.serve(async (req) => {
     switch (event.type) {
       case "checkout.session.completed":
       case "checkout.session.async_payment_succeeded": {
+        const keysSession = event.data.object as Stripe.Checkout.Session;
+        if (keysSession.metadata?.kind === KEYS_KIND) {
+          const r = await keysStripeSession(admin, keysSession);
+          // الطلب مازال ما تسجّلش (لحظة بعد صنع الجلسة) → 500 باش Stripe يعاود يبعث
+          if (r === "not_found") return new Response("keys order not found yet", { status: 500 });
+          if (r !== "granted" && r !== "duplicate" && r !== "not paid yet") console.error(`stripe-webhook: keys session ${keysSession.id}: ${r}`);
+          break;
+        }
         const reason = await handleSession(event.data.object as Stripe.Checkout.Session);
         if (reason && reason !== "not lifetime" && reason !== "not paid yet") {
           console.error(`stripe-webhook: session ${(event.data.object as Stripe.Checkout.Session).id} rejected: ${reason}`);
@@ -80,6 +90,8 @@ Deno.serve(async (req) => {
         const ch = event.data.object as Stripe.Charge;
         const pi = typeof ch.payment_intent === "string" ? ch.payment_intent : ch.payment_intent?.id;
         if (ch.refunded && pi) await revokeLifetime(admin, "stripe", pi);
+        // مفاتيح: أي استرداد (حتى جزئي) → المفاتيح اللي ما تستعملوش من هاد الطلب تتنحّى (payment_intent مجهول = بلا أثر)
+        if (pi && (ch.amount_refunded ?? 0) > 0) await keysRefundGateway(admin, "stripe", pi, (ch.amount_refunded ?? 0) / 100);
         break;
       }
     }

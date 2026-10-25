@@ -58,6 +58,12 @@ if (previewAt >= 0) {
     purchasedAt: new Date().toISOString(),
     refundedAt: new Date().toISOString(),
     premiumUntil: new Date(Date.now() + 30 * 864e5).toISOString(),
+    // المفاتيح الماسية (keys_purchase / keys_gift)
+    keys: 3,
+    balance: 3,
+    paidAt: new Date().toISOString(),
+    refundUntil: new Date(Date.now() + 7 * 864e5).toISOString(),
+    giftedAt: new Date().toISOString(),
   };
   for (const t of TEMPLATE_NAMES) {
     for (const lang of LANGS) {

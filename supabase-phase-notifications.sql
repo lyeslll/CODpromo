@@ -24,6 +24,7 @@
 --     السويتش private.app_secrets.push_mode: off | test (الأدمين برك — قبل الدمج) | live.
 --  6) الجداول كاملة بلا أي صلاحية للعميل (RLS بلا سياسات): كلش عبر RPCs. صنع/تعديل/إخفاء = admin_assert.
 --
+--  "مخفية" = القاعدة الوحيدة public.company_is_public(status) (phase-visible-counts → يتشغّل قبل هاد الملف).
 --  idempotent، بلا DROP / DELETE / TRUNCATE. الرجوع: supabase-phase-notifications-rollback.sql
 -- ============================================================
 
@@ -177,7 +178,7 @@ as $$
   select not n.is_hidden
      and n.published_at <= now()
      and (n.company_id is null or exists (
-           select 1 from public.companies c where c.id = n.company_id and coalesce(c.status, 'active') <> 'hidden'))
+           select 1 from public.companies c where c.id = n.company_id and public.company_is_public(c.status)))
      and (n.deal_id is null or public.notif_deal_live(n.deal_id));
 $$;
 
@@ -266,12 +267,12 @@ set search_path = public
 as $$
 begin
   begin
-    if coalesce(new.status, 'active') = 'hidden' then
+    if not public.company_is_public(new.status) then
       return new; -- الشركات المخفية: حتى إشعار
     end if;
 
     -- شركة جديدة، ولا مخفية ترجع تبان (أول مرة برك: الفهرس الفريد)
-    if tg_op = 'INSERT' or coalesce(old.status, 'active') = 'hidden' then
+    if tg_op = 'INSERT' or not public.company_is_public(old.status) then
       insert into public.notifications (kind, company_id, is_auto, push_after)
       values ('company', new.id, true, now() + interval '2 minutes')
       on conflict (company_id) where is_auto and kind = 'company' do nothing;
@@ -752,7 +753,7 @@ begin
                   'is_auto', n.is_auto, 'is_hidden', n.is_hidden, 'push', n.push, 'push_state', n.push_state,
                   'push_after', n.push_after, 'push_sent', n.push_sent, 'created_at', n.created_at,
                   'visible', public.notif_visible(n),
-                  'company_hidden', exists (select 1 from public.companies c where c.id = n.company_id and coalesce(c.status, 'active') = 'hidden'),
+                  'company_hidden', exists (select 1 from public.companies c where c.id = n.company_id and not public.company_is_public(c.status)),
                   'reads', (select count(*) from public.notification_reads r where r.notification_id = n.id)))::json as j
           from public.notifications n
          order by n.published_at desc, n.id desc
@@ -792,7 +793,7 @@ begin
     if p_company_id is null or not exists (select 1 from public.companies c where c.id = p_company_id) then
       return json_build_object('status', 'invalid');
     end if;
-    if exists (select 1 from public.companies c where c.id = p_company_id and coalesce(c.status, 'active') = 'hidden') then
+    if exists (select 1 from public.companies c where c.id = p_company_id and not public.company_is_public(c.status)) then
       return json_build_object('status', 'hidden');
     end if;
   end if;
@@ -949,7 +950,7 @@ $$;
 insert into public.notifications (kind, company_id, is_auto, published_at, created_at, push_state, push_done_at)
 select 'company', c.id, true, c.created_at, c.created_at, 'skipped', now()
   from public.companies c
- where c.slug = 'sawa9ly' and coalesce(c.status, 'active') <> 'hidden'
+ where c.slug = 'sawa9ly' and public.company_is_public(c.status)
 on conflict (company_id) where is_auto and kind = 'company' do nothing;
 
 -- ===================== 10) الصلاحيات =====================

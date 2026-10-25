@@ -11,6 +11,8 @@ import CategoriesMega from "./header/CategoriesMega.jsx";
 import QuickSearch from "./header/QuickSearch.jsx";
 import MobileMenu from "./header/MobileMenu.jsx";
 import AccountMenu from "./header/AccountMenu.jsx";
+import KeysCounter from "./keys/KeysCounter.jsx";
+import { useKeys } from "../lib/keysContext.jsx";
 import { loadHeaderOffers, useHeaderOffers, useHoverMenu, useOffersCount, userDisplay } from "./header/headerData.js";
 import { useAuth } from "../lib/auth.jsx";
 import { useCategories } from "../lib/categories.jsx";
@@ -70,6 +72,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const offersCount = useOffersCount();
+  const keysShown = useKeys().status === "ok";
   const offers = useHeaderOffers(mega.open);
   const cats = activeCategories(categories);
   const counts = offers.length ? countByCategory(offers, cats) : null;
@@ -256,6 +259,14 @@ export default function Navbar() {
             <NotificationBell onOpenChange={setBellOpen} />
 
             <LanguageSwitcher />
+            {/* عدّاد المفاتيح (الذهبي + الماسي) — نفس ارتفاع الأزرار، يحلّ لوحة الرصيد. بين 1024 و1280: المربّع
+                الصغير (بلاه، بالفرنسية، سطر الشعار يتقسم والهيدر يكبر) */}
+            <span className="hidden xl:contents">
+              <KeysCounter />
+            </span>
+            <span className="contents xl:hidden">
+              <KeysCounter compact />
+            </span>
             <PremiumNavButton onOpen={openPremium} />
 
             {user ? (
@@ -284,8 +295,12 @@ export default function Navbar() {
           </div>
 
           {/* ===== الهاتف: زر Premium صغير + زر القائمة (يبقى ابناً مباشراً للكبسولة لقواعد وضع التطبيق) ===== */}
-          <div className="me-2 ms-auto lg:hidden">
-            <PremiumNavButton onOpen={openPremium} compact />
+          <div className="me-2 ms-auto flex items-center gap-1 lg:hidden">
+            <KeysCounter compact />
+            {/* تحت 400px مع عدّاد المفاتيح + الجرس: التاج يتخبّى باش الهيدر ما يكبرش (Premium في الشريط السفلي وقائمة الهاتف) */}
+            <span className={keysShown ? "contents max-[399px]:hidden" : "contents"}>
+              <PremiumNavButton onOpen={openPremium} compact iconOnly={keysShown} />
+            </span>
           </div>
           {/* جرس الإشعارات (الهاتف): لوحة من تحت بكامل العرض */}
           <div className="me-2 lg:hidden">

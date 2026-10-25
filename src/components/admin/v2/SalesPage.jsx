@@ -15,8 +15,11 @@ import {
   UserRound,
   Users,
   Wallet,
+  Gem,
 } from "lucide-react";
 import { fetchSalesStats, listPurchases, revokePurchase } from "../../../lib/sales.js";
+import { fetchKeysStats, listCreditUses } from "../../../lib/keysAdmin.js";
+import KeyOrdersList from "./KeyOrdersList.jsx";
 import { ChartCard } from "./OverviewPage.jsx";
 import { useAdminT, Glass, PageHeader, Segmented, Skeleton, EmptyState, fmt, fmtDate, GOLD_BG } from "./ui.jsx";
 
@@ -42,6 +45,8 @@ const money = (t, amount, currency) =>
  * المشترين، الدخل حسب العملة، المقاعد الباقية، "اشترى بعد الهدية / بعد المفتاح الذهبي" (بتاريخ الشراء)،
  * منحنى 30 يوم، وقائمة المشتريات مع أهلية الاسترداد (7 أيام + بلا كشف كود Premium جديد بعد الشراء)
  * وزر "سحب Premium بعد الاسترداد".
+ * المفاتيح الماسية (phase37): تبويب وحدو (طلبات الباقات + الاسترداد)، سطر مداخيلها (بلا التجربة)، وشارة "بالرصيد"
+ * على شراءات Premium اللي تحسب فيها رصيد المفاتيح.
  */
 export default function SalesPage({ notify }) {
   const t = useAdminT();
@@ -53,6 +58,9 @@ export default function SalesPage({ notify }) {
   const [more, setMore] = useState(false);
   const [busy, setBusy] = useState(null);
   const [tick, setTick] = useState(0);
+  const [kind, setKind] = useState("premium"); // premium | keys
+  const [keysStats, setKeysStats] = useState(null);
+  const [credits, setCredits] = useState({}); // provider_ref → رصيد المفاتيح اللي تحسب فيه
   // notify يتبدّل في كل رسم تاع Admin.jsx → ref باش التحميل ما يتعاودش بلا حدّ
   const notifyRef = useRef(notify);
   notifyRef.current = notify;
@@ -82,6 +90,19 @@ export default function SalesPage({ notify }) {
   useEffect(() => {
     loadStats();
   }, [loadStats, tick]);
+
+  // المفاتيح: المداخيل + شراءات Premium بالرصيد (للشارة)
+  useEffect(() => {
+    let alive = true;
+    Promise.all([fetchKeysStats().catch(() => null), listCreditUses().catch(() => [])]).then(([ks, cu]) => {
+      if (!alive) return;
+      setKeysStats(ks);
+      setCredits(Object.fromEntries((cu || []).filter((c) => c.kind === "checkout").map((c) => [c.provider_ref, c])));
+    });
+    return () => {
+      alive = false;
+    };
+  }, [tick]);
 
   useEffect(() => {
     loadRows();
@@ -150,6 +171,7 @@ export default function SalesPage({ notify }) {
     { id: "afterGift", icon: Gift, value: stats ? fmt(stats.after_gift) : null, note: t("sales.afterGiftNote") },
     { id: "afterKey", icon: Key, value: stats ? fmt(stats.after_free_key) : null, note: t("sales.afterKeyNote") },
   ];
+  const keysRevenue = (cur) => keysStats?.revenue?.find((r) => r.currency === cur)?.amount ?? 0;
 
   return (
     <>
@@ -201,6 +223,37 @@ export default function SalesPage({ notify }) {
         </Glass>
       </div>
 
+      {/* المفاتيح الماسية: المداخيل (بلا التجربة ولا الأدمن) — التفاصيل في /admin/keys */}
+      <Glass className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 p-4 sm:p-5">
+        <span className="flex items-center gap-2 text-[14px] font-extrabold text-white">
+          <Gem size={17} style={{ color: "#a9cdff" }} /> {t("keys.salesLine")}
+        </span>
+        {keysStats ? (
+          <>
+            <span className="text-[14px] font-black tabular-nums text-white">{money(t, keysRevenue("DZD"), "DZD")}</span>
+            <span className="text-[14px] font-black tabular-nums text-white">{money(t, keysRevenue("USD"), "USD")}</span>
+            <span className="text-[12.5px] font-bold text-[#c9c9cf]">{t("keys.salesOrders", { n: fmt(keysStats.orders), k: fmt(keysStats.keys_sold) })}</span>
+          </>
+        ) : (
+          <Skeleton className="h-5 w-40" />
+        )}
+        <div className="ms-auto">
+          <Segmented
+            value={kind}
+            onChange={setKind}
+            size="sm"
+            label={t("keys.kindLabel")}
+            options={[
+              { value: "premium", label: t("keys.kind.premium") },
+              { value: "keys", label: t("keys.kind.keys"), color: "#a9cdff" },
+            ]}
+          />
+        </div>
+      </Glass>
+
+      {kind === "keys" ? (
+        <KeyOrdersList notify={notify} onChanged={() => setTick((x) => x + 1)} />
+      ) : (
       <Glass className="mt-5 p-4 sm:p-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -267,6 +320,11 @@ export default function SalesPage({ notify }) {
                       >
                         {t(`pricing.tier.${r.tier}`)}
                       </span>
+                      {credits[r.provider_ref] && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-[#a9cdff]/15 px-1.5 py-0.5 text-[11px] font-bold text-[#a9cdff]">
+                          <Gem size={11} /> {t("keys.creditBadge", { amount: money(t, credits[r.provider_ref].credit, credits[r.provider_ref].currency) })}
+                        </span>
+                      )}
                     </div>
                     <div className="min-w-0 text-[12.5px] leading-relaxed">
                       <div className="tabular-nums text-[#c9c9cf]">{fmtDate(r.purchased_at, true)}</div>
@@ -311,6 +369,7 @@ export default function SalesPage({ notify }) {
           </>
         )}
       </Glass>
+      )}
     </>
   );
 }

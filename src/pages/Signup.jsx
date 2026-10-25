@@ -22,6 +22,7 @@ import { useAuth } from "../lib/auth.jsx";
 import { pendingGiftPath } from "../lib/gifts.js";
 import { pendingFreeKeyPath } from "../lib/freeKey.js";
 import { pendingPremiumPath } from "../lib/goPremium.js";
+import { pendingKeysPath } from "../lib/keys.js";
 import { peekReturnTo } from "../lib/returnTo.js";
 
 const TYPES = [
@@ -86,7 +87,7 @@ export default function Signup() {
     setLoading(true);
     // جا من رابط هدية: رابط تفعيل الإيميل يرجّعو لصفحة الهدية؛ جا من بطاقة (المفتاح الذهبي): لنفس البطاقة؛
     // جا من زر الشراء في /premium: يرجع لصفحة Premium والنافذة تتحلّ. lang = لغة إيميلات الحساب (التأكيد، الترحيب…)
-    const giftNext = pendingGiftPath() || pendingFreeKeyPath() || pendingPremiumPath() || peekReturnTo();
+    const giftNext = pendingGiftPath() || pendingFreeKeyPath() || pendingKeysPath() || pendingPremiumPath() || peekReturnTo();
     const { data, error } = await signUp(email.trim(), password, metadata, giftNext);
     setLoading(false);
     if (error) return setError(t(`auth.signup.${signupErrorKey(error.message)}`));
@@ -97,7 +98,7 @@ export default function Signup() {
   const google = async () => {
     setError("");
     setGoogleLoading(true);
-    const { error } = await signInWithGoogle(pendingGiftPath() || pendingFreeKeyPath() || pendingPremiumPath() || peekReturnTo());
+    const { error } = await signInWithGoogle(pendingGiftPath() || pendingFreeKeyPath() || pendingKeysPath() || pendingPremiumPath() || peekReturnTo());
     if (error) {
       setGoogleLoading(false);
       setError(t(`auth.signup.${signupErrorKey(error.message)}`));

@@ -49,6 +49,10 @@ export default defineConfig({
         importScripts: ["/push-sw.js"],
         // SPA: أي تنقّل يُخدَم من index.html (يشمل /store, /category, /admin, العودة من الدفع…)
         navigateFallback: "/index.html",
+        // ما عدا ملف العروض العام والتحويل /go/<slug>--<id> (دوال Vercel، ملف العروض العام لـ ilyesderradji.com):
+        // ديما من الشبكة — بلاها الزائر اللي عندو الـ SW ياخذ index.html (GoPage تاع العروض بلا كود) بلاصة التحويل.
+        // Workbox يقارن pathname + search (لذا "?" ولا النهاية بعد الـ id). /go/<slug> تاع العروض بلا كود يبقى SPA.
+        navigateFallbackDenylist: [/^\/go\/[a-z0-9-]+--[0-9]+(?:\?|$)/, /^\/feeds\//],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,

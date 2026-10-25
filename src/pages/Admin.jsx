@@ -45,7 +45,9 @@ import {
   deleteCategory,
   getPremiumCode,
   fetchCompanyPageFields,
+  fetchCompanyFeedFields,
 } from "../lib/supabase.js";
+import { fetchAdminFeedClicks } from "../lib/feedClicks.js";
 import { fetchAllProfiles, fetchAllRequests, fetchPremiumProfiles, isActivePremium } from "../lib/admin.js";
 import { publishRequest, rejectRequest } from "../lib/requests.js";
 import { fetchSubscribers } from "../lib/subscribers.js";
@@ -844,7 +846,7 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
   const startSoon = isNew && sp.get("soon") === "1";
   const company = isNew ? null : companies.find((c) => String(c.id) === id);
   // كود/رابط Premium + المعلومات الداخلية: تُجلب خادمياً (غير موجودة في الجلب العام)
-  const [extra, setExtra] = useState(isNew ? { premiumLoaded: true, pageLoaded: true, priv: null } : null);
+  const [extra, setExtra] = useState(isNew ? { premiumLoaded: true, pageLoaded: true, feedLoaded: true, priv: null } : null);
 
   useEffect(() => {
     if (isNew || !company) return;
@@ -854,11 +856,15 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
       getPremiumCode(company.id).then((d) => ({ ok: true, d }), () => ({ ok: false })),
       fetchCompanyPrivate(company.id).catch(() => null),
       fetchCompanyPageFields(company.id).then((d) => ({ ok: true, d }), () => ({ ok: false })),
-    ]).then(([pc, priv, page]) => {
+      // ilyesderradji.com: الخانات + النقرات (phase offers-feed)
+      fetchCompanyFeedFields(company.id).then((d) => ({ ok: true, d }), () => ({ ok: false })),
+      fetchAdminFeedClicks(company.id).catch(() => null),
+    ]).then(([pc, priv, page, feed, feedStats]) => {
       if (!active) return;
       setExtra({
         premiumLoaded: pc.ok, premium_code: pc.d?.premium_code || "", premium_url: pc.d?.premium_url || "", priv,
         pageLoaded: page.ok, page: page.d || {},
+        feedLoaded: feed.ok, feed: feed.d || {}, feedStats,
       });
     });
     return () => {
@@ -896,13 +902,15 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
         <CompanyOfferForm
           key={company?.id || (startSoon ? "new-soon" : "new")}
           lang="ar"
-          initial={isNew ? (startSoon ? { coming_soon: true } : null) : { ...company, ...extra.page, premium_code: extra.premium_code, premium_url: extra.premium_url }}
+          initial={isNew ? (startSoon ? { coming_soon: true } : null) : { ...company, ...extra.page, ...extra.feed, premium_code: extra.premium_code, premium_url: extra.premium_url }}
           privateInitial={extra.priv}
           categories={categories}
           submitting={submitting}
           showPrivate
           freeRevealSwitch
           pageFields
+          ilyesFields
+          feedStats={extra.feedStats || null}
           draftKey={isNew ? "new" : String(company.id)}
           onCreateCategory={onCreateCategory}
           onCancel={() => navigate("/admin/companies")}
@@ -918,6 +926,11 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
               delete payload.about;
               delete payload.features;
               delete payload.usage_steps;
+            }
+            // نفس الشي لخانات ilyesderradji.com
+            if (!extra.feedLoaded) {
+              delete payload.ilyes_slug;
+              delete payload.ilyes_visible;
             }
             onSave(isNew ? null : company.id, payload, priv);
           }}

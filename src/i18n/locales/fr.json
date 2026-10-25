@@ -1758,6 +1758,8 @@
     "s": {
       "soon": "Statut de l'offre",
       "soonSub": "Prête, ou « bientôt » (l'entreprise vous a donné le logo et le lien ; l'offre arrive).",
+      "ilyes": "Sur ilyesderradji.com",
+      "ilyesSub": "La bibliothèque de réductions d'ilyesderradji.com lit uniquement l'offre normale (code et lien) depuis un fichier public. Une offre Premium n'y apparaît jamais.",
       "company": "Entreprise",
       "companySub": "L'identité affichée en haut de la carte",
       "type": "Type d'offre",
@@ -1783,6 +1785,10 @@
     "f": {
       "comingSoon": "Offre bientôt disponible",
       "premiumComingSoon": "Premium bientôt",
+      "ilyesVisible": "Afficher sur ilyesderradji.com",
+      "ilyesSlug": "Identifiant dans l'annuaire ilyesderradji.com",
+      "ilyesLink": "Lien de l'offre dans le fichier",
+      "ilyesClicks": "Clics depuis ilyesderradji.com",
       "name": "Nom de l'entreprise",
       "category": "Catégorie",
       "noCategory": "Sans catégorie",
@@ -1816,6 +1822,10 @@
     "h": {
       "comingSoon": "La carte affiche « Bientôt, restez à l'écoute » à la place de la valeur et du code, avec un bouton « Prévenez-moi au lancement », après les offres actives. Quand l'offre arrive : désactivez « bientôt », saisissez la valeur et le code, puis enregistrez — la carte devient active et ceux qui ont touché « Prévenez-moi » reçoivent une alerte.",
       "premiumComingSoon": "Une offre Premium arrive aussi, sans code pour l'instant : les clés ne l'ouvrent pas et elle n'est pas vendue avant son lancement.",
+      "ilyesVisible": "Désactivée, l'offre quitte le fichier public en moins d'une heure.",
+      "ilyesSlug": "Facultatif : l'identifiant de l'entreprise dans l'annuaire (ex. colivraison-express) pour relier l'offre à sa page. Vide = le lien de l'entreprise ici ({{slug}}).",
+      "ilyesLink": "Le clic est compté dans CODpromo et dans le tableau de bord du partenaire, puis le visiteur arrive sur le lien d'affiliation.",
+      "ilyesClicks": "7 jours : {{d7}} · 30 jours : {{d30}} · total : {{total}}",
       "name": "Exemple : YouCan",
       "category": "Choisissez-en une, ou créez-en une sans quitter le formulaire",
       "website": "Exemple : https://youcan.shop (enregistré dans les infos internes)",
@@ -1850,6 +1860,7 @@
     },
     "warn": {
       "soonClears": "L'enregistrement efface la valeur et le code actuels (ainsi que le code et le lien Premium) car la carte est « bientôt ».",
+      "ilyesSlug": "Lettres latines minuscules, chiffres et tirets uniquement (64 caractères max).",
       "https": "Le lien doit commencer par https://",
       "weaker": "La valeur Premium n'est pas plus forte que la classique",
       "frozen": "Sans code Premium, la carte apparaît figée en mode Premium."
@@ -2295,6 +2306,8 @@
     }
   },
   "partnerDash": {
+    "feedClicks": "Clics via ilyesderradji.com",
+    "feedClicks30": "30 derniers jours : {{value}}",
     "hello": "Bonjour, {{name}}",
     "sub": "Suivez vos offres et leurs résultats, et envoyez-en une nouvelle quand vous voulez.",
     "newOffer": "Nouvelle offre",

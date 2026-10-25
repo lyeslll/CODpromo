@@ -1758,6 +1758,8 @@
     "s": {
       "soon": "Offer status",
       "soonSub": "Ready, or “coming soon” (the company gave you the logo and link; the offer is still to come).",
+      "ilyes": "On ilyesderradji.com",
+      "ilyesSub": "The ilyesderradji.com discount library reads only the regular offer (code and link) from a public file. A Premium offer never appears there.",
       "company": "Company",
       "companySub": "The identity shown at the top of the card",
       "type": "Offer type",
@@ -1783,6 +1785,10 @@
     "f": {
       "comingSoon": "Offer coming soon",
       "premiumComingSoon": "Premium coming soon",
+      "ilyesVisible": "Show on ilyesderradji.com",
+      "ilyesSlug": "ID in the ilyesderradji.com directory",
+      "ilyesLink": "Offer link in the file",
+      "ilyesClicks": "Clicks from ilyesderradji.com",
       "name": "Company name",
       "category": "Category",
       "noCategory": "No category",
@@ -1816,6 +1822,10 @@
     "h": {
       "comingSoon": "The card shows “Coming soon, stay tuned” instead of the value and code, with a “Notify me when it's live” button, after the live offers. When the offer arrives: turn off “coming soon”, write the value and code, then save — the card goes live and everyone who tapped “Notify me” gets an alert.",
       "premiumComingSoon": "A Premium offer is coming too, with no code yet: keys can't open it and it isn't sold until it goes live.",
+      "ilyesVisible": "When off, the offer leaves the public file within an hour.",
+      "ilyesSlug": "Optional: the company's ID in the directory (e.g. colivraison-express) so the offer links to its page there. Empty = this company's link here ({{slug}}).",
+      "ilyesLink": "The click is counted in CODpromo and in the partner dashboard, then the visitor reaches the referral link.",
+      "ilyesClicks": "7 days: {{d7}} · 30 days: {{d30}} · all: {{total}}",
       "name": "Example: YouCan",
       "category": "Pick an existing one, or add a new category without leaving",
       "website": "Example: https://youcan.shop (saved in internal info)",
@@ -1850,6 +1860,7 @@
     },
     "warn": {
       "soonClears": "Saving clears the current value and code (and the Premium code and link) because the card is “coming soon”.",
+      "ilyesSlug": "Lowercase Latin letters, digits and dashes only (64 characters max).",
       "https": "The link should start with https://",
       "weaker": "The Premium value isn't stronger than the regular one",
       "frozen": "Without a Premium code, the card appears frozen in Premium mode."
@@ -2295,6 +2306,8 @@
     }
   },
   "partnerDash": {
+    "feedClicks": "Clicks via ilyesderradji.com",
+    "feedClicks30": "last 30 days: {{value}}",
     "hello": "Hello, {{name}}",
     "sub": "Track your offers and how they perform, and send a new one any time.",
     "newOffer": "New offer",

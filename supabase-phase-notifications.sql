@@ -642,6 +642,7 @@ end;
 $$;
 
 -- الأجهزة (صفحة بعد صفحة) + الإشعارات اللي تطابق كل جهاز (تفضيلات الحساب). mode test = الأدمين برك.
+--  { last: آخر id تقرا في الصفحة (null = كمّلنا), items: الأجهزة اللي عندها حاجة تطابق }
 create or replace function public.push_batch_targets(p_batch bigint, p_after bigint default 0, p_limit integer default 200)
 returns json
 language plpgsql
@@ -650,31 +651,35 @@ security definer
 set search_path = public
 as $$
 declare
-  b public.push_batches;
+  b       public.push_batches;
+  v_last  bigint;
+  v_items json;
 begin
   select * into b from public.push_batches where id = p_batch and state = 'sending';
   if not found then
-    return '[]'::json;
+    return json_build_object('last', null, 'items', '[]'::json);
   end if;
-  return coalesce((
-    select json_agg(json_build_object('id', t.id, 'endpoint', t.endpoint, 'p256dh', t.p256dh, 'auth', t.auth,
-                                      'lang', t.lang, 'ids', t.ids) order by t.id)
-      from (
-        select s.id, s.endpoint, s.p256dh, s.auth, s.lang,
-               case when b.test_user is not null then '{}'::bigint[]
-                    else array(select n.id from public.notifications n
-                                where n.id = any(b.notification_ids)
-                                  and public.notif_matches(n, s.user_id, p.scope, p.categories)
-                                order by n.published_at, n.id) end as ids
-          from public.push_subscriptions s
-          left join public.notification_prefs p on p.user_id = s.user_id
-         where s.active and s.id > coalesce(p_after, 0)
-           and (b.test_user is null or s.user_id = b.test_user)
-           and (b.mode <> 'test' or exists (select 1 from public.profiles pr where pr.id = s.user_id and pr.is_admin = true))
-         order by s.id
-         limit least(greatest(coalesce(p_limit, 200), 1), 500)
-      ) t
-     where b.test_user is not null or cardinality(t.ids) > 0), '[]'::json);
+  select max(t.id),
+         coalesce(json_agg(json_build_object('id', t.id, 'endpoint', t.endpoint, 'p256dh', t.p256dh, 'auth', t.auth,
+                                             'lang', t.lang, 'ids', t.ids) order by t.id)
+                    filter (where b.test_user is not null or cardinality(t.ids) > 0), '[]'::json)
+    into v_last, v_items
+    from (
+      select s.id, s.endpoint, s.p256dh, s.auth, s.lang,
+             case when b.test_user is not null then '{}'::bigint[]
+                  else array(select n.id from public.notifications n
+                              where n.id = any(b.notification_ids)
+                                and public.notif_matches(n, s.user_id, p.scope, p.categories)
+                              order by n.published_at, n.id) end as ids
+        from public.push_subscriptions s
+        left join public.notification_prefs p on p.user_id = s.user_id
+       where s.active and s.id > coalesce(p_after, 0)
+         and (b.test_user is null or s.user_id = b.test_user)
+         and (b.mode <> 'test' or exists (select 1 from public.profiles pr where pr.id = s.user_id and pr.is_admin = true))
+       order by s.id
+       limit least(greatest(coalesce(p_limit, 200), 1), 500)
+    ) t;
+  return json_build_object('last', v_last, 'items', v_items);
 end;
 $$;
 

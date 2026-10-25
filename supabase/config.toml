@@ -37,3 +37,7 @@ verify_jwt = false
 # إيميلات المعاملات (phase33): تناديها القاعدة برك (pg_net) برأس x-email-secret، بلا JWT
 [functions.send-email]
 verify_jwt = false
+
+# إشعارات الهاتف (phase notifications): تناديها القاعدة برك (pg_net) برأس x-push-secret، بلا JWT
+[functions.send-push]
+verify_jwt = false

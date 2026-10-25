@@ -1345,7 +1345,8 @@
           "refunded": "Refund recorded, {{n}} unused key(s) removed",
           "already": "This order was already refunded",
           "all_used": "No unused keys in this order",
-          "not_found": "Order not found"
+          "not_found": "Order not found",
+          "credit_locked": "Not possible: these keys were (or are being) counted toward Premium. Revoke Premium first if a refund is really needed."
         },
         "autoHint": "Keys are usually removed automatically when you refund from the Stripe or PayPal dashboard.",
         "salesLine": "Diamond keys",
@@ -1434,7 +1435,9 @@
         "packSave": "Save",
         "packSaved": "Pack saved",
         "packNoteTest": "The test price (above) also applies to keys: same amount for every pack for that account, recorded as a test.",
-        "packNoteLimit": "We never sell more keys than the codes still locked on the account."
+        "packNoteLimit": "We never sell more keys than the codes still locked on the account.",
+        "creditUnbacked": "Not covered",
+        "creditUnbackedHint": "Keys counted in this purchase were refunded. You can revoke Premium from the sales list if needed."
       }
     }
   },
@@ -2701,7 +2704,9 @@
       "unavailable": "Google Play payment isn’t available right now.",
       "verify": "Couldn’t confirm the purchase. If you were charged, your keys will be added when you open this page again.",
       "pending": "The payment is pending at Google Play. Your keys will be added once it’s confirmed.",
-      "generic": "Something went wrong. Try again."
+      "generic": "Something went wrong. Try again.",
+      "limit": "We didn’t add the keys: you already have as many keys as locked codes. You won’t be charged — Google Play refunds it automatically within 3 days.",
+      "hasPremium": "You already have Premium, so you don’t need keys. You won’t be charged — Google Play refunds it automatically within 3 days."
     },
     "section": {
       "pill": "Diamond keys",

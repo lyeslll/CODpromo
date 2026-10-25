@@ -49,7 +49,7 @@ export async function getKeysPlayPrices(productIds) {
 
 async function verify(purchaseToken, productId) {
   const { data, error } = await supabase.functions.invoke("keys-play-verify", { body: { purchaseToken, productId } });
-  if (error || !data?.ok) return { ok: false, pending: !!data?.pending };
+  if (error || !data?.ok) return { ok: false, pending: !!data?.pending, code: data?.error || null };
   return { ok: true, consumed: data.consumed === true };
 }
 
@@ -85,7 +85,7 @@ export async function purchaseKeysPlay(productId) {
     const r = await verify(token, productId);
     if (!r.ok) {
       await response.complete("fail");
-      return { ok: false, errorKey: r.pending ? "pending" : "verify" };
+      return { ok: false, errorKey: r.pending ? "pending" : r.code === "limit" ? "limit" : r.code === "has_premium" ? "hasPremium" : "verify" };
     }
     if (!r.consumed) await consumeLocally(await getService(), token);
     await response.complete("success");

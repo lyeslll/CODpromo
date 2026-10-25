@@ -1345,7 +1345,8 @@
           "refunded": "Remboursement enregistré, {{n}} clé(s) retirée(s)",
           "already": "Commande déjà remboursée",
           "all_used": "Aucune clé non utilisée",
-          "not_found": "Commande introuvable"
+          "not_found": "Commande introuvable",
+          "credit_locked": "Impossible : ces clés ont été (ou sont en train d’être) déduites de Premium. Retirez Premium d’abord si un remboursement est nécessaire."
         },
         "autoHint": "Les clés sont généralement retirées automatiquement lors d’un remboursement depuis Stripe ou PayPal.",
         "salesLine": "Clés diamant",
@@ -1434,7 +1435,9 @@
         "packSave": "Enregistrer",
         "packSaved": "Pack enregistré",
         "packNoteTest": "Le prix de test (ci-dessus) s’applique aussi aux clés : même montant pour chaque pack pour ce compte, enregistré comme test.",
-        "packNoteLimit": "On ne vend jamais plus de clés que de codes encore verrouillés sur le compte."
+        "packNoteLimit": "On ne vend jamais plus de clés que de codes encore verrouillés sur le compte.",
+        "creditUnbacked": "Non couvert",
+        "creditUnbackedHint": "Des clés comptées dans cet achat ont été remboursées. Vous pouvez retirer Premium depuis la liste des ventes si besoin."
       }
     }
   },
@@ -2701,7 +2704,9 @@
       "unavailable": "Le paiement Google Play n’est pas disponible pour le moment.",
       "verify": "Impossible de confirmer l’achat. Si vous avez été débité, vos clés seront ajoutées en rouvrant cette page.",
       "pending": "Le paiement est en attente chez Google Play. Vos clés seront ajoutées une fois confirmé.",
-      "generic": "Une erreur est survenue. Réessayez."
+      "generic": "Une erreur est survenue. Réessayez.",
+      "limit": "Clés non ajoutées : vous avez déjà autant de clés que de codes verrouillés. Vous ne serez pas débité — Google Play rembourse automatiquement sous 3 jours.",
+      "hasPremium": "Vous avez déjà Premium, pas besoin de clés. Vous ne serez pas débité — Google Play rembourse automatiquement sous 3 jours."
     },
     "section": {
       "pill": "Clés diamant",

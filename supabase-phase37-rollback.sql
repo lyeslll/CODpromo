@@ -62,6 +62,8 @@ drop function if exists public.key_email_enabled();
 drop function if exists public.key_order_refund_info(bigint);
 drop function if exists public.keys_credit_state(uuid);
 drop function if exists public.keys_credit_quote_for(uuid);
+drop function if exists public.keys_credit_backed(uuid, text, numeric);
+drop function if exists public.keys_credit_amounts(uuid);
 drop function if exists public.key_order_unused(bigint);
 drop function if exists public.keys_pack_price(uuid, text);
 drop function if exists public.keys_pending(uuid);

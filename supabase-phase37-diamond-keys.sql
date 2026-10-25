@@ -294,6 +294,48 @@ as $$
   select coalesce((select greatest(0, least(c.cap, c.upto - u.n))::int from cum c, used u where c.order_id = p_order), 0);
 $$;
 
+-- الرصيد الخام (بلا فحص Premium): كل واش خلّصو في المفاتيح ناقص المسترد، بالعملتين (نسبة سعر Premium العام).
+-- يستعملوه العرض، والتحقق "الرصيد مازال يغطي واش تحسب في Premium" (backed) بعد أي استرداد.
+create or replace function public.keys_credit_amounts(uid uuid)
+returns json
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+declare
+  pub     json := public.pricing_public();
+  v_ratio numeric := (pub->>'price_dzd')::numeric / nullif((pub->>'price_usd')::numeric, 0);
+  v_dzd   numeric;
+  v_usd   numeric;
+begin
+  select coalesce(sum(o.amount - o.refunded_amount) filter (where o.currency = 'DZD'), 0),
+         coalesce(sum(o.amount - o.refunded_amount) filter (where o.currency = 'USD'), 0)
+    into v_dzd, v_usd
+    from public.key_orders o
+   where o.user_id = uid and o.status = 'paid';
+  return json_build_object(
+    'paid_dzd', v_dzd,
+    'paid_usd', v_usd,
+    'credit_dzd', floor(v_dzd + v_usd * coalesce(v_ratio, 0)),
+    'credit_usd', coalesce(round(floor((v_usd + v_dzd / nullif(v_ratio, 0)) * 100) / 100, 2), round(v_usd, 2))
+  );
+end;
+$$;
+
+-- الرصيد يغطي مازال الرصيد اللي تحسب في Premium (بعد استرداد مفاتيح مثلاً)؟ سماحية صغيرة لتحويل العملة.
+create or replace function public.keys_credit_backed(uid uuid, p_currency text, p_credit numeric)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select case when p_currency = 'DZD' then (a->>'credit_dzd')::numeric >= p_credit * 0.99 - 1
+              else (a->>'credit_usd')::numeric >= p_credit * 0.99 - 0.01 end
+    from (select public.keys_credit_amounts(uid) as a) x;
+$$;
+
 -- الرصيد (بالدينار وبالدولار) = كل واش خلّصو في المفاتيح ناقص المسترد. التحويل بين العملتين بنسبة سعر
 -- Premium العام الحالي (pricing_public، مثلاً 9,900 دج = 39$). سعر Premium بعد الرصيد، والباقي الأدنى
 -- (حدّ البوابات: 50 دج / 0.50$). covered = الرصيد يغطي Premium كامل (التفعيل بلا دفع).
@@ -323,6 +365,10 @@ begin
   end if;
   if public.keys_premium_blocked(uid) then
     return json_build_object('status', 'has_premium');
+  end if;
+  -- الأدمن رجّع تفعيل Premium بالرصيد لهاد الحساب: الرصيد ما يتعاودش يتستعمل في Premium
+  if exists (select 1 from public.key_credit_uses c where c.user_id = uid and c.kind = 'full' and c.revoked_at is not null) then
+    return json_build_object('status', 'revoked');
   end if;
 
   v_ratio := (pub->>'price_dzd')::numeric / nullif((pub->>'price_usd')::numeric, 0);
@@ -361,7 +407,8 @@ end;
 $$;
 
 -- الرصيد تحسب في Premium (شراء Premium بالرصيد غير مستردّ، ولا تفعيل كامل بالرصيد)؟
--- reserved = دفع Premium بالرصيد بدا في آخر 24 ساعة (يمنع استرداد المفاتيح قبل ما يكمل).
+-- reserved = دفع Premium بالرصيد بدا وما كملش: فاتورة SlickPay / طلب PayPal بالباقي مازال pending (مهما طال —
+-- الفاتورة تقدر تتخلّص من بعد)، ولا جلسة Stripe في آخر 24 ساعة (تنتهي بعد ساعة). يمنع استرداد المفاتيح قبل.
 create or replace function public.keys_credit_state(uid uuid)
 returns json
 language sql
@@ -376,8 +423,13 @@ as $$
                            or exists (select 1 from public.purchases pu
                                        where pu.provider_ref = c.provider_ref and pu.refunded_at is null))),
     'reserved_at', (select max(c.created_at) from public.key_credit_uses c
-                     where c.user_id = uid and c.kind = 'checkout' and c.created_at > now() - interval '24 hours'
-                       and not exists (select 1 from public.purchases pu where pu.provider_ref = c.provider_ref))
+                     where c.user_id = uid and c.kind = 'checkout'
+                       and not exists (select 1 from public.purchases pu where pu.provider_ref = c.provider_ref)
+                       and ((c.provider = 'stripe' and c.created_at > now() - interval '24 hours')
+                            or (c.provider = 'slickpay' and exists (select 1 from public.slickpay_invoices i
+                                                                     where i.invoice_id = c.provider_ref and i.status = 'pending'))
+                            or (c.provider = 'paypal' and exists (select 1 from public.paypal_orders po
+                                                                   where po.order_id = c.provider_ref and po.status = 'pending'))))
   );
 $$;
 
@@ -918,6 +970,9 @@ begin
   if q->>'status' = 'has_premium' then
     return json_build_object('status', 'has_premium');
   end if;
+  if q->>'status' = 'revoked' then
+    return json_build_object('status', 'not_covered');
+  end if;
   if q->>'status' <> 'ok' then
     return json_build_object('status', 'auth');
   end if;
@@ -1080,7 +1135,8 @@ $$;
 
 -- Google Play (منتوج consumable): بعد التحقق عند Google. نفس الرمز مرّتين = duplicate، رمز حساب آخر = other_user.
 -- المبلغ = سعر الباقة بالدولار (Google ما يعطيش المدفوع، نفس Premium)، والشراء التجريبي بـ 0 و tier = test.
---  'granted' | 'duplicate' | 'other_user' | 'invalid_product'
+-- Premium حقيقي ولا فوق الحدّ → بلا تسجيل (الدالة ما تقرّش الشراء → Google يرجّع الدراهم وحدو).
+--  'granted' | 'duplicate' | 'other_user' | 'invalid_product' | 'has_premium' | 'limit'
 create or replace function public.keys_play_grant(
   p_uid uuid, p_product text, p_token text, p_order_ref text, p_test boolean
 )
@@ -1110,6 +1166,13 @@ begin
    limit 1;
   if found then
     return case when o.user_id = p_uid then 'duplicate' else 'other_user' end;
+  end if;
+  -- نفس قواعد الموقع: Premium حقيقي ما يشريش، وما نبيعوش مفاتيح أكثر من الأكواد المقفولة
+  if public.keys_premium_blocked(p_uid) then
+    return 'has_premium';
+  end if;
+  if k.keys > greatest(public.keys_locked_count(p_uid) - public.keys_balance(p_uid) - public.keys_pending(p_uid), 0) then
+    return 'limit';
   end if;
 
   insert into public.key_orders (user_id, pack_id, keys, provider, provider_ref, payment_ref, amount, currency, tier, status, paid_at)
@@ -1156,6 +1219,20 @@ begin
   update public.key_orders
      set refunded_at = now(), refunded_amount = least(greatest(coalesce(p_refunded, o.amount), 0), o.amount)
    where id = o.id;
+
+  -- الدراهم اللي تحسبت في Premium رجعت (استرداد من البوابة، اعتراض…): تفعيل Premium بالرصيد كامل اللي ما بقاش
+  -- مغطّى يتنحّى. شراء Premium بالباقي (checkout) يبان "غير مغطّى" في الأدمن والقرار ليه.
+  if o.user_id is not null then
+    update public.key_credit_uses c set revoked_at = now()
+     where c.user_id = o.user_id and c.kind = 'full' and c.revoked_at is null
+       and not public.keys_credit_backed(o.user_id, c.currency, c.credit);
+    if found and not public.has_lifetime_purchase(o.user_id)
+       and not exists (select 1 from public.key_credit_uses c where c.user_id = o.user_id and c.kind = 'full' and c.revoked_at is null) then
+      update public.profiles
+         set is_premium = false, premium_until = null, plan_type = null, subscription_status = 'refunded'
+       where id = o.user_id and payment_provider = 'keys' and plan_type = 'lifetime' and premium_until is null;
+    end if;
+  end if;
   return json_build_object('status', 'refunded', 'removed', v_un);
 end;
 $$;
@@ -1514,6 +1591,10 @@ begin
   if coalesce((info->>'unused')::int, 0) = 0 then
     return json_build_object('status', 'all_used');
   end if;
+  -- رصيدو تحسب (ولا راهو يتحسب) في Premium: "الدراهم اللي تحسبت في Premium ما ترجعش" — اسحب Premium أولاً
+  if (info->>'reason') in ('in_premium', 'premium_pending') then
+    return json_build_object('status', 'credit_locked', 'reason', info->>'reason');
+  end if;
   r := public.key_order_refund_apply(p_id, (info->>'amount')::numeric, auth.uid());
   return json_build_object('status', r->>'status', 'removed', r->'removed', 'amount', info->'amount', 'currency', info->'currency');
 end;
@@ -1535,6 +1616,7 @@ begin
                                       'premium_price', c.premium_price, 'tier', c.tier, 'created_at', c.created_at,
                                       'email', coalesce(u.email, p.email)::text, 'user_id', c.user_id, 'id', c.id,
                                       'revoked_at', c.revoked_at,
+                                      'backed', c.user_id is null or public.keys_credit_backed(c.user_id, c.currency, c.credit),
                                       'applied', (c.kind = 'full' and c.revoked_at is null) or exists (select 1 from public.purchases pu
                                                    where pu.provider_ref = c.provider_ref and pu.refunded_at is null))
              order by c.created_at desc)
@@ -1589,6 +1671,8 @@ revoke all on function public.keys_pending(uuid) from public, anon, authenticate
 revoke all on function public.keys_pack_price(uuid, text) from public, anon, authenticated;
 revoke all on function public.key_order_unused(bigint) from public, anon, authenticated;
 revoke all on function public.keys_credit_quote_for(uuid) from public, anon, authenticated;
+revoke all on function public.keys_credit_amounts(uuid) from public, anon, authenticated;
+revoke all on function public.keys_credit_backed(uuid, text, numeric) from public, anon, authenticated;
 revoke all on function public.keys_credit_state(uuid) from public, anon, authenticated;
 revoke all on function public.key_order_refund_info(bigint) from public, anon, authenticated;
 revoke all on function public.key_email_enabled() from public, anon, authenticated;

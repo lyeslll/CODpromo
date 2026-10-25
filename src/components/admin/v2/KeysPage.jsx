@@ -346,6 +346,12 @@ function CreditUses({ rows, onRevoke }) {
                 <span className={`rounded-md px-1.5 py-0.5 text-[11px] font-bold ${c.applied ? "bg-[#a6f000]/15 text-[#a6f000]" : "bg-white/[0.06] text-[#9ca3af]"}`}>
                   {c.revoked_at ? t("keys.creditRevoked") : c.applied ? t("keys.creditApplied") : t("keys.creditOpen")}
                 </span>
+                {/* الرصيد اللي تحسب ما بقاش مغطّى (مفاتيح استرجعت دراهمها): قرار الأدمن (سحب Premium من المبيعات) */}
+                {c.applied && c.backed === false && (
+                  <span className="rounded-md bg-[#f87171]/15 px-1.5 py-0.5 text-[11px] font-bold text-[#fca5a5]" title={t("keys.creditUnbackedHint")}>
+                    {t("keys.creditUnbacked")}
+                  </span>
+                )}
                 {c.kind === "full" && c.applied && (
                   <button type="button" onClick={() => onRevoke(c)} className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[11.5px] font-bold text-[#9ca3af] hover:text-white">
                     <Undo2 size={12} /> {t("keys.revokeUpgrade")}

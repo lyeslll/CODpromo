@@ -46,6 +46,8 @@ Deno.serve(async (req) => {
     });
     if (error) return json({ error: "grant failed" }, 500);
     if (status === "other_user") return json({ error: "token already used" }, 409);
+    // Premium حقيقي ولا فوق حدّ الأكواد المقفولة: ما نقرّوش الشراء → Google يرجّع الدراهم وحدو (3 أيام)
+    if (status === "has_premium" || status === "limit") return json({ ok: false, error: status });
     if (status !== "granted" && status !== "duplicate") return json({ error: String(status) }, 400);
 
     // بعد التسجيل برك: acknowledge ثم consume (شراء ما تقرّش في 3 أيام → Google يرجّع الدراهم)

@@ -10,9 +10,10 @@ const LIFE_MS = 3400;
 /**
  * قصاصات ذهبية تنفجر مرة وحدة (Canvas بكامل الشاشة، بلا تفاعل).
  * fire: رقم يزيد عند كل احتفال (0 = لا شيء). origin: نقطة الانفجار بالنسبة للشاشة (0..1).
+ * colors (اختياري): ألوان أخرى (المفتاح الماسي: كريستال) — الافتراضي ذهبي كيما كان.
  * prefers-reduced-motion → لا شيء. الحلقة تتوقّف وحدها وتنظّف الكانفاس.
  */
-export default function GiftConfetti({ fire, origin = { x: 0.5, y: 0.34 } }) {
+export default function GiftConfetti({ fire, origin = { x: 0.5, y: 0.34 }, colors = COLORS }) {
   const ref = useRef(null);
   const reduce = useReducedMotion();
 
@@ -46,7 +47,7 @@ export default function GiftConfetti({ fire, origin = { x: 0.5, y: 0.34 } }) {
         flip: Math.random() * Math.PI * 2,
         vf: 0.08 + Math.random() * 0.12,
         round: Math.random() < 0.28,
-        color: COLORS[(Math.random() * COLORS.length) | 0],
+        color: colors[(Math.random() * colors.length) | 0],
       };
     });
 

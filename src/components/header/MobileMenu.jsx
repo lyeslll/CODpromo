@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ArrowLeft, Crown, LogIn, LogOut, Search, Smartphone, Tag, UserPlus } from "lucide-react";
+import { useKeys } from "../../lib/keysContext.jsx";
+import { DiamondGlyph } from "../keys/DiamondKey.jsx";
 import { useTranslation } from "react-i18next";
 import { LANGS, Flag, useLangPick } from "../LanguageSwitcher.jsx";
 import { useLocale } from "../../lib/locale.jsx";
@@ -54,6 +56,7 @@ function measure(originRef) {
  * تبقى تحت الهيدر (z-45) فيبقى الشعار وزر الإغلاق في مكانهما، وفوق شريط التنقّل السفلي (z-40).
  */
 export default function MobileMenu({ id, open, onClose, onPremium, onLogout, onSearch, originRef, offersCount }) {
+  const keys = useKeys();
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const navigate = useNavigate();
@@ -239,6 +242,29 @@ export default function MobileMenu({ id, open, onClose, onPremium, onLogout, onS
                 </motion.button>
               </div>
             </motion.div>
+
+            {/* المفاتيح الماسية: نفس لوحة العدّاد (في الهواتف الضيّقة جداً العدّاد ما يبانش في الهيدر) */}
+            {keys.status === "ok" && (
+              <motion.button
+                variants={itemVariants}
+                type="button"
+                onClick={() => {
+                  onClose();
+                  keys.openPanel();
+                }}
+                className="mt-4 flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-start transition-colors hover:bg-white/[0.04]"
+                style={{ borderColor: "rgba(111,143,230,0.45)", background: "rgba(169,205,255,0.06)" }}
+              >
+                <span className="grid h-9 w-9 place-items-center rounded-lg" style={{ background: "rgba(169,205,255,0.14)" }}>
+                  <DiamondGlyph size={18} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[14px] font-bold text-[var(--text)]">{t("keys.panel.title")}</span>
+                  <span className="block text-[12px] text-[var(--color-mute)]">{t("keys.count", { count: keys.balance })}</span>
+                </span>
+                <ArrowLeft size={16} className="text-[var(--color-mute)] ltr:rotate-180" />
+              </motion.button>
+            )}
 
             {/* الحساب: دخول + تسجيل، أو حسابي + خروج */}
             {user ? (

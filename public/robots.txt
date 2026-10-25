@@ -12,6 +12,7 @@ Disallow: /payment-success
 Disallow: /payment-cancel
 Disallow: /payment-return
 Disallow: /payment-return-paypal
+Disallow: /keys/
 # روابط التحويل لعروض بلا كود (روابط الشركات لا تُفهرس)
 Disallow: /go/
 # روابط الهدايا (Premium مجاني) — خاصة، لا تُفهرس

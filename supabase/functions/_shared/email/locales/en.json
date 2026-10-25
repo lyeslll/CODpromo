@@ -118,5 +118,38 @@
     "ends": "Ends on",
     "cta": "Open Premium offers",
     "note": "When the gift ends, your account goes back to regular automatically, with no charge. You can make Premium permanent with one payment from the Premium page."
+  },
+  "keysCommon": {
+    "packV": "Diamond keys × {{keys}}",
+    "balance": "Your diamond keys",
+    "what": "Each diamond key opens the Premium code of one company you choose, and it stays open for you forever, even if the company changes its code. Keys never expire.",
+    "howTitle": "How to use a key",
+    "step1": "Open the offers in Premium mode.",
+    "step2": "On a locked code, tap “Open with a diamond key” and confirm.",
+    "step3": "Scratch the code, then copy it and use it at the company.",
+    "cta": "Open Premium offers"
+  },
+  "keysPurchase": {
+    "subject": "Your purchase is confirmed: diamond keys",
+    "preheader": "Your diamond keys are on your account. Your purchase summary is inside.",
+    "title": "Your diamond keys are ready",
+    "summary": "Purchase summary",
+    "pack": "Pack",
+    "amount": "Amount",
+    "method": "Payment method",
+    "date": "Date",
+    "testTag": "Test price",
+    "creditTitle": "What you paid counts toward Premium",
+    "creditBody": "If you later buy Premium for life on the CODpromo website, everything you paid for keys comes off its price, with no time limit.",
+    "creditCta": "See your Premium price after the discount",
+    "refundTitle": "Refund policy",
+    "refundBody": "You can get a refund for the keys you haven’t used within 7 days of buying (until {{date}}), unless their price was counted toward Premium. Send your request from this email address to {{email}}."
+  },
+  "keysGift": {
+    "subject": "A gift from CODpromo: diamond keys",
+    "preheader": "Diamond keys were added to your account.",
+    "title": "You received diamond keys",
+    "gifted": "Keys gifted",
+    "note": "This gift needs no payment, and keys never expire."
   }
 }

@@ -674,7 +674,8 @@
         "pending_two": "{{count}} pending requests",
         "pending_few": "{{count}} pending requests",
         "pending_many": "{{count}} pending requests",
-        "pending_other": "{{count}} pending requests"
+        "pending_other": "{{count}} pending requests",
+        "keys": "Diamond keys"
       },
       "range": {
         "label": "Period",
@@ -837,7 +838,8 @@
         "requestsSub_two": "{{count}} requests waiting for review",
         "requestsSub_few": "{{count}} requests waiting for review",
         "requestsSub_many": "{{count}} requests waiting for review",
-        "requestsSub_other": "{{count}} requests waiting for review"
+        "requestsSub_other": "{{count}} requests waiting for review",
+        "keysSub": "Paid keys: each opens one company’s Premium code forever. Sales exclude tests and admin accounts."
       },
       "premium": {
         "members": "Premium members",
@@ -1310,6 +1312,140 @@
         "show": "Show",
         "hiddenOk": "Rating hidden",
         "shown": "Rating visible again"
+      },
+      "keys": {
+        "ordersTitle": "Key orders",
+        "refundRule": "Refunds: unused keys within 7 days, unless counted toward Premium. Refund in the gateway, then record it here (Stripe and PayPal record it automatically).",
+        "filter": {
+          "all": "All",
+          "eligible": "Refund-eligible",
+          "refunded": "Refunded",
+          "pending": "Not completed"
+        },
+        "emptyOrders": "No key orders yet",
+        "emptyOrdersDesc": "Every key pack purchase from every gateway shows up here.",
+        "status": {
+          "refunded": "Refunded on {{date}} ({{amount}})",
+          "pending": "Payment not completed",
+          "failed": "Payment failed",
+          "eligible": "Eligible: {{n}} unused key(s) = {{amount}} (until {{date}})",
+          "not_found": "Not found",
+          "not_paid": "Payment not completed",
+          "all_used": "All keys used",
+          "in_premium": "Counted toward Premium ({{n}} unused)",
+          "premium_pending": "Premium-with-credit payment in progress (24h)",
+          "expired": "Refund window over ({{n}} unused)",
+          "refunded_reason": "Refunded"
+        },
+        "typeBadge": "Keys ×{{n}}",
+        "refund": "Record refund",
+        "refundConfirm": "Did you refund {{amount}} to {{name}} via {{provider}}? The unused keys ({{n}}) will be removed from the account right away.",
+        "refundNotEligible": "Warning: this order is outside the refund policy.",
+        "refundRes": {
+          "refunded": "Refund recorded, {{n}} unused key(s) removed",
+          "already": "This order was already refunded",
+          "all_used": "No unused keys in this order",
+          "not_found": "Order not found",
+          "credit_locked": "Not possible: these keys were (or are being) counted toward Premium. Revoke Premium first if a refund is really needed."
+        },
+        "autoHint": "Keys are usually removed automatically when you refund from the Stripe or PayPal dashboard.",
+        "salesLine": "Diamond keys",
+        "salesOrders": "{{n}} orders · {{k}} keys sold",
+        "kindLabel": "Purchase type",
+        "kind": {
+          "premium": "Premium",
+          "keys": "Keys"
+        },
+        "creditBadge": "Credit −{{amount}}",
+        "kpi": {
+          "sold": "Keys sold",
+          "used": "Keys used",
+          "gifted": "Keys gifted",
+          "outstanding": "Unused balance",
+          "revenueDzd": "Revenue (DZD)",
+          "revenueUsd": "Revenue (USD)",
+          "buyers": "Buyers",
+          "upgraded": "Bought keys, then Premium"
+        },
+        "kpiNote": {
+          "orders": "{{n}} orders",
+          "removed": "Removed by refunds: {{n}}",
+          "tests": "Test purchases (not counted): {{n}}",
+          "upgraded": "A non-refunded Premium purchase after the first key order, or a full activation with credit."
+        },
+        "chartSold": "Keys sold — last 30 days",
+        "chartUsed": "Keys used — last 30 days",
+        "accountsTitle": "Balance per account",
+        "accountsHint": "Click an account to see its full history.",
+        "search": "Search by email or name",
+        "emptyAccounts": "No accounts yet",
+        "emptyAccountsDesc": "Every account that bought, used or received keys shows up here.",
+        "col": {
+          "bought": "Bought: {{n}}",
+          "used": "Used: {{n}}",
+          "gifted": "Gifted: {{n}}",
+          "removed": "Removed: {{n}}"
+        },
+        "giftTitle": "Gift keys",
+        "giftHint": "To any account by email, 1 to 20 keys, with a reason (admins only). The account gets an email in its language.",
+        "giftEmail": "Account email",
+        "giftCount": "Number of keys",
+        "giftReason": "Reason",
+        "giftSubmit": "Gift the keys",
+        "giftDone": "Gifted {{n}} keys to {{email}} (balance now {{balance}})",
+        "giftPremiumNote": "Note: this account has Premium, so it won’t need the keys now.",
+        "giftNoUser": "No account with this email",
+        "creditTitle": "Premium with credit",
+        "creditHint": "Premium purchases where key credit was deducted, and full activations with credit (no payment).",
+        "creditEmpty": "Nothing yet",
+        "creditFull": "Full activation with credit",
+        "creditCheckout": "{{provider}} · remainder paid {{due}}",
+        "creditUsed": "Credit used {{amount}}",
+        "creditApplied": "Applied",
+        "creditOpen": "Not completed",
+        "creditRevoked": "Revoked",
+        "revokeUpgrade": "Revoke activation",
+        "revokeUpgradeConfirm": "Revoke the Premium-with-credit activation for {{email}}? The account goes back to regular if it has no other Premium purchase. (Usually for tests)",
+        "revokeUpgradeRes": {
+          "revoked": "Activation revoked",
+          "not_found": "Not found or already revoked"
+        },
+        "historyTitle": "Key history",
+        "locked": "Codes still locked",
+        "historyCredit": "Premium credit: {{paid}} (pays {{due}})",
+        "kindLabels": {
+          "purchase": "Purchase",
+          "use": "Use",
+          "gift": "Gift",
+          "refund": "Refund"
+        },
+        "reason": "Reason: {{note}}",
+        "packsTitle": "Diamond key packs",
+        "packsHint": "The price is set on the server at each payment. No single-key pack (2 keys minimum).",
+        "packName": "{{n}}-key pack",
+        "packActive": "Visible",
+        "packFields": {
+          "keys": "Keys",
+          "price_dzd": "Price (DZD)",
+          "price_usd": "Price ($)"
+        },
+        "packRatio": "By the Premium ratio: ${{usd}}",
+        "packPlay": "Google Play: product {{id}} (consumable) — change its price in Play Console too.",
+        "packInvalid": "At least 2 keys, 50 DZD and $0.50.",
+        "packSave": "Save",
+        "packSaved": "Pack saved",
+        "packNoteTest": "The test price (above) also applies to keys: same amount for every pack for that account, recorded as a test.",
+        "packNoteLimit": "We never sell more keys than the codes still locked on the account.",
+        "creditUnbacked": "Not covered",
+        "creditUnbackedHint": "Keys counted in this purchase were refunded. You can revoke Premium from the sales list if needed.",
+        "packAbovePremium": "The pack price must stay below the Premium price.",
+        "voidCheckout": "Cancel reservation",
+        "voidConfirm": "Cancel {{email}}’s credit reservation? The old remainder invoice will not grant Premium even if paid later, and the keys become refundable.",
+        "voidRes": {
+          "voided": "Reservation cancelled",
+          "completed": "The purchase completed: cannot cancel",
+          "not_found": "Not found or already cancelled"
+        }
       }
     }
   },
@@ -2448,5 +2584,202 @@
     "offers": "Browse offers",
     "home": "Home",
     "categories": "Or browse by category"
+  },
+  "keys": {
+    "close": "Close",
+    "demo": "Demo data",
+    "count_zero": "{{count}} diamond keys",
+    "count_one": "{{count}} diamond key",
+    "count_two": "{{count}} diamond keys",
+    "count_few": "{{count}} diamond keys",
+    "count_many": "{{count}} diamond keys",
+    "count_other": "{{count}} diamond keys",
+    "counter": {
+      "aria_zero": "Your keys: {{count}} diamond keys, golden key {{golden}}",
+      "aria_one": "Your keys: {{count}} diamond key, golden key {{golden}}",
+      "aria_two": "Your keys: {{count}} diamond keys, golden key {{golden}}",
+      "aria_few": "Your keys: {{count}} diamond keys, golden key {{golden}}",
+      "aria_many": "Your keys: {{count}} diamond keys, golden key {{golden}}",
+      "aria_other": "Your keys: {{count}} diamond keys, golden key {{golden}}",
+      "goldenOn": "available",
+      "goldenUsed": "used",
+      "goldenOff": "unavailable"
+    },
+    "panel": {
+      "title": "Your keys",
+      "balance": "Your diamond keys",
+      "golden": "Golden key",
+      "goldenOn": "Available: reveals one Premium code for free",
+      "goldenUsed": "You used it on {{company}}",
+      "goldenUsedGeneric": "You used your golden key",
+      "buy": "Buy keys",
+      "open": "Locked codes",
+      "history": "Your key history",
+      "empty": "No activity yet.",
+      "rules": "Each diamond key opens one company’s Premium code, and it stays open for you forever. Keys never expire, and unused ones can be refunded within 7 days."
+    },
+    "credit": {
+      "line": "You paid {{paid}} for keys, so Premium for life costs you only {{due}}.",
+      "covered": "You paid {{paid}} for keys, which covers the full price of Premium for life.",
+      "cta": "Get Premium at the new price",
+      "activate": "Activate Premium with your credit",
+      "row": "Diamond keys credit",
+      "pay": "You pay now",
+      "method": "Diamond keys credit",
+      "changed": "Your credit changed. Reopen the window to see the current price."
+    },
+    "history": {
+      "purchase_zero": "Bought {{count}} diamond keys",
+      "purchase_one": "Bought {{count}} diamond key",
+      "purchase_two": "Bought {{count}} diamond keys",
+      "purchase_few": "Bought {{count}} diamond keys",
+      "purchase_many": "Bought {{count}} diamond keys",
+      "purchase_other": "Bought {{count}} diamond keys",
+      "gift": "Gift from CODpromo",
+      "refund": "Unused keys refunded",
+      "use": "You opened a Premium code",
+      "useCompany": "You opened {{company}}’s code"
+    },
+    "card": {
+      "open": "Open with a diamond key",
+      "badge": "Your diamond key",
+      "gain": "Regular {{normal}}, Premium {{premium}}"
+    },
+    "confirm": {
+      "title": "Use a diamond key?",
+      "body": "It opens {{company}}’s Premium code on your account forever, even if the company changes the code.",
+      "after_zero": "You’ll have {{count}} diamond keys left",
+      "after_one": "You’ll have {{count}} diamond key left",
+      "after_two": "You’ll have {{count}} diamond keys left",
+      "after_few": "You’ll have {{count}} diamond keys left",
+      "after_many": "You’ll have {{count}} diamond keys left",
+      "after_other": "You’ll have {{count}} diamond keys left",
+      "note": "This code stays visible to you, with no scratching, and the other companies stay locked.",
+      "yes": "Yes, open the code",
+      "no": "Not now",
+      "busy": "Unlocking…",
+      "golden": "Or use your free golden key"
+    },
+    "err": {
+      "noKeys": "You have no diamond keys left. Buy a new pack from the Premium page.",
+      "hasPremium": "You already have Premium, and every Premium code is open to you.",
+      "unavailable": "This company has no Premium offer right now.",
+      "auth": "Log in first to use your keys.",
+      "network": "Couldn’t connect. Try again."
+    },
+    "chooser": {
+      "title": "Open this code",
+      "how": "Choose how to open it",
+      "golden": "Your golden key",
+      "goldenDesc": "Free, once per account",
+      "buy": "Diamond keys",
+      "buyDesc_zero": "{{count}} keys for {{price}}",
+      "buyDesc_one": "{{count}} key for {{price}}",
+      "buyDesc_two": "{{count}} keys for {{price}}",
+      "buyDesc_few": "{{count}} keys for {{price}}",
+      "buyDesc_many": "{{count}} keys for {{price}}",
+      "buyDesc_other": "{{count}} keys for {{price}}",
+      "buyDescPlain": "Each key opens one company’s code forever",
+      "buyLimit": "You already have as many keys as locked codes",
+      "premium": "Premium for life",
+      "premiumDesc": "Every Premium code, one payment of {{price}}",
+      "premiumDescPlain": "Every Premium code, one payment",
+      "goldenGuest": "Sign up and get your golden key",
+      "goldenGuestDesc": "Free, no bank card: reveals one Premium code"
+    },
+    "buy": {
+      "title": "Buy diamond keys",
+      "accountTitle": "Create your account first",
+      "accountDesc": "Keys are added to your account and stay yours forever. Create a free account or log in, then you’ll come right back to this pack.",
+      "forever": "One payment · keys never expire",
+      "refund": "Unused keys can be refunded within 7 days of buying, unless their price was counted toward Premium.",
+      "demoNote": "Preview: no real payment happens."
+    },
+    "buyErr": {
+      "hasPremium": "You already have Premium, and every Premium code is open to you. No keys needed.",
+      "limit_zero": "{{count}} codes are still locked on your account, and this pack is bigger.",
+      "limit_one": "{{count}} code is still locked on your account, and this pack is bigger.",
+      "limit_two": "{{count}} codes are still locked on your account, and this pack is bigger.",
+      "limit_few": "{{count}} codes are still locked on your account, and this pack is bigger.",
+      "limit_many": "{{count}} codes are still locked on your account, and this pack is bigger.",
+      "limit_other": "{{count}} codes are still locked on your account, and this pack is bigger.",
+      "inactive": "This pack isn’t available right now. Refresh the page.",
+      "outdated": "The price changed. Refresh the page and try again.",
+      "generic": "Couldn’t start the payment. Try again."
+    },
+    "playErr": {
+      "cancelled": "You cancelled the payment.",
+      "unavailable": "Google Play payment isn’t available right now.",
+      "verify": "Couldn’t confirm the purchase. If you were charged, your keys will be added when you open this page again.",
+      "pending": "The payment is pending at Google Play. Your keys will be added once it’s confirmed.",
+      "generic": "Something went wrong. Try again.",
+      "limit": "We didn’t add the keys: you already have as many keys as locked codes. You won’t be charged — Google Play refunds it automatically within 3 days.",
+      "hasPremium": "You already have Premium, so you don’t need keys. You won’t be charged — Google Play refunds it automatically within 3 days."
+    },
+    "section": {
+      "pill": "Diamond keys",
+      "title": "Don’t need every code? Open only the ones you need.",
+      "sub": "Each diamond key opens the Premium code of one company you choose, and it stays open for you forever, even if the company changes its code.",
+      "perKey": "That’s {{price}} per key",
+      "buy": "Buy this pack",
+      "limit_zero": "Only {{count}} codes are still locked on your account.",
+      "limit_one": "Only {{count}} code is still locked on your account.",
+      "limit_two": "Only {{count}} codes are still locked on your account.",
+      "limit_few": "Only {{count}} codes are still locked on your account.",
+      "limit_many": "Only {{count}} codes are still locked on your account.",
+      "limit_other": "Only {{count}} codes are still locked on your account.",
+      "lockedLeft_zero": "You can open {{n}} more codes with keys.",
+      "lockedLeft_one": "You can open {{n}} more code with keys.",
+      "lockedLeft_two": "You can open {{n}} more codes with keys.",
+      "lockedLeft_few": "You can open {{n}} more codes with keys.",
+      "lockedLeft_many": "You can open {{n}} more codes with keys.",
+      "lockedLeft_other": "You can open {{n}} more codes with keys.",
+      "rule1": "One key = one company’s Premium code, open for you forever.",
+      "rule2": "Keys never expire: use them whenever you need.",
+      "rule3": "Unused keys can be refunded within 7 days.",
+      "fair": "Everything you pay for keys comes off the price of Premium for life if you upgrade later, with no time limit."
+    },
+    "ret": {
+      "seoTitle": "Your diamond keys",
+      "title": "Your diamond keys are ready",
+      "sub_zero": "{{count}} diamond keys were added to your account. Use them to open the codes you need.",
+      "sub_one": "{{count}} diamond key was added to your account. Use it to open the code you need.",
+      "sub_two": "{{count}} diamond keys were added to your account. Use them to open the codes you need.",
+      "sub_few": "{{count}} diamond keys were added to your account. Use them to open the codes you need.",
+      "sub_many": "{{count}} diamond keys were added to your account. Use them to open the codes you need.",
+      "sub_other": "{{count}} diamond keys were added to your account. Use them to open the codes you need.",
+      "subPlain": "Your diamond keys were added to your account.",
+      "checkingTitle": "Confirming your payment…",
+      "checkingDesc": "Just a moment, don’t close this page.",
+      "pendingTitle": "Payment received, confirmation in progress",
+      "pendingDesc": "Confirmation can take a little while. Your keys will be added automatically, and you can refresh in a moment.",
+      "failDesc": "The payment didn’t go through, and nothing was charged for the keys. You can try again.",
+      "backToKeys": "Back to keys",
+      "steps": {
+        "s1": "Open the offers in Premium mode.",
+        "s2": "On a locked code, tap “Open with a diamond key”.",
+        "s3": "Confirm, scratch the code, then copy it."
+      },
+      "cta": "Open codes",
+      "history": "Balance and history",
+      "premiumTitle": "What you paid counts toward Premium"
+    },
+    "dash": {
+      "title": "Diamond keys",
+      "has_zero": "You have {{count}} diamond keys",
+      "has_one": "You have {{count}} diamond key",
+      "has_two": "You have {{count}} diamond keys",
+      "has_few": "You have {{count}} diamond keys",
+      "has_many": "You have {{count}} diamond keys",
+      "has_other": "You have {{count}} diamond keys",
+      "none": "Open only the codes you need, one key per company.",
+      "opened_zero": "{{count}} companies opened",
+      "opened_one": "{{count}} company opened",
+      "opened_two": "{{count}} companies opened",
+      "opened_few": "{{count}} companies opened",
+      "opened_many": "{{count}} companies opened",
+      "opened_other": "{{count}} companies opened",
+      "history": "History"
+    }
   }
 }

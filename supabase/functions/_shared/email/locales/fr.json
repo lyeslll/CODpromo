@@ -118,5 +118,38 @@
     "ends": "Se termine le",
     "cta": "Ouvrir les offres Premium",
     "note": "À la fin du cadeau, votre compte revient automatiquement en mode normal, sans aucun paiement. Vous pouvez rendre Premium permanent en un seul paiement depuis la page Premium."
+  },
+  "keysCommon": {
+    "packV": "Clés diamant × {{keys}}",
+    "balance": "Vos clés diamant",
+    "what": "Chaque clé diamant ouvre le code Premium d’une entreprise de votre choix, et il reste ouvert pour vous à vie, même si l’entreprise change de code. Les clés n’expirent jamais.",
+    "howTitle": "Comment utiliser une clé",
+    "step1": "Ouvrez les offres en mode Premium.",
+    "step2": "Sur un code verrouillé, appuyez sur « Ouvrir avec une clé diamant » et confirmez.",
+    "step3": "Grattez le code, puis copiez-le et utilisez-le chez l’entreprise.",
+    "cta": "Ouvrir les offres Premium"
+  },
+  "keysPurchase": {
+    "subject": "Votre achat est confirmé : clés diamant",
+    "preheader": "Vos clés diamant sont sur votre compte. Le récapitulatif est à l’intérieur.",
+    "title": "Vos clés diamant sont prêtes",
+    "summary": "Récapitulatif de l’achat",
+    "pack": "Pack",
+    "amount": "Montant",
+    "method": "Moyen de paiement",
+    "date": "Date",
+    "testTag": "Prix de test",
+    "creditTitle": "Ce que vous avez payé compte pour Premium",
+    "creditBody": "Si vous achetez plus tard Premium à vie sur le site CODpromo, tout ce que vous avez payé en clés est déduit de son prix, sans limite de durée.",
+    "creditCta": "Voir votre prix Premium après déduction",
+    "refundTitle": "Politique de remboursement",
+    "refundBody": "Vous pouvez vous faire rembourser les clés non utilisées dans les 7 jours suivant l’achat (jusqu’au {{date}}), sauf si leur prix a été déduit de Premium. Envoyez votre demande depuis cette adresse à {{email}}."
+  },
+  "keysGift": {
+    "subject": "Un cadeau de CODpromo : des clés diamant",
+    "preheader": "Des clés diamant ont été ajoutées à votre compte.",
+    "title": "Vous avez reçu des clés diamant",
+    "gifted": "Clés offertes",
+    "note": "Ce cadeau ne demande aucun paiement, et les clés n’expirent jamais."
   }
 }

@@ -9,6 +9,7 @@ import { useAuth } from "../lib/auth.jsx";
 import { pendingGiftPath } from "../lib/gifts.js";
 import { pendingFreeKeyPath } from "../lib/freeKey.js";
 import { pendingPremiumPath } from "../lib/goPremium.js";
+import { pendingKeysPath } from "../lib/keys.js";
 import { peekReturnTo, takeReturnTo } from "../lib/returnTo.js";
 
 /** يحوّل رسالة خطأ Supabase إلى مفتاح ترجمة. */
@@ -43,13 +44,13 @@ export default function Login() {
     setLoading(false);
     if (error) return setError(t(`auth.login.${loginErrorKey(error.message)}`));
     // جا من رابط هدية → يرجع لصفحتها وتتفعّل وحدها؛ جا من بطاقة (المفتاح الذهبي) → يرجع لنفس البطاقة
-    navigate(pendingGiftPath() || pendingFreeKeyPath() || pendingPremiumPath() || takeReturnTo() || "/dashboard");
+    navigate(pendingGiftPath() || pendingFreeKeyPath() || pendingKeysPath() || pendingPremiumPath() || takeReturnTo() || "/dashboard");
   };
 
   const google = async () => {
     setError("");
     setGoogleLoading(true);
-    const { error } = await signInWithGoogle(pendingGiftPath() || pendingFreeKeyPath() || pendingPremiumPath() || peekReturnTo());
+    const { error } = await signInWithGoogle(pendingGiftPath() || pendingFreeKeyPath() || pendingKeysPath() || pendingPremiumPath() || peekReturnTo());
     if (error) {
       setGoogleLoading(false);
       setError(t(`auth.login.${loginErrorKey(error.message)}`));

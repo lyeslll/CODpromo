@@ -495,12 +495,20 @@ export async function fetchCompanyBySlug(slug) {
   return company;
 }
 
-/** نصوص صفحة الشركة (النبذة، المميزات، الخطوات) لفورم الأدمن — ماشي في القوائم. */
+/**
+ * نصوص صفحة الشركة (النبذة، المميزات، الخطوات) لفورم الأدمن — ماشي في القوائم.
+ * بهوية الأدمين: حتى الشركة المخفية (phase36) ترجع نصوصها. بلا سطر = خطأ → الفورم ما يبعثهمش
+ * (بالمفتاح العام المخفية كانت ترجع [] → نصوص فارغة → الحفظ كان يمسحهم).
+ */
 export async function fetchCompanyPageFields(id) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${id}&select=about,features,usage_steps`, { headers });
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?id=eq.${id}&select=about,features,usage_steps`, {
+    headers: await adminHeaders(),
+  });
   if (!res.ok) throw new Error("فشل الاتصال بالخادم");
   const data = await res.json();
-  return (Array.isArray(data) ? data[0] : data) || null;
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) throw new Error("not found");
+  return row;
 }
 
 /**

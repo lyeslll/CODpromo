@@ -39,7 +39,7 @@ export const newPath = (lang) => `${langPrefix(lang)}/new`;
  */
 export function offersLink(lang, params = {}) {
   const qs = new URLSearchParams();
-  for (const key of ["kind", "type", "category", "featured", "mode", "sort", "q"]) {
+  for (const key of ["kind", "type", "category", "featured", "soon", "mode", "sort", "q"]) {
     if (params[key]) qs.set(key, params[key]);
   }
   const s = qs.toString();
@@ -95,11 +95,11 @@ export function monthYear(lang) {
 // ===================== عناوين وأوصاف الشركة =====================
 
 /** عنوان SEO لصفحة شركة: حقل الأدمن إن وُجد، وإلا قالب جذّاب تلقائي. */
-/** عنوان SEO لصفحة شركة (نفس الدالة في api/prerender.js عبر storeContent.js). */
-export const storeTitle = (company, lang) => storeSeoTitle(company, lang);
+/** عنوان SEO لصفحة شركة (نفس الدالة في api/prerender.js عبر storeContent.js). t: نص "قريباً" (phase coming-soon). */
+export const storeTitle = (company, lang, t) => storeSeoTitle(company, lang, t);
 
 /** وصف SEO لصفحة شركة: حقل الأدمن، وإلا الكود + القيمة + Premium + وصف العرض. */
-export const storeDescription = (company, lang) => storeSeoDescription(company, lang);
+export const storeDescription = (company, lang, t) => storeSeoDescription(company, lang, t);
 
 /** JSON-LD كامل لصفحة شركة (Organization + العروض + FAQPage + Breadcrumb). */
 export const storeLd = (company, opts) => storeJsonLd(company, opts);

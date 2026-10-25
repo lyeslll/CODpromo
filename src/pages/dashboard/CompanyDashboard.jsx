@@ -211,8 +211,9 @@ function PublishedOffer({ offer, feed, editPending }) {
               {t("partnerDash.status.accepted")}
             </span>
           </div>
-          <div className="mt-0.5 text-[13px] font-bold" style={{ color: meta.color }}>
-            {offer.discount}
+          {/* بلا قيمة = "العرض قريباً" (phase coming-soon: البطاقة القريبة بلا قيمة ولا كود) */}
+          <div className="mt-0.5 text-[13px] font-bold" style={{ color: offer.discount ? meta.color : "#ff7eb3" }}>
+            {offer.discount || t("comingSoon.badge")}
           </div>
         </div>
         {offer.slug && (

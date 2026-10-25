@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { Link, useNavigate, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { Link, useNavigate, Routes, Route, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Lock,
@@ -27,6 +27,7 @@ import {
   Plus,
   ArrowRight,
   SearchX,
+  Hourglass,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -68,6 +69,7 @@ import SalesPage from "../components/admin/v2/SalesPage.jsx";
 import PricingPage from "../components/admin/v2/PricingPage.jsx";
 import RatingsPage from "../components/admin/v2/RatingsPage.jsx";
 import KeysPage from "../components/admin/v2/KeysPage.jsx";
+import ComingSoonPage from "../components/admin/v2/ComingSoonPage.jsx";
 import { setCompanyFreeReveal } from "../lib/freeKey.js";
 import { Glass, PageHeader, Skeleton, EmptyState, LIME_BG } from "../components/admin/v2/ui.jsx";
 import { fetchCompanyPrivate, saveCompanyPrivate } from "../lib/adminStats.js";
@@ -342,13 +344,16 @@ function Dashboard({ onLock }) {
     toastTimer.current = setTimeout(() => setToast(null), 3000);
   };
 
+  // "العرض قريباً" (phase coming-soon) يتحسب وحدو: الأنواع والمجموع = العروض اللي تخدم برك
   const stats = useMemo(() => {
-    const by = (t) => companies.filter((c) => c.type === t).length;
+    const live = companies.filter((c) => c.coming_soon !== true);
+    const by = (t) => live.filter((c) => c.type === t).length;
     return {
-      total: companies.length,
+      total: live.length,
       discount: by("تخفيض"),
       coupon: by("كوبون"),
       cashback: by("كاش باك"),
+      soon: companies.length - live.length,
     };
   }, [companies]);
 
@@ -610,6 +615,11 @@ function Dashboard({ onLock }) {
                 <StatCard icon={Ticket} label={tAr("offerForm.types.coupon")} value={stats.coupon} color="#38bdf8" />
                 <StatCard icon={Wallet} label={tAr("offerForm.types.cashback")} value={stats.cashback} color="#fbbf24" />
               </div>
+              {stats.soon > 0 && (
+                <Link to="/admin/coming-soon" className="mb-5 inline-flex items-center gap-2 rounded-xl border px-3.5 py-2 text-[13px] font-bold" style={{ borderColor: "#ff7eb355", background: "#ff7eb312", color: "#ff7eb3" }}>
+                  <Hourglass size={15} /> {tc("soon.total", { count: stats.soon })}
+                </Link>
+              )}
 
               {/* ترجمة تلقائية لكل الأوصاف (en + fr) */}
               <Glass className="mb-5 p-4">
@@ -754,6 +764,7 @@ function Dashboard({ onLock }) {
         {/* Premium مدى الحياة — المبيعات (purchases + أهلية الاسترداد) والأسعار (pricing_settings) */}
         <Route path="sales" element={<SalesPage notify={notify} />} />
         <Route path="keys" element={<KeysPage notify={notify} />} />
+        <Route path="coming-soon" element={<ComingSoonPage notify={notify} />} />
         <Route path="pricing" element={<PricingPage notify={notify} />} />
         <Route
           path="site-stats"
@@ -830,6 +841,9 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
   const { i18n } = useTranslation();
   const tc = useMemo(() => i18n.getFixedT("ar", null, "admin.v2"), [i18n]);
   const isNew = !id;
+  // "بطاقة قريباً جديدة" (/admin/companies/new?soon=1 من صفحة "عروض قريباً")
+  const [sp] = useSearchParams();
+  const startSoon = isNew && sp.get("soon") === "1";
   const company = isNew ? null : companies.find((c) => String(c.id) === id);
   // كود/رابط Premium + المعلومات الداخلية: تُجلب خادمياً (غير موجودة في الجلب العام)
   const [extra, setExtra] = useState(isNew ? { premiumLoaded: true, pageLoaded: true, feedLoaded: true, priv: null } : null);
@@ -886,9 +900,9 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
         </div>
       ) : (
         <CompanyOfferForm
-          key={company?.id || "new"}
+          key={company?.id || (startSoon ? "new-soon" : "new")}
           lang="ar"
-          initial={isNew ? null : { ...company, ...extra.page, ...extra.feed, premium_code: extra.premium_code, premium_url: extra.premium_url }}
+          initial={isNew ? (startSoon ? { coming_soon: true } : null) : { ...company, ...extra.page, ...extra.feed, premium_code: extra.premium_code, premium_url: extra.premium_url }}
           privateInitial={extra.priv}
           categories={categories}
           submitting={submitting}

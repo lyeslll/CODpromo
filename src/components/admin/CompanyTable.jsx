@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Pencil, Trash2, ExternalLink, Loader2, AlertTriangle, Search, Crown, Key, Eye, EyeOff } from "lucide-react";
+import { Pencil, Trash2, ExternalLink, Loader2, AlertTriangle, Search, Crown, Key, Eye, EyeOff, Hourglass } from "lucide-react";
 import CompanyLogo from "../CompanyLogo.jsx";
 import { getTypeMeta } from "../../lib/types.js";
 import { hasPremiumOffer } from "../../lib/premiumOffer.js";
@@ -84,18 +84,25 @@ export default function CompanyTable({ companies, loading, editingId, onEdit, on
                           <EyeOff size={11} /> {ta("companies.hiddenBadge")}
                         </span>
                       )}
-                      <span
-                        className="hidden shrink-0 rounded-md px-1.5 py-0.5 text-[10.5px] font-bold sm:inline"
-                        style={{ background: `${meta.color}1a`, color: meta.color }}
-                      >
-                        {c.type}
-                      </span>
+                      {c.coming_soon === true ? (
+                        // "العرض قريباً" (phase coming-soon): بلا نوع ولا كود بعد
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-[10.5px] font-bold" style={{ background: "#ff7eb31f", color: "#ff7eb3" }} title={ta("companies.soonTitle")}>
+                          <Hourglass size={11} /> {ta("companies.soonBadge")}
+                        </span>
+                      ) : (
+                        <span
+                          className="hidden shrink-0 rounded-md px-1.5 py-0.5 text-[10.5px] font-bold sm:inline"
+                          style={{ background: `${meta.color}1a`, color: meta.color }}
+                        >
+                          {c.type}
+                        </span>
+                      )}
                     </div>
                     <div className="mt-0.5 flex items-center gap-2 text-[12px] text-[var(--color-mute)]">
-                      <span className="font-mono font-bold text-[#c9c9cf]">{c.code}</span>
+                      <span className="font-mono font-bold text-[#c9c9cf]">{c.coming_soon === true ? "—" : c.code}</span>
                       <span>·</span>
-                      <span className="font-bold" style={{ color: meta.color }}>
-                        {c.discount}
+                      <span className="font-bold" style={{ color: c.coming_soon === true ? "#ff7eb3" : meta.color }}>
+                        {c.coming_soon === true ? ta("companies.soonBadge") : c.discount}
                       </span>
                       {c.category && (
                         <>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchCompanies } from "../../lib/supabase.js";
+import { fetchComingSoon } from "../../lib/comingSoon.js";
 import { fetchSiteStats } from "../../lib/siteStats.js";
 
 // ============================================================
@@ -22,6 +23,32 @@ export function loadHeaderOffers() {
       });
   }
   return offersPromise;
+}
+
+// "العرض قريباً" (phase coming-soon): قائمة وحدها للبحث السريع (تجي بعد العروض اللي تخدم)
+let soonCache = null;
+let soonPromise = null;
+
+/** البطاقات القريبة للبحث السريع — نفس الذاكرة طول الجلسة، وما تتجابش غير كي يتحلّ البحث. */
+export function useHeaderComingSoon(enabled) {
+  const [list, setList] = useState(() => soonCache || []);
+  useEffect(() => {
+    if (!enabled) return;
+    let active = true;
+    if (!soonPromise) {
+      soonPromise = fetchComingSoon()
+        .then((d) => (soonCache = Array.isArray(d) ? d : []))
+        .catch(() => {
+          soonPromise = null;
+          return [];
+        });
+    }
+    soonPromise.then((d) => active && setList(d));
+    return () => {
+      active = false;
+    };
+  }, [enabled]);
+  return list;
 }
 
 /** العروض لاستعمالات الهيدر — لا تُجلب إلا حين enabled (قائمة مفتوحة / بحث). */

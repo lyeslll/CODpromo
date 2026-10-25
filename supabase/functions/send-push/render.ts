@@ -2,6 +2,7 @@
 //  CODpromo — نص رسالة push حسب لغة الجهاز (ar / en / fr).
 //  نفس القاعدة تاع الجرس في الواجهة (src/lib/notifications.js): نص الأدمين إذا كاين، وإلا القالب حسب النوع
 //  + اسم الشركة والعرض بلغة الجهاز (fallback للعربية). عدّة إشعارات = ملخّص واحد نحو /new.
+//  waited (phase coming-soon): الإشعارات اللي كان صاحب الجهاز يستناها ("أعلمني") → "العرض الذي كنت تنتظره هنا".
 // ============================================================
 import ar from "./locales/ar.json" with { type: "json" };
 import en from "./locales/en.json" with { type: "json" };
@@ -87,11 +88,13 @@ function plural(lang: Lang, count: number): "zero" | "one" | "two" | "few" | "ma
   return new Intl.PluralRules(lang).select(count) as "one" | "two" | "few" | "many" | "other";
 }
 
-/** رسالة جهاز واحد: إشعار واحد (نحو صفحتو) ولا ملخّص (نحو /new). */
-export function buildPayload(list: NotifData[], lang: Lang): PushPayload | null {
+/** رسالة جهاز واحد: إشعار واحد (نحو صفحتو) ولا ملخّص (نحو /new). waited = اللي كان يستناهم صاحب الجهاز. */
+export function buildPayload(list: NotifData[], lang: Lang, waited: Set<number> = new Set()): PushPayload | null {
   if (!list.length) return null;
   const L = LOCALES[lang];
   const dir = lang === "ar" ? "rtl" : "ltr";
+  const mine = list.filter((n) => waited.has(Number(n.id)));
+  if (mine.length) return waitedPayload(mine, lang);
   if (list.length === 1) {
     const n = list[0];
     const { title, body } = notifText(n, lang);
@@ -119,6 +122,38 @@ export function buildPayload(list: NotifData[], lang: Lang): PushPayload | null 
     body: list.length > names.length ? fill(L.digest.more, { names: joined }) : joined,
     url: localizePath("/new", lang),
     tag: "codpromo-digest",
+    icon: ICON,
+    badge: BADGE,
+    lang,
+    dir,
+  };
+}
+
+/** "العرض الذي كنت تنتظره هنا: X" (واحد) ولا "N عروض كنت تنتظرها هنا الآن" — نحو صفحة العرض (ولا /new). */
+function waitedPayload(mine: NotifData[], lang: Lang): PushPayload {
+  const L = LOCALES[lang];
+  const dir = lang === "ar" ? "rtl" : "ltr";
+  const first = mine[0];
+  const name = first.company?.name?.trim() || "";
+  if (mine.length === 1) {
+    const { body } = notifText(first, lang);
+    return {
+      title: fill(L.waited.title, { name }),
+      body,
+      url: withParam(localizePath(first.url || "/new", lang), "n", first.id),
+      tag: `codpromo-${first.id}`,
+      icon: iconOf(first.company?.logo),
+      badge: BADGE,
+      lang,
+      dir,
+    };
+  }
+  const key = `many_${plural(lang, mine.length)}` as keyof Dict["waited"];
+  return {
+    title: fill(L.waited[key], { count: mine.length }),
+    body: mine.map((n) => n.company?.name?.trim()).filter(Boolean).slice(0, 3).join(L.sep),
+    url: localizePath("/new", lang),
+    tag: "codpromo-waited",
     icon: ICON,
     badge: BADGE,
     lang,

@@ -3,6 +3,7 @@
 //  اللوغو + الاسم + القيمة (+ قيمة Premium) + codpromo.com، 1200×630، باش الرابط يبان مليح في
 //  واتساب وفيسبوك و X. النص لاتيني برك (القيم بنسخة en: "10%"، "$5 gift") لأن مولّد الصور ما يشكّلش
 //  الحروف العربية. أي فشل → تحويل للصورة العامة (logo-dark.png). Cache: يوم في المتصفح، أسبوع في CDN.
+//  "العرض قريباً" (coming_soon): "Coming soon" بلون القريبة بلاصة القيمة (نفس نص en: comingSoon.value)، بلا Premium.
 // ============================================================
 import { ImageResponse } from "@vercel/og";
 
@@ -12,6 +13,7 @@ const SITE = "https://codpromo.com";
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || "https://uulcgvdsqivgkiulurhk.supabase.co";
 const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || "sb_publishable_kxiLaS2RxTEeZA6TrJQR_w_ws8twFBt";
 const TYPE_COLORS = { "تخفيض": "#a6f000", "كوبون": "#38bdf8", "كاش باك": "#fbbf24" };
+const SOON = "#ff7eb3";
 const FONT_CSS = "https://fonts.googleapis.com/css2?family=Inter:wght@800";
 
 let fontCache = null;
@@ -41,6 +43,8 @@ async function logoData(logo) {
   return `data:${type};base64,${btoa(bin)}`;
 }
 
+// نص الصورة لاتيني برك (المولّد ما يشكّلش العربية) = comingSoon.value في en.json
+const SOON_TEXT = "Coming soon";
 const h = (type, props, ...children) => ({ type, props: { ...props, children: children.length <= 1 ? children[0] : children } });
 const latin = (s) => String(s || "").replace(/[؀-ۿ]+/g, "").replace(/\s{2,}/g, " ").trim();
 
@@ -50,14 +54,15 @@ export default async function handler(req) {
   const fallback = () => Response.redirect(`${SITE}/logo-dark.png`, 302);
   if (!slug) return fallback();
   try {
-    const q = `${SUPABASE_URL}/rest/v1/companies?slug=eq.${slug}&select=name,logo,type,discount,discount_en,premium_discount_en,premium_discount,has_premium_code,supports_premium`;
+    const q = `${SUPABASE_URL}/rest/v1/companies?slug=eq.${slug}&select=name,logo,type,discount,discount_en,premium_discount_en,premium_discount,has_premium_code,supports_premium,coming_soon`;
     const rows = await (await fetch(q, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } })).json();
     const c = Array.isArray(rows) ? rows[0] : null;
     if (!c) return fallback();
     const [font, logo] = await Promise.all([interFont(), logoData(c.logo).catch(() => null)]);
-    const accent = TYPE_COLORS[c.type] || "#a6f000";
-    const value = latin(c.discount_en || c.discount);
-    const premium = c.has_premium_code && c.supports_premium !== false ? latin(c.premium_discount_en || c.premium_discount) : "";
+    const soon = c.coming_soon === true;
+    const accent = soon ? SOON : TYPE_COLORS[c.type] || "#a6f000";
+    const value = soon ? SOON_TEXT : latin(c.discount_en || c.discount);
+    const premium = !soon && c.has_premium_code && c.supports_premium !== false ? latin(c.premium_discount_en || c.premium_discount) : "";
     const name = latin(c.name) || c.slug;
 
     const card = h(
@@ -75,7 +80,7 @@ export default async function handler(req) {
           "div",
           { style: { display: "flex", flexDirection: "column", gap: 10, maxWidth: 760 } },
           h("div", { style: { fontSize: 64, lineHeight: 1.05, letterSpacing: -2 } }, name),
-          h("div", { style: { fontSize: 30, color: "#a1a1aa" } }, "Promo code · CODpromo")
+          h("div", { style: { fontSize: 30, color: "#a1a1aa" } }, soon ? `${SOON_TEXT} · CODpromo` : "Promo code · CODpromo")
         )
       ),
       h(

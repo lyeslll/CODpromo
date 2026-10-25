@@ -25,7 +25,9 @@ export async function fetchFavoritesWithCompany(userId) {
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
-  return (data || []).filter((r) => r.companies);
+  // "العرض قريباً" (phase coming-soon) ديما بعد العروض اللي تخدم (نفس ترتيب الإضافة داخل كل جهة)
+  const rows = (data || []).filter((r) => r.companies);
+  return [...rows.filter((r) => r.companies.coming_soon !== true), ...rows.filter((r) => r.companies.coming_soon === true)];
 }
 
 /** يضيف شركة للمفضّلة. */

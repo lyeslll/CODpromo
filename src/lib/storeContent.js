@@ -59,8 +59,15 @@ export function textLines(text) {
 const TYPE_KEYS = { "تخفيض": "discount", "كوبون": "coupon", "كاش باك": "cashback" };
 export const offerTypeKey = (type) => TYPE_KEYS[type] || "discount";
 
-/** عنده عرض Premium؟ (نفس hasPremiumOffer: كود Premium عامر و supports_premium مش false). */
-export const storeHasPremium = (c) => !!c?.has_premium_code && c?.supports_premium !== false;
+/**
+ * "العرض قريباً" (phase coming-soon): companies.coming_soon = true → العرض مازال ما وصلش (بلا قيمة ولا كود).
+ * العنوان والوصف والأسئلة والخطوات يقولو "قريباً" بالصح، و JSON-LD بلا Offer (ما نعطيوش لجوجل عرض مزيّف).
+ * premium_coming_soon = عرض Premium قريب حتى هو (غير مع coming_soon).
+ */
+export const storeComingSoon = (c) => c?.coming_soon === true;
+
+/** عنده عرض Premium؟ (نفس hasPremiumOffer: كود Premium عامر و supports_premium مش false، وماشي "قريباً"). */
+export const storeHasPremium = (c) => !!c?.has_premium_code && c?.supports_premium !== false && !storeComingSoon(c);
 
 /** التاريخ بالأرقام اللاتينية (نفس الأرقام في كل الموقع). */
 export function formatDay(iso, lang) {
@@ -81,6 +88,11 @@ export function formatDay(iso, lang) {
  */
 export function storeSteps(company, { t, lang, kind }) {
   const name = company?.name || "";
+  // "قريباً": سجّل من رابطنا دروك ← "أعلمني" ← استعمل العرض كي يتطلق (بلا رابط = بلا الخطوة الأولى)
+  if (storeComingSoon(company)) {
+    const keys = company?.link ? ["link", "notify", "use"] : ["notify", "use"];
+    return { custom: false, steps: keys.map((k) => ({ title: t(`storePage.soon.steps.${k}Title`, { name }), desc: t(`storePage.soon.steps.${k}Desc`, { name }) })) };
+  }
   const code = company?.code || "";
   const custom = textLines(locText(company, "usage_steps", lang));
   if (custom.length) return { custom: true, steps: custom.map((desc) => ({ title: "", desc })) };
@@ -117,6 +129,20 @@ export function storeFaq(company, { t, lang, steps, adminFaqs = [] }) {
   const value = locText(company, "discount", lang);
   const premium = locText(company, "premium_discount", lang);
   const out = [];
+  // "قريباً": ماشي "الكود الحالي هو…" — العرض مازال ما وصلش
+  if (storeComingSoon(company)) {
+    out.push({ q: t("storePage.soon.faq.q", { name }), a: t(company?.link ? "storePage.soon.faq.a" : "storePage.soon.faq.aNoLink", { name }) });
+    if (steps?.length) {
+      out.push({ q: t("storePage.soon.faq.howQ", { name }), a: steps.map((s, i) => `${i + 1}. ${s.title ? `${s.title}: ` : ""}${s.desc}`).join(" ") });
+    }
+    out.push({ q: t("storePage.faq.premiumQ", { name }), a: company?.premium_coming_soon ? t("storePage.soon.faq.premiumSoon", { name }) : t("storePage.faq.premiumNo", { name }) });
+    for (const f of adminFaqs || []) {
+      const q = locText({ q: f.question, q_en: f.question_en, q_fr: f.question_fr }, "q", lang);
+      const a = locText({ a: f.answer, a_en: f.answer_en, a_fr: f.answer_fr }, "a", lang);
+      if (q && a) out.push({ q, a });
+    }
+    return out;
+  }
   if (company?.code) {
     const checked = formatDay(company.code_checked_at, lang);
     out.push({
@@ -151,15 +177,21 @@ export function similarStores(company, all, max = 8) {
   const others = (all || []).filter((c) => c.id !== company.id && c.slug && (c.status || "active") === "active");
   const same = others.filter((c) => company.category_id && c.category_id === company.category_id);
   const rest = others.filter((c) => !same.includes(c));
-  return [...same, ...rest].slice(0, max);
+  // "قريباً" ديما بعد العروض اللي تخدم
+  const list = [...same, ...rest];
+  return [...list.filter((c) => !storeComingSoon(c)), ...list.filter(storeComingSoon)].slice(0, max);
 }
 
 // ===================== SEO (نفس الدوال في الواجهة و prerender) =====================
 const SITE = "CODpromo";
 const clip = (s, n) => (s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s);
 
-/** العنوان: حقل الأدمن، وإلا "كود خصم JustSell: 10%، و20% مع Premium | CODpromo". */
-export function storeSeoTitle(c, lang) {
+/**
+ * العنوان: حقل الأدمن، وإلا "كود خصم JustSell: 10%، و20% مع Premium | CODpromo".
+ * "قريباً" (t لازم): "كود خصم X قريباً | CODpromo" — حتى حقل الأدمن ما يتقراش (عنوان قديم = عرض مزيّف).
+ */
+export function storeSeoTitle(c, lang, t) {
+  if (storeComingSoon(c)) return t ? t("storePage.soon.seoTitle", { name: c?.name || SITE }) : `${c?.name || SITE} | ${SITE}`;
   const custom = locText(c, "seo_title", lang);
   if (custom) return custom;
   const name = c?.name || SITE;
@@ -179,8 +211,13 @@ export function storeSeoTitle(c, lang) {
   return `${head}${d ? `: ${d}` : ""}${pd ? `، و${pd} مع Premium` : ""} | ${SITE}`;
 }
 
-/** الوصف: حقل الأدمن، وإلا الكود + القيمة + Premium + وصف العرض (≤ 160 حرف تقريباً). */
-export function storeSeoDescription(c, lang) {
+/** الوصف: حقل الأدمن، وإلا الكود + القيمة + Premium + وصف العرض (≤ 160 حرف تقريباً). "قريباً": t لازم. */
+export function storeSeoDescription(c, lang, t) {
+  if (storeComingSoon(c)) {
+    const head = t ? t(c?.link ? "storePage.soon.seoDesc" : "storePage.soon.seoDescNoLink", { name: c?.name || SITE }) : "";
+    const about = locText(c, "description", lang);
+    return clip([head, about].filter(Boolean).join(" "), 300);
+  }
   const custom = locText(c, "seo_description", lang);
   if (custom) return custom;
   const name = c?.name || SITE;
@@ -198,7 +235,7 @@ export function storeSeoDescription(c, lang) {
  * JSON-LD لصفحة الشركة: Organization (+ AggregateRating من 5 تقييمات حقيقية)، العروض (Offer)،
  * FAQPage (نفس الأسئلة الظاهرة)، BreadcrumbList.
  */
-export function storeJsonLd(c, { lang, url, faq = [], rating = null, breadcrumb = [] }) {
+export function storeJsonLd(c, { lang, url, faq = [], rating = null, breadcrumb = [], t }) {
   const out = [];
   const logo = /^https?:\/\//i.test(c?.logo || "") ? c.logo : null;
   const org = {
@@ -206,7 +243,7 @@ export function storeJsonLd(c, { lang, url, faq = [], rating = null, breadcrumb 
     "@type": "Organization",
     name: c.name,
     url,
-    description: storeSeoDescription(c, lang),
+    description: storeSeoDescription(c, lang, t),
     ...(logo ? { logo } : {}),
     ...(c.link ? { sameAs: [c.link] } : {}),
   };
@@ -216,7 +253,8 @@ export function storeJsonLd(c, { lang, url, faq = [], rating = null, breadcrumb 
   }
   out.push(org);
   const offers = [];
-  const d = locText(c, "discount", lang);
+  // "قريباً": حتى Offer (لا قيمة لا كود بعد)
+  const d = storeComingSoon(c) ? "" : locText(c, "discount", lang);
   if (d) offers.push({ "@type": "Offer", name: `${c.name} — ${d}`, description: locText(c, "description", lang) || undefined, url, availability: "https://schema.org/InStock", seller: { "@type": "Organization", name: c.name } });
   const pd = storeHasPremium(c) ? locText(c, "premium_discount", lang) : "";
   if (pd) offers.push({ "@type": "Offer", name: `${c.name} — ${pd} (CODpromo Premium)`, description: locText(c, "premium_description", lang) || undefined, url, availability: "https://schema.org/InStock", seller: { "@type": "Organization", name: c.name } });

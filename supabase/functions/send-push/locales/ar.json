@@ -19,6 +19,15 @@
     "body": "{{offer}}",
     "bodyNoOffer": "فعّل العرض بضغطة على CODpromo"
   },
+  "waited": {
+    "title": "العرض الذي كنت تنتظره هنا: {{name}}",
+    "many_zero": "لا عروض",
+    "many_one": "عرض كنت تنتظره هنا الآن",
+    "many_two": "عرضان كنت تنتظرهما هنا الآن",
+    "many_few": "{{count}} عروض كنت تنتظرها هنا الآن",
+    "many_many": "{{count}} عرضاً كنت تنتظرها هنا الآن",
+    "many_other": "{{count}} عرض كنت تنتظرها هنا الآن"
+  },
   "digest": {
     "title_zero": "لا تحديثات جديدة",
     "title_one": "تحديث جديد في CODpromo",

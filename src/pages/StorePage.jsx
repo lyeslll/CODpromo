@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Copy, Crown } from "lucide-react";
+import { ArrowLeft, Copy, Crown, Hourglass } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { fetchCompanyBySlug, fetchCompanies } from "../lib/supabase.js";
@@ -20,7 +20,8 @@ import {
   storeTitle, storeDescription, storeKeywords, storeImage, storeUrl, categoryUrl, homeUrl, categoryPath, homePath, premiumPath,
   buildAlternates, loc, storeLd,
 } from "../lib/seo.js";
-import { storeKind, storeSteps, storeFaq, similarStores, storeHasPremium } from "../lib/storeContent.js";
+import { storeKind, storeSteps, storeFaq, similarStores, storeHasPremium, storeComingSoon } from "../lib/storeContent.js";
+import { SOON } from "../components/coming-soon/tone.js";
 
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
@@ -38,6 +39,7 @@ import "../components/store/store.css";
 //  صفحة الشركة (/store/:slug — نفس الروابط): التذكرة الكبيرة (أحسن عرض + انسخ الكود)،
 //  العروض (عادي + Premium بنفس البطاقة)، الخطوات حسب نوع العرض والشركة، عن الشركة (الأدمن)،
 //  التقييم، الأسئلة، شركات مشابهة. نفس النصوص تتولّد في api/prerender.js (src/lib/storeContent.js).
+//  "العرض قريباً" (phase coming-soon): نفس الصفحة بالوردي — "قريباً" + "أعلمني"، بلا كود ولا نسخ ولا Offer لجوجل.
 // ============================================================
 export default function StorePage({ lang = "ar" }) {
   const { slug } = useParams();
@@ -183,12 +185,14 @@ export default function StorePage({ lang = "ar" }) {
     );
   }
 
-  const accent = meta.color;
+  const soon = storeComingSoon(company);
+  const accent = soon ? SOON : meta.color;
   const canonical = storeUrl(company.slug, lang);
   const catTo = catSlug && catRecord ? categoryPath(catSlug, lang) : null;
-  const supportsPremium = company.supports_premium !== false;
-  const typeLabel = t(`types.${getTypeKey(company.type)}`);
-  const title = storeTitle(company, lang);
+  // "قريباً" بلا Premium قريب: البطاقة القريبة وحدها (بلا بطاقة Premium مجمّدة)
+  const supportsPremium = company.supports_premium !== false && (!soon || company.premium_coming_soon === true);
+  const typeLabel = soon ? t("comingSoon.badge") : t(`types.${getTypeKey(company.type)}`);
+  const title = storeTitle(company, lang, t);
   const premiumValue = loc(company, "premium_discount", lang);
   const normalValue = loc(company, "discount", lang);
   const keyUsable = fk.enabled && ["guest", "available"].includes(fk.status) && company.free_reveal_enabled !== false;
@@ -201,6 +205,7 @@ export default function StorePage({ lang = "ar" }) {
 
   const jsonLd = storeLd(company, {
     lang,
+    t,
     url: canonical,
     faq: faqItems,
     rating,
@@ -216,7 +221,7 @@ export default function StorePage({ lang = "ar" }) {
       <Seo
         lang={lang}
         title={title}
-        description={storeDescription(company, lang)}
+        description={storeDescription(company, lang, t)}
         keywords={storeKeywords(company, lang)}
         canonical={canonical}
         image={storeImage(company)}
@@ -234,7 +239,7 @@ export default function StorePage({ lang = "ar" }) {
           lang={lang}
           accent={accent}
           typeLabel={typeLabel}
-          TypeIcon={meta.icon}
+          TypeIcon={soon ? Hourglass : meta.icon}
           catLabel={catLabel}
           catTo={catTo}
           rating={rating}
@@ -330,12 +335,12 @@ function StickyCopy({ company, anchorRef, onCopy, accent, hasPremiumOffer, unloc
     io.observe(footer);
     return () => io.disconnect();
   }, []);
-  const on = past && !nearEnd && !!company.code;
+  const on = past && !nearEnd && !!company.code && !storeComingSoon(company);
   useEffect(() => {
     document.body.classList.toggle("has-store-sticky", on);
     return () => document.body.classList.remove("has-store-sticky");
   }, [on]);
-  if (!company.code) return null;
+  if (!company.code || storeComingSoon(company)) return null;
   const premiumFirst = hasPremiumOffer && unlocked;
   return (
     <div className={`store-sticky fixed inset-x-3 z-30 md:hidden ${navHidden ? "nav-hidden" : ""} ${on ? "" : "off"}`} style={accentVars(accent)} aria-hidden={!on}>

@@ -7,6 +7,7 @@ export const SUPABASE_KEY = "sb_publishable_kxiLaS2RxTEeZA6TrJQR_w_ws8twFBt";
 
 export const LOGOS_BUCKET = "logos";
 
+import i18n from "i18next";
 import { slugify } from "./slug.js";
 import { supabase as sessionClient } from "./supabaseClient.js";
 
@@ -66,6 +67,10 @@ async function toError(res, fallback) {
   if (/bucket not found/i.test(detail)) {
     return new Error("حاوية التخزين logos غير موجودة. شغّل supabase-setup.sql لإنشائها.");
   }
+  // phase coming-soon: بطاقة "قريباً" بلا كود (CHECK companies_soon_no_codes) — الأدمين عربي ثابت
+  if (/companies_soon_no_codes|companies_premium_soon_needs_soon/.test(detail)) {
+    return new Error(i18n.getFixedT("ar")("offerForm.errors.soonCodes"));
+  }
   return new Error(detail || fallback);
 }
 
@@ -85,7 +90,9 @@ export const COMPANY_PUBLIC_COLUMNS =
   "seo_description,seo_description_en,seo_description_fr," +
   "seo_keywords,seo_keywords_en,seo_keywords_fr," +
   // phase34: خانات خفيفة تلزم البطاقات (نوع الشركة، خلفية اللوغو، آخر تحقق)
-  "store_kind,logo_bg,code_checked_at";
+  "store_kind,logo_bg,code_checked_at," +
+  // phase coming-soon: "العرض قريباً" + Premium القريب (lib/comingSoon.js)
+  "coming_soon,premium_coming_soon";
 
 // صفحة الشركة برك: النبذة، المميزات، والخطوات الخاصة (نص طويل — ماشي في القوائم)
 export const STORE_PAGE_COLUMNS =
@@ -105,9 +112,13 @@ export async function fetchCompaniesAdmin() {
   return res.json();
 }
 
+/**
+ * العروض اللي تخدم برك (بلا "العرض قريباً"): كل القوائم والأقسام والعدّادات تقرا من هنا، باش البطاقة
+ * القريبة ما تبانش "مكسورة" (بلا قيمة ولا كود) في قسم يستنى عرض حقيقي. القريبة: fetchComingSoon (lib/comingSoon.js).
+ */
 export async function fetchCompanies() {
   const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/companies?select=${COMPANY_PUBLIC_COLUMNS}&order=created_at.desc`,
+    `${SUPABASE_URL}/rest/v1/companies?select=${COMPANY_PUBLIC_COLUMNS}&coming_soon=eq.false&order=created_at.desc`,
     { headers }
   );
   if (!res.ok) throw new Error("فشل الاتصال بالخادم");
@@ -166,6 +177,8 @@ const ALLOWED = [
   "about", "about_en", "about_fr", "features", "features_en", "features_fr",
   "usage_steps", "usage_steps_en", "usage_steps_fr",
   "store_kind", "code_checked_at", "logo_bg",
+  // phase coming-soon (الأدمين برك: RLS is_admin): "العرض قريباً" و Premium القريب
+  "coming_soon", "premium_coming_soon",
   // ملف العروض العام لـ ilyesderradji.com (phase offers-feed): المعرّف في الدليل + الظهور
   "ilyes_slug", "ilyes_visible",
 ];
@@ -177,6 +190,15 @@ function clean(payload) {
     if (payload[k] === undefined) continue;
     const v = typeof payload[k] === "string" ? payload[k].trim() : payload[k];
     out[k] = v === "" ? null : v;
+  }
+  // "العرض قريباً": بلا قيمة ولا كود (CHECK companies_soon_no_codes). code و discount ماشي null في الجدول → "".
+  if (out.coming_soon === true) {
+    Object.assign(out, {
+      code: "", discount: "", discount_en: null, discount_fr: null,
+      premium_code: null, premium_url: null, premium_discount: null, premium_discount_en: null, premium_discount_fr: null,
+    });
+  } else if (out.coming_soon === false) {
+    out.premium_coming_soon = false;
   }
   return out;
 }

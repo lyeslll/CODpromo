@@ -39,6 +39,7 @@ interface Target {
   auth: string;
   lang: string;
   ids: number[];
+  waited?: number[]; // phase coming-soon: اللي ضغط "أعلمني" عليهم (من push_batch_targets)
 }
 
 interface Batch {
@@ -75,7 +76,7 @@ async function run(batch: Batch, keys: VapidKeys) {
             const lang = (LANGS.has(t.lang) ? t.lang : "ar") as "ar" | "en" | "fr";
             const payload = batch.self
               ? testPayload(lang)
-              : buildPayload((t.ids ?? []).map((id) => byId.get(Number(id))).filter(Boolean) as NotifData[], lang);
+              : buildPayload((t.ids ?? []).map((id) => byId.get(Number(id))).filter(Boolean) as NotifData[], lang, new Set((t.waited ?? []).map(Number)));
             if (!payload) return;
             const r = await sendWebPush(t, payload, keys, batch.self ? 600 : 86400);
             statuses[r.status] = (statuses[r.status] ?? 0) + 1;

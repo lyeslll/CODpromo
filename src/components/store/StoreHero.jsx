@@ -5,8 +5,9 @@ import { useTranslation } from "react-i18next";
 import CompanyLogo from "../CompanyLogo.jsx";
 import BidiText from "../BidiText.jsx";
 import ShareButtons from "../seo/ShareButtons.jsx";
-import { formatDay, locText, RATING_MIN_AVG } from "../../lib/storeContent.js";
+import { formatDay, locText, RATING_MIN_AVG, storeComingSoon } from "../../lib/storeContent.js";
 import { relativeTime } from "../../lib/votes.js";
+import ComingSoonHero from "../coming-soon/ComingSoonHero.jsx";
 
 /** ألوان التذكرة من لون النوع (بلا color-mix: نفس الطريقة hex + شفافية في كل الموقع). */
 export function accentVars(hex) {
@@ -29,6 +30,7 @@ export function accentVars(hex) {
 /**
  * رأس صفحة الشركة: اللوغو والاسم والفئة والتقييم، ثم أحسن عرض كتذكرة كوبون كبيرة
  * (القيمة + الكود + "انسخ الكود" مباشرة)، آخر تحقق، وشريط Premium الذهبي.
+ * "العرض قريباً" (phase coming-soon): نفس الرأس، والتذكرة = ComingSoonHero ("قريباً" + "أعلمني").
  */
 export default function StoreHero({
   company, lang, accent, typeLabel, TypeIcon, catLabel, catTo, rating, voteRow,
@@ -107,7 +109,10 @@ export default function StoreHero({
         </div>
       </div>
 
-      {/* التذكرة: أحسن عرض + الكود */}
+      {/* التذكرة: أحسن عرض + الكود ("قريباً": ComingSoonHero) */}
+      {storeComingSoon(company) ? (
+        <ComingSoonHero company={company} lang={lang} canonical={canonical} shareTitle={shareTitle} />
+      ) : (
       <div className={`ticket relative ${hasPremiumOffer && unlocked ? "ticket-premium" : ""}`}>
         <div className="ticket-top relative px-5 pb-5 pt-5 sm:px-6">
           <span aria-hidden className="ticket-ring ticket-ring-l" />
@@ -196,6 +201,7 @@ export default function StoreHero({
           </div>
         </div>
       </div>
+      )}
     </header>
   );
 }

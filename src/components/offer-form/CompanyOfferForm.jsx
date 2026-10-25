@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-import { ImagePlus, Loader2, X, Tag, Ticket, Wallet, Plus, Save, Crown, Sparkles, AlertTriangle, Lock, Building2, Gift, Wand2, Check, Handshake, ShieldAlert, Globe, MousePointerClick } from "lucide-react";
+import { ImagePlus, Loader2, X, Tag, Ticket, Wallet, Plus, Save, Crown, Sparkles, AlertTriangle, Lock, Building2, Gift, Wand2, Check, Handshake, ShieldAlert, Hourglass, Globe, MousePointerClick } from "lucide-react";
 import CompanyLogo from "../CompanyLogo.jsx";
 import CompanyCard from "../CompanyCard.jsx";
 import LogoCropper from "./LogoCropper.jsx";
 import { uploadLogo } from "../../lib/supabase.js";
 import { getTypeMeta } from "../../lib/types.js";
 import { parseVal } from "../../lib/values.js";
+import { SOON } from "../coming-soon/tone.js";
 import { feedGoUrl, feedOfferId } from "../../lib/feedContent.js";
 
 // ============================================================
@@ -28,6 +29,8 @@ import { feedGoUrl, feedOfferId } from "../../lib/feedContent.js";
 //   lang             لغة نصوص الفورم (الأدمن: "ar" ثابتة)
 //   freeRevealSwitch سويتش "متاح للمفتاح الذهبي" (الأدمن): يرجع في company.free_reveal_enabled
 //                    والحفظ عبر RPC admin_set_company_free_reveal (ماشي مع باقي الأعمدة)
+//   "العرض قريباً" (الأدمن برك، phase coming-soon): coming_soon / premium_coming_soon — القيمة والكود (و Premium)
+//                    ما يولّيوش إجباريين ويتسكّرو (القاعدة: بطاقة قريباً بلا كود)، والمعاينة = البطاقة القريبة
 //   ilyesFields      قسم "الظهور في ilyesderradji.com" (الأدمن): ilyes_visible + ilyes_slug (phase offers-feed)،
 //                    و feedStats = نقرات ilyesderradji.com لهاد الشركة ({ d7, d30, total }) إذا كاينين
 // ============================================================
@@ -54,6 +57,9 @@ const EMPTY = {
   premium_url: "",
   premium_description: "",
   supports_premium: true,
+  // "العرض قريباً" (phase coming-soon، الأدمين برك)
+  coming_soon: false,
+  premium_coming_soon: false,
   // صفحة الشركة (phase34، الأدمن برك): النبذة، المميزات، الخطوات الخاصة، النوع، آخر تحقق، خلفية اللوغو
   about: "",
   features: "",
@@ -244,11 +250,15 @@ export default function CompanyOfferForm({
   const badUrl = (v) => v && v.trim() && !/^https:\/\//i.test(v.trim());
   const urlWarn = (k) => (badUrl(k in form ? form[k] : priv[k]) ? t("warn.https") : null);
 
+  // "قريباً": القيمة والكود ماشي إجباريين (يتكتبو كي يوصل العرض)
+  const soon = !partner && form.coming_soon === true;
   const missing = {
     name: !form.name.trim(),
-    discount: !form.discount.trim(),
-    code: !form.code.trim(),
+    discount: !soon && !form.discount.trim(),
+    code: !soon && !form.code.trim(),
   };
+  // كانت عندها قيمة / كود من قبل → تتمسح كي تحفظ "قريباً"
+  const soonClears = soon && [initial?.code, initial?.discount, initial?.premium_code, initial?.premium_url, initial?.premium_discount].some((v) => String(v || "").trim());
   if (partner) missing.whatsapp = !priv.whatsapp.trim();
   const ilyesOn = ilyesFields && !partner;
   const badIlyesSlug = ilyesOn && !!form.ilyes_slug && !ILYES_SLUG_RE.test(form.ilyes_slug);
@@ -271,6 +281,15 @@ export default function CompanyOfferForm({
       category: selected ? selected.name_ar || "" : "",
       ...(freeRevealSwitch && !partner ? { free_reveal_enabled: freeReveal } : {}),
     };
+    // "قريباً" للأدمين برك (الشركة ما تبعثهمش)؛ قريباً = بلا قيمة ولا كود ولا رابط Premium
+    if (partner) {
+      delete company.coming_soon;
+      delete company.premium_coming_soon;
+    } else if (soon) {
+      Object.assign(company, { coming_soon: true, premium_coming_soon: form.premium_coming_soon === true, discount: "", code: "", premium_discount: "", premium_code: "", premium_url: "" });
+    } else {
+      Object.assign(company, { coming_soon: false, premium_coming_soon: false });
+    }
     // خانات صفحة الشركة: للأدمن برك (الشركة ما تبعثهمش)، والتاريخ كامل (ISO) ولا فارغ
     if (!pageFields || partner) for (const k of PAGE_FIELDS) delete company[k];
     else company.code_checked_at = form.code_checked_at ? new Date(`${form.code_checked_at}T12:00:00Z`).toISOString() : "";
@@ -290,8 +309,10 @@ export default function CompanyOfferForm({
     discount: form.discount || "20%",
     code: form.code || "ILYES10",
     category: categories.find((c) => c.id === form.category_id)?.name_ar || "",
-    // بلا كود Premium → البطاقة مجمّدة في وضع Premium (نفس قاعدة الموقع)
-    has_premium_code: !!String(form.premium_code || "").trim(),
+    // بلا كود Premium → البطاقة مجمّدة في وضع Premium (نفس قاعدة الموقع)؛ "قريباً" = بلا كود
+    has_premium_code: !soon && !!String(form.premium_code || "").trim(),
+    coming_soon: soon,
+    premium_coming_soon: soon && form.premium_coming_soon === true,
     // نعرض النص العربي المكتوب (لا الترجمة القديمة) حتى تتبدّل المعاينة وأنت تكتب
     description_en: null,
     description_fr: null,
@@ -372,6 +393,26 @@ export default function CompanyOfferForm({
           </div>
         </Section>
 
+        {/* 1ب) حالة العرض: جاهز ولا "قريباً" (الأدمين برك) */}
+        {!partner && (
+          <section className="rounded-[20px] border p-5 sm:p-6" style={{ borderColor: soon ? `${SOON}66` : "rgba(255,255,255,0.07)", background: soon ? `linear-gradient(160deg, ${SOON}14, transparent 55%), rgba(255,255,255,0.02)` : "rgba(255,255,255,0.025)" }}>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <SectionHead icon={Hourglass} color={SOON} title={t("s.soon")} sub={t("s.soonSub")} />
+              <div className="flex flex-wrap items-center gap-2">
+                <Switch color={SOON} checked={soon} onChange={(v) => setForm((f) => ({ ...f, coming_soon: v, premium_coming_soon: v ? f.premium_coming_soon : false }))} label={t("f.comingSoon")} />
+                {soon && <Switch checked={form.premium_coming_soon === true} onChange={(v) => setForm((f) => ({ ...f, premium_coming_soon: v }))} label={t("f.premiumComingSoon")} />}
+              </div>
+            </div>
+            <p className="-mt-1 text-[12.5px] leading-relaxed text-[#a1a1aa]">{t("h.comingSoon")}</p>
+            {soon && form.premium_coming_soon && <p className="mt-2 text-[12.5px] leading-relaxed text-[#ffe486]">{t("h.premiumComingSoon")}</p>}
+            {soonClears && (
+              <p className="mt-3 flex items-start gap-1.5 text-[12px] font-semibold text-[#fbbf24]">
+                <AlertTriangle size={13} className="mt-0.5 shrink-0" /> {t("warn.soonClears")}
+              </p>
+            )}
+          </section>
+        )}
+
         {/* 2) نوع العرض */}
         <Section icon={Tag} title={t("s.type")} sub={t("s.typeSub")}>
           <div role="radiogroup" aria-label={t("s.type")} className="grid grid-cols-3 gap-2.5">
@@ -405,11 +446,11 @@ export default function CompanyOfferForm({
         <section className="rounded-[20px] border p-5 sm:p-6" style={{ borderColor: `${meta.color}55`, background: `linear-gradient(160deg, ${meta.color}14, transparent 55%), rgba(255,255,255,0.02)` }}>
           <SectionHead icon={Gift} color={meta.color} title={t("s.free")} sub={t("s.freeSub")} />
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("f.discount")} required hint={t("h.discount")} error={touched && missing.discount ? t("errors.required") : null}>
-              {(p) => <input {...p} value={form.discount} onChange={set("discount")} className={inputCls} dir="auto" />}
+            <Field label={t("f.discount")} required={!soon} hint={t("h.discount")} error={touched && missing.discount ? t("errors.required") : null}>
+              {(p) => <input {...p} value={soon ? "" : form.discount} onChange={set("discount")} disabled={soon} placeholder={soon ? t("comingSoonPh") : undefined} className={`${inputCls} disabled:cursor-not-allowed disabled:opacity-50`} dir="auto" />}
             </Field>
-            <Field label={t("f.code")} required hint={partner ? t("partner.hCode") : t("h.code")} error={touched && missing.code ? t("errors.required") : null}>
-              {(p) => <input {...p} value={form.code} onChange={(e) => setForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))} className={`${inputCls} font-mono tracking-wider`} dir="ltr" autoCapitalize="characters" spellCheck={false} />}
+            <Field label={t("f.code")} required={!soon} hint={partner ? t("partner.hCode") : t("h.code")} error={touched && missing.code ? t("errors.required") : null}>
+              {(p) => <input {...p} value={soon ? "" : form.code} onChange={(e) => setForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))} disabled={soon} placeholder={soon ? t("comingSoonPh") : undefined} className={`${inputCls} font-mono tracking-wider disabled:cursor-not-allowed disabled:opacity-50`} dir="ltr" autoCapitalize="characters" spellCheck={false} />}
             </Field>
             <Field label={t("f.link")} hint={t("h.link")} warn={urlWarn("link")} className="sm:col-span-2">
               {(p) => <input {...p} value={form.link} onChange={set("link")} placeholder="https://" className={inputCls} dir="ltr" inputMode="url" />}
@@ -431,19 +472,20 @@ export default function CompanyOfferForm({
           </div>
           {freeRevealSwitch && !partner && <p className="-mt-1 mb-4 text-[12px] leading-relaxed text-[#6b7280]">{t("h.freeReveal")}</p>}
           <div className={`grid gap-4 transition-opacity sm:grid-cols-2 ${form.supports_premium === false ? "opacity-45" : ""}`}>
-            <Field label={t("f.premiumDiscount")} hint={t("h.premiumDiscount")} warn={strength === false ? t("warn.weaker") : null}>
-              {(p) => <input {...p} value={form.premium_discount} onChange={set("premium_discount")} placeholder={form.discount || ""} className={inputCls} dir="auto" />}
+            <Field label={t("f.premiumDiscount")} hint={t("h.premiumDiscount")} warn={!soon && strength === false ? t("warn.weaker") : null}>
+              {(p) => <input {...p} value={soon ? "" : form.premium_discount} onChange={set("premium_discount")} disabled={soon} placeholder={soon ? t("comingSoonPh") : form.discount || ""} className={`${inputCls} disabled:cursor-not-allowed disabled:opacity-50`} dir="auto" />}
             </Field>
             <Field
               label={t("f.premiumCode")}
               hint={partner ? t("partner.hPremiumCode") : t("h.premiumCode")}
-              warn={form.supports_premium !== false && !String(form.premium_code || "").trim() ? t("warn.frozen") : null}
+              warn={!soon && form.supports_premium !== false && !String(form.premium_code || "").trim() ? t("warn.frozen") : null}
             >
               {(p) => (
                 <div className="flex gap-2">
-                  <input {...p} value={form.premium_code} onChange={(e) => setForm((f) => ({ ...f, premium_code: e.target.value.toUpperCase() }))} placeholder={form.code || ""} className={`${inputCls} font-mono tracking-wider`} dir="ltr" spellCheck={false} />
+                  <input {...p} value={soon ? "" : form.premium_code} onChange={(e) => setForm((f) => ({ ...f, premium_code: e.target.value.toUpperCase() }))} disabled={soon} placeholder={soon ? t("comingSoonPh") : form.code || ""} className={`${inputCls} font-mono tracking-wider disabled:cursor-not-allowed disabled:opacity-50`} dir="ltr" spellCheck={false} />
                   <button
                     type="button"
+                    disabled={soon}
                     onClick={() => setForm((f) => ({ ...f, premium_code: suggestCode(f.name) }))}
                     className="flex shrink-0 items-center gap-1.5 rounded-xl border px-3 text-[13px] font-bold transition-colors hover:bg-white/[0.04]"
                     style={{ borderColor: `${GOLD}55`, color: GOLD_SOFT }}
@@ -454,7 +496,7 @@ export default function CompanyOfferForm({
               )}
             </Field>
             <Field label={t("f.premiumUrl")} hint={t("h.premiumUrl")} warn={urlWarn("premium_url")} className="sm:col-span-2">
-              {(p) => <input {...p} value={form.premium_url} onChange={set("premium_url")} placeholder={form.link || "https://"} className={inputCls} dir="ltr" inputMode="url" />}
+              {(p) => <input {...p} value={soon ? "" : form.premium_url} onChange={set("premium_url")} disabled={soon} placeholder={soon ? t("comingSoonPh") : form.link || "https://"} className={`${inputCls} disabled:cursor-not-allowed disabled:opacity-50`} dir="ltr" inputMode="url" />}
             </Field>
             <Field label={t("f.premiumDescription")} hint={partner ? t("partner.hPremiumDescription") : t("h.premiumDescription")} className="sm:col-span-2">
               {(p) => <textarea {...p} value={form.premium_description} onChange={set("premium_description")} rows={3} placeholder={form.description || ""} className={`${inputCls} resize-y`} dir="auto" />}
@@ -681,7 +723,13 @@ export default function CompanyOfferForm({
           />
         </Inert>
         <p className="mt-3 text-[12px] leading-relaxed text-[#6b7280]">
-          {previewMode === "premium"
+          {soon
+            ? previewMode === "premium"
+              ? form.premium_coming_soon
+                ? t("preview.soonPremiumNote")
+                : t("preview.soonFrozenNote")
+              : t("preview.soonNote")
+            : previewMode === "premium"
             ? form.supports_premium === false
               ? t("preview.premiumOff")
               : !String(form.premium_code || "").trim()

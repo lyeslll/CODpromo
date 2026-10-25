@@ -1,0 +1,12 @@
+-- ============================================================
+--  CODpromo — phase "companies-anon-writes": الزائر (anon) بلا حتى صلاحية كتابة على companies
+--
+--  من الهجوم المستقل (جولة "العرض قريباً"): anon كان عندو INSERT / UPDATE / DELETE / TRUNCATE على الجدول
+--  (الافتراضي تاع Supabase). RLS كان يرفض (السياسات = is_admin())، وهادي طبقة ثانية: حتى كي تتبدّل سياسة
+--  غلطاً، الزائر ما يكتب والو. ما يتبدّل حتى طريق يخدم: الأدمين يكتب بتوكنو (authenticated + RLS)،
+--  والـ triggers والدوال اللي تكتب (admin_set_company_free_reveal) SECURITY DEFINER.
+--  القراءة (SELECT عمود بعمود، phase28) كيما هي. authenticated كيما هو.
+--
+--  REVOKE برك (بلا DROP / DELETE / TRUNCATE)، idempotent. الرجوع: supabase-phase-companies-anon-writes-rollback.sql
+-- ============================================================
+revoke insert, update, delete, truncate on public.companies from anon;

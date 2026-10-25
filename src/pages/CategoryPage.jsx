@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ArrowLeft, LayoutGrid } from "lucide-react";
+import { Check, ArrowLeft, LayoutGrid, Hourglass } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { fetchCompanies, trackClick } from "../lib/supabase.js";
+import { fetchComingSoon } from "../lib/comingSoon.js";
+import { SOON } from "../components/coming-soon/tone.js";
 import { fetchFavoriteIds, addFavorite, removeFavorite } from "../lib/favorites.js";
 import { useAuth } from "../lib/auth.jsx";
 import { usePremium } from "../lib/premium.jsx";
@@ -34,6 +36,7 @@ export default function CategoryPage({ lang = "ar" }) {
   const navigate = useNavigate();
 
   const [all, setAll] = useState([]);
+  const [allSoon, setAllSoon] = useState([]);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState([]);
   const [toast, setToast] = useState(null);
@@ -46,9 +49,13 @@ export default function CategoryPage({ lang = "ar" }) {
     let active = true;
     setLoading(true);
     window.scrollTo(0, 0);
-    fetchCompanies()
-      .then((d) => active && setAll(Array.isArray(d) ? d : []))
-      .catch(() => active && setAll([]))
+    // العروض اللي تخدم + "العرض قريباً" (وحدها، تجي بعدهم)
+    Promise.all([fetchCompanies().catch(() => []), fetchComingSoon().catch(() => [])])
+      .then(([d, soon]) => {
+        if (!active) return;
+        setAll(Array.isArray(d) ? d : []);
+        setAllSoon(Array.isArray(soon) ? soon : []);
+      })
       .finally(() => active && setLoading(false));
     return () => {
       active = false;
@@ -88,24 +95,29 @@ export default function CategoryPage({ lang = "ar" }) {
   // الشركات ضمن الفئة: بالأساس عبر category_id، مع fallback للنص العربي القديم
   // للشركات غير المربوطة بعد. وإن لم يوجد سجلّ فئة في الجدول إطلاقاً (قبل الهجرة)
   // نرجع للنص الحر القديم عبر slug حتى لا تختفي الصفحة.
-  const companies = useMemo(() => {
-    if (catRecord) {
-      return all.filter(
-        (c) =>
-          c.category_id === catRecord.id ||
-          (!c.category_id && c.category && c.category === catRecord.name_ar)
-      );
-    }
-    const target = String(slug || "").toLowerCase();
-    return all.filter((c) => c.category && categorySlug(c) === target);
-  }, [all, catRecord, slug]);
+  const inCategory = useCallback(
+    (list) => {
+      if (catRecord) {
+        return list.filter(
+          (c) =>
+            c.category_id === catRecord.id ||
+            (!c.category_id && c.category && c.category === catRecord.name_ar)
+        );
+      }
+      const target = String(slug || "").toLowerCase();
+      return list.filter((c) => c.category && categorySlug(c) === target);
+    },
+    [catRecord, slug]
+  );
+  const companies = useMemo(() => inCategory(all), [all, inCategory]);
+  const soonCompanies = useMemo(() => inCategory(allSoon), [allSoon, inCategory]);
 
   // اسم/وصف الفئة بلغة العرض: من الجدول إن وُجد، وإلا من أول شركة (نص حر)
   const label = useMemo(() => {
     if (catRecord) return categoryName(catRecord, lang);
-    const first = companies[0];
+    const first = companies[0] || soonCompanies[0];
     return (first && loc(first, "category", lang)) || slug;
-  }, [catRecord, companies, slug, lang]);
+  }, [catRecord, companies, soonCompanies, slug, lang]);
 
   const headerDesc = catRecord ? categoryDesc(catRecord, lang) : "";
   const headerIcon = catRecord?.icon || "";
@@ -123,7 +135,7 @@ export default function CategoryPage({ lang = "ar" }) {
     );
   }
 
-  if (companies.length === 0) {
+  if (companies.length === 0 && soonCompanies.length === 0) {
     return (
       <div className="min-h-screen bg-[var(--color-ink)] text-[var(--text)]">
         <Seo lang={lang} title={`${t("category.notFoundTitle")} | CODpromo`} description={t("category.notFoundDesc")} noindex canonical={canonical} />
@@ -182,8 +194,13 @@ export default function CategoryPage({ lang = "ar" }) {
               {headerDesc}
             </p>
           )}
-          <p className="mt-1.5 text-[14px] text-[var(--color-mute)]">
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 text-[14px] text-[var(--color-mute)]">
             {t("category.count", { count: companies.length })}
+            {soonCompanies.length > 0 && (
+              <span className="inline-flex items-center gap-1 font-bold" style={{ color: SOON }}>
+                <Hourglass size={13} aria-hidden /> {t("comingSoon.plus", { count: soonCompanies.length })}
+              </span>
+            )}
           </p>
         </header>
 
@@ -198,6 +215,19 @@ export default function CategoryPage({ lang = "ar" }) {
                 onToggleFav={toggleFav}
                 onCopy={handleCopy}
                 premium={hasPremium && hasPremiumOffer(c)}
+                unlocked={unlocked}
+                onUnlock={goPremium}
+              />
+            ))}
+            {soonCompanies.map((c, i) => (
+              <CompanyCard
+                key={c.id}
+                company={c}
+                index={companies.length + i}
+                isFavorite={favorites.includes(c.id)}
+                onToggleFav={toggleFav}
+                onCopy={handleCopy}
+                premium={false}
                 unlocked={unlocked}
                 onUnlock={goPremium}
               />

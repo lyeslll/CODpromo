@@ -58,7 +58,7 @@ function loc(obj, field, lang) {
   return (lang !== "ar" && obj[`${field}_${lang}`]) || obj[field] || "";
 }
 function esc(s) {
-  return String(s == null ? "" : s).replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
+  return String(s == null ? "" : s).replace(/[<>&"']/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
 function categoryTitle(label, lang) {

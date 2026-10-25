@@ -11,10 +11,13 @@
 --     ما يشوفوهاش (بلا حتى تبديل في دوال المفاتيح ولا Premium ولا الدفع). trigger قبل الحفظ: coming_soon_since.
 --  2) coming_soon_waits: شكون ضغط "أعلمني" (RLS بلا سياسات + بلا صلاحيات للعميل). الكتابة غير عبر
 --     coming_soon_wait() (صاحب الحساب، POST). العدّاد رقم برك: بريد حقيقي = شخص واحد، وتحت 3 = ما يبانش.
+--     الهجوم المستقل: دومين بـ catch-all = إيميلات بلا حدّ → كل دومين خاص (ماشي Gmail / Outlook / Yahoo…،
+--     حتى بالدومينات الفرعية) يتحسب 2 كأقصى لكل بطاقة (coming_soon_people).
 --  3) العدّادات: site_stats_auto و admin_overview ما يحسبوش القريبة مع العروض اللي تخدم.
 --  4) الإشعارات: notify_on_company ما يدير والو للبطاقة القريبة؛ لحظة التفعيل (قريباً ← عرض) = إشعار واحد
 --     للكل (نفس "شركة جديدة")، واللي يستناو يشوفوه "العرض الذي كنت تنتظره" (notifications_feed و
---     push_batch_targets يرجّعو waited، حتى إذا تفضيلاتهم ما تطابقش).
+--     push_batch_targets يرجّعو waited، حتى إذا تفضيلاتهم ما تطابقش). push_batch_targets يعاود يتأكّد بلي
+--     الإشعار مازال ظاهر (notif_visible) لحظة الإرسال: شركة تتخبّى بين الدفعة والإرسال ما توصلش للهاتف.
 --
 --  حوايج جداد + create or replace لـ 5 دوال موجودة بنفس التوقيع (site_stats_auto، admin_overview،
 --  notify_on_company، notifications_feed، push_batch_targets). idempotent، بلا DROP / DELETE / TRUNCATE.
@@ -74,11 +77,13 @@ end $$;
 -- ===================== 2) "أعلمني عند التفعيل" =====================
 --  سطر لكل (بطاقة، حساب). الإلغاء = active false (السطر يبقى: نفس الشخص ما يتحسبش مرّتين وما يوصلوش
 --  جوج إشعارات). inbox = بصمة البريد (free_key_email_hash: sha256 بمفتاح سرّي، بلا البريد بالنص) — العدّاد
---  يحسب كل بريد حقيقي مرة وحدة. notified_at + notification_id = وصلو الإشعار (مرة وحدة في الحياة لهاد البطاقة).
+--  يحسب كل بريد حقيقي مرة وحدة. domain = دومين البريد (gmail.com، شركة.com — بلا اسم الشخص) للحدّ تاع
+--  الدومين الخاص. notified_at + notification_id = وصلو الإشعار (مرة وحدة في الحياة لهاد البطاقة).
 create table if not exists public.coming_soon_waits (
   company_id      bigint not null references public.companies (id) on delete cascade,
   user_id         uuid not null references auth.users (id) on delete cascade,
   inbox           text,
+  domain          text,
   active          boolean not null default true,
   toggles         integer not null default 1,
   toggles_day     date not null default current_date,
@@ -95,7 +100,78 @@ create index if not exists coming_soon_waits_notification on public.coming_soon_
 alter table public.coming_soon_waits enable row level security;
 revoke all on public.coming_soon_waits from anon, authenticated;
 
--- العدّاد العلني: بريد حقيقي = شخص واحد، تحت 3 = null (الواجهة تكتب "كن من الأوائل")
+-- دومين البريد بعد التوحيد (googlemail.com = gmail.com، حروف صغيرة)
+create or replace function public.coming_soon_email_domain(p_email text)
+returns text
+language sql
+immutable
+set search_path = public
+as $$
+  select substring(public.free_key_email_norm(p_email) from '@([^@]+)$');
+$$;
+
+-- المزوّدين الكبار (كل عنوان = حساب عند المزوّد): يتحسبو كاملين. أي دومين آخر (دومين شركة، catch-all)
+-- يتحسب 2 كأقصى لكل بطاقة — مول دومين بـ catch-all يقدر يصنع إيميلات مؤكَّدة بلا حدّ
+create or replace function public.coming_soon_open_domain(p_domain text)
+returns boolean
+language sql
+immutable
+set search_path = public
+as $$
+  select coalesce(lower(btrim(p_domain)), '') = any (array[
+    'gmail.com', 'yahoo.com', 'yahoo.fr', 'yahoo.co.uk', 'ymail.com', 'rocketmail.com',
+    'hotmail.com', 'hotmail.fr', 'hotmail.co.uk', 'outlook.com', 'outlook.fr', 'live.com', 'live.fr', 'msn.com',
+    'icloud.com', 'me.com', 'mac.com', 'aol.com', 'proton.me', 'protonmail.com', 'pm.me',
+    'gmx.com', 'gmx.fr', 'gmx.de', 'gmx.net', 'web.de', 'mail.com', 'yandex.com', 'yandex.ru', 'mail.ru',
+    'zoho.com', 'laposte.net', 'orange.fr', 'wanadoo.fr', 'free.fr', 'sfr.fr'
+  ]);
+$$;
+
+-- مجموعة الدومين: آخر جوج أجزاء (a.shop.com → shop.com)، ولا ثلاثة بعد com / org / co… في دومين بلد
+-- (mail.shop.com.dz → shop.com.dz، x.shop.co.uk → shop.co.uk): الدومينات الفرعية تاع نفس المالك = مجموعة وحدة
+create or replace function public.coming_soon_domain_group(p_domain text)
+returns text
+language sql
+immutable
+set search_path = public
+as $$
+  select case
+           when x.n >= 3 and length(x.l[x.n]) = 2
+                and x.l[x.n - 1] = any (array['com', 'net', 'org', 'edu', 'gov', 'co', 'ac', 'gouv', 'asso', 'nom',
+                                               'info', 'biz', 'mil', 'ltd', 'plc', 'or', 'ne', 'go'])
+             then x.l[x.n - 2] || '.' || x.l[x.n - 1] || '.' || x.l[x.n]
+           when x.n >= 2 then x.l[x.n - 1] || '.' || x.l[x.n]
+           else array_to_string(x.l, '.')
+         end
+    from (select a.l, coalesce(array_length(a.l, 1), 0) as n
+            from (select string_to_array(rtrim(lower(btrim(coalesce(p_domain, ''))), '.'), '.') as l) a) x;
+$$;
+
+-- مطبّقة من قبل بلا عمود الدومين: نزيدوه ونعمّروه للسطور الموجودة (من بريد الحساب)
+alter table public.coming_soon_waits add column if not exists domain text;
+update public.coming_soon_waits w
+   set domain = public.coming_soon_email_domain(u.email)
+  from auth.users u
+ where u.id = w.user_id and w.domain is null and w.inbox is not null;
+
+-- عدد اللي يستناو (بلا حدّ الظهور): بريد حقيقي = شخص واحد، والدومين الخاص (مع فروعه) = 2 كأقصى
+create or replace function public.coming_soon_people(p_company bigint)
+returns integer
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(sum(case when x.open then x.n else least(x.n, 2) end), 0)::int
+    from (select public.coming_soon_open_domain(w.domain) as open,
+                 public.coming_soon_domain_group(w.domain) as grp,
+                 count(distinct w.inbox) as n
+            from public.coming_soon_waits w
+           where w.company_id = p_company and w.active and w.notified_at is null and w.inbox is not null
+           group by 1, 2) x;
+$$;
+
+-- العدّاد العلني: تحت 3 = null (الواجهة تكتب "كن من الأوائل")
 create or replace function public.coming_soon_count(p_company bigint)
 returns integer
 language sql
@@ -104,9 +180,7 @@ security definer
 set search_path = public
 as $$
   select case when x.n >= 3 then x.n end
-    from (select count(distinct w.inbox)::int as n
-            from public.coming_soon_waits w
-           where w.company_id = p_company and w.active and w.notified_at is null and w.inbox is not null) x;
+    from (select public.coming_soon_people(p_company) as n) x;
 $$;
 
 --  p_on = true: "أعلمني"، false: إلغاء. status: ok | auth | unconfirmed | disposable | owner | unavailable
@@ -125,6 +199,7 @@ declare
   v_has    boolean;
   v_live   boolean; -- البطاقة "قريباً" وظاهرة (العدّاد يرجع غير لهادي)
   v_google boolean;
+  v_domain text;
   u        auth.users%rowtype;
   w        public.coming_soon_waits%rowtype;
 begin
@@ -186,13 +261,14 @@ begin
     return json_build_object('status', 'owner');
   end if;
 
+  v_domain := public.coming_soon_email_domain(u.email);
   if v_has then
     -- رجوع بعد إلغاء: 20 تبديل في اليوم لكل بطاقة كأقصى (الـ spam ما يكبّرش العدّاد، يكتب برك)
     if w.toggles_day = current_date and w.toggles >= 20 then
       return json_build_object('status', 'rate_limited', 'waiting', false, 'count', case when v_live then public.coming_soon_count(p_company) end);
     end if;
     update public.coming_soon_waits
-       set active = true, inbox = public.free_key_email_hash(u.email), updated_at = now(),
+       set active = true, inbox = public.free_key_email_hash(u.email), domain = v_domain, updated_at = now(),
            toggles = case when toggles_day = current_date then toggles + 1 else 1 end, toggles_day = current_date
      where company_id = p_company and user_id = v_uid;
   else
@@ -200,8 +276,8 @@ begin
     if (select count(*) from public.coming_soon_waits x where x.user_id = v_uid and x.created_at > now() - interval '1 hour') >= 30 then
       return json_build_object('status', 'rate_limited', 'waiting', false, 'count', case when v_live then public.coming_soon_count(p_company) end);
     end if;
-    insert into public.coming_soon_waits (company_id, user_id, inbox)
-    values (p_company, v_uid, public.free_key_email_hash(u.email));
+    insert into public.coming_soon_waits (company_id, user_id, inbox, domain)
+    values (p_company, v_uid, public.free_key_email_hash(u.email), v_domain);
   end if;
   return json_build_object('status', 'ok', 'waiting', true, 'count', public.coming_soon_count(p_company));
 end;
@@ -239,7 +315,7 @@ as $$
   );
 $$;
 
--- الأدمين: كل البطاقات القريبة (حتى المخفية) + عدد اللي يستناو (بريد حقيقي) + الحسابات + الجداد
+-- الأدمين: كل البطاقات القريبة (حتى المخفية) + عدد اللي يستناو (نفس العدّاد العلني بلا حدّ 3) + الحسابات + الجداد
 -- (حساب تزاد في نفس اليوم اللي ضغط فيه = إشارة لحسابات وهمية) + الأيام. بلا حتى اسم ولا بريد.
 create or replace function public.admin_coming_soon()
 returns json
@@ -256,8 +332,7 @@ begin
              'category_id', c.category_id, 'premium_coming_soon', c.premium_coming_soon, 'link', c.link,
              'created_at', c.created_at, 'since', coalesce(c.coming_soon_since, c.created_at),
              'days', floor(extract(epoch from (now() - coalesce(c.coming_soon_since, c.created_at))) / 86400)::int,
-             'waiting', (select count(distinct w.inbox) from public.coming_soon_waits w
-                          where w.company_id = c.id and w.active and w.notified_at is null and w.inbox is not null),
+             'waiting', public.coming_soon_people(c.id),
              'accounts', (select count(*) from public.coming_soon_waits w
                            where w.company_id = c.id and w.active and w.notified_at is null),
              'new_accounts', (select count(*) from public.coming_soon_waits w join auth.users au on au.id = w.user_id
@@ -566,7 +641,8 @@ end;
 $function$;
 
 -- نفس الدالة + waited لكل جهاز: الإشعار يوصل اللي كان يستنى فيه (حتى إذا تفضيلاتو ما تطابقش)،
--- و send-push يكتبلو "العرض الذي كنت تنتظره"
+-- و send-push يكتبلو "العرض الذي كنت تنتظره". + notif_visible لحظة القراءة (الهجوم المستقل): إشعار
+-- تخبّى (ولا شركتو) بعد ما تصنعت الدفعة ما يوصلش للأجهزة
 create or replace function public.push_batch_targets(p_batch bigint, p_after bigint default 0, p_limit integer default 200)
 returns json
 language plpgsql
@@ -593,6 +669,7 @@ begin
              case when b.test_user is not null then '{}'::bigint[]
                   else array(select n.id from public.notifications n
                               where n.id = any(b.notification_ids)
+                                and public.notif_visible(n)
                                 and (public.notif_matches(n, s.user_id, p.scope, p.categories)
                                      or (s.user_id is not null and exists (
                                            select 1 from public.coming_soon_waits w
@@ -600,7 +677,9 @@ begin
                               order by n.published_at, n.id) end as ids,
              case when b.test_user is not null or s.user_id is null then '{}'::bigint[]
                   else array(select w.notification_id from public.coming_soon_waits w
+                               join public.notifications n on n.id = w.notification_id
                               where w.user_id = s.user_id and w.notification_id = any(b.notification_ids)
+                                and public.notif_visible(n)
                               order by w.notification_id) end as waited
         from public.push_subscriptions s
         left join public.notification_prefs p on p.user_id = s.user_id
@@ -619,6 +698,10 @@ $function$;
 revoke all on function public.coming_soon_guard() from public, anon, authenticated;
 revoke all on function public.coming_soon_went_live() from public, anon, authenticated;
 revoke all on function public.coming_soon_count(bigint) from public, anon, authenticated;
+revoke all on function public.coming_soon_people(bigint) from public, anon, authenticated;
+revoke all on function public.coming_soon_email_domain(text) from public, anon, authenticated;
+revoke all on function public.coming_soon_open_domain(text) from public, anon, authenticated;
+revoke all on function public.coming_soon_domain_group(text) from public, anon, authenticated;
 
 -- "أعلمني" وحالة صاحب الحساب: المسجّل برك
 revoke all on function public.coming_soon_wait(bigint, boolean) from public, anon;

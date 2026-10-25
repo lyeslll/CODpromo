@@ -1589,6 +1589,14 @@
     "cta": "Browse offers now"
   },
   "header": {
+    "keysCard": {
+      "details": "Open balance and history",
+      "golden": "Golden key: {{state}}",
+      "packs": "Key packs",
+      "inviteTitle": "Create your account and get a free golden key",
+      "inviteSub": "It reveals the Premium code of a company you choose, once per account.",
+      "inviteCta": "Create a free account"
+    },
     "search": "Quick search",
     "searchHint": "Type a company, category or code — results show as you type.",
     "suggestions": "Categories with the most offers",

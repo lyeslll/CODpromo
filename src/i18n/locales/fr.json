@@ -1589,6 +1589,14 @@
     "cta": "Voir les offres"
   },
   "header": {
+    "keysCard": {
+      "details": "Voir le solde et l'historique",
+      "golden": "Clé dorée : {{state}}",
+      "packs": "Packs de clés",
+      "inviteTitle": "Créez votre compte et recevez une clé dorée gratuite",
+      "inviteSub": "Elle révèle le code Premium d'une entreprise de votre choix, une fois par compte.",
+      "inviteCta": "Créer un compte gratuit"
+    },
     "search": "Recherche rapide",
     "searchHint": "Tapez une entreprise, une catégorie ou un code — les résultats s’affichent aussitôt.",
     "suggestions": "Catégories les plus fournies",

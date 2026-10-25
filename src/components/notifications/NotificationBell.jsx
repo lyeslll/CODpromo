@@ -115,7 +115,10 @@ export default function NotificationBell({ sheet = false, onOpenChange }) {
             : "border-[var(--color-ink-line)] bg-[var(--fill)] text-[var(--text-softer)] hover:border-[var(--color-lime)]/35 hover:text-[var(--text)]"
         }`}
       >
-        <Bell size={17} className={count ? "nb-ring" : ""} />
+        <Bell
+          size={sheet ? 16 : 17}
+          className={`transition-[translate] duration-200 ${count ? "nb-ring" : ""} ${sheet && count ? "translate-y-[1.5px] ltr:-translate-x-[1.5px] rtl:translate-x-[1.5px]" : ""}`}
+        />
         <AnimatePresence>
           {count > 0 && (
             <motion.span
@@ -125,7 +128,13 @@ export default function NotificationBell({ sheet = false, onOpenChange }) {
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
               transition={{ type: "spring", stiffness: 520, damping: 26 }}
-              className="pointer-events-none absolute -end-1.5 -top-1.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-[var(--color-lime)] px-1 text-[10.5px] font-black leading-none text-[#0a0a0a] tabular-nums shadow-[0_0_0_2px_var(--color-ink),0_0_10px_rgba(166,240,0,0.55)] [font-family:Inter,sans-serif]"
+              // الهاتف: صغيرة وداخل حدود الزر (ما تركبش على اللي جنبو)، والأيقونة تتزاح شوية للجهة الأخرى.
+              // الكمبيوتر: كيما كانت.
+              className={`pointer-events-none absolute grid place-items-center rounded-full bg-[var(--color-lime)] font-black leading-none text-[#0a0a0a] tabular-nums [font-family:Inter,sans-serif] ${
+                sheet
+                  ? "end-[2px] top-[2px] h-[14px] min-w-[14px] px-[3px] text-[9px] shadow-[0_0_0_1.5px_var(--color-ink)]"
+                  : "-end-1.5 -top-1.5 h-[18px] min-w-[18px] px-1 text-[10.5px] shadow-[0_0_0_2px_var(--color-ink),0_0_10px_rgba(166,240,0,0.55)]"
+              }`}
             >
               {count > 9 ? `${formatNumber(9, lang)}+` : formatNumber(count, lang)}
             </motion.span>

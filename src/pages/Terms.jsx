@@ -29,14 +29,16 @@ export default function Terms() {
   // داخل تطبيق Android: طرق الدفع = Google Play برك (ممنوع نذكرو البوابات الأخرى في التطبيق)
   const appMode = useAndroidApp();
   const inApp = appMode === "app";
-  const { hash } = useLocation();
+  const { hash, key } = useLocation();
 
-  // /terms#keys (نافذة شراء المفاتيح) ولا #refund → القسم مباشرة
+  // /terms#keys (نافذة شراء المفاتيح) ولا #refund → القسم بعد ما تظهر الصفحة (كيما روابط # في الرئيسية)
   useEffect(() => {
-    const el = hash ? document.getElementById(hash.slice(1)) : null;
-    if (el) el.scrollIntoView();
-    else window.scrollTo(0, 0);
-  }, [hash]);
+    window.scrollTo(0, 0);
+    const id = hash?.slice(1);
+    if (!id) return;
+    const tmr = setTimeout(() => document.getElementById(id)?.scrollIntoView({ block: "start" }), 150);
+    return () => clearTimeout(tmr);
+  }, [hash, key]);
 
   const updated = new Date("2026-10-25").toLocaleDateString(lang === "ar" ? "ar" : lang === "fr" ? "fr-FR" : "en-US", {
     year: "numeric",

@@ -630,6 +630,54 @@
       "updatedAt": "Dernière mise à jour : {{date}}"
     },
     "v2": {
+      "soon": {
+        "title": "Offres à venir",
+        "sub": "Cartes sans offre pour l'instant : elles affichent « Bientôt, restez à l'écoute » après les offres actives, et les visiteurs touchent « Prévenez-moi au lancement ».",
+        "add": "Nouvelle carte bientôt",
+        "empty": "Aucune carte « bientôt ». Ajoutez-en une : « Nouvelle carte bientôt » → logo, description et lien de parrainage → activez « Offre bientôt disponible » → enregistrez.",
+        "colCompany": "Entreprise",
+        "colSince": "Bientôt depuis",
+        "colWaiting": "En attente",
+        "waitingHint": "Chaque vraie boîte mail compte une fois — des chiffres seulement, sans noms ni e-mails",
+        "newAccountsHint": "Comptes créés le jour même du « Prévenez-moi » — s'ils sont nombreux, ce sont peut-être de faux comptes",
+        "old": "Plus de 30 jours : contactez l'entreprise au sujet de l'offre",
+        "premium": "Premium bientôt",
+        "hidden": "Masquée",
+        "edit": "Modifier / activer",
+        "view": "Page",
+        "howTitle": "Comment activer une carte « bientôt »",
+        "how": "Ouvrez la carte → désactivez « Offre bientôt disponible » → saisissez la valeur et le code → enregistrez. La carte devient active d'elle-même, et ceux qui ont touché « Prévenez-moi » reçoivent une seule alerte (cloche + téléphone).",
+        "accounts_zero": "Aucun compte",
+        "accounts_one": "{{count}} compte",
+        "accounts_two": "{{count}} comptes",
+        "accounts_few": "{{count}} comptes",
+        "accounts_many": "{{count}} comptes",
+        "accounts_other": "{{count}} comptes",
+        "newAccounts_zero": "Aucun nouveau compte",
+        "newAccounts_one": "{{count}} nouveau compte",
+        "newAccounts_two": "{{count}} nouveaux comptes",
+        "newAccounts_few": "{{count}} nouveaux comptes",
+        "newAccounts_many": "{{count}} nouveaux comptes",
+        "newAccounts_other": "{{count}} nouveaux comptes",
+        "days_zero": "aujourd'hui",
+        "days_one": "{{count}} jour",
+        "days_two": "{{count}} jours",
+        "days_few": "{{count}} jours",
+        "days_many": "{{count}} jours",
+        "days_other": "{{count}} jours",
+        "oldCount_zero": "Aucune ancienne carte",
+        "oldCount_one": "{{count}} carte « bientôt » depuis plus de 30 jours",
+        "oldCount_two": "{{count}} cartes « bientôt » depuis plus de 30 jours",
+        "oldCount_few": "{{count}} cartes « bientôt » depuis plus de 30 jours",
+        "oldCount_many": "{{count}} cartes « bientôt » depuis plus de 30 jours",
+        "oldCount_other": "{{count}} cartes « bientôt » depuis plus de 30 jours",
+        "total_zero": "Aucune carte bientôt",
+        "total_one": "{{count}} carte bientôt",
+        "total_two": "{{count}} cartes bientôt",
+        "total_few": "{{count}} cartes bientôt",
+        "total_many": "{{count}} cartes bientôt",
+        "total_other": "{{count}} cartes bientôt"
+      },
       "common": {
         "close": "Fermer",
         "loadFailed": "Impossible de charger les données",
@@ -638,6 +686,7 @@
         "refresh": "Actualiser"
       },
       "nav": {
+        "comingSoon": "Bientôt",
         "menu": "Menu d'administration",
         "open": "Ouvrir le menu",
         "close": "Fermer le menu",
@@ -691,6 +740,7 @@
         "in_all": "Depuis le lancement"
       },
       "ov": {
+        "soon": "bientôt",
         "sub": "Les chiffres de CODpromo calculés en direct dans la base",
         "kpi": {
           "users": "Utilisateurs",
@@ -795,6 +845,9 @@
         "count_other": "{{count}} utilisateurs correspondants"
       },
       "companies": {
+        "soonBadge": "Bientôt",
+        "soonStat": "Bientôt",
+        "soonTitle": "Carte « bientôt » : l'offre n'est pas encore arrivée",
         "sub": "{{count}} entreprises sur le site",
         "add": "Ajouter une entreprise",
         "total": "Total des entreprises",
@@ -1701,7 +1754,10 @@
     "getApp": "Télécharger l’app"
   },
   "offerForm": {
+    "comingSoonPh": "Bientôt, restez à l'écoute",
     "s": {
+      "soon": "Statut de l'offre",
+      "soonSub": "Prête, ou « bientôt » (l'entreprise vous a donné le logo et le lien ; l'offre arrive).",
       "company": "Entreprise",
       "companySub": "L'identité affichée en haut de la carte",
       "type": "Type d'offre",
@@ -1725,6 +1781,8 @@
       "hintPartner": "PNG, JPG ou WebP, 1 Mo maximum. Un logo carré sur fond transparent rend mieux."
     },
     "f": {
+      "comingSoon": "Offre bientôt disponible",
+      "premiumComingSoon": "Premium bientôt",
       "name": "Nom de l'entreprise",
       "category": "Catégorie",
       "noCategory": "Sans catégorie",
@@ -1756,6 +1814,8 @@
       "usageSteps": "Étapes propres pour utiliser le code"
     },
     "h": {
+      "comingSoon": "La carte affiche « Bientôt, restez à l'écoute » à la place de la valeur et du code, avec un bouton « Prévenez-moi au lancement », après les offres actives. Quand l'offre arrive : désactivez « bientôt », saisissez la valeur et le code, puis enregistrez — la carte devient active et ceux qui ont touché « Prévenez-moi » reçoivent une alerte.",
+      "premiumComingSoon": "Une offre Premium arrive aussi, sans code pour l'instant : les clés ne l'ouvrent pas et elle n'est pas vendue avant son lancement.",
       "name": "Exemple : YouCan",
       "category": "Choisissez-en une, ou créez-en une sans quitter le formulaire",
       "website": "Exemple : https://youcan.shop (enregistré dans les infos internes)",
@@ -1789,11 +1849,13 @@
       "cashback": "Cashback"
     },
     "warn": {
+      "soonClears": "L'enregistrement efface la valeur et le code actuels (ainsi que le code et le lien Premium) car la carte est « bientôt ».",
       "https": "Le lien doit commencer par https://",
       "weaker": "La valeur Premium n'est pas plus forte que la classique",
       "frozen": "Sans code Premium, la carte apparaît figée en mode Premium."
     },
     "errors": {
+      "soonCodes": "Une carte « bientôt » n'a pas de code : désactivez d'abord « bientôt », puis saisissez le code.",
       "required": "Ce champ est obligatoire",
       "image": "Le fichier doit être une image",
       "fixFields": "Complétez les champs obligatoires",
@@ -1801,6 +1863,9 @@
       "logoSize": "Le logo dépasse 1 Mo."
     },
     "preview": {
+      "soonNote": "Voici la carte « bientôt » : « Visiter le site » utilise le lien de parrainage, et « Prévenez-moi » inscrit les visiteurs.",
+      "soonPremiumNote": "Mode Premium : une offre Premium arrive (sans code, les clés ne l'ouvrent pas).",
+      "soonFrozenNote": "Mode Premium : pas d'offre Premium, la carte apparaît gelée.",
       "title": "Aperçu en direct",
       "normal": "Classique",
       "premium": "Premium",
@@ -1868,6 +1933,9 @@
     }
   },
   "notify": {
+    "waited": {
+      "title": "L'offre que vous attendiez est là : {{name}}"
+    },
     "kind": {
       "company": {
         "title": "Nouveau sur CODpromo : {{name}}",
@@ -2305,6 +2373,58 @@
     "ctaAria": "Obtenir l'offre {{name}} (s'ouvre dans un nouvel onglet)",
     "ctaLocked": "L'offre {{name}} est réservée aux membres Premium : débloquez Premium",
     "frozen": "Pas de version Premium pour cette offre"
+  },
+  "comingSoon": {
+    "badge": "Bientôt",
+    "value": "Bientôt",
+    "stay": "Restez à l'écoute",
+    "codeSoon": "Bientôt, restez à l'écoute",
+    "sealed": "Offre scellée : dévoilée au lancement",
+    "waitTitle": "Vous attendez cette offre ?",
+    "notify": "Prévenez-moi au lancement",
+    "notifyOn": "On vous préviendra",
+    "notifiedBefore": "Vous avez été prévenu pour cette offre",
+    "cancel": "Annuler",
+    "cancelHint": "Touchez pour annuler l'alerte",
+    "first": "Soyez parmi les premiers",
+    "waiting_zero": "Personne n'attend encore",
+    "waiting_one": "{{n}} vendeur attend cette offre",
+    "waiting_two": "{{n}} vendeurs attendent cette offre",
+    "waiting_few": "{{n}} vendeurs attendent cette offre",
+    "waiting_many": "{{n}} vendeurs attendent cette offre",
+    "waiting_other": "{{n}} vendeurs attendent cette offre",
+    "status": {
+      "auth": "Connectez-vous pour recevoir l'alerte",
+      "unconfirmed": "Confirmez d'abord votre e-mail, puis touchez à nouveau",
+      "disposable": "Utilisez une vraie adresse e-mail, pas une adresse temporaire",
+      "owner": "C'est votre entreprise : pas besoin d'alerte",
+      "unavailable": "Cette offre n'est plus « bientôt » — actualisez la page",
+      "notified": "Vous avez déjà été prévenu pour cette offre",
+      "rate_limited": "Trop de tentatives, réessayez dans un instant",
+      "error": "Enregistrement impossible, réessayez"
+    },
+    "pushHint": "On vous prévient dans la cloche. Activez les notifications du téléphone pour la recevoir aussi sur votre téléphone.",
+    "pushCta": "Activer",
+    "chip": "Bientôt",
+    "plus_zero": "+{{count}} bientôt",
+    "plus_one": "+{{count}} bientôt",
+    "plus_two": "+{{count}} bientôt",
+    "plus_few": "+{{count}} bientôt",
+    "plus_many": "+{{count}} bientôt",
+    "plus_other": "+{{count}} bientôt",
+    "offers_zero": "Aucune nouvelle offre",
+    "offers_one": "{{n}} nouvelle offre",
+    "offers_two": "{{n}} nouvelles offres",
+    "offers_few": "{{n}} nouvelles offres",
+    "offers_many": "{{n}} nouvelles offres",
+    "offers_other": "{{n}} nouvelles offres",
+    "homeTitle": "Bientôt sur CODpromo",
+    "homeSub": "{{offers}} en route vers CODpromo. Touchez « Prévenez-moi » sur une carte pour être averti dès le lancement.",
+    "homeLogos": "Entreprises à venir",
+    "homeCta": "Voir les offres à venir",
+    "heroLine": "L'offre {{name}} arrive bientôt sur CODpromo",
+    "joinNow": "Le lien {{name}} fonctionne déjà : inscrivez-vous via ce lien dès aujourd'hui et profitez de l'avantage au lancement de l'offre.",
+    "premiumSoon": "Une offre Premium arrive aussi"
   },
   "go": {
     "title": "Redirection",
@@ -2772,6 +2892,27 @@
     "usd": "{{usd}} $"
   },
   "storePage": {
+    "soon": {
+      "stepsTitle": "Comment profiter de l'offre {{name}} à son lancement",
+      "steps": {
+        "linkTitle": "Inscrivez-vous via notre lien maintenant",
+        "linkDesc": "Ouvrez {{name}} avec le bouton « Visiter le site » et créez votre compte dès aujourd'hui : l'avantage vous revient au lancement de l'offre.",
+        "notifyTitle": "Touchez « Prévenez-moi au lancement »",
+        "notifyDesc": "On vous prévient dans la cloche et sur votre téléphone dès que l'offre {{name}} est active.",
+        "useTitle": "Utilisez l'offre à son lancement",
+        "useDesc": "La valeur et le code apparaissent ici directement, sans chercher."
+      },
+      "faq": {
+        "q": "Existe-t-il un code promo {{name}} maintenant ?",
+        "a": "Pas encore : l'offre {{name}} arrive bientôt sur CODpromo. Le lien {{name}} fonctionne déjà — inscrivez-vous via ce lien, puis touchez « Prévenez-moi au lancement » pour être averti dès le lancement.",
+        "aNoLink": "Pas encore : l'offre {{name}} arrive bientôt sur CODpromo. Touchez « Prévenez-moi au lancement » pour être averti dès le lancement.",
+        "howQ": "Comment profiter de l'offre {{name}} à son lancement ?",
+        "premiumSoon": "Une offre Premium pour {{name}} arrive aussi ; elle apparaîtra aux membres Premium à son lancement."
+      },
+      "seoTitle": "Code promo {{name}} bientôt disponible | CODpromo",
+      "seoDesc": "L'offre {{name}} arrive bientôt sur CODpromo. Inscrivez-vous dès maintenant via notre lien et touchez « Prévenez-moi » pour être averti dès le lancement.",
+      "seoDescNoLink": "L'offre {{name}} arrive bientôt sur CODpromo. Touchez « Prévenez-moi » pour être averti dès le lancement."
+    },
     "codeLabel": "Code",
     "copy": "Copier le code",
     "copied": "Copié",

@@ -630,6 +630,54 @@
       "updatedAt": "Last updated: {{date}}"
     },
     "v2": {
+      "soon": {
+        "title": "Coming-soon offers",
+        "sub": "Cards with no offer yet: they show “Coming soon, stay tuned” after the live offers, and visitors tap “Notify me when it's live”.",
+        "add": "New coming-soon card",
+        "empty": "No “coming soon” card yet. Add one: “New coming-soon card” → logo, description and referral link → turn on “Offer coming soon” → save.",
+        "colCompany": "Company",
+        "colSince": "Coming soon since",
+        "colWaiting": "Waiting",
+        "waitingHint": "Each real inbox counts once — numbers only, no names or emails",
+        "newAccountsHint": "Accounts created the same day they tapped “Notify me” — many of them may mean fake accounts",
+        "old": "More than 30 days: contact the company about the offer",
+        "premium": "Premium coming soon",
+        "hidden": "Hidden",
+        "edit": "Edit / go live",
+        "view": "Page",
+        "howTitle": "How to make a “coming soon” card live",
+        "how": "Open the card → turn off “Offer coming soon” → write the value and code → save. The card goes live by itself, and everyone who tapped “Notify me” gets one alert (bell + phone).",
+        "accounts_zero": "No accounts",
+        "accounts_one": "{{count}} account",
+        "accounts_two": "{{count}} accounts",
+        "accounts_few": "{{count}} accounts",
+        "accounts_many": "{{count}} accounts",
+        "accounts_other": "{{count}} accounts",
+        "newAccounts_zero": "No new accounts",
+        "newAccounts_one": "{{count}} new account",
+        "newAccounts_two": "{{count}} new accounts",
+        "newAccounts_few": "{{count}} new accounts",
+        "newAccounts_many": "{{count}} new accounts",
+        "newAccounts_other": "{{count}} new accounts",
+        "days_zero": "today",
+        "days_one": "{{count}} day",
+        "days_two": "{{count}} days",
+        "days_few": "{{count}} days",
+        "days_many": "{{count}} days",
+        "days_other": "{{count}} days",
+        "oldCount_zero": "No old cards",
+        "oldCount_one": "{{count}} “coming soon” card for more than 30 days",
+        "oldCount_two": "{{count}} “coming soon” cards for more than 30 days",
+        "oldCount_few": "{{count}} “coming soon” cards for more than 30 days",
+        "oldCount_many": "{{count}} “coming soon” cards for more than 30 days",
+        "oldCount_other": "{{count}} “coming soon” cards for more than 30 days",
+        "total_zero": "No coming-soon cards",
+        "total_one": "{{count}} coming-soon card",
+        "total_two": "{{count}} coming-soon cards",
+        "total_few": "{{count}} coming-soon cards",
+        "total_many": "{{count}} coming-soon cards",
+        "total_other": "{{count}} coming-soon cards"
+      },
       "common": {
         "close": "Close",
         "loadFailed": "Couldn't load the data",
@@ -638,6 +686,7 @@
         "refresh": "Refresh"
       },
       "nav": {
+        "comingSoon": "Coming soon",
         "menu": "Admin menu",
         "open": "Open menu",
         "close": "Close menu",
@@ -691,6 +740,7 @@
         "in_all": "Since launch"
       },
       "ov": {
+        "soon": "coming soon",
         "sub": "CODpromo numbers computed live in the database",
         "kpi": {
           "users": "Users",
@@ -795,6 +845,9 @@
         "count_other": "{{count}} matching users"
       },
       "companies": {
+        "soonBadge": "Coming soon",
+        "soonStat": "Coming soon",
+        "soonTitle": "“Coming soon” card: the offer hasn't arrived yet",
         "sub": "{{count}} companies on the site",
         "add": "Add company",
         "total": "Total companies",
@@ -1701,7 +1754,10 @@
     "getApp": "Get the app"
   },
   "offerForm": {
+    "comingSoonPh": "Coming soon, stay tuned",
     "s": {
+      "soon": "Offer status",
+      "soonSub": "Ready, or “coming soon” (the company gave you the logo and link; the offer is still to come).",
       "company": "Company",
       "companySub": "The identity shown at the top of the card",
       "type": "Offer type",
@@ -1725,6 +1781,8 @@
       "hintPartner": "PNG, JPG or WebP, up to 1 MB. A square logo on a transparent background works best."
     },
     "f": {
+      "comingSoon": "Offer coming soon",
+      "premiumComingSoon": "Premium coming soon",
       "name": "Company name",
       "category": "Category",
       "noCategory": "No category",
@@ -1756,6 +1814,8 @@
       "usageSteps": "Custom steps to use the code"
     },
     "h": {
+      "comingSoon": "The card shows “Coming soon, stay tuned” instead of the value and code, with a “Notify me when it's live” button, after the live offers. When the offer arrives: turn off “coming soon”, write the value and code, then save — the card goes live and everyone who tapped “Notify me” gets an alert.",
+      "premiumComingSoon": "A Premium offer is coming too, with no code yet: keys can't open it and it isn't sold until it goes live.",
       "name": "Example: YouCan",
       "category": "Pick an existing one, or add a new category without leaving",
       "website": "Example: https://youcan.shop (saved in internal info)",
@@ -1789,11 +1849,13 @@
       "cashback": "Cashback"
     },
     "warn": {
+      "soonClears": "Saving clears the current value and code (and the Premium code and link) because the card is “coming soon”.",
       "https": "The link should start with https://",
       "weaker": "The Premium value isn't stronger than the regular one",
       "frozen": "Without a Premium code, the card appears frozen in Premium mode."
     },
     "errors": {
+      "soonCodes": "A “coming soon” card has no code: turn off “coming soon” first, then write the code.",
       "required": "This field is required",
       "image": "The file must be an image",
       "fixFields": "Fill in the required fields",
@@ -1801,6 +1863,9 @@
       "logoSize": "The logo is larger than 1 MB."
     },
     "preview": {
+      "soonNote": "This is the “coming soon” card: “Visit site” uses the referral link, and “Notify me” signs visitors up.",
+      "soonPremiumNote": "Premium mode: a Premium offer is coming (no code, keys can't open it).",
+      "soonFrozenNote": "Premium mode: no Premium offer, the card shows frozen.",
       "title": "Live preview",
       "normal": "Regular",
       "premium": "Premium",
@@ -1868,6 +1933,9 @@
     }
   },
   "notify": {
+    "waited": {
+      "title": "The offer you were waiting for is here: {{name}}"
+    },
     "kind": {
       "company": {
         "title": "New on CODpromo: {{name}}",
@@ -2305,6 +2373,58 @@
     "ctaAria": "Get the {{name}} offer (opens in a new tab)",
     "ctaLocked": "The {{name}} offer is for Premium members: unlock Premium",
     "frozen": "No Premium version of this offer"
+  },
+  "comingSoon": {
+    "badge": "Coming soon",
+    "value": "Coming soon",
+    "stay": "Stay tuned",
+    "codeSoon": "Coming soon, stay tuned",
+    "sealed": "Sealed offer: revealed at launch",
+    "waitTitle": "Waiting for this offer?",
+    "notify": "Notify me when it's live",
+    "notifyOn": "We'll notify you",
+    "notifiedBefore": "You were notified about this offer",
+    "cancel": "Cancel",
+    "cancelHint": "Tap to cancel the alert",
+    "first": "Be one of the first",
+    "waiting_zero": "Nobody is waiting yet",
+    "waiting_one": "{{n}} seller is waiting for this offer",
+    "waiting_two": "{{n}} sellers are waiting for this offer",
+    "waiting_few": "{{n}} sellers are waiting for this offer",
+    "waiting_many": "{{n}} sellers are waiting for this offer",
+    "waiting_other": "{{n}} sellers are waiting for this offer",
+    "status": {
+      "auth": "Log in to get the alert",
+      "unconfirmed": "Confirm your email first, then tap again",
+      "disposable": "Use a real email address, not a temporary one",
+      "owner": "This is your company: no alert needed",
+      "unavailable": "This offer is no longer “coming soon” — refresh the page",
+      "notified": "You were already notified about this offer",
+      "rate_limited": "Too many attempts, try again shortly",
+      "error": "Couldn't save, try again"
+    },
+    "pushHint": "We'll alert you in the bell. Turn on phone notifications to get it on your phone too.",
+    "pushCta": "Turn on",
+    "chip": "Coming soon",
+    "plus_zero": "+{{count}} coming soon",
+    "plus_one": "+{{count}} coming soon",
+    "plus_two": "+{{count}} coming soon",
+    "plus_few": "+{{count}} coming soon",
+    "plus_many": "+{{count}} coming soon",
+    "plus_other": "+{{count}} coming soon",
+    "offers_zero": "No new offers",
+    "offers_one": "{{n}} new offer",
+    "offers_two": "{{n}} new offers",
+    "offers_few": "{{n}} new offers",
+    "offers_many": "{{n}} new offers",
+    "offers_other": "{{n}} new offers",
+    "homeTitle": "Coming soon to CODpromo",
+    "homeSub": "{{offers}} on the way to CODpromo. Tap “Notify me” on a card to hear the moment it goes live.",
+    "homeLogos": "Upcoming companies",
+    "homeCta": "See upcoming offers",
+    "heroLine": "{{name}}'s offer is coming soon to CODpromo",
+    "joinNow": "{{name}}'s link already works: sign up through it today and you'll get the benefit when the offer launches.",
+    "premiumSoon": "A Premium offer is coming too"
   },
   "go": {
     "title": "Redirecting",
@@ -2772,6 +2892,27 @@
     "usd": "${{usd}}"
   },
   "storePage": {
+    "soon": {
+      "stepsTitle": "How to get {{name}}'s offer when it launches",
+      "steps": {
+        "linkTitle": "Sign up through our link now",
+        "linkDesc": "Open {{name}} with the “Visit site” button and create your account today: the benefit is yours when the offer launches.",
+        "notifyTitle": "Tap “Notify me when it's live”",
+        "notifyDesc": "We'll alert you in the bell and on your phone the moment {{name}}'s offer goes live.",
+        "useTitle": "Use the offer when it launches",
+        "useDesc": "The value and the code appear right here, no searching."
+      },
+      "faq": {
+        "q": "Is there a {{name}} promo code right now?",
+        "a": "Not yet: {{name}}'s offer is coming soon to CODpromo. {{name}}'s link already works — sign up through it, then tap “Notify me when it's live” to get an alert the moment the offer launches.",
+        "aNoLink": "Not yet: {{name}}'s offer is coming soon to CODpromo. Tap “Notify me when it's live” to get an alert the moment the offer launches.",
+        "howQ": "How do I get {{name}}'s offer when it launches?",
+        "premiumSoon": "A Premium offer for {{name}} is coming too; it appears to Premium members when it goes live."
+      },
+      "seoTitle": "{{name}} promo code coming soon | CODpromo",
+      "seoDesc": "{{name}}'s offer is coming soon to CODpromo. Sign up through our link now and tap “Notify me” to get an alert the moment it goes live.",
+      "seoDescNoLink": "{{name}}'s offer is coming soon to CODpromo. Tap “Notify me” to get an alert the moment it goes live."
+    },
     "codeLabel": "Code",
     "copy": "Copy code",
     "copied": "Copied",

@@ -1,0 +1,36 @@
+{
+  "company": {
+    "title": "شركة جديدة: {{name}}",
+    "body": "{{offer}} — الكود جاهز على CODpromo",
+    "bodyNoOffer": "عرضها جاهز الآن على CODpromo"
+  },
+  "code": {
+    "title": "كود جديد لـ {{name}}",
+    "body": "{{offer}} — جرّبه الآن",
+    "bodyNoOffer": "جرّبه الآن على CODpromo"
+  },
+  "premium_code": {
+    "title": "كود Premium جديد لـ {{name}}",
+    "body": "{{offer}} لأعضاء Premium",
+    "bodyNoOffer": "خصم أقوى لأعضاء Premium"
+  },
+  "deal": {
+    "title": "عرض جديد بلا كود: {{name}}",
+    "body": "{{offer}}",
+    "bodyNoOffer": "فعّل العرض بضغطة على CODpromo"
+  },
+  "digest": {
+    "title_zero": "لا تحديثات جديدة",
+    "title_one": "تحديث جديد في CODpromo",
+    "title_two": "تحديثان جديدان في CODpromo",
+    "title_few": "{{count}} تحديثات جديدة في CODpromo",
+    "title_many": "{{count}} تحديثاً جديداً في CODpromo",
+    "title_other": "{{count}} تحديث جديد في CODpromo",
+    "more": "{{names}} وغيرها"
+  },
+  "test": {
+    "title": "تجربة إشعارات CODpromo",
+    "body": "الإشعارات تعمل على هذا الجهاز."
+  },
+  "sep": "، "
+}

@@ -12,6 +12,7 @@ import KeysCard from "../../components/dashboard/customer/KeysCard.jsx";
 import RecentCopies from "../../components/dashboard/customer/RecentCopies.jsx";
 import GrowCards from "../../components/dashboard/customer/GrowCards.jsx";
 import SettingsPanel from "../../components/dashboard/customer/SettingsPanel.jsx";
+import NotificationPrefs from "../../components/dashboard/customer/NotificationPrefs.jsx";
 import CompanyCard from "../../components/CompanyCard.jsx";
 import PremiumModal from "../../components/PremiumModal.jsx";
 import { useGoPremium } from "../../lib/goPremium.js";
@@ -320,6 +321,10 @@ export default function CustomerDashboard() {
           </section>
         )}
 
+        {/* الإشعارات: واش يوصلو (كل الجديد / فئات / المفضّلة) + إشعارات هاد الجهاز (رابط الجرس: #notifications) */}
+        <div className="order-7 mt-4 lg:order-none lg:col-span-12">
+          <NotificationPrefs />
+        </div>
         <div className="order-7 mt-4 lg:order-none lg:col-span-12">
           <SettingsPanel />
         </div>

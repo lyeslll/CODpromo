@@ -1,0 +1,16 @@
+/* الجرس: هزّة صغيرة مرة وحدة كي يكون فيه جديد (بلا حركة مع prefers-reduced-motion) */
+@keyframes nb-ring {
+  0%, 100% { transform: rotate(0); }
+  15% { transform: rotate(14deg); }
+  30% { transform: rotate(-12deg); }
+  45% { transform: rotate(8deg); }
+  60% { transform: rotate(-5deg); }
+  75% { transform: rotate(2deg); }
+}
+.nb-ring {
+  transform-origin: 50% 2px;
+  animation: nb-ring 0.9s ease-in-out 0.4s 1 both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nb-ring { animation: none; }
+}

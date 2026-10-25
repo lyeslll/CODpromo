@@ -1,0 +1,36 @@
+{
+  "company": {
+    "title": "New on CODpromo: {{name}}",
+    "body": "{{offer}} — your code is ready",
+    "bodyNoOffer": "Their offer is live on CODpromo"
+  },
+  "code": {
+    "title": "New code for {{name}}",
+    "body": "{{offer}} — try it now",
+    "bodyNoOffer": "Try it now on CODpromo"
+  },
+  "premium_code": {
+    "title": "New Premium code for {{name}}",
+    "body": "{{offer}} for Premium members",
+    "bodyNoOffer": "A bigger discount for Premium members"
+  },
+  "deal": {
+    "title": "New no-code deal: {{name}}",
+    "body": "{{offer}}",
+    "bodyNoOffer": "Activate it in one tap on CODpromo"
+  },
+  "digest": {
+    "title_zero": "No new updates",
+    "title_one": "1 new update on CODpromo",
+    "title_two": "{{count}} new updates on CODpromo",
+    "title_few": "{{count}} new updates on CODpromo",
+    "title_many": "{{count}} new updates on CODpromo",
+    "title_other": "{{count}} new updates on CODpromo",
+    "more": "{{names}} and more"
+  },
+  "test": {
+    "title": "CODpromo notifications test",
+    "body": "Notifications work on this device."
+  },
+  "sep": ", "
+}

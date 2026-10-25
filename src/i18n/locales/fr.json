@@ -669,6 +669,7 @@
         "sales": "Ventes",
         "pricing": "Tarifs",
         "ratings": "Notes",
+        "notifications": "Notifications",
         "pending_zero": "Aucune demande en attente",
         "pending_one": "{{count}} demande en attente",
         "pending_two": "{{count}} demandes en attente",
@@ -1794,6 +1795,246 @@
       "bg_custom": "Couleur",
       "apply": "Utiliser ce logo",
       "note": "Enregistré en carré WebP léger de 512×512."
+    }
+  },
+  "notify": {
+    "kind": {
+      "company": {
+        "title": "Nouveau sur CODpromo : {{name}}",
+        "body": "{{offer}} — votre code est prêt",
+        "bodyNoOffer": "Leur offre est disponible sur CODpromo"
+      },
+      "code": {
+        "title": "Nouveau code pour {{name}}",
+        "body": "{{offer}} — essayez-le maintenant",
+        "bodyNoOffer": "Essayez-le maintenant sur CODpromo"
+      },
+      "premium_code": {
+        "title": "Nouveau code Premium pour {{name}}",
+        "body": "{{offer}} pour les membres Premium",
+        "bodyNoOffer": "Une remise plus forte pour les membres Premium"
+      },
+      "deal": {
+        "title": "Nouvelle offre sans code : {{name}}",
+        "body": "{{offer}}",
+        "bodyNoOffer": "Activez-la en un clic sur CODpromo"
+      }
+    },
+    "bell": {
+      "label": "Notifications",
+      "unread_zero": "Aucune notification non lue",
+      "unread_one": "1 notification non lue",
+      "unread_two": "{{count}} notifications non lues",
+      "unread_few": "{{count}} notifications non lues",
+      "unread_many": "{{count}} de notifications non lues",
+      "unread_other": "{{count}} notifications non lues"
+    },
+    "panel": {
+      "title": "Notifications",
+      "unread_zero": "Rien de nouveau",
+      "unread_one": "1 nouvelle",
+      "unread_two": "{{count}} nouvelles",
+      "unread_few": "{{count}} nouvelles",
+      "unread_many": "{{count}} de nouvelles",
+      "unread_other": "{{count}} nouvelles",
+      "unreadOne": "Non lue",
+      "markAll": "Tout marquer comme lu",
+      "settings": "Réglages des notifications",
+      "close": "Fermer",
+      "error": "Impossible de charger les nouveautés.",
+      "retry": "Réessayer",
+      "empty": "Aucune nouveauté pour l'instant",
+      "emptyHint": "Nous vous préviendrons ici dès qu'une entreprise, un code ou une offre sera ajouté.",
+      "all": "Toutes les nouveautés"
+    },
+    "push": {
+      "title": "Notifications sur le téléphone",
+      "pitch": "Soyez prévenu sur votre téléphone dès qu'une entreprise ou un code est ajouté. Désactivable à tout moment.",
+      "cta": "Activer les notifications",
+      "working": "Un instant…",
+      "on": "Notifications activées sur cet appareil",
+      "off": "Désactiver",
+      "denied": "Les notifications sont bloquées pour ce site. Autorisez-les dans les réglages du navigateur ou de l'application, puis réessayez.",
+      "dismissed": "Les notifications n'ont pas été activées. Appuyez à nouveau et choisissez « Autoriser ».",
+      "ios": "Sur iPhone : ajoutez CODpromo à l'écran d'accueil (Partager → Sur l'écran d'accueil), ouvrez-le depuis là et activez les notifications.",
+      "error": "Impossible d'activer les notifications. Réessayez.",
+      "rateLimited": "Trop de tentatives depuis ce réseau. Réessayez dans un instant.",
+      "enabledTitle": "Notifications CODpromo activées",
+      "enabledBody": "Nous vous préviendrons dès qu'une entreprise ou un code est ajouté."
+    },
+    "badge": {
+      "new": "Nouveau"
+    },
+    "toast": {
+      "title_zero": "Aucune nouvelle offre depuis votre dernière visite",
+      "title_one": "1 nouvelle offre depuis votre dernière visite",
+      "title_two": "{{count}} nouvelles offres depuis votre dernière visite",
+      "title_few": "{{count}} nouvelles offres depuis votre dernière visite",
+      "title_many": "{{count}} de nouvelles offres depuis votre dernière visite",
+      "title_other": "{{count}} nouvelles offres depuis votre dernière visite",
+      "cta": "Voir les nouveautés",
+      "close": "Fermer"
+    },
+    "page": {
+      "title": "Nouveautés CODpromo",
+      "eyebrow": "Mises à jour",
+      "lead": "Chaque nouvelle entreprise, code et offre ajoutés sur CODpromo, par date. Activez les notifications pour les recevoir dès leur ajout.",
+      "seoTitle": "Nouveautés CODpromo — dernières entreprises, codes et offres",
+      "seoDesc": "Chaque nouvelle entreprise, code promo et offre ajoutés sur CODpromo, par date : codes promo, coupons et cashback pour les vendeurs en paiement à la livraison.",
+      "today": "Aujourd'hui",
+      "yesterday": "Hier",
+      "sinceVisit": "Nouveau depuis votre visite",
+      "freshCount_zero": "Rien de nouveau depuis votre dernière visite",
+      "freshCount_one": "1 nouveauté depuis votre dernière visite",
+      "freshCount_two": "{{count}} nouveautés depuis votre dernière visite",
+      "freshCount_few": "{{count}} nouveautés depuis votre dernière visite",
+      "freshCount_many": "{{count}} de nouveautés depuis votre dernière visite",
+      "freshCount_other": "{{count}} nouveautés depuis votre dernière visite",
+      "more": "Voir plus",
+      "allOffers": "Toutes les offres"
+    },
+    "prefs": {
+      "title": "Notifications",
+      "lead": "Choisissez ce que vous recevez dans la cloche et sur votre téléphone.",
+      "all": "Toutes les nouveautés",
+      "allHint": "Chaque nouvelle entreprise, code et offre.",
+      "categories": "Certaines catégories",
+      "categoriesHint": "Seulement les nouveautés des catégories choisies.",
+      "favorites": "Mes favoris uniquement",
+      "favoritesHint": "Les entreprises ajoutées à vos favoris.",
+      "always": "Les annonces du site et les nouvelles fonctionnalités vous parviennent toujours.",
+      "save": "Enregistrer",
+      "saved": "Enregistré.",
+      "error": "Impossible d'enregistrer. Réessayez.",
+      "pickOne": "Choisissez au moins une catégorie.",
+      "device": "Notifications sur cet appareil"
+    },
+    "admin": {
+      "title": "Notifications",
+      "sub": "Créées automatiquement à l'ajout d'une entreprise, d'un code ou d'une offre sans code (aucune pour les entreprises masquées). Ici : une nouvelle annonce, masquer ou modifier une notification, et les notifications téléphone.",
+      "stat": {
+        "mode": "Notifications téléphone",
+        "devices": "Appareils abonnés",
+        "byLang": "Arabe {{ar}} · Anglais {{en}} · Français {{fr}}",
+        "users": "Comptes abonnés",
+        "usersHint": "Le reste : visiteurs sans compte",
+        "batches": "Envois en 24 heures",
+        "batchesHint": "Un plafond pour ne jamais spammer"
+      },
+      "mode": {
+        "off": "Désactivées",
+        "test": "Mode test — admins uniquement",
+        "live": "Activées pour tous"
+      },
+      "device": {
+        "title": "Notifications sur vos appareils",
+        "note": "Activez les notifications sur votre téléphone puis testez : un message de test arrive sur vos appareils uniquement.",
+        "testNote": "Mode test avant la fusion : les notifications n'arrivent qu'aux comptes admin, jamais aux clients."
+      },
+      "test_zero": "Tester sur mes appareils (aucun)",
+      "test_one": "Tester sur mon appareil",
+      "test_two": "Tester sur mes appareils ({{count}})",
+      "test_few": "Tester sur mes appareils ({{count}})",
+      "test_many": "Tester sur mes appareils ({{count}})",
+      "test_other": "Tester sur mes appareils ({{count}})",
+      "testOk_zero": "Aucun appareil",
+      "testOk_one": "Test envoyé à votre appareil",
+      "testOk_two": "Test envoyé à {{count}} appareils",
+      "testOk_few": "Test envoyé à {{count}} appareils",
+      "testOk_many": "Test envoyé à {{count}} d'appareils",
+      "testOk_other": "Test envoyé à {{count}} appareils",
+      "testErr": {
+        "noDevice": "Aucun appareil abonné sur votre compte — activez d'abord les notifications sur cet appareil.",
+        "rateLimited": "5 tests par heure au maximum.",
+        "other": "Le test a échoué."
+      },
+      "modeOn": "Activer les notifications",
+      "modeOff": "Désactiver les notifications",
+      "modeOnOk": "Notifications téléphone activées.",
+      "modeOffOk": "Notifications téléphone désactivées.",
+      "modeTest": "Le mode test ne change qu'avec la fusion.",
+      "shownOk": "La notification est de nouveau visible",
+      "hiddenOk": "La notification est masquée",
+      "form": {
+        "title": "Nouvelle notification",
+        "sub": "Choisissez un modèle. Texte vide = texte du modèle, traduit automatiquement.",
+        "template": "Modèle",
+        "company": "Entreprise",
+        "search": "Rechercher une entreprise…",
+        "companyHint": "Le lien mène à la page de l'entreprise. Les entreprises masquées ne sont pas acceptées.",
+        "titleOpt": "Titre (facultatif)",
+        "titleReq": "Titre",
+        "body": "Texte (facultatif)",
+        "url": "Lien sur le site",
+        "urlHint": "Commence par /, comme /premium ou /offers?kind=nocode. Vide = page Nouveautés.",
+        "translate": "Traduire automatiquement",
+        "showTr": "Anglais et français",
+        "hideTr": "Masquer la traduction",
+        "push": "Envoyer une notification téléphone (après une minute)",
+        "publish": "Publier",
+        "preview": "Aperçu",
+        "previewEmpty": "Saisissez le titre…",
+        "pickCompany": "Choisissez d'abord l'entreprise.",
+        "needTitle": "Le titre est obligatoire.",
+        "badUrl": "Le lien doit être sur le site et commencer par /.",
+        "ok": "Notification publiée.",
+        "okPush": "Publiée — elle arrive sur les téléphones en une à deux minutes.",
+        "err": {
+          "hidden": "Cette entreprise est masquée : pas de notification.",
+          "rate_limited": "Trop de notifications en une heure. Réessayez plus tard.",
+          "invalid": "Données invalides."
+        }
+      },
+      "tpl": {
+        "company": "Nouvelle entreprise",
+        "code": "Nouveau code",
+        "feature": "Nouvelle fonctionnalité",
+        "announcement": "Annonce"
+      },
+      "list": {
+        "title": "Toutes les notifications",
+        "empty": "Aucune notification",
+        "emptyDesc": "La première est créée automatiquement avec la prochaine nouvelle entreprise.",
+        "edit": "Modifier",
+        "show": "Afficher",
+        "hide": "Masquer",
+        "editHint": "Vide = texte du modèle, traduit automatiquement.",
+        "editHintOwn": "Le titre arabe est obligatoire.",
+        "save": "Enregistrer",
+        "saved": "Enregistré.",
+        "cancel": "Annuler"
+      },
+      "kind": {
+        "company": "Nouvelle entreprise",
+        "code": "Nouveau code",
+        "premium_code": "Code Premium",
+        "deal": "Offre sans code",
+        "feature": "Nouvelle fonctionnalité",
+        "announcement": "Annonce"
+      },
+      "auto": "Automatique",
+      "manual": "Manuelle",
+      "push": {
+        "pending": "push bientôt",
+        "sending": "push en cours…",
+        "sent_zero": "push : aucun appareil",
+        "sent_one": "push : 1 appareil",
+        "sent_two": "push : {{count}} appareils",
+        "sent_few": "push : {{count}} appareils",
+        "sent_many": "push : {{count}} d'appareils",
+        "sent_other": "push : {{count}} appareils",
+        "skipped": "sans push",
+        "failed": "push échoué",
+        "off": "sans push"
+      },
+      "reads_zero": "Aucune lecture",
+      "reads_one": "1 lecture",
+      "reads_two": "{{count}} lectures",
+      "reads_few": "{{count}} lectures",
+      "reads_many": "{{count}} de lectures",
+      "reads_other": "{{count}} lectures",
+      "companyHidden": "Entreprise masquée",
+      "hidden": "Masquée"
     }
   },
   "partners": {

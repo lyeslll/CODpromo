@@ -8,6 +8,7 @@ import {
   Inbox,
   Vote,
   Star,
+  Bell,
   Users,
   AtSign,
   Crown,
@@ -43,6 +44,7 @@ export const NAV = [
       { key: "requests", path: "/admin/requests", icon: Inbox, badge: "pending" },
       { key: "votes", path: "/admin/votes", icon: Vote },
       { key: "ratings", path: "/admin/ratings", icon: Star },
+      { key: "notifications", path: "/admin/notifications", icon: Bell },
     ],
   },
   {

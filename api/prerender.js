@@ -77,6 +77,7 @@ const categoryUrl = (slug, l) => `${SITE_URL}${prefix(l)}/category/${slug}`;
 const offersUrl = (l) => `${SITE_URL}${prefix(l)}/offers`;
 const partnersUrl = (l) => `${SITE_URL}${prefix(l)}/partners`;
 const premiumUrl = (l) => `${SITE_URL}${prefix(l)}/premium`;
+const newUrl = (l) => `${SITE_URL}${prefix(l)}/new`;
 
 /** "{{x}}" → قيمة (نفس صيغة i18next في ملفات الترجمة). */
 const fill = (str, vars) => String(str || "").replace(/\{\{(\w+)\}\}/g, (_, k) => (vars[k] ?? ""));
@@ -310,6 +311,44 @@ export default async function handler(req, res) {
       return serveTemplate(res, inject(template, { lang, title, description, headExtra }));
     }
 
+    // "جديد CODpromo" (/new): آخر التحديثات العامة (notifications_feed، بلا المخفي) — نفس نصوص الواجهة
+    if (type === "new") {
+      const L = locale(lang) || locale("ar");
+      const N = L?.notify?.page;
+      if (!N?.seoTitle) return serveTemplate(res, template);
+      const t = makeT(L, locale("ar"));
+      const title = N.seoTitle;
+      const description = N.seoDesc;
+      const canonical = newUrl(lang);
+      const alternates = ["ar", "en", "fr"].map((l) => ({ lang: l, url: newUrl(l) }));
+      const feed = await postJson(`${SUPABASE_URL}/rest/v1/rpc/notifications_feed`, { p_limit: 30, p_all: true });
+      const items = (Array.isArray(feed?.items) ? feed.items : []).map((n) => newsItem(n, lang, t));
+      const jsonLd = [
+        {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: N.title,
+          description,
+          url: canonical,
+          inLanguage: lang,
+          ...(items.length
+            ? { mainEntity: { "@type": "ItemList", itemListElement: items.map((it, i) => ({ "@type": "ListItem", position: i + 1, name: it.title, url: it.url })) } }
+            : {}),
+        },
+        breadcrumbOf([
+          { name: L.store?.breadcrumbHome || SITE_NAME, url: `${SITE_URL}${prefix(lang)}/` },
+          { name: N.title, url: canonical },
+        ]),
+      ];
+      let body = `<main dir="${dirOf(lang)}" style="${BODY_STYLE}"><h1>${esc(N.title)}</h1><p>${esc(N.lead)}</p><ol>`;
+      for (const it of items) {
+        body += `<li><a href="${esc(it.url)}">${esc(it.title)}</a>${it.body ? ` — ${esc(it.body)}` : ""} <time datetime="${esc(it.date)}">${esc(it.date.slice(0, 10))}</time></li>`;
+      }
+      body += `</ol></main>`;
+      const headExtra = buildHead({ lang, title, description, canonical, image: DEFAULT_OG_IMAGE, alternates, jsonLd });
+      return serveTemplate(res, inject(template, { lang, title, description, headExtra, body }));
+    }
+
     if (type === "partners") {
       const L = locale(lang) || locale("ar");
       const P = L?.partners;
@@ -456,6 +495,23 @@ function storeBody({ c, lang, t, L, catLabel, catUrl, crumbs, steps, faq, simila
       .join("")}</ul>${catUrl && catLabel ? `<p><a href="${esc(catUrl)}">${esc(t("storePage.similarAll", { category: catLabel }))}</a></p>` : ""}</section>`;
   }
   return h + "</main>";
+}
+
+/** إشعار → { title, body, url, date } (نفس قاعدة src/lib/notifications.js: نص الأدمين ولا القالب حسب النوع). */
+function newsItem(n, lang, t) {
+  const pick = (row, f) => (lang !== "ar" && row?.[`${f}_${lang}`]?.trim()) || row?.[f]?.trim() || "";
+  const row = n.kind === "deal" ? n.deal : n.company;
+  const own = { title: pick(n, "title"), body: pick(n, "body") };
+  let title = own.title;
+  let body = own.body;
+  if (n.kind !== "feature" && n.kind !== "announcement") {
+    const offer = pick(row, n.kind === "deal" ? "reward" : n.kind === "premium_code" ? "premium_discount" : "discount");
+    title = title || t(`notify.kind.${n.kind}.title`, { name: row?.name || "" });
+    body = body || (offer ? t(`notify.kind.${n.kind}.body`, { offer }) : t(`notify.kind.${n.kind}.bodyNoOffer`));
+  }
+  const path = typeof n.url === "string" && /^\/([^/\\]|$)/.test(n.url) ? n.url : "/new";
+  const localized = lang !== "ar" && /^\/(?:(?:store|category)\/[^/?#]|(?:categories|offers|partners|premium|new|favorites)(?:[/?#]|$))/.test(path) ? `/${lang}${path}` : path;
+  return { title, body, url: `${SITE_URL}${localized}`, date: String(n.published_at || "") };
 }
 
 function breadcrumbOf(items) {

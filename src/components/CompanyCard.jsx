@@ -8,6 +8,7 @@ import { getTypeMeta, getTypeKey } from "../lib/types.js";
 import { companySlug, companyCategoryRecord, categoryName } from "../lib/slug.js";
 import { useCategories } from "../lib/categories.jsx";
 import { getPremiumCode } from "../lib/supabase.js";
+import NewBadge from "./notifications/NewBadge.jsx";
 import { logCodeCopy, copySourceFromPath } from "../lib/copies.js";
 import { hasPremiumOffer } from "../lib/premiumOffer.js";
 import { useFreeKey } from "../lib/freeKeyContext.jsx";
@@ -381,7 +382,11 @@ export default function CompanyCard({
               <CardLogo logo={company.logo} bg={company.logo_bg} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
               <div className="min-w-0">
                 <h3 className="truncate text-[17px] font-extrabold text-[var(--text)] transition-colors group-hover/link:text-[var(--accent-text)]">{company.name}</h3>
-                <p className={`mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)] ${diaOwned ? "pe-[7.25rem]" : premium ? "pe-11" : ""}`}>{category}</p>
+                <p className={`mt-0.5 flex min-w-0 items-center gap-1.5 text-[12.5px] font-medium text-[var(--color-mute)] ${diaOwned ? "pe-[7.25rem]" : premium ? "pe-11" : ""}`}>
+                  {/* "جديد": تزادت في آخر 7 أيام (created_at) — تحت الاسم باش الاسم يبقى كامل */}
+                  <NewBadge date={company.created_at} size="sm" />
+                  <span className="truncate">{category}</span>
+                </p>
               </div>
             </Link>
           ) : (
@@ -389,7 +394,11 @@ export default function CompanyCard({
               <CardLogo logo={company.logo} bg={company.logo_bg} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
               <div className="min-w-0">
                 <h3 className="truncate text-[17px] font-extrabold text-[var(--text)]">{company.name}</h3>
-                <p className={`mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)] ${diaOwned ? "pe-[7.25rem]" : premium ? "pe-11" : ""}`}>{category}</p>
+                <p className={`mt-0.5 flex min-w-0 items-center gap-1.5 text-[12.5px] font-medium text-[var(--color-mute)] ${diaOwned ? "pe-[7.25rem]" : premium ? "pe-11" : ""}`}>
+                  {/* "جديد": تزادت في آخر 7 أيام (created_at) — تحت الاسم باش الاسم يبقى كامل */}
+                  <NewBadge date={company.created_at} size="sm" />
+                  <span className="truncate">{category}</span>
+                </p>
               </div>
             </div>
           )}

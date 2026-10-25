@@ -54,3 +54,7 @@ verify_jwt = true
 # SlickPay يستدعي الـ webhook بدون JWT؛ الأمان عبر التوقيع + إعادة التحقق + key_orders
 [functions.keys-slickpay-webhook]
 verify_jwt = false
+
+# إشعارات الهاتف (phase notifications): تناديها القاعدة برك (pg_net) برأس x-push-secret، بلا JWT
+[functions.send-push]
+verify_jwt = false

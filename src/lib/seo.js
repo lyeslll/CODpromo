@@ -30,6 +30,7 @@ export const favoritesPath = (lang) => `${langPrefix(lang)}/favorites`;
 export const offersPath = (lang) => `${langPrefix(lang)}/offers`;
 export const partnersPath = (lang) => `${langPrefix(lang)}/partners`;
 export const premiumPath = (lang) => `${langPrefix(lang)}/premium`;
+export const newPath = (lang) => `${langPrefix(lang)}/new`;
 
 /**
  * رابط صفحة العروض مع فلاتر جاهزة في الرابط (قابل للمشاركة):
@@ -54,9 +55,10 @@ export const favoritesUrl = (lang) => absUrl(favoritesPath(lang));
 export const offersUrl = (lang) => absUrl(offersPath(lang));
 export const partnersUrl = (lang) => absUrl(partnersPath(lang));
 export const premiumUrl = (lang) => absUrl(premiumPath(lang));
+export const newUrl = (lang) => absUrl(newPath(lang));
 export const homeUrl = (lang) => absUrl(homePath(lang));
 
-/** روابط hreflang المتبادلة لصفحة (المتجر/الفئة/قائمة الفئات/العروض/الشركاء/Premium/الرئيسية) عبر اللغات الثلاث. */
+/** روابط hreflang المتبادلة لصفحة (المتجر/الفئة/قائمة الفئات/العروض/الشركاء/Premium/الجديد/الرئيسية) عبر اللغات الثلاث. */
 export function buildAlternates(kind, slug) {
   const urlFor = (lang) =>
     kind === "store" ? storeUrl(slug, lang)
@@ -65,6 +67,7 @@ export function buildAlternates(kind, slug) {
     : kind === "offers" ? offersUrl(lang)
     : kind === "partners" ? partnersUrl(lang)
     : kind === "premium" ? premiumUrl(lang)
+    : kind === "new" ? newUrl(lang)
     : homeUrl(lang);
   return SEO_LANGS.map((lang) => ({ lang, url: urlFor(lang) }));
 }

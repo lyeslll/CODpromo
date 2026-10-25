@@ -29,7 +29,7 @@ export function ensureLang(lng) {
 export function langForPath(pathname, current) {
   if (pathname === "/en" || pathname.startsWith("/en/")) return "en";
   if (pathname === "/fr" || pathname.startsWith("/fr/")) return "fr";
-  if (/^\/(store\/|category\/|categories|favorites|offers|partners|premium)/.test(pathname)) return "ar";
+  if (/^\/(store\/|category\/|categories|favorites|offers|partners|premium|new$)/.test(pathname)) return "ar";
   return current;
 }
 

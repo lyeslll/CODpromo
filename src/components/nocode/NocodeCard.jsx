@@ -10,7 +10,10 @@ import { GlowSpot, useCardGlow } from "../CardGlow.jsx";
 import { useWaveValue, useCountText } from "../../lib/modeWave.jsx";
 import { logoSrc } from "../../lib/logoImage.js";
 import BidiText from "../BidiText.jsx";
+import NewBadge from "../notifications/NewBadge.jsx";
 import "./nocode.css";
+
+const latestDate = (a, b) => (a && b ? (new Date(a) > new Date(b) ? a : b) : a || b);
 
 // اللون الرابع: "بلا كود" (بنفسجي) — والذهبي لـ Premium، والرمادي للمجمّدة.
 // السطح أسود كتذاكر الكوبون؛ اللون للمسات فقط (الحافة، الشريط، الميزة، الوسم، الشرط، الزر).
@@ -170,6 +173,8 @@ export default function NocodeCard({ deal, premium: premiumProp = false, unlocke
             {gold ? <Crown size={12} strokeWidth={2.6} aria-hidden /> : <Gift size={12} strokeWidth={2.6} aria-hidden />}
             {gold ? t("nocode.premiumTag") : t("nocode.tag")}
           </span>
+          {/* "جديد": العرض بدا في آخر 7 أيام (الأحدث بين الإضافة والبداية) */}
+          <NewBadge date={latestDate(deal.created_at, deal.starts_at)} size="sm" />
         </header>
 
         {frozen ? (

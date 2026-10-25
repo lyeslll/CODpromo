@@ -1186,6 +1186,8 @@ end;
 $$;
 
 -- الاسترداد (داخلي): المفاتيح اللي ما تستعملوش من هاد الطلب تتنحّى، والطلب يتعلّم مسترد.
+-- p_refunded = المجموع المسترد لحد الآن (Stripe amount_refunded، PayPal total_refunded_amount) → greatest = idempotent.
+-- كل استرداد (حتى الثاني على نفس الطلب) يعاود يحسب واش الرصيد مازال يغطي Premium بالرصيد.
 create or replace function public.key_order_refund_apply(p_order bigint, p_refunded numeric, p_by uuid)
 returns json
 language plpgsql
@@ -1194,8 +1196,9 @@ security definer
 set search_path = public
 as $$
 declare
-  o     public.key_orders%rowtype;
-  v_un  integer;
+  o        public.key_orders%rowtype;
+  v_un     integer := 0;
+  v_status text;
 begin
   select * into o from public.key_orders where id = p_order;
   if not found or o.status <> 'paid' then
@@ -1208,17 +1211,19 @@ begin
   select * into o from public.key_orders where id = p_order for update;
   if o.refunded_at is not null then
     update public.key_orders
-       set refunded_amount = greatest(refunded_amount, least(coalesce(p_refunded, 0), amount))
+       set refunded_amount = greatest(refunded_amount, least(greatest(coalesce(p_refunded, 0), 0), amount))
      where id = o.id;
-    return json_build_object('status', 'already');
+    v_status := 'already';
+  else
+    v_un := public.key_order_unused(o.id);
+    if v_un > 0 and o.user_id is not null then
+      insert into public.key_ledger (user_id, kind, delta, order_id, created_by) values (o.user_id, 'refund', -v_un, o.id, p_by);
+    end if;
+    update public.key_orders
+       set refunded_at = now(), refunded_amount = least(greatest(coalesce(p_refunded, o.amount), 0), o.amount)
+     where id = o.id;
+    v_status := 'refunded';
   end if;
-  v_un := public.key_order_unused(o.id);
-  if v_un > 0 and o.user_id is not null then
-    insert into public.key_ledger (user_id, kind, delta, order_id, created_by) values (o.user_id, 'refund', -v_un, o.id, p_by);
-  end if;
-  update public.key_orders
-     set refunded_at = now(), refunded_amount = least(greatest(coalesce(p_refunded, o.amount), 0), o.amount)
-   where id = o.id;
 
   -- الدراهم اللي تحسبت في Premium رجعت (استرداد من البوابة، اعتراض…): تفعيل Premium بالرصيد كامل اللي ما بقاش
   -- مغطّى يتنحّى. شراء Premium بالباقي (checkout) يبان "غير مغطّى" في الأدمن والقرار ليه.
@@ -1233,7 +1238,7 @@ begin
        where id = o.user_id and payment_provider = 'keys' and plan_type = 'lifetime' and premium_until is null;
     end if;
   end if;
-  return json_build_object('status', 'refunded', 'removed', v_un);
+  return json_build_object('status', v_status, 'removed', v_un);
 end;
 $$;
 
@@ -1345,6 +1350,11 @@ begin
   if p_keys is null or p_keys < 2 or p_keys > 50 or p_dzd is null or p_dzd < 50 or p_dzd > 1000000
      or p_usd is null or p_usd < 0.5 or p_usd > 100000 then
     raise exception 'invalid pack' using errcode = '22023';
+  end if;
+  -- باقة مفاتيح ما تفوتش سعر Premium (الرصيد يغطي Premium كامل بطلب واحد → استرداد على مراحل كان يخلّي Premium)
+  if exists (select 1 from public.pricing_settings ps where ps.id = 1
+              and (p_dzd >= least(ps.launch_price_dzd, ps.regular_price_dzd) or p_usd >= least(ps.launch_price_usd, ps.regular_price_usd))) then
+    raise exception 'pack price must stay below Premium' using errcode = '22023';
   end if;
   update public.key_packs
      set keys = p_keys, price_dzd = p_dzd, price_usd = round(p_usd, 2), is_active = coalesce(p_active, true),

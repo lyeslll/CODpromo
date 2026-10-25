@@ -64,8 +64,11 @@ Deno.serve(async (req) => {
     }
     // مفاتيح: حتى الاسترداد الجزئي (PARTIALLY_REFUNDED) ينحّي المفاتيح اللي ما تستعملوش من هاد الطلب
     if (capture?.status === "REFUNDED" || capture?.status === "REVERSED" || capture?.status === "PARTIALLY_REFUNDED") {
+      // المجموع المسترد لحد الآن (total_refunded_amount في الاسترداد) — ماشي مبلغ هاد الاسترداد برك:
+      // زوج استردادات جزئية = المجموع، وإعادة نفس الحدث ما تزيدش (idempotent)
       const full = capture?.status !== "PARTIALLY_REFUNDED";
-      const refunded = full ? Number(capture?.amount?.value) : Number(event?.resource?.amount?.value);
+      const total = event?.resource?.seller_payable_breakdown?.total_refunded_amount?.value ?? event?.resource?.amount?.value;
+      const refunded = full ? Number(capture?.amount?.value) : Number(total);
       await keysRefundGateway(adminClient(), "paypal", captureId, Number.isFinite(refunded) ? refunded : 0);
     }
     return json({ received: true });

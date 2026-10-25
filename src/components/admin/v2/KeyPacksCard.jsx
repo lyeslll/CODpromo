@@ -51,7 +51,7 @@ export default function KeyPacksCard({ notify }) {
       fill(await saveKeyPack(f));
       notify("success", t("keys.packSaved"));
     } catch (e) {
-      notify("error", e.message);
+      notify("error", /below Premium/.test(e.message || "") ? t("keys.packAbovePremium") : e.message);
     } finally {
       setSaving(null);
     }

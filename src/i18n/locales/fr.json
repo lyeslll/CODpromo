@@ -1437,7 +1437,8 @@
         "packNoteTest": "Le prix de test (ci-dessus) s’applique aussi aux clés : même montant pour chaque pack pour ce compte, enregistré comme test.",
         "packNoteLimit": "On ne vend jamais plus de clés que de codes encore verrouillés sur le compte.",
         "creditUnbacked": "Non couvert",
-        "creditUnbackedHint": "Des clés comptées dans cet achat ont été remboursées. Vous pouvez retirer Premium depuis la liste des ventes si besoin."
+        "creditUnbackedHint": "Des clés comptées dans cet achat ont été remboursées. Vous pouvez retirer Premium depuis la liste des ventes si besoin.",
+        "packAbovePremium": "Le prix du pack doit rester inférieur au prix de Premium."
       }
     }
   },

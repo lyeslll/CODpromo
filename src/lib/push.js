@@ -113,10 +113,11 @@ export async function enablePush({ lang, userId, welcome } = {}) {
 export async function disablePush() {
   const sub = await currentSubscription();
   if (sub) {
-    const endpoint = sub.endpoint;
+    // الـ endpoint + سرّ auth تاع الجهاز: غير الجهاز نفسو يقدر يطفي اشتراكو
+    const { endpoint, keys } = sub.toJSON();
     await sub.unsubscribe().catch(() => {});
     try {
-      await supabase.rpc("push_unsubscribe", { p_endpoint: endpoint });
+      await supabase.rpc("push_unsubscribe_device", { p_endpoint: endpoint, p_auth: keys?.auth || "" });
     } catch {
       /* الجهاز توقّف محلياً؛ القاعدة توقّفو وحدها كي يرجع 410 */
     }

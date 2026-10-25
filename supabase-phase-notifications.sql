@@ -523,15 +523,23 @@ begin
 
   select * into v_row from public.push_subscriptions s where s.endpoint = p_endpoint for update;
   if found then
-    -- نفس الجهاز: نحدّثو المفاتيح واللغة. حساب مسجّل = يولّي تاعو (الـ endpoint سرّ الجهاز).
+    -- نفس الجهاز = نفس المفاتيح (المتصفّح ما يبدّلهمش لنفس الاشتراك). اللي يعرف الـ endpoint برك
+    -- (بلا المفاتيح) ما يقدرش يربطو بحسابو ولا يبدّل مفاتيحو (هجوم مستقل، 25 أكتوبر 2026).
+    if v_row.p256dh <> p_p256dh or v_row.auth <> p_auth then
+      return json_build_object('status', 'invalid');
+    end if;
+    -- حساب مسجّل على نفس الجهاز = يولّي تاعو؛ زائر = يبقى كيما راه
     update public.push_subscriptions
-       set p256dh = p_p256dh, auth = p_auth, lang = v_lang, active = true, fail_count = 0,
-           user_id = coalesce(v_uid, v_row.user_id), updated_at = now()
+       set lang = v_lang, active = true, fail_count = 0, user_id = coalesce(v_uid, v_row.user_id), updated_at = now()
      where id = v_row.id;
     return json_build_object('status', 'ok');
   end if;
 
   v_ip := public.free_key_ip_hash();
+  -- زائر بلا عنوان IP (ماشي طلب عادي عبر Cloudflare) = بلا حدّ لكل IP → مرفوض
+  if v_uid is null and v_ip is null then
+    return json_build_object('status', 'rate_limited');
+  end if;
   if v_uid is not null and (select count(*) from public.push_subscriptions s
                              where s.user_id = v_uid and s.created_at > now() - interval '1 day') >= 10 then
     return json_build_object('status', 'rate_limited');
@@ -540,8 +548,10 @@ begin
                             where s.ip_hash = v_ip and s.created_at > now() - interval '1 hour') >= 10 then
     return json_build_object('status', 'rate_limited');
   end if;
-  -- حماية عامة (روبوتات بعناوين كثيرة): 300 جهاز جديد في 10 دقائق كأقصى
-  if (select count(*) from public.push_subscriptions s where s.created_at > now() - interval '10 minutes') >= 300 then
+  -- حماية عامة (روبوتات بعناوين كثيرة): 500 جهاز زائر جديد في 10 دقائق كأقصى. الحسابات ما يتحسبوش هنا
+  -- (عندهم حدّهم): هكذا اللي يعمّر الحدّ ما يبلوكيش المسجّلين.
+  if v_uid is null and (select count(*) from public.push_subscriptions s
+                         where s.user_id is null and s.created_at > now() - interval '10 minutes') >= 500 then
     return json_build_object('status', 'rate_limited');
   end if;
 
@@ -551,8 +561,8 @@ begin
 end;
 $$;
 
--- إلغاء الاشتراك: اللي عندو الـ endpoint (الجهاز نفسو) برك يعرفو
-create or replace function public.push_unsubscribe(p_endpoint text)
+-- إلغاء الاشتراك: الجهاز نفسو برك (الـ endpoint + سرّ auth تاعو). اللي يعرف الـ endpoint برك ما يطفيش جهاز غيرو.
+create or replace function public.push_unsubscribe_device(p_endpoint text, p_auth text)
 returns json
 language plpgsql
 volatile
@@ -564,10 +574,18 @@ begin
     raise exception 'read_only' using errcode = '25006';
   end if;
   update public.push_subscriptions set active = false, updated_at = now()
-   where endpoint = p_endpoint and active;
+   where endpoint = p_endpoint and auth = p_auth and active;
   return json_build_object('status', 'ok');
 end;
 $$;
+
+-- النسخة الأولى push_unsubscribe(endpoint) — بلا السرّ — ما بقاتش تتنادى من المتصفّح (REVOKE، بلا حذف)
+do $$
+begin
+  if to_regprocedure('public.push_unsubscribe(text)') is not null then
+    revoke all on function public.push_unsubscribe(text) from public, anon, authenticated;
+  end if;
+end $$;
 
 -- ===================== 7) Web Push: الإرسال (cron + send-push) =====================
 create or replace function public.push_dispatch_due()
@@ -766,6 +784,10 @@ begin
   if p_kind is null or p_kind not in ('company', 'code', 'premium_code', 'deal', 'feature', 'announcement') then
     return json_build_object('status', 'invalid');
   end if;
+  -- فوق CHECK الجدول: بلا ' ولا ` في الرابط (حتى بلاصة تقبلهم)
+  if coalesce(p_url, '') ~ '[''`]' then
+    return json_build_object('status', 'invalid');
+  end if;
   if p_kind in ('company', 'code', 'premium_code') then
     if p_company_id is null or not exists (select 1 from public.companies c where c.id = p_company_id) then
       return json_build_object('status', 'invalid');
@@ -811,6 +833,9 @@ set search_path = public
 as $$
 begin
   perform public.admin_assert();
+  if coalesce(p_url, '') ~ '[''`]' then
+    return json_build_object('status', 'invalid');
+  end if;
   update public.notifications
      set title = nullif(btrim(p_title), ''), title_en = nullif(btrim(p_title_en), ''), title_fr = nullif(btrim(p_title_fr), ''),
          body = nullif(btrim(p_body), ''), body_en = nullif(btrim(p_body_en), ''), body_fr = nullif(btrim(p_body_fr), ''),
@@ -948,8 +973,8 @@ revoke all on function public.notifications_feed(integer, timestamptz, boolean) 
 grant execute on function public.notifications_feed(integer, timestamptz, boolean) to anon, authenticated;
 revoke all on function public.push_subscribe(text, text, text, text) from public;
 grant execute on function public.push_subscribe(text, text, text, text) to anon, authenticated;
-revoke all on function public.push_unsubscribe(text) from public;
-grant execute on function public.push_unsubscribe(text) to anon, authenticated;
+revoke all on function public.push_unsubscribe_device(text, text) from public;
+grant execute on function public.push_unsubscribe_device(text, text) to anon, authenticated;
 
 revoke all on function public.notifications_mark_read(bigint[]) from public, anon;
 grant execute on function public.notifications_mark_read(bigint[]) to authenticated;

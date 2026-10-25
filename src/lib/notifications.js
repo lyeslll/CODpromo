@@ -36,7 +36,7 @@ export function localizePath(path, lang) {
 
 /** رابط داخلي برك (نفس CHECK القاعدة) — أي حاجة أخرى = /new. */
 export function safePath(url) {
-  return typeof url === "string" && /^\/([^/\\]|$)/.test(url) && !/[\s\\<>"]/.test(url) ? url : "/new";
+  return typeof url === "string" && /^\/([^/\\]|$)/.test(url) && !/[\s\\<>"'`]/.test(url) ? url : "/new";
 }
 
 const pick = (row, field, lang) => ((lang !== "ar" && row?.[`${field}_${lang}`]?.trim()) || row?.[field]?.trim() || "");

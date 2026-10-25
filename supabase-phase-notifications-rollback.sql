@@ -17,6 +17,7 @@ drop function if exists public.my_notification_prefs();
 drop function if exists public.set_notification_prefs(text, uuid[]);
 drop function if exists public.push_subscribe(text, text, text, text);
 drop function if exists public.push_unsubscribe(text);
+drop function if exists public.push_unsubscribe_device(text, text);
 drop function if exists public.push_dispatch_due();
 drop function if exists public.push_batch_claim(bigint);
 drop function if exists public.push_batch_targets(bigint, bigint, integer);

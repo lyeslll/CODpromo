@@ -44,6 +44,15 @@ export const revokeCreditUpgrade = (id) => rpc("admin_revoke_credit_upgrade", { 
 /** إلغاء حجز دفع Premium بالرصيد اللي ما كملش (الفاتورة القديمة ما تعطيش Premium): 'voided' | 'completed' | 'not_found' */
 export const voidCreditCheckout = (id) => rpc("admin_void_credit_checkout", { p_id: id });
 
+/**
+ * تنبيهات /admin/sales (phase38): { open: [{ id, kind: refund_needed | uncovered, note, provider, amount, currency,
+ * at, email, payment_ref, amount_due, credit }], granted: [{ id, provider, amount, currency, at, email }] }
+ */
+export const fetchCreditAlerts = () => rpc("admin_credit_alerts");
+
+/** action: refunded | grant | keep → 'refunded' | 'granted' | 'kept' | 'has_premium' | 'amount' | 'failed' | 'not_found' */
+export const resolveCreditAlert = (id, action) => rpc("admin_credit_alert_resolve", { p_id: id, p_action: action });
+
 /** { packs: [{ id, keys, price_dzd, price_usd, play_product_id, is_active, position, updated_at }], pricing } */
 export const fetchAdminKeyPacks = () => rpc("admin_key_packs");
 

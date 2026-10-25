@@ -4,7 +4,7 @@
 //  (والمبلغ والعملة مطابقين للطلب المحفوظ) يسجّل الشراء ويفعّل Premium مدى الحياة.
 //  الالتقاط بمفتاحنا السري هو المصدر الموثوق. الاسترداد → paypal-webhook.
 // ============================================================
-import { adminClient, authUser, corsHeaders, json } from "../_shared/lifetime.ts";
+import { adminClient, authUser, corsHeaders, isTier, json } from "../_shared/lifetime.ts";
 import {
   PAYPAL_BASE,
   activateOrder,
@@ -32,6 +32,9 @@ Deno.serve(async (req) => {
       .eq("order_id", String(order_id))
       .maybeSingle();
     if (!order || order.user_id !== user.id) return json({ error: "not found" }, 404);
+
+    // طلب بلا tier (اشتراك قديم، ولا دفع Premium بالرصيد تلغى — phase38): ما نلتقطوش → ما يتخصم حتى سنتيم
+    if (!isTier((order as OrderRow).tier)) return json({ completed: false, lifetime: false, reason: "cancelled" });
 
     // التقط الدفع
     const token = await getAccessToken();

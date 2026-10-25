@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
 import { Mail } from "lucide-react";
 
 import { useLocale } from "../lib/locale.jsx";
@@ -17,6 +18,7 @@ import Seo from "../components/Seo.jsx";
 //  رابط واحد بلا بادئة لغة (كيما /privacy)؛ المحتوى يتبدّل حسب اللغة المختارة.
 //  "مدى الحياة" = كل الأكواد الحالية والجديدة ما دامت المنصّة تعمل، بلا ضمان لكود ولا شركة معيّنة.
 //  الاسترداد: خلال 7 أيام من الشراء إذا ما كشفش حتى كود Premium. السعر من pricing_settings.
+//  المفاتيح الماسية (#keys، phase37): داخل التطبيق بلا سطر الخصم من Premium (ما يبان حتى ذكر للرصيد).
 // ============================================================
 const CONTACT_EMAIL = "support@codpromo.com";
 
@@ -25,13 +27,20 @@ export default function Terms() {
   const { lang } = useLocale();
   const pricing = usePricing();
   // داخل تطبيق Android: طرق الدفع = Google Play برك (ممنوع نذكرو البوابات الأخرى في التطبيق)
-  const inApp = useAndroidApp() === "app";
+  const appMode = useAndroidApp();
+  const inApp = appMode === "app";
+  const { hash, key } = useLocation();
 
+  // /terms#keys (نافذة شراء المفاتيح) ولا #refund → القسم بعد ما تظهر الصفحة (كيما روابط # في الرئيسية)
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    const id = hash?.slice(1);
+    if (!id) return;
+    const tmr = setTimeout(() => document.getElementById(id)?.scrollIntoView({ block: "start" }), 150);
+    return () => clearTimeout(tmr);
+  }, [hash, key]);
 
-  const updated = new Date("2026-10-24").toLocaleDateString(lang === "ar" ? "ar" : lang === "fr" ? "fr-FR" : "en-US", {
+  const updated = new Date("2026-10-25").toLocaleDateString(lang === "ar" ? "ar" : lang === "fr" ? "fr-FR" : "en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -46,11 +55,19 @@ export default function Terms() {
       })
     : t("terms.s3Desc");
 
+  const keysItems = t("terms.keysItems", { returnObjects: true, email: CONTACT_EMAIL });
   const sections = [
     { title: "terms.s1Title", desc: t("terms.s1Desc") },
     { title: "terms.s2Title", desc: t("terms.s2Desc") },
     { title: "terms.s3Title", desc: priceDesc },
-    { title: "terms.s4Title", desc: t("terms.s4Desc"), items: "terms.s4Items" },
+    { title: "terms.s4Title", desc: t("terms.s4Desc"), items: "terms.s4Items", id: "refund" },
+    {
+      title: "terms.keysTitle",
+      desc: t("terms.keysDesc"),
+      // الخصم من Premium = الموقع برك (حتى وقت الفحص "checking" ما يبانش)
+      list: Array.isArray(keysItems) ? (appMode === "web" ? [...keysItems, t("terms.keysCredit")] : keysItems) : null,
+      id: "keys",
+    },
     { title: "terms.s5Title", desc: t(inApp ? "terms.s5DescApp" : "terms.s5Desc") },
   ];
 
@@ -68,10 +85,10 @@ export default function Terms() {
         <p className="mb-10 text-[15px] leading-relaxed text-[var(--text-soft)]">{t("terms.intro")}</p>
 
         <div className="flex flex-col gap-9">
-          {sections.map(({ title, desc, items }) => {
-            const list = items ? t(items, { returnObjects: true, email: CONTACT_EMAIL }) : null;
+          {sections.map(({ title, desc, items, list: given, id }) => {
+            const list = given || (items ? t(items, { returnObjects: true, email: CONTACT_EMAIL }) : null);
             return (
-              <section key={title} id={title === "terms.s4Title" ? "refund" : undefined} className="scroll-mt-28">
+              <section key={title} id={id} className="scroll-mt-28">
                 <h2 className="mb-3 text-[19px] font-black tracking-tight text-[var(--text)]">
                   <span className="me-2 text-[#f0c63c]">#</span>
                   {t(title)}

@@ -18,7 +18,8 @@
 --     المخفية، وأعمدة Premium ممنوعة على anon (phase28) → حتى خطأ في الكود ما يخرّجش كود Premium.
 --  4) feed_clicks + offers_feed_click(id, src): النقرة تتسجّل من متصفّح الزائر (cf-connecting-ip تاع
 --     Cloudflare، نفس بصمة deal_clicks): زائر واحد = نقرة وحدة في اليوم لكل عرض ولكل مصدر. src من قائمة
---     ثابتة (ilyesderradji | other). GET مرفوض. 5000 نقرة في اليوم لكل عرض كحدّ.
+--     ثابتة (ilyesderradji | other). GET مرفوض، Origin = codpromo.com برك (صفحة /go/)، 5000 نقرة في اليوم
+--     لكل عرض كحدّ.
 --  5) partner_feed_clicks() (لوحة الشريك: شركاتو برك) و admin_feed_clicks(company) (الأدمين).
 --
 --  حوايج جداد برك: عمودين + جدول + دوال جداد (حتى دالة قديمة ما تبدّلت). بلا DROP / DELETE / TRUNCATE.
@@ -163,7 +164,8 @@ create index if not exists feed_clicks_company_day on public.feed_clicks (compan
 alter table public.feed_clicks enable row level security;
 revoke all on public.feed_clicks from anon, authenticated;
 
---  {counted: true} = نقرة جديدة اليوم لهاد الزائر. id ماشي في الملف / بلا IP / الحدّ → {counted: false}.
+--  {counted: true} = نقرة جديدة اليوم لهاد الزائر. id ماشي في الملف / Origin ماشي codpromo.com / بلا IP /
+--  الحدّ → {counted: false}.
 create or replace function public.offers_feed_click(p_id text, p_src text default null)
 returns json
 language plpgsql
@@ -200,12 +202,19 @@ begin
     return json_build_object('counted', false);
   end if;
 
-  -- الزائر بعنوان IP كما يراه Cloudflare (cf-connecting-ip، ما يتزوّرش) — نفس nocode_go
   begin
     v_hdr := nullif(current_setting('request.headers', true), '')::json;
   exception when others then
     v_hdr := null;
   end;
+  -- النقرة تتحسب غير من صفحة /go/ تاعنا (المتصفّح يبعث Origin = codpromo.com): موقع آخر ما يقدرش
+  -- يخلّي متصفّحات زوارو يبعثو نقرات مزوّرة (المراجعة المستقلة). client بلا متصفّح يقدر يزوّر Origin،
+  -- بصح يبقى محدود بنقرة وحدة لكل IP في اليوم.
+  if lower(coalesce(v_hdr ->> 'origin', '')) not in ('https://codpromo.com', 'https://www.codpromo.com') then
+    return json_build_object('counted', false);
+  end if;
+
+  -- الزائر بعنوان IP كما يراه Cloudflare (cf-connecting-ip، ما يتزوّرش) — نفس nocode_go
   v_ip := nullif(btrim(v_hdr ->> 'cf-connecting-ip'), '');
   if v_ip is null then
     v_ip := nullif(btrim(regexp_replace(coalesce(v_hdr ->> 'x-forwarded-for', ''), '^.*,', '')), '');

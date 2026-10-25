@@ -81,6 +81,16 @@ ok("checker: uuid", tampered((f) => (f.offers[0].brand = "00000000-0000-4000-800
 ok("checker: schema", tampered((f) => (f.schema = "codpromo.offers.v2")));
 ok("checker: expired", tampered((f) => (f.offers[0].ends_at = "2020-01-01T00:00:00Z")));
 ok("checker: html title", tampered((f) => (f.offers[0].title_ar = "<b>خصم</b>")));
+// عرض فيه أثر سرّ يتنحّى وحدو (الباقي يخرج)؛ كلمات عادية في اسم شركة ما تطيّحش الملف
+const mixed = buildFeed([
+  good,
+  { ...good, feed_id: "leak-a--2", brand_slug: "leak-a", name: "Contact ali@example.org" },
+  { ...good, feed_id: "leak-b--3", brand_slug: "leak-b", discount: "00000000-0000-4000-8000-000000000001" },
+  { ...good, feed_id: "leak-c--4", brand_slug: "leak-c", name: "eyJhbGciOiJIUzI1NiJ9" },
+  { ...good, feed_id: "notes--5", brand_slug: "notes", name: "Notes Status Email" },
+]);
+ok("leaky offers dropped", mixed.offers.map((o) => o.id).join(",") === "spybox--22,notes--5", mixed.offers.map((o) => o.id).join(","));
+ok("leak-free body passes", checkFeed(feedBody(mixed)).length === 0, checkFeed(feedBody(mixed)).join("; "));
 
 // نصوص /go/ = ar.json بالحرف
 const ar = JSON.parse(fs.readFileSync(path.join(ROOT, "src/i18n/locales/ar.json"), "utf8"));
@@ -212,6 +222,43 @@ if (live) {
   ok("unknown page = SPA (NotFound)", nf.status === 200 && nfBody.includes('id="root"'), `status ${nf.status}`);
   const youcan = await fetch(`${base}/go/youcan`, { redirect: "manual" });
   ok("/go/youcan = SPA (GoPage)", (await youcan.text()).includes('id="root"'));
+}
+
+// ===================== الدالة مع سطور خبيثة (fetch مزوّر): العرض الخبيث يتنحّى، والقاعدة طاحت → 503 =====================
+if (!live) {
+  const { default: feedHandler } = await import("../api/offers-feed.js");
+  const realFetch = globalThis.fetch;
+  const run = async (rowsOrError) => {
+    globalThis.fetch = async () => {
+      if (rowsOrError instanceof Error) throw rowsOrError;
+      return new Response(JSON.stringify(rowsOrError), { status: 200, headers: { "Content-Type": "application/json" } });
+    };
+    const headers = {};
+    let status = 0;
+    let body = "";
+    const quiet = console.error;
+    console.error = () => {};
+    try {
+      await feedHandler({ method: "GET", headers: {} }, {
+        setHeader: (k, v) => (headers[k.toLowerCase()] = String(v)),
+        set statusCode(v) { status = v; },
+        get statusCode() { return status; },
+        end: (b) => (body = b == null ? "" : String(b)),
+      });
+    } finally {
+      console.error = quiet;
+      globalThis.fetch = realFetch;
+    }
+    return { status, headers, body };
+  };
+  const hostile = await run([
+    good,
+    { ...good, feed_id: "x--9", brand_slug: "x", name: "<script>alert(1)</script>ali@example.org", premium_code: "SECRET", premium_url: "https://p.example" },
+  ]);
+  ok("handler hostile → 200", hostile.status === 200, `status ${hostile.status}`);
+  ok("handler hostile offer dropped", JSON.parse(hostile.body || "{}").count === 1 && !hostile.body.includes("SECRET") && !hostile.body.includes("@"));
+  const down = await run(new Error("supabase down"));
+  ok("handler db down → 503 no-store", down.status === 503 && /no-store/.test(down.headers["cache-control"] || ""), `status ${down.status}`);
 }
 
 // ===================== النتيجة =====================

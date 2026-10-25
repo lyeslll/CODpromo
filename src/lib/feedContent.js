@@ -166,13 +166,13 @@ export function buildOffer(r) {
   };
 }
 
-/** الملف كامل (≤ 500 عرض، بلا id مكرّر). */
+/** الملف كامل (≤ 500 عرض، بلا id مكرّر). عرض فيه أثر سرّ (leakProblems) يتنحّى وحدو، والباقي يخرج. */
 export function buildFeed(rows, now = new Date()) {
   const seen = new Set();
   const offers = [];
   for (const r of rows || []) {
     const o = buildOffer(r);
-    if (!o || seen.has(o.id)) continue;
+    if (!o || seen.has(o.id) || leakProblems(JSON.stringify(o)).length) continue;
     seen.add(o.id);
     offers.push(o);
     if (offers.length >= FEED_MAX_OFFERS) break;
@@ -202,14 +202,25 @@ export function feedBody(feed) {
 
 // ===================== الفحص (نفس قواعد القارئ تاع ilyesderradji.com + حماية زايدة) =====================
 const isDate = (v) => typeof v === "string" && !Number.isNaN(Date.parse(v));
-// كلمات ما لازمش تبان أبداً في الملف (أعمدة داخلية، أعضاء، مفاتيح)
-const FORBIDDEN = [
-  "premium_code", "premium_url", "premium_discount", "premium_description", "premium_coming_soon",
-  "coming_soon", "website_url", "whatsapp", "contact_", "commission", "affiliate_", "notes", "email",
-  "user_id", "visitor", "clicks", "status", "ilyes_visible", "apikey", "sb_publishable", "service_role",
-  "/rest/v1", "/rpc/", "partner-logos", "@",
+// نصوص ما لازمش تبان أبداً في الملف، لا في المفاتيح لا في القيم (أعمدة داخلية، مفاتيح، روابط الـ API).
+// كلمات عادية (status، notes، email…) ماشي هنا: المفاتيح عندها قائمة بيضاء، واسم شركة يقدر يكون فيه.
+const LEAK_TOKENS = [
+  "premium_code", "premium_url", "premium_discount", "premium_description", "coming_soon",
+  "website_url", "whatsapp", "contact_", "affiliate_", "user_id", "ilyes_visible",
+  "apikey", "sb_publishable", "service_role", "/rest/v1", "/rpc/", "partner-logos",
 ];
 const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+
+/** أثر سرّ في نص (عرض وحدو ولا الملف كامل): كلمة داخلية، بريد (@)، مفتاح JWT (eyJ)، معرّف حساب (UUID). */
+export function leakProblems(text) {
+  const s = String(text);
+  const low = s.toLowerCase();
+  const out = LEAK_TOKENS.filter((w) => low.includes(w)).map((w) => `forbidden text "${w}"`);
+  if (s.includes("@")) out.push('forbidden text "@"');
+  if (s.includes("eyJ")) out.push('forbidden text "eyJ"');
+  if (UUID_RE.test(s)) out.push("a UUID (account id?) in the feed");
+  return out;
+}
 
 /**
  * يفحص نص الملف (body) حسب العقد ويرجّع قائمة المشاكل (فارغة = صالح).
@@ -236,11 +247,7 @@ export function checkFeed(body, opts = {}) {
   if (!Array.isArray(data.offers)) return [...problems, "offers is not a list"];
   if (data.offers.length > FEED_MAX_OFFERS) bad(`offers ${data.offers.length} > 500`);
   if (data.count !== data.offers.length) bad("count != offers.length");
-  const low = body.toLowerCase();
-  for (const w of FORBIDDEN) if (low.includes(w.toLowerCase())) bad(`forbidden text "${w}"`);
-  // مفتاح JWT (يبدا بـ eyJ) ولا معرّف حساب (UUID)
-  if (body.includes("eyJ")) bad('forbidden text "eyJ"');
-  if (UUID_RE.test(body)) bad("a UUID (account id?) in the feed");
+  for (const p of leakProblems(body)) bad(p);
   const ids = new Set();
   data.offers.forEach((o, i) => {
     const at = `offer ${i} (${o?.id})`;

@@ -5,9 +5,10 @@
 //  أعمدة Premium ممنوعة عليه أصلاً)، و src/lib/feedContent.js يكتب الشكل حسب العقد.
 //  Cache: ساعة للقارئ (max-age=3600 كيما العقد)، و 15 دقيقة في الـ CDN (s-maxage) → عرض يتبدّل يبان
 //  في أقل من ساعة. خطأ → 503 بلا cache (القارئ يخلّي آخر نسخة صالحة عندو).
+//  قبل ما يخرج، نفس الفحص تاع التجربة (checkFeed: العقد + بلا أي أثر سرّ): ملف ما يحترمش → 503 تاني.
 // ============================================================
 import { createHash } from "node:crypto";
-import { buildFeed, feedBody } from "../src/lib/feedContent.js";
+import { buildFeed, feedBody, checkFeed } from "../src/lib/feedContent.js";
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || "https://uulcgvdsqivgkiulurhk.supabase.co";
 const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || "sb_publishable_kxiLaS2RxTEeZA6TrJQR_w_ws8twFBt";
@@ -33,6 +34,9 @@ export default async function handler(req, res) {
     if (!Array.isArray(rows)) throw new Error("rows");
 
     const body = feedBody(buildFeed(rows));
+    // الحماية الأخيرة (المراجعة المستقلة): نفس قواعد القارئ + بلا بريد / UUID / مفتاح / عمود داخلي
+    const problems = checkFeed(body);
+    if (problems.length) throw new Error(`feed check: ${problems.slice(0, 5).join("; ")}`);
     const etag = `"${createHash("sha256").update(body).digest("hex").slice(0, 32)}"`;
     const headers = {
       "Content-Type": "application/json; charset=utf-8",
@@ -44,7 +48,9 @@ export default async function handler(req, res) {
     const match = String(req.headers["if-none-match"] || "").split(",").map((s) => s.trim().replace(/^W\//, ""));
     if (match.includes(etag)) return send(res, 304, headers, null);
     return send(res, 200, headers, body, req.method === "HEAD");
-  } catch {
+  } catch (e) {
+    // سجلّ Vercel برك (الرسالة فيها أسباب الفحص والمعرّفات، بلا قيم سرّية)
+    console.error("offers-feed:", e?.message || e);
     return send(
       res,
       503,

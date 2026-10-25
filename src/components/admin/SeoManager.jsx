@@ -107,7 +107,7 @@ export default function SeoManager({ companies, onUpdated, notify }) {
             onClose={() => setEditing(null)}
             onSaved={(patch, faqCount) => {
               onUpdated?.(patch);
-              setFaqCounts((m) => ({ ...m, [patch.id]: faqCount }));
+              if (faqCount != null) setFaqCounts((m) => ({ ...m, [patch.id]: faqCount }));
               setEditing(null);
             }}
             notify={notify}
@@ -213,13 +213,19 @@ function SeoEditor({ company, onClose, onSaved, notify }) {
   });
   const [faqs, setFaqs] = useState([]);
   const [loadingFaqs, setLoadingFaqs] = useState(true);
+  // الأسئلة ما تجابتش (خطأ): ما تبانش وما تتحفظش — saveCompanyFaqs يمسح الكل ويعاود يكتب القائمة
+  const [faqsFailed, setFaqsFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [translating, setTranslating] = useState(false);
 
   useEffect(() => {
+    setFaqsFailed(false);
     fetchCompanyFaqs(company.id)
       .then((rows) => setFaqs(rows.map((r) => ({ ...r }))))
-      .catch(() => setFaqs([]))
+      .catch(() => {
+        setFaqs([]);
+        setFaqsFailed(true);
+      })
       .finally(() => setLoadingFaqs(false));
   }, [company.id]);
 
@@ -292,8 +298,10 @@ function SeoEditor({ company, onClose, onSaved, notify }) {
       const patch = { ...form, slug };
       const updated = await updateCompanyRaw(company.id, patch);
       const cleanFaqs = faqs.filter((f) => (f.question || "").trim() && (f.answer || "").trim());
-      await saveCompanyFaqs(company.id, cleanFaqs);
-      onSaved?.({ ...company, ...updated, ...patch }, cleanFaqs.length);
+      // الأسئلة ما تجابتش (ولا مازالت تتجاب) → ما نلمسوهمش: القائمة الفارغة كانت تمسح المحفوظ
+      const faqsLoaded = !loadingFaqs && !faqsFailed;
+      if (faqsLoaded) await saveCompanyFaqs(company.id, cleanFaqs);
+      onSaved?.({ ...company, ...updated, ...patch }, faqsLoaded ? cleanFaqs.length : null);
       notify?.("success", "تم حفظ بيانات SEO");
     } catch (e) {
       notify?.("error", e.message);
@@ -355,12 +363,16 @@ function SeoEditor({ company, onClose, onSaved, notify }) {
           <div>
             <div className="mb-2 flex items-center justify-between">
               <span className="text-[12.5px] font-bold text-[#c9c9cf]">الأسئلة الشائعة (FAQ)</span>
-              <button onClick={addFaq} className="flex items-center gap-1.5 rounded-lg border border-[var(--color-ink-line)] px-2.5 py-1.5 text-[12.5px] font-bold text-[var(--color-lime)] transition-colors hover:bg-[var(--color-lime)]/10">
-                <Plus size={14} /> إضافة سؤال
-              </button>
+              {!faqsFailed && (
+                <button onClick={addFaq} className="flex items-center gap-1.5 rounded-lg border border-[var(--color-ink-line)] px-2.5 py-1.5 text-[12.5px] font-bold text-[var(--color-lime)] transition-colors hover:bg-[var(--color-lime)]/10">
+                  <Plus size={14} /> إضافة سؤال
+                </button>
+              )}
             </div>
             {loadingFaqs ? (
               <div className="flex items-center gap-2 py-3 text-[13px] text-[var(--color-mute)]"><Loader2 size={14} className="animate-spin" /> جارٍ التحميل…</div>
+            ) : faqsFailed ? (
+              <p role="alert" className="rounded-xl border border-dashed border-[var(--color-ink-line)] p-3 text-center text-[12.5px] text-[var(--color-mute)]">{tAr("admin.v2.common.loadFailed")}</p>
             ) : faqs.length === 0 ? (
               <p className="rounded-xl border border-dashed border-[var(--color-ink-line)] p-3 text-center text-[12.5px] text-[var(--color-mute)]">لا أسئلة بعد — أضف سؤالاً.</p>
             ) : (

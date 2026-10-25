@@ -846,7 +846,7 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
   const startSoon = isNew && sp.get("soon") === "1";
   const company = isNew ? null : companies.find((c) => String(c.id) === id);
   // كود/رابط Premium + المعلومات الداخلية: تُجلب خادمياً (غير موجودة في الجلب العام)
-  const [extra, setExtra] = useState(isNew ? { premiumLoaded: true, pageLoaded: true, feedLoaded: true, priv: null } : null);
+  const [extra, setExtra] = useState(isNew ? { premiumLoaded: true, privLoaded: true, pageLoaded: true, feedLoaded: true, priv: null } : null);
 
   useEffect(() => {
     if (isNew || !company) return;
@@ -854,15 +854,17 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
     setExtra(null);
     Promise.all([
       getPremiumCode(company.id).then((d) => ({ ok: true, d }), () => ({ ok: false })),
-      fetchCompanyPrivate(company.id).catch(() => null),
+      // المعلومات الداخلية: بلا سطر = null (عادي)؛ خطأ = ما تجابتش → القسم ما يبانش وما يتحفظش (ما نمسحوش المحفوظ)
+      fetchCompanyPrivate(company.id).then((d) => ({ ok: true, d }), () => ({ ok: false })),
       fetchCompanyPageFields(company.id).then((d) => ({ ok: true, d }), () => ({ ok: false })),
       // ilyesderradji.com: الخانات + النقرات (phase offers-feed)
       fetchCompanyFeedFields(company.id).then((d) => ({ ok: true, d }), () => ({ ok: false })),
       fetchAdminFeedClicks(company.id).catch(() => null),
-    ]).then(([pc, priv, page, feed, feedStats]) => {
+    ]).then(([pc, pv, page, feed, feedStats]) => {
       if (!active) return;
       setExtra({
-        premiumLoaded: pc.ok, premium_code: pc.d?.premium_code || "", premium_url: pc.d?.premium_url || "", priv,
+        premiumLoaded: pc.ok, premium_code: pc.d?.premium_code || "", premium_url: pc.d?.premium_url || "",
+        privLoaded: pv.ok, priv: pv.d || null,
         pageLoaded: page.ok, page: page.d || {},
         feedLoaded: feed.ok, feed: feed.d || {}, feedStats,
       });
@@ -899,6 +901,8 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
           <Skeleton className="h-[420px] w-full rounded-[20px]" />
         </div>
       ) : (
+        <>
+        {!extra.privLoaded && <PrivateLoadFailed />}
         <CompanyOfferForm
           key={company?.id || (startSoon ? "new-soon" : "new")}
           lang="ar"
@@ -906,7 +910,7 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
           privateInitial={extra.priv}
           categories={categories}
           submitting={submitting}
-          showPrivate
+          showPrivate={extra.privLoaded}
           freeRevealSwitch
           pageFields
           ilyesFields
@@ -935,8 +939,20 @@ function CompanyEditorPage({ companies, loading, categories, submitting, onSave,
             onSave(isNew ? null : company.id, payload, priv);
           }}
         />
+        </>
       )}
     </>
+  );
+}
+
+/** المعلومات الداخلية ما تجابتش (خطأ): القسم مخفي وما يتحفظش — الحفظ ما يمسحش المحفوظ في company_private. */
+function PrivateLoadFailed() {
+  const { i18n } = useTranslation();
+  const t = useMemo(() => i18n.getFixedT("ar"), [i18n]);
+  return (
+    <p role="alert" className="mb-4 flex items-start gap-2.5 rounded-xl border border-[#fbbf24]/40 bg-[#fbbf24]/[0.08] px-3.5 py-3 text-[13px] font-bold leading-relaxed text-[#fde68a]">
+      <AlertCircle size={17} className="mt-0.5 shrink-0" /> {t("offerForm.s.private")}: {t("admin.v2.common.loadFailed")}
+    </p>
   );
 }
 
@@ -947,12 +963,18 @@ function RequestReviewPage({ requests, loading, categories, submitting, onPublis
   const tc = useMemo(() => i18n.getFixedT("ar", null, "admin.v2"), [i18n]);
   const req = requests.find((r) => String(r.id) === id);
   const [existingPrivate, setExistingPrivate] = useState(undefined);
+  const [privFailed, setPrivFailed] = useState(false);
 
   // طلب تعديل: نكمّل المعلومات الداخلية المحفوظة (قيم الطلب تتقدّم إن وُجدت)
   useEffect(() => {
     if (!req) return;
+    setPrivFailed(false);
     if (!(req.request_type === "edit" && req.company_id)) return setExistingPrivate(null);
-    fetchCompanyPrivate(req.company_id).then(setExistingPrivate, () => setExistingPrivate(null));
+    fetchCompanyPrivate(req.company_id).then(setExistingPrivate, () => {
+      // ما تجابتش (خطأ): القسم مخفي وما يتحفظش — النشر ما يمسحش الملاحظات والنسبة المحفوظة
+      setPrivFailed(true);
+      setExistingPrivate(null);
+    });
   }, [req?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const back = (
@@ -1010,6 +1032,7 @@ function RequestReviewPage({ requests, loading, categories, submitting, onPublis
         sub={req.request_type === "edit" ? tc("req.reviewEditSub", { id: req.company_id }) : tc("req.reviewSub")}
         actions={back}
       />
+      {privFailed && <PrivateLoadFailed />}
       <CompanyOfferForm
         key={`req-${req.id}`}
         lang="ar"
@@ -1017,7 +1040,7 @@ function RequestReviewPage({ requests, loading, categories, submitting, onPublis
         privateInitial={privateInitial}
         categories={categories}
         submitting={submitting}
-        showPrivate
+        showPrivate={!privFailed}
         // طلب تعديل: الفورم ما فيهش نصوص الصفحة المحفوظة → ما نبعثوهمش (ما نمسحوهمش)
         pageFields={req.request_type !== "edit"}
         draftKey={`req-${req.id}`}

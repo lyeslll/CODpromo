@@ -342,6 +342,7 @@ git add -A && git commit -m "وصف التعديل" && git push
 - الأرقام والمستخدمون من دوال خادمية (phase23، `src/lib/adminStats.js`): `admin_overview(range)`، `admin_list_users(...)` (الإيميل وآخر دخول وطريقة الدخول من `auth.users`)، `admin_user_copies(user)` — كلها SECURITY DEFINER وتبدأ بـ `admin_assert()`.
 - فورم الشركة مكوّن مستقل `src/components/offer-form/CompanyOfferForm.jsx` (لإعادة الاستعمال في بوابة الشركات) بمعاينة حية عبر `CompanyCard`. المعلومات الداخلية في جدول `company_private` (RLS للأدمن فقط) — ممنوع تخزين أي كلمة سر فيه. رابط الموقع الرسمي محفوظ فيه (`website_url`) لأن جدول `companies` ما فيهش عمود له.
 - نصوص اللوحة في `admin.v2.*` و `offerForm.*` (ar/en/fr)، وتتعرض بالعربية الثابتة.
+- **قاعدة الحفظ: اللي ما تجابش ما يتحفظش** (حتى ما نكتبوش قيمة فارغة فوق المحفوظ): فورم الشركة — كود Premium، نصوص الصفحة، خانات ilyesderradji.com ما يتبعثوش (`premiumLoaded` / `pageLoaded` / `feedLoaded`)، والمعلومات الداخلية (`privLoaded`): خطأ = القسم (مع رابط الموقع الرسمي) مخفي + تنبيه "معلومات داخلية: تعذّر تحميل البيانات" وما تتحفظش — نفس الشي في مراجعة طلب التعديل (`privFailed`)؛ SEO — الأسئلة الشائعة: خطأ = "تعذّر تحميل البيانات" بلا "إضافة سؤال"، وخطأ ولا مازالت تتحمّل = `saveCompanyFaqs` (يمسح الكل ويعاود يكتب) ما يتنادىش. "بلا سطر" عادي (`maybeSingle` = null، قائمة فارغة) ماشي خطأ. التجربة: `node audit-tools/admin-load-guard.mjs <dist | https://codpromo.com> <shots>` (7 حالات: الفورم، SEO، مراجعة الطلب — جلسة وهمية، الكتابة موقوفة).
 
 **الأمان**
 - S1 (phase15): `profiles.is_admin` + دالة `is_admin()`.

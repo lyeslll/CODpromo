@@ -3,7 +3,7 @@ import { useAuth } from "./auth.jsx";
 import { usePremium } from "./premium.jsx";
 import { usePricing } from "./pricing.jsx";
 import { useAndroidApp } from "./androidApp.js";
-import { demoKeys, fetchDiamondCode, fetchMyKeys, keysDemoOn, spendDiamondKey, syncKeysOrders } from "./keys.js";
+import { demoKeys, fetchDiamondCode, fetchMyKeys, keysDemoOn, KEYS_DEMO, spendDiamondKey, syncKeysOrders } from "./keys.js";
 
 const KeysContext = createContext({
   status: "loading",
@@ -40,7 +40,9 @@ export function KeysProvider({ children }) {
   const pricing = usePricing();
   const appMode = useAndroidApp();
   const uid = user?.id || null;
-  const [demo] = useState(keysDemoOn);
+  const [demoFlag] = useState(keysDemoOn);
+  // build الإنتاج: KEYS_DEMO = false → المعاينة كاملة تتنحّى من الحزمة
+  const demo = KEYS_DEMO && demoFlag;
 
   const [mine, setMine] = useState(null);
   const [mineFor, setMineFor] = useState(null);
@@ -121,7 +123,8 @@ export function KeysProvider({ children }) {
   const loadCode = useCallback(
     async (companyId) => {
       if (codes[companyId]) return codes[companyId];
-      if (demo) return null;
+      // المعاينة: كود تجريبي (الحقيقي ما يتقراش بلا مفتاح في القاعدة)
+      if (demo) return { premium_code: "DEMO-KEY", premium_url: null };
       let d = null;
       try {
         d = await fetchDiamondCode(companyId);

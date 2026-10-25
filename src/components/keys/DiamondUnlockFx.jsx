@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { DiamondKey } from "./DiamondKey.jsx";
 import "./keys.css";
@@ -10,12 +10,12 @@ const METAL_BG = {
     "repeating-linear-gradient(115deg, #c6cbd4 0px, #aab0ba 6px, #d4d9e1 12px, #9aa0aa 18px), linear-gradient(135deg, #c2c7d0, #9aa0aa 40%, #d6dbe3 60%, #8f95a0)",
   backgroundBlendMode: "overlay",
 };
-const DURATION = 1.15;
+const DURATION_MS = 1250;
 
 /**
  * المفتاح الماسي يفتح الكود (فوق خانة الكود في البطاقة، قبل الخدش): المفتاح يدخل للثقب، يدور (ضغط عمودي
- * يبان كيما دوران)، حلقة ضوء جليدية، والغطاء المعدني يتنحّى على بطاقة الخدش الكاينة. transform / opacity برك
- * (خفيف في الهاتف، بلا filter)؛ prefers-reduced-motion → مباشرة للخدش.
+ * يبان كيما دوران)، حلقة ضوء جليدية، والغطاء المعدني يتنحّى على بطاقة الخدش الكاينة.
+ * CSS keyframes برك (transform / opacity، بلا filter) — خفيف في الهاتف؛ prefers-reduced-motion → مباشرة للخدش.
  */
 export default function DiamondUnlockFx({ onDone }) {
   const { i18n } = useTranslation();
@@ -29,39 +29,22 @@ export default function DiamondUnlockFx({ onDone }) {
       doneRef.current?.();
       return;
     }
-    const id = setTimeout(() => doneRef.current?.(), DURATION * 1000 + 60);
+    const id = setTimeout(() => doneRef.current?.(), DURATION_MS + 50);
     return () => clearTimeout(id);
   }, [reduce]);
 
   if (reduce) return null;
-  // في العربية رأس المفتاح يشير لليسار → يدخل من اليمين (والعكس في en / fr)
-  const from = ltr ? "-115%" : "115%";
+  // في العربية رأس المفتاح يشير لليسار → يدخل من اليمين (والعكس في en / fr)؛ الرأس يوقف على الثقب
   return (
-    <motion.div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-xl"
-      style={METAL_BG}
-      initial={{ opacity: 1 }}
-      animate={{ opacity: [1, 1, 0] }}
-      transition={{ duration: DURATION, times: [0, 0.78, 1], ease: "easeOut" }}
-    >
-      {/* ثقب القفل */}
+    <div aria-hidden className="dk-fx pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-xl" style={{ ...METAL_BG, "--dk-ms": `${DURATION_MS}ms` }}>
       <span className="absolute left-1/2 top-1/2 h-[13px] w-[13px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#2f333a]" />
-      <motion.span
-        className="dk-flash"
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: [0, 0, 3.4], opacity: [0, 1, 0] }}
-        transition={{ duration: DURATION, times: [0, 0.55, 0.85], ease: "easeOut" }}
-      />
-      <motion.div
-        className="absolute left-1/2 top-1/2 w-[96px]"
-        style={{ marginLeft: ltr ? -84 : -12, marginTop: -18 }}
-        initial={{ x: from, opacity: 0, scaleY: 1 }}
-        animate={{ x: [from, "0%", "0%", "0%"], opacity: [0, 1, 1, 0], scaleY: [1, 1, 0.22, 1], rotate: [0, 0, ltr ? 10 : -10, 0] }}
-        transition={{ duration: DURATION, times: [0, 0.38, 0.58, 0.82], ease: [0.16, 1, 0.3, 1] }}
+      <span className="dk-flash" />
+      <div
+        className="dk-key absolute top-1/2 w-[96px]"
+        style={{ left: ltr ? "calc(50% - 89px)" : "calc(50% - 7px)", marginTop: -18, "--dk-from": ltr ? "-120%" : "120%", "--dk-rot": ltr ? "10deg" : "-10deg", "--dk-origin": ltr ? "92% 50%" : "8% 50%" }}
       >
         <DiamondKey sparkle flip={ltr} className="h-auto w-full drop-shadow-[0_4px_10px_rgba(80,110,200,0.45)]" />
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }

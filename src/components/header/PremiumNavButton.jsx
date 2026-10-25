@@ -12,7 +12,7 @@ const GOLD_BG = "linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e)";
  * للمشترك (ومول الهدية) يتحوّل إلى شارة ذهبية "عضو Premium" تفتح عروض Premium.
  * compact: نسخة الهاتف الصغيرة. أزرار (لا روابط) حتى لا تمسّها قواعد وضع التطبيق على روابط الهيدر.
  */
-export default function PremiumNavButton({ onOpen, compact = false }) {
+export default function PremiumNavButton({ onOpen, compact = false, iconOnly = false }) {
   const { t, i18n } = useTranslation();
   const { hasPremium, isLifetime } = usePremium();
   // حساب الأدمن: Premium مدى الحياة
@@ -20,7 +20,8 @@ export default function PremiumNavButton({ onOpen, compact = false }) {
   const navigate = useNavigate();
   const size = compact ? "h-9 gap-1 rounded-xl px-2 text-[12.5px] max-[369px]:px-2.5" : "gap-1.5 rounded-xl px-3 py-2 text-[13.5px] xl:px-3.5";
   // الهواتف الضيّقة (< 370px) لا تتّسع للشعار والنص معاً: التاج وحده ظاهر، والنص يبقى لقارئ الشاشة
-  const label = compact ? "relative max-[369px]:sr-only" : "relative";
+  // iconOnly (الهاتف + عدّاد المفاتيح جنبو): التاج وحدو باش سطر الشعار ما يتقسمش والهيدر ما يكبرش
+  const label = compact ? (iconOnly ? "sr-only" : "relative max-[369px]:sr-only") : "relative";
 
   if (hasPremium) {
     return (

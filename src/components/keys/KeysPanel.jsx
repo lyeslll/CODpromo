@@ -59,13 +59,13 @@ export default function KeysPanel() {
               {formatNumber(keys.balance, lang)}
             </p>
             <p className="mt-1 text-[12.5px] font-bold text-[var(--text-softer)]">{t("keys.count", { count: keys.balance })}</p>
+            {keys.demo && <span className="mt-1.5 inline-block rounded-full border border-white/20 px-2 py-0.5 text-[10.5px] font-black text-[var(--text-soft)]">{t("keys.demo")}</span>}
           </div>
         </div>
-        {keys.demo && <span className="absolute end-3 top-3 rounded-full border border-white/20 px-2 py-0.5 text-[10.5px] font-black text-[var(--text-soft)]">{t("keys.demo")}</span>}
       </div>
 
       {/* المفتاح الذهبي */}
-      {fk.status !== "off" && fk.status !== "hidden" && fk.status !== "loading" && (
+      {(fk.status === "available" || fk.status === "used") && (
         <div className="mt-2.5 flex items-center gap-3 rounded-2xl border border-[#f0c63c]/25 bg-[#f0c63c]/[0.05] px-3.5 py-3">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl" style={{ background: fk.status === "available" ? GOLD_BG : "rgba(240,198,60,0.12)" }}>
             <Key size={16} className={fk.status === "available" ? "text-[#1d1403]" : "text-[#f0c63c]"} />

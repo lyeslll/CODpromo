@@ -12,10 +12,11 @@ import { useKeys } from "../../lib/keysContext.jsx";
 const GOLD_BG = "linear-gradient(135deg, #ffe486, #f0c63c 55%, #cf9a1e)";
 
 /**
- * كود مقفول وما عندوش مفاتيح ماسية: يختار — المفتاح الذهبي (إذا مازال عندو)، ولا شراء مفاتيح، ولا Premium.
+ * كود مقفول وما عندوش مفاتيح ماسية: يختار — المفتاح الذهبي (إذا مازال عندو؛ الزائر: سجّل وخذو)، ولا شراء مفاتيح،
+ * ولا Premium.
  * كل خيار يبيّن واش يربح (العادي ← Premium). السعر الأدنى للمفاتيح من القاعدة (my_key_packs).
  */
-export default function KeyChooser({ open, company, normal, premium, golden, onGolden, onBuy, onPremium, onClose }) {
+export default function KeyChooser({ open, company, normal, premium, golden, guest = false, onGolden, onBuy, onPremium, onClose }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const pricing = usePricing();
@@ -81,8 +82,8 @@ export default function KeyChooser({ open, company, normal, premium, golden, onG
             onClick={onGolden}
             bg={GOLD_BG}
             icon={<Key size={19} className="text-[#1d1403]" />}
-            title={t("keys.chooser.golden")}
-            desc={t("keys.chooser.goldenDesc")}
+            title={guest ? t("keys.chooser.goldenGuest") : t("keys.chooser.golden")}
+            desc={guest ? t("keys.chooser.goldenGuestDesc") : t("keys.chooser.goldenDesc")}
           />
         )}
         <Option

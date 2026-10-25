@@ -12,7 +12,7 @@ const GOLD = "#f0c63c";
 /**
  * عدّاد المفاتيح في الهيدر (الذهبي + الماسي): نفس ارتفاع زر Premium (h-9) — الهيدر ما يكبرش.
  * الضغط يحلّ لوحة الرصيد والتاريخ والشراء (KeysPanel). يبان للحساب العادي ومول الهدية برك؛ Premium
- * (مدفوع / Stork / أدمن) والزائر: والو. compact (الهاتف): تحت 370px الماسي وحدو.
+ * (مدفوع / Stork / أدمن) والزائر: والو. compact (الهاتف): مربّع 36px.
  */
 export default function KeysCounter({ compact = false }) {
   const { t, i18n } = useTranslation();
@@ -25,6 +25,32 @@ export default function KeysCounter({ compact = false }) {
     count: keys.balance,
     golden: golden == null ? t("keys.counter.goldenOff") : golden ? t("keys.counter.goldenOn") : t("keys.counter.goldenUsed"),
   });
+
+  // الهاتف: مربّع 36px (نفس زر القائمة) — الجوهرة + العدد في شارة صغيرة + نقطة ذهبية كي المفتاح الذهبي متاح.
+  // بلا هاد الشكل، سطر الشعار (خاصة بالفرنسية) يتقسم والهيدر يكبر. تحت 350px: يتخبّى (اللوحة من قائمة الهاتف).
+  if (compact) {
+    return (
+      <button
+        type="button"
+        onClick={keys.openPanel}
+        aria-label={label}
+        title={label}
+        aria-haspopup="dialog"
+        className="relative grid h-9 w-9 shrink-0 place-items-center rounded-xl border transition-colors hover:bg-white/[0.06] max-[349px]:hidden"
+        style={{ borderColor: `${DIA_DEEP}66`, background: "linear-gradient(120deg, rgba(169,205,255,0.12), rgba(169,205,255,0.03))" }}
+      >
+        <DiamondGlyph size={19} />
+        <span
+          aria-hidden
+          className="absolute -end-1.5 -top-1.5 z-[2] min-w-[18px] rounded-full px-1 text-center text-[10.5px] font-black leading-[18px] tabular-nums"
+          style={{ background: "linear-gradient(135deg, #f4fbff, #a9cdff)", color: "#0b1430", boxShadow: "0 0 0 2px var(--color-ink)" }}
+        >
+          {formatNumber(keys.balance, lang)}
+        </span>
+        {golden === 1 && <span aria-hidden className="absolute -bottom-1 -end-1 z-[2] h-2.5 w-2.5 rounded-full" style={{ background: GOLD, boxShadow: "0 0 0 2px var(--color-ink)" }} />}
+      </button>
+    );
+  }
 
   return (
     <button

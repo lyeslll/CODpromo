@@ -120,6 +120,12 @@ export default function PremiumPage({ lang = "ar" }) {
   const heroCtaOn = useOnScreen(heroCtaRef, !member);
   const priceCtaOn = useOnScreen(priceCtaRef, !member);
   const finalOn = useOnScreen(finalRef, !member);
+  // قسم المفاتيح الماسية قدّامك: الشريط العائم تاع Premium يتخبّى (كان يغطّي زر الباقة)
+  const keysRef = useRef(null);
+  useEffect(() => {
+    keysRef.current = document.getElementById("keys");
+  });
+  const keysOn = useOnScreen(keysRef, !member);
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 320);
@@ -127,7 +133,7 @@ export default function PremiumPage({ lang = "ar" }) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-  const stickyVisible = !member && scrolled && !heroCtaOn && !priceCtaOn && !finalOn && modal === null;
+  const stickyVisible = !member && scrolled && !heroCtaOn && !priceCtaOn && !finalOn && !keysOn && modal === null;
 
   // داخل التطبيق برك (نفس كشف androidApp.js): البيانات المخفية بلا سؤال طرق الدفع — حتى اللي حطّها الخادم
   // (api/prerender.js، فيها جواب الويب). Google وزوار المتصفح يلقاوها كاملة.

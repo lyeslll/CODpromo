@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Crown, LayoutDashboard, Loader2, LogIn, LockOpen, RefreshCw, XCircle } from "lucide-react";
@@ -40,7 +40,6 @@ export default function KeysReturn() {
   const [count, setCount] = useState(null);
   const [fire, setFire] = useState(0);
   const [round, setRound] = useState(0);
-  const ran = useRef(-1);
   const demo = KEYS_DEMO ? params.get("demo") : null;
   const refreshKeys = keys.refresh;
 
@@ -50,15 +49,13 @@ export default function KeysReturn() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [demo]);
 
+  // كل تشغيل يتلغى في التنظيف ويعاود من الأول (التأكيد عند الخادم idempotent)
   useEffect(() => {
-    if (ran.current === round) return;
     if (params.get("cancel")) {
-      ran.current = round;
       setState("cancel");
       return;
     }
     if (demo) {
-      ran.current = round;
       setState("checking");
       const id = setTimeout(() => {
         if (demo === "pending") return setState("pending");
@@ -69,7 +66,6 @@ export default function KeysReturn() {
       return () => clearTimeout(id);
     }
     if (authLoading) return;
-    ran.current = round;
     if (!user) {
       setState("guest");
       return;

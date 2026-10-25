@@ -2672,7 +2672,9 @@
       "buyLimit": "You already have as many keys as locked codes",
       "premium": "Premium for life",
       "premiumDesc": "Every Premium code, one payment of {{price}}",
-      "premiumDescPlain": "Every Premium code, one payment"
+      "premiumDescPlain": "Every Premium code, one payment",
+      "goldenGuest": "Sign up and get your golden key",
+      "goldenGuestDesc": "Free, no bank card: reveals one Premium code"
     },
     "buy": {
       "title": "Buy diamond keys",

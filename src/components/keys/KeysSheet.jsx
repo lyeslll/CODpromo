@@ -14,7 +14,11 @@ const isPhone = () => typeof window !== "undefined" && window.matchMedia("(max-w
  * الأحداث ما تطلعش للبطاقة ولا لسحب القائمة في /offers (data-no-swipe).
  */
 export default function KeysSheet({ open, onClose, busy = false, labelledBy, title, icon, children, wide = false, z = 116 }) {
-  useBackToClose(open, onClose);
+  // النوافذ تتحمّل lazy وتتركّب مفتوحة: زر الرجوع يتربط غير بعد أول رسم (بلاه، تركيب مزدوج —
+  // StrictMode ولا Suspense — يزيد ويحيّد سطر التاريخ، والـ popstate المتأخّر يسكّر النافذة في الحين)
+  const [armed, setArmed] = useState(false);
+  useEffect(() => setArmed(true), []);
+  useBackToClose(open && armed, onClose);
   const { t, i18n } = useTranslation();
   const [sheet, setSheet] = useState(isPhone);
   const backTo = useRef(null);

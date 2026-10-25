@@ -61,4 +61,34 @@
   border: 2px solid rgba(219, 238, 255, 0.95);
   box-shadow: 0 0 18px rgba(169, 205, 255, 0.9);
   pointer-events: none;
+  opacity: 0;
+}
+
+/* حركة الفتح (DiamondUnlockFx): المفتاح يدخل، يدور، الحلقة، والغطاء يتنحّى — transform / opacity برك */
+.dk-fx {
+  animation: dk-fx-out var(--dk-ms, 1250ms) ease-out both;
+}
+.dk-fx .dk-key {
+  transform-origin: var(--dk-origin, 8% 50%);
+  animation: dk-key-in var(--dk-ms, 1250ms) cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.dk-fx .dk-flash {
+  animation: dk-flash var(--dk-ms, 1250ms) ease-out both;
+}
+@keyframes dk-fx-out {
+  0%, 80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes dk-key-in {
+  0% { transform: translateX(var(--dk-from)); opacity: 0; }
+  12% { opacity: 1; }
+  38% { transform: translateX(0); opacity: 1; }
+  52% { transform: translateX(0) scaleY(0.2) rotate(var(--dk-rot)); }
+  66% { transform: translateX(0) scaleY(1) rotate(0deg); opacity: 1; }
+  82%, 100% { transform: translateX(0) scale(1.06); opacity: 0; }
+}
+@keyframes dk-flash {
+  0%, 56% { transform: scale(0); opacity: 0; }
+  62% { transform: scale(0.6); opacity: 1; }
+  86%, 100% { transform: scale(3.4); opacity: 0; }
 }

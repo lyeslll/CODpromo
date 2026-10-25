@@ -427,7 +427,7 @@ export default function PremiumModal({ open, onClose, initialStep = "home" }) {
                                 <div className="flex items-center justify-between gap-3">
                                   <dt className="font-bold text-[var(--text-soft)]">{t("keys.credit.row")}</dt>
                                   <dd className="font-extrabold text-[#dbeeff]">
-                                    <bdi>−{formatMoney(t, i18n.language, credit.appliedDzd, "DZD")}</bdi>
+                                    <bdi>{formatMoney(t, i18n.language, credit.appliedDzd, "DZD", { minus: true })}</bdi>
                                   </dd>
                                 </div>
                                 <div className="flex items-center justify-between gap-3">

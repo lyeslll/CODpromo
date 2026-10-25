@@ -2672,7 +2672,9 @@
       "buyLimit": "Vous avez déjà autant de clés que de codes verrouillés",
       "premium": "Premium à vie",
       "premiumDesc": "Tous les codes Premium, un seul paiement de {{price}}",
-      "premiumDescPlain": "Tous les codes Premium, un seul paiement"
+      "premiumDescPlain": "Tous les codes Premium, un seul paiement",
+      "goldenGuest": "Inscrivez-vous et recevez votre clé dorée",
+      "goldenGuestDesc": "Gratuit, sans carte bancaire : révèle un code Premium"
     },
     "buy": {
       "title": "Acheter des clés diamant",

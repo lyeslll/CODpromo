@@ -188,10 +188,14 @@ export default function CompanyCard({
 
   // البطاقة المقفولة: زائر → التسجيل (الشركة تتحفظ)، مفاتيح ماسية → التأكيد، حساب بلا مفاتيح → يختار
   // (الذهبي / شراء مفاتيح / Premium)، وإلا كيما قبل (الذهبي ولا نافذة Premium)
+  const toSignup = () => {
+    setPendingFreeKey(company.id, lang);
+    navigate("/signup");
+  };
   const keyAction = () => {
-    if (keyCta === "guest") {
-      setPendingFreeKey(company.id, lang);
-      navigate("/signup");
+    // زائر بلا مفاتيح: يختار (سجّل وخذ المفتاح الذهبي / شراء مفاتيح / Premium)
+    if (keyCta === "guest" && !diaCta) {
+      setChooser(true);
       return;
     }
     if (diaCta) {
@@ -377,7 +381,7 @@ export default function CompanyCard({
               <CardLogo logo={company.logo} bg={company.logo_bg} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
               <div className="min-w-0">
                 <h3 className="truncate text-[17px] font-extrabold text-[var(--text)] transition-colors group-hover/link:text-[var(--accent-text)]">{company.name}</h3>
-                <p className={`mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)] ${premium ? "pe-11" : ""}`}>{category}</p>
+                <p className={`mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)] ${diaOwned ? "pe-[7.25rem]" : premium ? "pe-11" : ""}`}>{category}</p>
               </div>
             </Link>
           ) : (
@@ -385,7 +389,7 @@ export default function CompanyCard({
               <CardLogo logo={company.logo} bg={company.logo_bg} name={company.name} accent={accent} glow={accentGlow} premium={premium} />
               <div className="min-w-0">
                 <h3 className="truncate text-[17px] font-extrabold text-[var(--text)]">{company.name}</h3>
-                <p className={`mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)] ${premium ? "pe-11" : ""}`}>{category}</p>
+                <p className={`mt-0.5 truncate text-[12.5px] font-medium text-[var(--color-mute)] ${diaOwned ? "pe-[7.25rem]" : premium ? "pe-11" : ""}`}>{category}</p>
               </div>
             </div>
           )}
@@ -471,7 +475,7 @@ export default function CompanyCard({
                 accent={accent}
                 onReveal={onScratchReveal}
                 onUnlock={keyAction}
-                lockLabel={diaCta ? t("keys.card.open") : keyCta === "guest" || keyCta === "use" ? t(`freeKey.card.${keyCta}`) : undefined}
+                lockLabel={diaCta ? t("keys.card.open") : !diaOwned && (keyCta === "guest" || keyCta === "use") ? t(`freeKey.card.${keyCta}`) : undefined}
               />
             )}
             {premium && diaFx && keyScratch && (
@@ -527,9 +531,9 @@ export default function CompanyCard({
           diaCta ? (
             // المفتاح الماسي بلاصة زر الزيارة المقفول (نفس الارتفاع 42.25px)
             <DiamondCta label={t("keys.card.open")} count={keys.balance} onClick={() => setDiaDialog(true)} />
-          ) : keyCta ? (
+          ) : keyCta && !diaOwned ? (
             // المفتاح الذهبي بلاصة زر الزيارة المقفول (نفس الارتفاع: الشبكة ما تقفزش)
-            <KeyCta kind={keyCta} label={t(`freeKey.card.${keyCta}`)} onClick={keyCta === "use" ? () => setKeyDialog(true) : keyAction} />
+            <KeyCta kind={keyCta} label={t(`freeKey.card.${keyCta}`)} onClick={keyCta === "use" ? () => setKeyDialog(true) : keyCta === "guest" ? toSignup : keyAction} />
           ) : canSee ? (
             // عضو Premium قبل الخدش: زر فعّال يكشف الكود والرابط (بلا قفل — الكود مفتوح لك)
             <motion.button
@@ -622,10 +626,12 @@ export default function CompanyCard({
           company={company}
           normal={normalValue}
           premium={loc("premium_discount") || loc("discount")}
-          golden={goldenHere}
+          golden={goldenHere || keyCta === "guest"}
+          guest={keyCta === "guest"}
           onGolden={() => {
             setChooser(false);
-            setKeyDialog(true);
+            if (keyCta === "guest") toSignup();
+            else setKeyDialog(true);
           }}
           onBuy={() => {
             setChooser(false);

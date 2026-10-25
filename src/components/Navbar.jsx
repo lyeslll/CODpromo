@@ -12,6 +12,7 @@ import QuickSearch from "./header/QuickSearch.jsx";
 import MobileMenu from "./header/MobileMenu.jsx";
 import AccountMenu from "./header/AccountMenu.jsx";
 import KeysCounter from "./keys/KeysCounter.jsx";
+import { useKeys } from "../lib/keysContext.jsx";
 import { loadHeaderOffers, useHeaderOffers, useHoverMenu, useOffersCount, userDisplay } from "./header/headerData.js";
 import { useAuth } from "../lib/auth.jsx";
 import { useCategories } from "../lib/categories.jsx";
@@ -69,6 +70,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const offersCount = useOffersCount();
+  const keysShown = useKeys().status === "ok";
   const offers = useHeaderOffers(mega.open);
   const cats = activeCategories(categories);
   const counts = offers.length ? countByCategory(offers, cats) : null;
@@ -253,8 +255,14 @@ export default function Navbar() {
             </button>
 
             <LanguageSwitcher />
-            {/* عدّاد المفاتيح (الذهبي + الماسي) — نفس ارتفاع الأزرار، يحلّ لوحة الرصيد */}
-            <KeysCounter />
+            {/* عدّاد المفاتيح (الذهبي + الماسي) — نفس ارتفاع الأزرار، يحلّ لوحة الرصيد. بين 1024 و1280: المربّع
+                الصغير (بلاه، بالفرنسية، سطر الشعار يتقسم والهيدر يكبر) */}
+            <span className="hidden xl:contents">
+              <KeysCounter />
+            </span>
+            <span className="contents xl:hidden">
+              <KeysCounter compact />
+            </span>
             <PremiumNavButton onOpen={openPremium} />
 
             {user ? (
@@ -283,9 +291,9 @@ export default function Navbar() {
           </div>
 
           {/* ===== الهاتف: زر Premium صغير + زر القائمة (يبقى ابناً مباشراً للكبسولة لقواعد وضع التطبيق) ===== */}
-          <div className="me-2 ms-auto flex items-center gap-1.5 lg:hidden">
+          <div className="me-2 ms-auto flex items-center gap-1 lg:hidden">
             <KeysCounter compact />
-            <PremiumNavButton onOpen={openPremium} compact />
+            <PremiumNavButton onOpen={openPremium} compact iconOnly={keysShown} />
           </div>
           <button
             ref={menuBtnRef}

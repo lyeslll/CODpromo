@@ -191,7 +191,7 @@ export default function PurchaseSuccess() {
   const shown = DEMO && demo ? demoPurchase(demo, pricing, params.get("credit") ? 2300 : 0) : purchase;
   const demoCredit = DEMO && demo && params.get("credit") ? { kind: demo === "credit" ? "full" : "checkout", credit: 2300, currency: "DZD" } : null;
   const usedCredit = demoCredit || creditUse;
-  const creditRow = usedCredit ? [[t("keys.credit.row"), `−${formatMoney(t, lang, usedCredit.credit, usedCredit.currency)}`]] : [];
+  const creditRow = usedCredit ? [[t("keys.credit.row"), formatMoney(t, lang, usedCredit.credit, usedCredit.currency, { minus: true })]] : [];
   const rows = usedCredit?.kind === "full"
     ? [
         [t("purchase.plan"), t("purchase.planV")],

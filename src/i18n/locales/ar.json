@@ -2672,7 +2672,9 @@
       "buyLimit": "لديك مفاتيح بعدد الأكواد المقفلة أو أكثر",
       "premium": "Premium مدى الحياة",
       "premiumDesc": "كل أكواد Premium، بدفعة واحدة {{price}}",
-      "premiumDescPlain": "كل أكواد Premium، بدفعة واحدة"
+      "premiumDescPlain": "كل أكواد Premium، بدفعة واحدة",
+      "goldenGuest": "أنشئ حساباً وخذ مفتاحك الذهبي",
+      "goldenGuestDesc": "مجاناً، بلا بطاقة بنكية: يكشف كود Premium واحداً"
     },
     "buy": {
       "title": "شراء مفاتيح ماسية",

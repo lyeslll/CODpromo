@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { Crown, Gift, Megaphone, Sparkles, Store, TicketPercent } from "lucide-react";
+import { Crown, Gift, Hourglass, Megaphone, Sparkles, Store, TicketPercent } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import CompanyLogo from "../CompanyLogo.jsx";
 import BidiText from "../BidiText.jsx";
+import { SOON } from "../coming-soon/tone.js";
 import { getTypeMeta } from "../../lib/types.js";
 import { notificationHref, renderNotification, timeAgo } from "../../lib/notifications.js";
 
@@ -11,9 +12,11 @@ const LIME = "#a6f000";
 // = NOCODE_COLOR في NocodeCard.jsx (ما نستوردوش البطاقة كاملة وحدها في حزمة الجرس)
 const NOCODE_COLOR = "#b794ff";
 
-/** لون وأيقونة النوع — اللون يعني النوع برك: نوع عرض الشركة، الذهبي = Premium، البنفسجي = بلا كود. */
+/** لون وأيقونة النوع — اللون يعني النوع برك: نوع عرض الشركة، الذهبي = Premium، البنفسجي = بلا كود، الوردي = قريباً. */
 export function kindLook(n) {
   switch (n.kind) {
+    case "coming_soon":
+      return { Icon: Hourglass, color: SOON };
     case "company":
       return { Icon: Store, color: getTypeMeta(n.company?.type).color };
     case "code":

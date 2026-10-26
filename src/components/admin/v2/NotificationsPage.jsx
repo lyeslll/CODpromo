@@ -3,6 +3,7 @@ import { Bell, BellRing, Eye, EyeOff, Languages, Loader2, Pencil, Power, Send, S
 import { useTranslation } from "react-i18next";
 import { Glass, PageHeader, Segmented, Skeleton, EmptyState, LIME_BG, fmt, fmtDate, inputCls } from "./ui.jsx";
 import { fetchCompanies, translateCompanyFields } from "../../../lib/supabase.js";
+import { fetchComingSoon, isComingSoon } from "../../../lib/comingSoon.js";
 import { ensureLang } from "../../../i18n/index.js";
 import {
   adminCreateNotification,
@@ -21,11 +22,12 @@ import PushToggle from "../../notifications/PushToggle.jsx";
 // ============================================================
 //  /admin/notifications — الإشعارات (phase "notifications"):
 //  الأرقام (أجهزة push، الدفعات في 24 ساعة، الوضع)، إشعار جديد بقوالب جاهزة (شركة جديدة / كود جديد /
-//  ميزة جديدة / إعلان) + ترجمة تلقائية + معاينة بالثلاث لغات، والقائمة (إخفاء / تعديل النص والرابط).
-//  الأوتوماتيكي (شركة، كود، عرض بلا كود) يتصنع وحدو في القاعدة. كلش عبر RPCs (admin_assert).
+//  قريباً / ميزة جديدة / إعلان) + ترجمة تلقائية + معاينة بالثلاث لغات، والقائمة (إخفاء / تعديل النص والرابط).
+//  الأوتوماتيكي (شركة، كود، عرض بلا كود، بطاقة "قريباً") يتصنع وحدو في القاعدة. كلش عبر RPCs (admin_assert).
+//  "قريباً" (phase soon-notify): بطاقات "قريباً" في القائمة بـ "(قريباً)"، والقالب = الجرس برك (بلا هاتف).
 // ============================================================
 const LANGS = ["ar", "en", "fr"];
-const TEMPLATES = ["company", "code", "feature", "announcement"];
+const TEMPLATES = ["company", "code", "coming_soon", "feature", "announcement"];
 const EMPTY = { title: "", title_en: "", title_fr: "", body: "", body_en: "", body_fr: "", url: "" };
 
 export default function NotificationsPage({ notify }) {
@@ -51,8 +53,11 @@ export default function NotificationsPage({ notify }) {
 
   useEffect(() => {
     reload();
-    fetchCompanies()
-      .then((d) => setCompanies((Array.isArray(d) ? d : []).slice().sort((a, b) => a.name.localeCompare(b.name))))
+    // العروض اللي تخدم + بطاقات "قريباً" (fetchCompanies ما يجيبهمش)
+    Promise.all([fetchCompanies(), fetchComingSoon().catch(() => [])])
+      .then(([live, soon]) =>
+        setCompanies([...(Array.isArray(live) ? live : []), ...(Array.isArray(soon) ? soon : [])].sort((a, b) => a.name.localeCompare(b.name)))
+      )
       .catch(() => setCompanies([]));
     // المعاينة بالإنجليزية والفرنسية تحتاج ملفات اللغة
     Promise.all([ensureLang("en"), ensureLang("fr")]).finally(() => setLangsReady(true));
@@ -203,10 +208,14 @@ function Composer({ t, companies, langsReady, notify, onCreated }) {
   const [showTr, setShowTr] = useState(false);
   const [busy, setBusy] = useState(null);
 
-  const needsCompany = kind === "company" || kind === "code";
-  const company = companies.find((c) => String(c.id) === String(companyId)) || null;
-  const list = companies.filter((c) => !q.trim() || c.name.toLowerCase().includes(q.trim().toLowerCase())).slice(0, 60);
+  const soon = kind === "coming_soon";
+  const needsCompany = kind === "company" || kind === "code" || soon;
+  // قالب "قريباً" = بطاقات "قريباً" برك
+  const pool = soon ? companies.filter(isComingSoon) : companies;
+  const company = pool.find((c) => String(c.id) === String(companyId)) || null;
+  const list = pool.filter((c) => !q.trim() || c.name.toLowerCase().includes(q.trim().toLowerCase())).slice(0, 60);
   const set = (k) => (e) => setF((p) => ({ ...p, [k]: e.target.value }));
+  const sendPush = push && !soon;
 
   // معاينة: نفس شكل الإشعار المنشور
   const draft = {
@@ -216,6 +225,7 @@ function Composer({ t, companies, langsReady, notify, onCreated }) {
     ...f,
     company: needsCompany && company ? company : null,
     deal: null,
+    ...(soon && company ? { soon: { name: company.name, cards: 1 } } : {}),
   };
 
   const translate = async () => {
@@ -249,15 +259,15 @@ function Composer({ t, companies, langsReady, notify, onCreated }) {
     if (url && safePath(url) !== url) return notify?.("error", t("form.badUrl"));
     setBusy("save");
     try {
-      const r = await adminCreateNotification({ kind, companyId: needsCompany ? company.id : null, ...f, url: url || null, push });
+      const r = await adminCreateNotification({ kind, companyId: needsCompany ? company.id : null, ...f, url: url || null, push: sendPush });
       if (r?.status === "ok") {
-        notify?.("success", push ? t("form.okPush") : t("form.ok"));
+        notify?.("success", sendPush ? t("form.okPush") : t("form.ok"));
         setF(EMPTY);
         setCompanyId("");
         setQ("");
         onCreated?.();
       } else {
-        notify?.("error", t(`form.err.${["hidden", "rate_limited"].includes(r?.status) ? r.status : "invalid"}`));
+        notify?.("error", t(`form.err.${["hidden", "rate_limited", "not_soon"].includes(r?.status) ? r.status : "invalid"}`));
       }
     } catch (err) {
       notify?.("error", err.message);
@@ -283,11 +293,11 @@ function Composer({ t, companies, langsReady, notify, onCreated }) {
               <select value={companyId} onChange={(e) => setCompanyId(e.target.value)} className={inputCls} size={Math.min(6, Math.max(2, list.length))}>
                 {list.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.name}
+                    {isComingSoon(c) ? `${c.name} ${t("form.soonSuffix")}` : c.name}
                   </option>
                 ))}
               </select>
-              <p className="text-[11.5px] text-[#6b7280]">{t("form.companyHint")}</p>
+              <p className="text-[11.5px] text-[#6b7280]">{soon ? t("form.soonHint") : t("form.companyHint")}</p>
             </div>
           )}
 
@@ -333,10 +343,16 @@ function Composer({ t, companies, langsReady, notify, onCreated }) {
             </div>
           )}
 
-          <label className="flex items-center gap-2.5 text-[13px] font-bold text-white">
-            <input type="checkbox" checked={push} onChange={(e) => setPush(e.target.checked)} className="h-4 w-4 accent-[var(--color-lime)]" />
-            {t("form.push")}
-          </label>
+          {soon ? (
+            <p className="flex items-center gap-2 text-[12.5px] font-bold" style={{ color: kindLook(draft).color }}>
+              <Bell size={14} /> {t("form.bellOnly")}
+            </p>
+          ) : (
+            <label className="flex items-center gap-2.5 text-[13px] font-bold text-white">
+              <input type="checkbox" checked={push} onChange={(e) => setPush(e.target.checked)} className="h-4 w-4 accent-[var(--color-lime)]" />
+              {t("form.push")}
+            </label>
+          )}
 
           <button
             type="submit"
@@ -382,7 +398,8 @@ function Row({ n, t, busy, onToggle, notify, onSaved }) {
     body: n.body || "",
     body_en: n.body_en || "",
     body_fr: n.body_fr || "",
-    url: n.url && !n.url.startsWith("/store/") && n.url !== "/offers?kind=nocode" ? n.url : "",
+    // الرابط المحسوب (صفحة الشركة، بلا كود، بحث "قريباً") ماشي نص الأدمين
+    url: n.url && !n.url.startsWith("/store/") && n.url !== "/offers?kind=nocode" && !n.url.startsWith("/offers?soon=1&q=") ? n.url : "",
   }));
   const [saving, setSaving] = useState(false);
   const r = render(n, "ar");
@@ -409,7 +426,13 @@ function Row({ n, t, busy, onToggle, notify, onSaved }) {
   };
 
   const pushLabel =
-    n.push_state === "sent" ? t("push.sent", { count: n.push_sent }) : n.push_state === "pending" && !n.push ? t("push.off") : t(`push.${n.push_state}`);
+    n.kind === "coming_soon"
+      ? t("push.bell")
+      : n.push_state === "sent"
+      ? t("push.sent", { count: n.push_sent })
+      : n.push_state === "pending" && !n.push
+      ? t("push.off")
+      : t(`push.${n.push_state}`);
 
   return (
     <li className={`py-3 ${n.is_hidden || !n.visible ? "opacity-55" : ""}`}>

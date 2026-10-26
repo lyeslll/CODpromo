@@ -52,6 +52,16 @@ export function renderNotification(n, t, lang) {
   const name = row?.name?.trim() || "";
   const base = { name, logo: row?.logo || null, logoBg: n.company?.logo_bg || null, kind: n.kind };
   if (n.kind === "feature" || n.kind === "announcement") return { ...base, title: ownTitle, body: ownBody };
+  // "قريباً على CODpromo" (phase soon-notify): الاسم المشترك للبطاقات (soon.name، مثلاً "MDM Express")، الجرس برك
+  if (n.kind === "coming_soon") {
+    const soonName = n.soon?.name?.trim() || name;
+    return {
+      ...base,
+      name: soonName,
+      title: ownTitle || t("notify.kind.coming_soon.title", { name: soonName }),
+      body: ownBody || t("notify.kind.coming_soon.body"),
+    };
+  }
   const offer =
     n.kind === "deal" ? pick(row, "reward", lang) : n.kind === "premium_code" ? pick(row, "premium_discount", lang) : pick(row, "discount", lang);
   // "أعلمني عند التفعيل" (phase coming-soon): صاحب الحساب كان يستنى هاد العرض → "العرض الذي كنت تنتظره هنا"

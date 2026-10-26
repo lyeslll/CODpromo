@@ -1967,6 +1967,10 @@
         "title": "New no-code deal: {{name}}",
         "body": "{{offer}}",
         "bodyNoOffer": "Activate it in one tap on CODpromo"
+      },
+      "coming_soon": {
+        "title": "Coming soon to CODpromo: {{name}}",
+        "body": "Tap “Notify me when it's live” to be one of the first"
       }
     },
     "bell": {
@@ -2060,7 +2064,7 @@
     },
     "admin": {
       "title": "Notifications",
-      "sub": "Created automatically when a company, code or no-code deal is added (hidden companies get none). Here: a new announcement, hiding or editing a notification, and phone notifications.",
+      "sub": "Created automatically when a company, code or no-code deal is added, and when a “coming soon” card is added (bell only). Hidden companies get none. Here: a new announcement, hiding or editing a notification, and phone notifications.",
       "stat": {
         "mode": "Phone notifications",
         "devices": "Subscribed devices",
@@ -2120,6 +2124,9 @@
         "showTr": "English and French",
         "hideTr": "Hide translation",
         "push": "Send a phone notification (after a minute)",
+        "bellOnly": "“Coming soon” shows in the bell only — no phone notification.",
+        "soonSuffix": "(coming soon)",
+        "soonHint": "Visible “coming soon” cards only. The link goes to the card page.",
         "publish": "Publish",
         "preview": "Preview",
         "previewEmpty": "Type the title…",
@@ -2131,14 +2138,16 @@
         "err": {
           "hidden": "This company is hidden: no notification for it.",
           "rate_limited": "Too many notifications in one hour. Try later.",
-          "invalid": "Invalid data."
+          "invalid": "Invalid data.",
+          "not_soon": "This company isn't “coming soon”: pick a “coming soon” card."
         }
       },
       "tpl": {
         "company": "New company",
         "code": "New code",
         "feature": "New site feature",
-        "announcement": "Announcement"
+        "announcement": "Announcement",
+        "coming_soon": "Coming soon"
       },
       "list": {
         "title": "All notifications",
@@ -2159,7 +2168,8 @@
         "premium_code": "Premium code",
         "deal": "No-code deal",
         "feature": "New feature",
-        "announcement": "Announcement"
+        "announcement": "Announcement",
+        "coming_soon": "Coming soon"
       },
       "auto": "Automatic",
       "manual": "Manual",
@@ -2174,7 +2184,8 @@
         "sent_other": "push: {{count}} devices",
         "skipped": "no push",
         "failed": "push failed",
-        "off": "no push"
+        "off": "no push",
+        "bell": "bell only"
       },
       "reads_zero": "No reads",
       "reads_one": "1 read",

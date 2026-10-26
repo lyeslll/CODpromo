@@ -520,7 +520,11 @@ function newsItem(n, lang, t) {
   const own = { title: pick(n, "title"), body: pick(n, "body") };
   let title = own.title;
   let body = own.body;
-  if (n.kind !== "feature" && n.kind !== "announcement") {
+  if (n.kind === "coming_soon") {
+    // "قريباً على CODpromo": الاسم المشترك للبطاقات (soon.name)
+    title = title || t("notify.kind.coming_soon.title", { name: n.soon?.name || row?.name || "" });
+    body = body || t("notify.kind.coming_soon.body");
+  } else if (n.kind !== "feature" && n.kind !== "announcement") {
     const offer = pick(row, n.kind === "deal" ? "reward" : n.kind === "premium_code" ? "premium_discount" : "discount");
     title = title || t(`notify.kind.${n.kind}.title`, { name: row?.name || "" });
     body = body || (offer ? t(`notify.kind.${n.kind}.body`, { offer }) : t(`notify.kind.${n.kind}.bodyNoOffer`));

@@ -148,7 +148,8 @@ as $$
   select n.company_id from public.notifications n where n.id = p_notification and n.company_id is not null;
 $$;
 
--- العرض: البطاقة اللي تبان (أول بطاقة قريبة ظاهرة)، عدد البطاقات القريبة الظاهرة، والاسم المشترك (تاعهم، وإلا تاع الكل)
+-- العرض: البطاقة اللي تبان (أول بطاقة قريبة ظاهرة)، عدد البطاقات القريبة الظاهرة، والاسم = من الظاهرة برك
+-- (المشترك، وإلا اسم أول بطاقة ظاهرة). كي ما تبقى حتى وحدة ظاهرة (الإشعار ما يبانش للعموم، الأدمين برك): من الكل.
 create or replace function public.coming_soon_notice_view(p_notification bigint)
 returns table (card_id bigint, cards integer, name text)
 language sql
@@ -165,9 +166,12 @@ as $$
   )
   select (select m.id from m where m.soon order by m.at, m.id limit 1),
          (select count(*) from m where m.soon)::integer,
-         coalesce(public.coming_soon_common_name((select array_agg(m.name order by m.at, m.id) from m where m.soon)),
-                  public.coming_soon_common_name((select array_agg(m.name order by m.at, m.id) from m)),
-                  (select m.name from m order by m.at, m.id limit 1));
+         case when exists (select 1 from m where m.soon)
+              then coalesce(public.coming_soon_common_name((select array_agg(m.name order by m.at, m.id) from m where m.soon)),
+                            (select m.name from m where m.soon order by m.at, m.id limit 1))
+              else coalesce(public.coming_soon_common_name((select array_agg(m.name order by m.at, m.id) from m)),
+                            (select m.name from m order by m.at, m.id limit 1))
+         end;
 $$;
 
 -- ===================== 3) الإنشاء التلقائي (cron كل دقيقة) =====================

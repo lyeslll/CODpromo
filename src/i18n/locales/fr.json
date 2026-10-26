@@ -1967,6 +1967,10 @@
         "title": "Nouvelle offre sans code : {{name}}",
         "body": "{{offer}}",
         "bodyNoOffer": "Activez-la en un clic sur CODpromo"
+      },
+      "coming_soon": {
+        "title": "Bientôt sur CODpromo : {{name}}",
+        "body": "Touchez « Prévenez-moi au lancement » pour être parmi les premiers"
       }
     },
     "bell": {
@@ -2060,7 +2064,7 @@
     },
     "admin": {
       "title": "Notifications",
-      "sub": "Créées automatiquement à l'ajout d'une entreprise, d'un code ou d'une offre sans code (aucune pour les entreprises masquées). Ici : une nouvelle annonce, masquer ou modifier une notification, et les notifications téléphone.",
+      "sub": "Créées automatiquement à l'ajout d'une entreprise, d'un code ou d'une offre sans code, et à l'ajout d'une carte « Bientôt » (cloche uniquement). Aucune pour les entreprises masquées. Ici : une nouvelle annonce, masquer ou modifier une notification, et les notifications téléphone.",
       "stat": {
         "mode": "Notifications téléphone",
         "devices": "Appareils abonnés",
@@ -2120,6 +2124,9 @@
         "showTr": "Anglais et français",
         "hideTr": "Masquer la traduction",
         "push": "Envoyer une notification téléphone (après une minute)",
+        "bellOnly": "« Bientôt » s'affiche dans la cloche uniquement — sans notification téléphone.",
+        "soonSuffix": "(bientôt)",
+        "soonHint": "Seulement les cartes « Bientôt » visibles. Le lien mène à la page de la carte.",
         "publish": "Publier",
         "preview": "Aperçu",
         "previewEmpty": "Saisissez le titre…",
@@ -2131,14 +2138,16 @@
         "err": {
           "hidden": "Cette entreprise est masquée : pas de notification.",
           "rate_limited": "Trop de notifications en une heure. Réessayez plus tard.",
-          "invalid": "Données invalides."
+          "invalid": "Données invalides.",
+          "not_soon": "Cette entreprise n'est pas « Bientôt » : choisissez une carte « Bientôt »."
         }
       },
       "tpl": {
         "company": "Nouvelle entreprise",
         "code": "Nouveau code",
         "feature": "Nouvelle fonctionnalité",
-        "announcement": "Annonce"
+        "announcement": "Annonce",
+        "coming_soon": "Bientôt"
       },
       "list": {
         "title": "Toutes les notifications",
@@ -2159,7 +2168,8 @@
         "premium_code": "Code Premium",
         "deal": "Offre sans code",
         "feature": "Nouvelle fonctionnalité",
-        "announcement": "Annonce"
+        "announcement": "Annonce",
+        "coming_soon": "Bientôt"
       },
       "auto": "Automatique",
       "manual": "Manuelle",
@@ -2174,7 +2184,8 @@
         "sent_other": "push : {{count}} appareils",
         "skipped": "sans push",
         "failed": "push échoué",
-        "off": "sans push"
+        "off": "sans push",
+        "bell": "cloche uniquement"
       },
       "reads_zero": "Aucune lecture",
       "reads_one": "1 lecture",
